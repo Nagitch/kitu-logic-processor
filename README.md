@@ -1,4 +1,4 @@
-# Kitu Architecture Overview
+# Kitu Logic Processor
 
 This document describes the overall architecture, workflow, and deployment model of **Kitu**, a Rust–Unity hybrid framework for building deterministic, data‑driven games with a strong focus on developer experience.
 
