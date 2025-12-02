@@ -1,0 +1,27 @@
+[workspace]
+members = [
+    "crates/kitu-core",
+    "crates/kitu-ecs",
+    "crates/kitu-osc-ir",
+    "crates/kitu-transport",
+    "crates/kitu-runtime",
+    "crates/kitu-scripting-rhai",
+    "crates/kitu-data-tmd",
+    "crates/kitu-data-sqlite",
+    "crates/kitu-tsq1",
+    "crates/kitu-shell",
+    "crates/kitu-web-admin-backend",
+    "crates/kitu-unity-ffi",
+    "tools/kitu-cli",
+    "tools/kitu-replay-runner",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+authors = ["Kitu Developers <dev@example.com>"]
+publish = false
+
+[workspace.dependencies]
+anyhow = "1"
