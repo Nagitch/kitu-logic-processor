@@ -1,0 +1,25 @@
+{
+  "name": "kitu-logic-processor",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "rustup show && cargo --version",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "usernamehw.errorlens",
+        "eamodio.gitlens",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "rust-analyzer.check.command": "clippy",
+        "rust-analyzer.cargo.allFeatures": true,
+        "rust-analyzer.procMacro.enable": true,
+        "terminal.integrated.defaultProfile.linux": "zsh"
+      }
+    }
+  }
+}
