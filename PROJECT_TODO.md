@@ -1,4 +1,4 @@
-# Projetct TODO
+# Project TODO
 
 Project-wide TODO list for the *kitu-logic-processor* repository.
 This file is maintained by both human contributors and AI assistants.
@@ -16,7 +16,15 @@ This file is maintained by both human contributors and AI assistants.
 
 ## TODO
 
+- [ ] .devcontainer setup
+  - [ ] review and merge
+- [ ] Create initial project directory structure
+  - [ ] review and merge
+- [ ] Additional development environment setup
+  - [ ] review and merge
+
 - [ ] [Codex] something todo
   - [ ] review and merge
 - [x] [Codex] something done
   - [x] review and merge
+
