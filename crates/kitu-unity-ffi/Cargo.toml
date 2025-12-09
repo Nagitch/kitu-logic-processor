@@ -5,3 +5,6 @@ edition = "2021"
 publish = false
 
 [dependencies]
+kitu-core = { path = "../kitu-core" }
+kitu-runtime = { path = "../kitu-runtime" }
+kitu-transport = { path = "../kitu-transport" }
