@@ -1,4 +1,13 @@
 //! SQLite data access layer placeholder.
+//!
+//! # Responsibilities
+//! - Define the SQLite schema helpers and migrations shared by runtime and tooling.
+//! - Expose lightweight query utilities so consumers do not duplicate ad-hoc SQL.
+//! - Remain agnostic to higher-level gameplay logic, focusing only on persistence concerns.
+//!
+//! # Integration
+//! This crate sits beneath data ingestion (`kitu-data-tmd`) and runtime consumers that require a
+//! stable storage layer. See `doc/crates-overview.md` for how data crates connect to the runtime.
 
 use std::collections::HashMap;
 

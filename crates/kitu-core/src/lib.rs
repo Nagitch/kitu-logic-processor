@@ -1,4 +1,14 @@
 //! Core types and utilities shared across the Kitu runtime crates.
+//!
+//! # Responsibilities
+//! - Provide the shared [`KituError`] type and [`Result`] alias used across workspace crates.
+//! - Define tick and timestamp helpers that keep scheduling consistent between runtime and tools.
+//! - Host small, dependency-light utilities that other crates can import without pulling heavy stacks.
+//!
+//! # Integration
+//! This crate underpins the ECS (`kitu-ecs`), transport (`kitu-transport`), timeline (`kitu-tsq1`),
+//! and frontend bindings by centralizing foundational primitives. See `doc/crates-overview.md` for a
+//! workspace map and module responsibilities.
 
 use std::time::Duration;
 

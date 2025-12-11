@@ -1,4 +1,13 @@
 //! Web admin backend skeleton.
+//!
+//! # Responsibilities
+//! - Provide backend primitives (HTTP/WS glue, request/response types) for the web admin UI.
+//! - Mediate between frontend operators and the runtime without embedding gameplay logic here.
+//! - Keep authentication and inspection hooks explicit so production services can harden them.
+//!
+//! # Integration
+//! This crate talks to the runtime and transports to surface state to browsers. For a workspace map,
+//! consult `doc/crates-overview.md`.
 
 use std::collections::HashMap;
 

@@ -1,4 +1,13 @@
 //! Transport abstraction for delivering OSC-IR messages between peers.
+//!
+//! # Responsibilities
+//! - Define the [`Transport`] trait and event model for moving OSC/IR messages around the system.
+//! - Host concrete adapters (e.g., in-memory channels) while staying open to networked transports.
+//! - Keep delivery concerns isolated from gameplay logic and runtime scheduling.
+//!
+//! # Integration
+//! Transports bridge OSC/IR types (`kitu-osc-ir`) with the runtime loop (`kitu-runtime`). See
+//! `doc/crates-overview.md` for adapter expectations and how events flow into ECS systems.
 
 use std::collections::VecDeque;
 

@@ -1,4 +1,13 @@
 //! Thin ECS abstraction used by the runtime.
+//!
+//! # Responsibilities
+//! - Provide a minimal world representation, entity management, and system scheduling hooks.
+//! - Keep ticking deterministic for the runtime while remaining swappable with other ECS backends.
+//! - Offer ergonomic traits for system authors without pulling heavy external dependencies.
+//!
+//! # Integration
+//! The runtime (`kitu-runtime`) drives this crate each tick, and transports surface events that
+//! systems can consume. See `doc/crates-overview.md` for the ECS' place in the overall loop.
 
 use std::collections::{HashMap, VecDeque};
 

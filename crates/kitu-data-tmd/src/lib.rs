@@ -1,4 +1,13 @@
 //! Data ingestion helpers for the TMD format.
+//!
+//! # Responsibilities
+//! - Parse authored TMD content into strongly typed structures ready for validation.
+//! - Keep schema evolution localized so runtime and tools consume a consistent model.
+//! - Provide adapters for loading parsed data into storage or runtime-facing structures.
+//!
+//! # Integration
+//! This crate feeds authored data into persistence (`kitu-data-sqlite`) and runtime layers. Refer to
+//! `doc/crates-overview.md` for how TMD ingestion fits alongside timelines and transports.
 
 use std::collections::HashMap;
 

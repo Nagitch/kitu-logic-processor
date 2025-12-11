@@ -1,4 +1,13 @@
 //! CLI shell skeleton for driving the runtime.
+//!
+//! # Responsibilities
+//! - Provide reusable shell commands and dispatch helpers for local runtime control.
+//! - Surface developer ergonomics such as diagnostics, replay hooks, and script runners.
+//! - Stay thin so higher-level binaries can compose commands without inheriting unrelated deps.
+//!
+//! # Integration
+//! CLI tools can embed this crate to interact with the runtime (`kitu-runtime`) and transports
+//! (`kitu-transport`). For a workspace map, see `doc/crates-overview.md`.
 
 use std::collections::HashMap;
 

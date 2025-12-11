@@ -1,4 +1,14 @@
 //! Tick-based runtime loop orchestrating ECS and transport.
+//!
+//! # Responsibilities
+//! - Advance the simulation tick-by-tick, driving ECS systems and processing transport events.
+//! - Bridge transports, scripting, and timeline playback while keeping determinism at the core.
+//! - Provide configuration hooks (tick rate, logging) that callers can tune per embedding.
+//!
+//! # Integration
+//! This crate glues together ECS (`kitu-ecs`), transports (`kitu-transport`), OSC/IR messages
+//! (`kitu-osc-ir`), and future data or scripting layers. See `doc/crates-overview.md` for how the
+//! runtime coordinates the workspace crates.
 
 use std::time::Duration;
 

@@ -1,4 +1,13 @@
 //! TSQ1 timeline parser and scheduler skeleton.
+//!
+//! # Responsibilities
+//! - Parse TSQ1 text into a structured AST for deterministic playback.
+//! - Provide scheduling helpers that emit OSC/IR events for the runtime loop.
+//! - Keep the timeline model self-contained so tooling and runtime share the same semantics.
+//!
+//! # Integration
+//! Timeline playback produced here can be consumed by transports (`kitu-transport`) and the runtime
+//! (`kitu-runtime`). See `doc/crates-overview.md` for how TSQ1 fits into the execution pipeline.
 
 use std::collections::VecDeque;
 

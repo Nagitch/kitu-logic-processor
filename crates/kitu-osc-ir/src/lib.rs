@@ -1,4 +1,13 @@
 //! OSC-IR message representation used by transports and runtime.
+//!
+//! # Responsibilities
+//! - Define the OSC-inspired intermediate representation exchanged between transports and runtime.
+//! - Stay transport-agnostic so that network, local, or file-based adapters can share the same types.
+//! - Provide utilities for building and inspecting messages without coupling to serialization stacks.
+//!
+//! # Integration
+//! Transport adapters (`kitu-transport`) and timeline playback (`kitu-tsq1`) rely on these types to
+//! describe runtime I/O. See `doc/crates-overview.md` for protocol details and crate relationships.
 
 use std::fmt::Write;
 

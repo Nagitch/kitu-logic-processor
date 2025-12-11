@@ -1,4 +1,13 @@
 //! FFI boundary for embedding the runtime in Unity.
+//!
+//! # Responsibilities
+//! - Expose a C-compatible surface area for Unity callers while preserving Rust-side safety.
+//! - Marshal buffers and event payloads between Unity and the runtime without leaking abstractions.
+//! - Document invariants and threading requirements for embedders.
+//!
+//! # Integration
+//! This crate wraps the runtime (`kitu-runtime`) and transports (`kitu-transport`) behind a
+//! Unity-friendly API. See `doc/crates-overview.md` for how the FFI sits atop the core runtime.
 
 use std::sync::{Arc, Mutex};
 
