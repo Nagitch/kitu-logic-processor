@@ -7,7 +7,9 @@ use kitu_core::{KituError, Result};
 /// Minimal representation of a TMD entry.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TmdEntry {
+    /// Key portion from the `key: value` line.
     pub key: String,
+    /// Value parsed from the input document for the given key.
     pub value: String,
 }
 

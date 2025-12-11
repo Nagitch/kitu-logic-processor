@@ -27,6 +27,17 @@ impl Shell {
     }
 
     /// Executes a command, returning its string response.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use kitu_shell::{EchoCommand, Shell};
+    ///
+    /// let mut shell = Shell::default();
+    /// shell.register_command("echo", EchoCommand);
+    /// let output = shell.run("echo", &["hi".into(), "there".into()]).unwrap();
+    /// assert_eq!(output, "hi there");
+    /// ```
     pub fn run(&self, command: &str, args: &[String]) -> Result<String> {
         let handler = self
             .commands

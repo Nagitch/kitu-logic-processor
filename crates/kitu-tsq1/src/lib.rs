@@ -7,7 +7,9 @@ use kitu_core::{KituError, Result, Tick};
 /// A single timeline step.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TimelineStep {
+    /// Emits the provided marker or event label.
     Emit(String),
+    /// Pauses execution for the specified number of ticks before continuing.
     Wait(u64),
 }
 
@@ -19,6 +21,17 @@ pub struct Timeline {
 
 impl Timeline {
     /// Parses a very small subset of TSQ1 where each line is either `emit:value` or `wait:n`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use kitu_tsq1::{Timeline, TimelineStep};
+    ///
+    /// let script = "emit:start\nwait:1\nemit:end";
+    /// let timeline = Timeline::parse(script).unwrap();
+    /// assert_eq!(timeline.len(), 3);
+    /// assert!(!timeline.is_finished());
+    /// ```
     pub fn parse(script: &str) -> Result<Self> {
         let mut steps = VecDeque::new();
         for line in script.lines() {
@@ -50,6 +63,11 @@ impl Timeline {
     pub fn is_finished(&self) -> bool {
         self.steps.is_empty()
     }
+
+    /// Returns the number of queued steps remaining.
+    pub fn len(&self) -> usize {
+        self.steps.len()
+    }
 }
 
 #[cfg(test)]
@@ -73,6 +91,13 @@ mod tests {
             Some(TimelineStep::Emit("end".into()))
         );
         assert!(timeline.is_finished());
+    }
+
+    #[test]
+    fn len_reports_remaining_steps() {
+        let script = "emit: start\nemit: end";
+        let timeline = Timeline::parse(script).unwrap();
+        assert_eq!(timeline.len(), 2);
     }
 
     #[test]

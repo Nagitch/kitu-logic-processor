@@ -50,6 +50,7 @@ impl EcsWorld {
 /// Example system that simply records that it has run.
 #[derive(Default)]
 pub struct RecordingSystem {
+    /// Map of tick number to how many times the system ran during that tick.
     pub runs: HashMap<u64, usize>,
 }
 

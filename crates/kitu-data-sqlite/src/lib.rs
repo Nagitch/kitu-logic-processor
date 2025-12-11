@@ -7,7 +7,9 @@ use kitu_core::{KituError, Result};
 /// Represents a simplistic table as a list of rows (column -> value).
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Table {
+    /// Identifier for the table, usually the underlying SQLite table name.
     pub name: String,
+    /// Rows stored in insertion order, represented as column-to-value maps.
     pub rows: Vec<HashMap<String, String>>,
 }
 

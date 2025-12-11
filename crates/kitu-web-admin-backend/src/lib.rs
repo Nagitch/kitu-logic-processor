@@ -7,13 +7,16 @@ use kitu_core::{KituError, Result};
 /// Represents a simple HTTP-like request.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Request {
+    /// Path component of the request (e.g. `/health`).
     pub path: String,
 }
 
 /// Represents a simple response structure.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
+    /// Status code returned by the handler.
     pub status: u16,
+    /// Response payload body.
     pub body: String,
 }
 

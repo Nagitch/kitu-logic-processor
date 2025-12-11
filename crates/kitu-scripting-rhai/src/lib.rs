@@ -7,7 +7,9 @@ use kitu_core::{KituError, Result};
 /// Represents a compiled or cached Rhai script (placeholder for now).
 #[derive(Debug, Clone)]
 pub struct Script {
+    /// Symbolic script name used for lookups.
     pub name: String,
+    /// Original source text associated with the script.
     pub source: String,
 }
 
