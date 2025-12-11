@@ -1,4 +1,13 @@
 //! CLI shell skeleton for driving the runtime.
+//!
+//! # Responsibilities
+//! - Provide reusable shell commands and dispatch helpers for local runtime control.
+//! - Surface developer ergonomics such as diagnostics, replay hooks, and script runners.
+//! - Stay thin so higher-level binaries can compose commands without inheriting unrelated deps.
+//!
+//! # Integration
+//! CLI tools can embed this crate to interact with the runtime (`kitu-runtime`) and transports
+//! (`kitu-transport`). For a workspace map, see `doc/crates-overview.md`.
 
 use std::collections::HashMap;
 
@@ -27,6 +36,17 @@ impl Shell {
     }
 
     /// Executes a command, returning its string response.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use kitu_shell::{EchoCommand, Shell};
+    ///
+    /// let mut shell = Shell::default();
+    /// shell.register_command("echo", EchoCommand);
+    /// let output = shell.run("echo", &["hi".into(), "there".into()]).unwrap();
+    /// assert_eq!(output, "hi there");
+    /// ```
     pub fn run(&self, command: &str, args: &[String]) -> Result<String> {
         let handler = self
             .commands

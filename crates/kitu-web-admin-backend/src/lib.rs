@@ -1,4 +1,13 @@
 //! Web admin backend skeleton.
+//!
+//! # Responsibilities
+//! - Provide backend primitives (HTTP/WS glue, request/response types) for the web admin UI.
+//! - Mediate between frontend operators and the runtime without embedding gameplay logic here.
+//! - Keep authentication and inspection hooks explicit so production services can harden them.
+//!
+//! # Integration
+//! This crate talks to the runtime and transports to surface state to browsers. For a workspace map,
+//! consult `doc/crates-overview.md`.
 
 use std::collections::HashMap;
 
@@ -7,13 +16,16 @@ use kitu_core::{KituError, Result};
 /// Represents a simple HTTP-like request.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Request {
+    /// Path component of the request (e.g. `/health`).
     pub path: String,
 }
 
 /// Represents a simple response structure.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
+    /// Status code returned by the handler.
     pub status: u16,
+    /// Response payload body.
     pub body: String,
 }
 

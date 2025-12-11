@@ -1,4 +1,13 @@
 //! SQLite data access layer placeholder.
+//!
+//! # Responsibilities
+//! - Define the SQLite schema helpers and migrations shared by runtime and tooling.
+//! - Expose lightweight query utilities so consumers do not duplicate ad-hoc SQL.
+//! - Remain agnostic to higher-level gameplay logic, focusing only on persistence concerns.
+//!
+//! # Integration
+//! This crate sits beneath data ingestion (`kitu-data-tmd`) and runtime consumers that require a
+//! stable storage layer. See `doc/crates-overview.md` for how data crates connect to the runtime.
 
 use std::collections::HashMap;
 
@@ -7,7 +16,9 @@ use kitu_core::{KituError, Result};
 /// Represents a simplistic table as a list of rows (column -> value).
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Table {
+    /// Identifier for the table, usually the underlying SQLite table name.
     pub name: String,
+    /// Rows stored in insertion order, represented as column-to-value maps.
     pub rows: Vec<HashMap<String, String>>,
 }
 

@@ -1,4 +1,14 @@
 //! Tick-based runtime loop orchestrating ECS and transport.
+//!
+//! # Responsibilities
+//! - Advance the simulation tick-by-tick, driving ECS systems and processing transport events.
+//! - Bridge transports, scripting, and timeline playback while keeping determinism at the core.
+//! - Provide configuration hooks (tick rate, logging) that callers can tune per embedding.
+//!
+//! # Integration
+//! This crate glues together ECS (`kitu-ecs`), transports (`kitu-transport`), OSC/IR messages
+//! (`kitu-osc-ir`), and future data or scripting layers. See `doc/crates-overview.md` for how the
+//! runtime coordinates the workspace crates.
 
 use std::time::Duration;
 
@@ -7,8 +17,15 @@ use kitu_ecs::EcsWorld;
 use kitu_transport::{Transport, TransportEvent};
 
 /// Configuration for the runtime loop.
+///
+/// The configuration controls timing for the scheduler and ECS dispatch.
+/// Most callers will rely on [`default_60hz`](Self::default_60hz), but the
+/// struct is intentionally lightweight so tools can adjust cadence for
+/// profiling or headless simulations.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RuntimeConfig {
+    /// Target tick rate in Hertz. Each tick advances the world by
+    /// `1.0 / tick_rate_hz` seconds.
     pub tick_rate_hz: u32,
 }
 
@@ -34,6 +51,17 @@ pub struct Runtime<T: Transport> {
 
 impl<T: Transport> Runtime<T> {
     /// Creates a new runtime with the given transport and configuration.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use kitu_runtime::{Runtime, RuntimeConfig};
+    /// use kitu_transport::LocalChannel;
+    ///
+    /// let config = RuntimeConfig { tick_rate_hz: 30 };
+    /// let runtime = Runtime::new(config, LocalChannel::connected());
+    /// assert_eq!(runtime.config().tick_rate_hz, 30);
+    /// ```
     pub fn new(config: RuntimeConfig, transport: T) -> Self {
         Self {
             config,
@@ -49,6 +77,22 @@ impl<T: Transport> Runtime<T> {
     }
 
     /// Processes a single tick of the runtime loop.
+    ///
+    /// This dispatches all scheduled ECS systems for the current tick and
+    /// polls the transport for pending events before incrementing the tick
+    /// counter.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use kitu_runtime::build_runtime;
+    /// use kitu_transport::LocalChannel;
+    ///
+    /// let mut runtime = build_runtime(LocalChannel::connected());
+    /// assert_eq!(runtime.current_tick().get(), 0);
+    /// runtime.tick_once().unwrap();
+    /// assert_eq!(runtime.current_tick().get(), 1);
+    /// ```
     pub fn tick_once(&mut self) -> Result<()> {
         self.world.dispatch(self.tick)?;
         while let Some(event) = self.transport.poll_event() {
@@ -71,6 +115,17 @@ impl<T: Transport> Runtime<T> {
     }
 
     /// Runs the runtime for the requested number of ticks.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use kitu_runtime::build_runtime;
+    /// use kitu_transport::LocalChannel;
+    ///
+    /// let mut runtime = build_runtime(LocalChannel::connected());
+    /// runtime.run_for_ticks(2).unwrap();
+    /// assert_eq!(runtime.current_tick().get(), 2);
+    /// ```
     pub fn run_for_ticks(&mut self, count: u64) -> Result<()> {
         for _ in 0..count {
             self.tick_once()?;
@@ -80,6 +135,16 @@ impl<T: Transport> Runtime<T> {
 }
 
 /// Convenience helper for building a runtime with default configuration.
+///
+/// # Examples
+///
+/// ```
+/// use kitu_runtime::build_runtime;
+/// use kitu_transport::LocalChannel;
+///
+/// let runtime = build_runtime(LocalChannel::connected());
+/// assert_eq!(runtime.config().tick_rate_hz, 60);
+/// ```
 pub fn build_runtime<T: Transport>(transport: T) -> Runtime<T> {
     Runtime::new(RuntimeConfig::default_60hz(), transport)
 }

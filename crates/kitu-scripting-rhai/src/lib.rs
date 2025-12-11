@@ -1,4 +1,13 @@
 //! Rhai scripting integration skeleton.
+//!
+//! # Responsibilities
+//! - Build a Rhai engine and register runtime-safe bindings for gameplay and tooling scripts.
+//! - Keep sandboxing and data access predictable by funneling interactions through curated APIs.
+//! - Provide helpers for loading scripts and wiring them into the runtime loop.
+//!
+//! # Integration
+//! The runtime (`kitu-runtime`) can host these script hooks to react to transports or timelines.
+//! See `doc/crates-overview.md` for how scripting complements data ingestion and ECS systems.
 
 use std::collections::HashMap;
 
@@ -7,7 +16,9 @@ use kitu_core::{KituError, Result};
 /// Represents a compiled or cached Rhai script (placeholder for now).
 #[derive(Debug, Clone)]
 pub struct Script {
+    /// Symbolic script name used for lookups.
     pub name: String,
+    /// Original source text associated with the script.
     pub source: String,
 }
 

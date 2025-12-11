@@ -44,6 +44,10 @@ At a high level, Kitu consists of:
 
 The guiding principles are: separation of concerns, determinism, data‑driven design, and event‑based communication.
 
+## 3.1 Crates overview
+
+For a quick map of the Rust crates that make up the backend, see [doc/crates-overview.md](doc/crates-overview.md).
+
 ---
 
 ## 3. Backend Game Logic (Rust)

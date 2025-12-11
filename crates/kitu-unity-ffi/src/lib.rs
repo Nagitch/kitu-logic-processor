@@ -1,4 +1,13 @@
 //! FFI boundary for embedding the runtime in Unity.
+//!
+//! # Responsibilities
+//! - Expose a C-compatible surface area for Unity callers while preserving Rust-side safety.
+//! - Marshal buffers and event payloads between Unity and the runtime without leaking abstractions.
+//! - Document invariants and threading requirements for embedders.
+//!
+//! # Integration
+//! This crate wraps the runtime (`kitu-runtime`) and transports (`kitu-transport`) behind a
+//! Unity-friendly API. See `doc/crates-overview.md` for how the FFI sits atop the core runtime.
 
 use std::sync::{Arc, Mutex};
 
@@ -35,6 +44,13 @@ pub extern "C" fn kitu_init() -> *mut UnityHandle {
 }
 
 /// C ABI entry point to advance the runtime.
+///
+/// # Safety
+///
+/// - `handle` must be a valid pointer created by [`kitu_init`].
+/// - The pointed-to handle must not be freed while this function runs.
+/// - Callers must ensure the pointer is not shared across threads without
+///   external synchronization.
 #[no_mangle]
 pub unsafe extern "C" fn kitu_tick(handle: *mut UnityHandle) -> i32 {
     let Some(handle) = handle.as_mut() else {
