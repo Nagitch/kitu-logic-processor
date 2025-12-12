@@ -1,7 +1,6 @@
 # Kitu Detailed Flow Documentation
 
 ## Table of Contents
-- [TOC (detailed flow map)](#toc-detailed-flow-map)
 - [UC-01: Game boot & scene initialization (detailed flow)](#uc-01-game-boot-scene-initialization-detailed-flow)
 - [UC-02: Main loop (per-tick simulation & rendering updates)](#uc-02-main-loop-per-tick-simulation-rendering-updates)
 - [UC-10: Player movement (detailed flow)](#uc-10-player-movement-detailed-flow)
@@ -25,33 +24,6 @@
 - [UC-82: Replay (input playback) (detailed flow)](#uc-82-replay-input-playback-detailed-flow)
 - [UC-83: Running Kitu Shell commands from Web Admin (detailed flow)](#uc-83-running-kitu-shell-commands-from-web-admin-detailed-flow)
 - [UC-90: Save / load (detailed flow)](#uc-90-save-load-detailed-flow)
-
-## TOC (detailed flow map)
-
-- [UC-01: Game boot & scene initialization](#uc-01-game-boot--scene-initialization-detailed-flow)
-- [UC-02: Main loop (per-tick simulation & rendering updates)](#uc-02-main-loop-per-tick-simulation--rendering-updates)
-- [UC-10: Player movement](#uc-10-player-movement-detailed-flow)
-- [UC-11: Camera follow](#uc-11-camera-follow-detailed-flow)
-- [UC-20: Enemy spawn](#uc-20-enemy-spawn-detailed-flow)
-- [UC-21: Player melee attack](#uc-21-player-melee-attack-detailed-flow)
-- [UC-22: Enemy AI actions](#uc-22-enemy-ai-actions-detailed-flow)
-- [UC-23: HP decrease & death handling](#uc-23-hp-decrease--death-handling-detailed-flow)
-- [UC-30: Experience & level up](#uc-30-experience--level-up-detailed-flow)
-- [UC-31: Item pickup](#uc-31-item-pickup-detailed-flow)
-- [UC-32: Item usage](#uc-32-item-usage-detailed-flow)
-- [UC-40: Quest start / progress / completion](#uc-40-quest-start--progress--completion-detailed-flow)
-- [UC-41: Scenario flag branching](#uc-41-scenario-flag-branching-detailed-flow)
-- [UC-51: Skill presentation (TSQ1)](#uc-51-skill-presentation-tsq1-detailed-flow)
-- [UC-60: HUD update](#uc-60-hud-update-detailed-flow)
-- [UC-61: Pause / menu](#uc-61-pause--menu-detailed-flow)
-- [UC-70: TMD hot reload](#uc-70-tmd-hot-reload-detailed-flow)
-- [UC-72: Rhai script change → hot reload](#uc-72-rhai-script-change--hot-reload-detailed-flow)
-- [UC-80: Debug commands from Kitu Shell](#uc-80-debug-commands-from-kitu-shell-detailed-flow)
-- [UC-81: State monitoring in Web Admin](#uc-81-state-monitoring-in-web-admin-detailed-flow)
-- [UC-82: Replay (input playback)](#uc-82-replay-input-playback-detailed-flow)
-- [UC-83: Running Kitu Shell commands from Web Admin](#uc-83-running-kitu-shell-commands-from-web-admin-detailed-flow)
-- [UC-90: Save / load](#uc-90-save--load-detailed-flow)
-
 
 This file collects the detailed architectural flows for each use case (UC-01, UC-02, etc.) implemented with Kitu.
 
