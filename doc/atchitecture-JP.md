@@ -1,5 +1,12 @@
 # Kitu MVP Architecture Documentation
 
+## Table of Contents
+- [TOC](#toc)
+- [次にやるとよさそうな詳細化ステップ（候補）](#次にやるとよさそうな詳細化ステップ候補)
+- [Kitu ライブラリ構成まとめ（crate / Unity パッケージ）](#kitu-ライブラリ構成まとめcrate-unity-パッケージ)
+- [ユースケース一覧](#ユースケース一覧)
+- [詳細フロー](#詳細フロー)
+
 ## TOC
 
 - [1. 次にやるとよさそうな詳細化ステップ（候補）](#1-次にやるとよさそうな詳細化ステップ候補)
@@ -23,7 +30,7 @@
 
 
 
-## 1. 次にやるとよさそうな詳細化ステップ（候補）
+## 次にやるとよさそうな詳細化ステップ（候補）
 
 この章では、Kitu アーキテクチャを具体的に仕様化・実装する前に整理しておくべきポイントをまとめます。
 
@@ -35,13 +42,12 @@
 6. **Rhai スクリプトの API 設計**
 7. **Shell / Web Admin / リプレイ統合**
 
----
 
-## 2. Kitu ライブラリ構成まとめ（crate / Unity パッケージ）
+## Kitu ライブラリ構成まとめ（crate / Unity パッケージ）
 
 ここでは、過去の会話で議論した **Kitu フレームワークそのものの分割案**をまとめます。
 
-### 2.1 Rust Workspace 全体構成（kitu リポジトリ）
+### Rust Workspace 全体構成（kitu リポジトリ）
 
 ```
 kitu/
@@ -72,7 +78,7 @@ kitu/
     osc-ir/
 ```
 
-### 2.2 各 crate の責務
+### 各 crate の責務
 
 - **kitu-core**: ID 型、エラー型、時間管理、共通ユーティリティ
 - **kitu-ecs**: ECS 抽象レイヤー（bevy\_ecs 等の薄いラッパ）
@@ -87,7 +93,7 @@ kitu/
 - **kitu-web-admin-backend**: Web Admin のバックエンド（HTTP + WS）
 - **kitu-unity-ffi**: Unity 組み込み cdylib 用の C API
 
-### 2.3 ゲームアプリ側（stella-rpg）リポジトリ構造
+### ゲームアプリ側（stella-rpg）リポジトリ構造
 
 ```
 stella-rpg/
@@ -112,7 +118,7 @@ stella-rpg/
     com.stella.game.editor/
 ```
 
-### 2.4 各 game-\* crate の責務
+### 各 game-\* crate の責務
 
 - **game-core**: KituRuntime を組み込んだ StellaGame の入口
 - **game-ecs-features**: コンポーネント & システム登録
@@ -124,11 +130,10 @@ stella-rpg/
 - **game-shell-ext**: Shell 用のゲーム固有コマンド
 - **game-webadmin-ext**: Web Admin のゲーム固有ビュー/API
 
----
 
 このドキュメントでは、Kitu フレームワークを利用して実現するアプリケーション（テンプレートプロジェクトおよび Stella RPG）のユースケース一覧と、それぞれのアーキテクチャ上の流れ・関与するライブラリを整理します。
 
-## 3. ユースケース一覧
+## ユースケース一覧
 
 （※ 本ドキュメントはチャットで議論した内容を随時統合して拡張していきます）
 
@@ -185,9 +190,8 @@ stella-rpg/
 
 - UC-90: セーブデータ読み書き
 
----
 
-## 4. 詳細フロー
+## 詳細フロー
 
 ※ 詳細フロー（UC-01 / UC-02）は `kitu_detailed_flows.md` に移動しました。
 

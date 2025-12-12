@@ -6,9 +6,16 @@ conventions for the `kitu-logic-processor` repository.
 The goal is to provide a predictable and consistent experience for both human
 contributors and AI assistants.
 
----
 
-## 1. Tooling and Environment
+## Table of Contents
+- [Tooling and Environment](#tooling-and-environment)
+- [Coding Guidelines (Rust)](#coding-guidelines-rust)
+- [Documentation Conventions](#documentation-conventions)
+- [Development Workflow](#development-workflow)
+- [Documents under `doc/`](#documents-under-doc)
+- [AI Assistants](#ai-assistants)
+
+## Tooling and Environment
 
 - Development is expected to run inside the Dev Container (`.devcontainer/devcontainer.json`).
 - Rust toolchain is pinned via `rust-toolchain.toml`.
@@ -25,9 +32,8 @@ Recommended commands (to be provided via `justfile` or equivalent):
 - `just test` → `cargo test --all`
 - `just check-all` → run fmt, clippy, and tests
 
----
 
-## 2. Coding Guidelines (Rust)
+## Coding Guidelines (Rust)
 
 - Use **edition 2021** (or later as defined in `Cargo.toml`).
 - `rustfmt` is the **single source of truth** for formatting.
@@ -40,7 +46,7 @@ Recommended commands (to be provided via `justfile` or equivalent):
   - Prefer the `tracing` ecosystem for structured logging.
   - Avoid `println!` in library code (except for examples or clearly-marked debugging).
 
-### 2.1 Public API and Testing
+### Public API and Testing
 
 For any crate or library in this repository:
 
@@ -57,13 +63,12 @@ Tests may live either:
 Choose whichever makes the intent clearer, but keep the structure consistent within
 each crate.
 
----
 
-## 3. Documentation Conventions
+## Documentation Conventions
 
 Rust documentation should follow these conventions for all public items.
 
-### 3.1 General Rules
+### General Rules
 
 - Every `pub` item (functions, structs, enums, traits, methods) **MUST** have a `///` doc comment.
 - The comment should follow this structure:
@@ -83,14 +88,14 @@ Crate- and module-level documentation:
   - Pointers to important modules and `doc/` documents.
 - Each public module should have a `//!` doc at the top of the module entry file.
 
-### 3.2 Doctests and Examples
+### Doctests and Examples
 
 - When adding or changing a public API, add at least one example in a `# Examples` section.
 - Wherever possible, examples **SHOULD** compile and run as doctests.
 - Larger and more complete examples can live under `examples/`, with a shorter
   variant embedded in the doc comment.
 
-### 3.3 Lints for Documentation (Optional but Recommended)
+### Lints for Documentation (Optional but Recommended)
 
 Once the crate structure stabilizes, consider enabling:
 
@@ -104,9 +109,8 @@ in `src/lib.rs` to ensure that:
 - All public items are documented.
 - Intra-doc links remain valid.
 
----
 
-## 4. Development Workflow
+## Development Workflow
 
 The standard workflow for making changes is:
 
@@ -123,9 +127,8 @@ The standard workflow for making changes is:
 CI should run the same set of checks (fmt, clippy, tests), plus additional checks
 if needed (e.g., `cargo doc` for documentation builds).
 
----
 
-## 5. Documents under `doc/`
+## Documents under `doc/`
 
 The `doc/` directory is the main place for higher-level design and workflow documents.
 Examples include:
@@ -142,9 +145,8 @@ Conventions:
 - When a Japanese version is provided (e.g., `*_JP.md`), it should be kept as close
   as reasonably possible to the English source, but English is the source of truth.
 
----
 
-## 6. AI Assistants
+## AI Assistants
 
 When AI assistants contribute to this repository, they should:
 

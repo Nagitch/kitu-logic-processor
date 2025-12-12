@@ -5,11 +5,10 @@ to be used across the `kitu-logic-processor` repository.
 
 The goal is to keep documentation consistent, clear, and aligned with Rust best practices.
 
----
 
-## 1. Crate and Module Documentation
+## Crate and Module Documentation
 
-### 1.1 Crate-level (`src/lib.rs`)
+### Crate-level (`src/lib.rs`)
 
 ```rust
 //! Kitu Logic Processor core crate.
@@ -28,7 +27,7 @@ The goal is to keep documentation consistent, clear, and aligned with Rust best 
 //! in each public module and in the `doc/` directory.
 ```
 
-### 1.2 Module-level (`src/ecs/mod.rs`, etc.)
+### Module-level (`src/ecs/mod.rs`, etc.)
 
 ```rust
 //! ECS core module.
@@ -41,11 +40,10 @@ The goal is to keep documentation consistent, clear, and aligned with Rust best 
 //! - Expose a stable API for scheduling and ticking the world
 ```
 
----
 
-## 2. Public API Documentation Templates
+## Public API Documentation Templates
 
-### 2.1 Struct
+### Struct
 
 ```rust
 /// Represents a logical time in the Kitu timeline.
@@ -56,7 +54,7 @@ The goal is to keep documentation consistent, clear, and aligned with Rust best 
 pub struct TimeMs(pub u64);
 ```
 
-### 2.2 Enum
+### Enum
 
 ```rust
 /// Describes the current playback state of a timeline.
@@ -73,7 +71,7 @@ pub enum PlaybackState {
 }
 ```
 
-### 2.3 Trait
+### Trait
 
 ```rust
 /// A system that updates part of the world each tick.
@@ -94,7 +92,7 @@ pub trait System {
 }
 ```
 
-### 2.4 Function (with errors / panics)
+### Function (with errors / panics)
 
 ```rust
 /// Advances the world by a single tick.
@@ -128,7 +126,7 @@ pub fn tick(&mut self, delta: Duration) -> Result<(), TickError> {
 }
 ```
 
-### 2.5 Error Type (`thiserror`)
+### Error Type (`thiserror`)
 
 ```rust
 /// Errors that can occur while ticking the world.
@@ -148,9 +146,8 @@ pub enum TickError {
 }
 ```
 
----
 
-## 3. Doctest-Oriented Examples
+## Doctest-Oriented Examples
 
 Use the following pattern for doctest-friendly examples in `# Examples` sections:
 
