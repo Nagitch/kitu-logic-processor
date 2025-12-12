@@ -8,10 +8,10 @@ Kitu は **Rust バックエンド + Unity クライアント** という構成�
 - [アーキテクチャ概要](#アーキテクチャ概要)
 - [クレート一覧](#クレート一覧)
 - [バックエンドゲームロジック（Rust）](#バックエンドゲームロジックrust)
-- [通信レイヤー（OSC + osc‑ir + MessagePack）](#通信レイヤーosc-oscir-messagepack)
+- [通信レイヤー（OSC + osc-ir + MessagePack）](#通信レイヤーosc--osc-ir--messagepack)
 - [Unity クライアント（表現レイヤー）](#unity-クライアント表現レイヤー)
 - [Kitu Shell](#kitu-shell)
-- [データシステム（TMD + SQLite）](#データシステムtmd-sqlite)
+- [データシステム（TMD + SQLite）](#データシステムtmd--sqlite)
 - [タイムラインとオートメーション（TSQ1）](#タイムラインとオートメーションtsq1)
 - [Web Admin ツール](#web-admin-ツール)
 - [開発ワークフロー](#開発ワークフロー)
@@ -87,7 +87,7 @@ Rust バックエンドは Kitu の「ゲーム宇宙」を一手に引き受け
 いずれも同じロジックコードを用いるため、挙動は完全に一致します。
 
 
-## 通信レイヤー（OSC + osc‑ir + MessagePack）
+## 通信レイヤー（OSC + osc-ir + MessagePack）
 
 Kitu の各コンポーネントは **OSC 風のイベント** と **osc‑ir データモデル** でやり取りします。
 
