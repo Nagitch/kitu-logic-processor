@@ -1,10 +1,25 @@
 # Kitu MVP Architecture Documentation
 
-## Table of Contents
-- [Candidate next steps for deeper specification](#candidate-next-steps-for-deeper-specification)
-- [Kitu library layout (crates / Unity packages)](#kitu-library-layout-crates-unity-packages)
-- [Use case list](#use-case-list)
-- [Detailed flows](#detailed-flows)
+# TOC
+
+- [1. Candidate next steps for deeper specification](#1-candidate-next-steps-for-deeper-specification)
+- [2. Kitu library layout (crates / Unity packages)](#2-kitu-library-layout-crates--unity-packages)
+  - [2.1 Rust workspace layout](#21-rust-workspace-layout)
+  - [2.2 Responsibilities of each crate](#22-responsibilities-of-each-crate)
+  - [2.3 Game-app repository layout](#23-game-app-repository-layout)
+  - [2.4 Responsibilities of each game-* crate](#24-responsibilities-of-each-game--crate)
+- [3. Use case list](#3-use-case-list)
+  - [A. Boot / main loop](#a-boot--main-loop)
+  - [B. Player control / movement](#b-player-control--movement)
+  - [C. Battle / enemies / damage](#c-battle--enemies--damage)
+  - [D. Status / items / level](#d-status--items--level)
+  - [E. Quests / flags / scenario](#e-quests--flags--scenario)
+  - [F. Presentation (TSQ1)](#f-presentation-tsq1)
+  - [G. UI / menu](#g-ui--menu)
+  - [H. Data-driven / hot reload](#h-data-driven--hot-reload)
+  - [I. Debug / tools / replay](#i-debug--tools--replay)
+  - [J. Save / load](#j-save--load)
+- [4. Detailed flows](#4-detailed-flows)
 
 ## Candidate next steps for deeper specification
 
