@@ -5,17 +5,17 @@
 
 ## Table of Contents
 - [Introduction](#introduction)
-- [High‑Level Architecture](#highlevel-architecture)
+- [High-Level Architecture](#high-level-architecture)
 - [Crates overview](#crates-overview)
 - [Backend Game Logic (Rust)](#backend-game-logic-rust)
-- [Communication Layer (OSC + osc‑ir + MessagePack)](#communication-layer-osc-oscir-messagepack)
+- [Communication Layer (OSC + osc-ir + MessagePack)](#communication-layer-osc--osc-ir--messagepack)
 - [Unity Client (Presentation Layer)](#unity-client-presentation-layer)
 - [Kitu Shell](#kitu-shell)
-- [Data Systems (TMD + SQLite)](#data-systems-tmd-sqlite)
-- [Timeline & Automation (TSQ1)](#timeline-automation-tsq1)
+- [Data Systems (TMD + SQLite)](#data-systems-tmd--sqlite)
+- [Timeline & Automation (TSQ1)](#timeline--automation-tsq1)
 - [Web Admin Tools](#web-admin-tools)
 - [Development Workflow](#development-workflow)
-- [Deployment & Distribution](#deployment-distribution)
+- [Deployment & Distribution](#deployment--distribution)
 - [Roadmap (TBD)](#roadmap-tbd)
 
 ## Introduction
@@ -32,7 +32,7 @@ Goals:
 - Minimal coupling between teams (logic / art / design / QA)
 
 
-## High‑Level Architecture
+## High-Level Architecture
 
 At a high level, Kitu consists of:
 
@@ -84,7 +84,7 @@ The backend can run:
 In both cases, the logic code is identical, ensuring identical behavior.
 
 
-## Communication Layer (OSC + osc‑ir + MessagePack)
+## Communication Layer (OSC + osc-ir + MessagePack)
 
 Kitu uses OSC semantics and the **osc‑ir** data model as a unified event layer.
 
