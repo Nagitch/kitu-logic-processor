@@ -150,6 +150,136 @@ AI assistants must:
 
 ---
 
+## crates.io Publish-Ready Maintenance Policy (No Publish Until MVP Completion)
+
+### Purpose
+
+* Keep all crates in a state that is ready for future publication to crates.io ("publish-ready").
+* **Do not publish any crate to crates.io until the MVP is completed.**
+
+This project prioritizes the ability to transition smoothly to crates.io publication after the MVP is complete. Therefore, even during active development, crates must maintain publication-quality metadata, documentation, and structure.
+
+---
+
+### Prohibited Actions Until MVP Completion
+
+Until the MVP is completed, the following actions are strictly prohibited:
+
+* Executing `cargo publish` (except `cargo publish --dry-run`)
+* Creating or updating any crate on crates.io
+* Creating official releases or release tags that assume crates.io publication
+
+  * Draft releases or internal-only tags are acceptable if needed
+
+---
+
+### Definition of "Publish-Ready"
+
+Until the MVP is completed, each crate must satisfy the following conditions to be considered "publish-ready".
+
+#### 1. Cargo.toml Requirements
+
+Any crate that may eventually be published must have the following configured in its `Cargo.toml`:
+
+* Required `[package]` fields:
+
+  * `name`
+  * `version` (Semantic Versioning format)
+  * `edition`
+  * `description` (a one-line statement clearly describing responsibility)
+  * `license` or `license-file`
+  * `repository`
+  * `readme`
+* Recommended fields (when reasonable):
+
+  * `keywords` (up to 5)
+  * `categories` (selected from crates.io predefined categories)
+
+To explicitly control packaged files, crates should define `include`:
+
+```toml
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
+```
+
+---
+
+#### 2. Documentation Requirements
+
+Each crate must be documented with the assumption that it will be rendered on docs.rs.
+
+* `lib.rs` (or `main.rs`) must contain crate-level documentation (`//!`) at the top, describing:
+
+  * The purpose of the crate
+  * What the crate provides
+  * What the crate intentionally does *not* provide
+  * How it relates to other crates in the workspace
+* All public APIs (`pub`) must have documentation comments (`///`)
+
+  * `pub mod` items must also include a module-level overview
+* Code examples in documentation should be valid doctests whenever possible
+
+Policy regarding missing documentation:
+
+* Default: `#![warn(missing_docs)]`
+* For stable or foundational crates, migrating to `#![deny(missing_docs)]` is encouraged
+* If enforcing `deny` significantly slows MVP development, continuing with `warn` is acceptable
+
+---
+
+#### 3. Quality Gates for Maintaining Publish-Ready State
+
+Whenever Codex modifies a crate, the following conditions must be satisfied:
+
+* `cargo fmt --check`
+* `cargo clippy -- -D warnings` (if this is impractical, the reason must be documented)
+* `cargo test`
+* `cargo doc --no-deps`
+
+Although actual publishing is prohibited, packaging integrity **must** be verified using:
+
+```bash
+cargo publish --dry-run
+```
+
+The dry-run must confirm:
+
+* Only intended files are included in the package
+* README and metadata are correctly resolved
+* The crate satisfies crates.io publication requirements
+
+---
+
+#### 4. Handling Non-Publishable Crates
+
+For crates that are internal-only or not intended for crates.io publication in the near term, one of the following must be explicitly declared:
+
+* Set `[package] publish = false`
+* Treat the crate as publish-ready, including README and LICENSE, even if publication is deferred
+
+If `cargo publish --dry-run` fails due to workspace structure or feature dependencies, the failure reason and mitigation plan must be recorded as TODOs. Large refactors that would block MVP progress should be avoided.
+
+---
+
+### Codex Operational Guidelines
+
+* Each change set (PR or task) should focus on one of the following:
+
+  * Making a single crate publish-ready
+  * Applying a publish-ready rule consistently across multiple crates
+* Each change must document:
+
+  * Which crates are considered publish-ready
+  * The result of `cargo publish --dry-run` (success or failure with explanation)
+
+---
+
+### Final Objective
+
+* At the point of MVP completion, all target crates can be published to crates.io without additional large-scale cleanup
+* Until that point, **no actual publication must be performed**
+
+
+
 ## 9. Notes for Maintainers
 
 - AI may maintain development tooling and documentation.
