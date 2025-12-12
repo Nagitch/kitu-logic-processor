@@ -3,6 +3,13 @@ name = "kitu-data-tmd"
 version = "0.1.0"
 edition = "2021"
 publish = false
+description = "Parser and loader utilities for Tanu Markdown (TMD) data."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "tmd", "data"]
+categories = ["game-development", "parser-implementations"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }

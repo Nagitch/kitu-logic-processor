@@ -3,6 +3,13 @@ name = "kitu-tsq1"
 version = "0.1.0"
 edition = "2021"
 publish = false
+description = "TSQ1 timeline AST and playback helpers for Kitu."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "timeline", "tsq1"]
+categories = ["game-development", "parser-implementations"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }

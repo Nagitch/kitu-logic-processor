@@ -3,6 +3,13 @@ name = "kitu-osc-ir"
 version = "0.1.0"
 edition = "2021"
 publish = false
+description = "OSC-inspired intermediate representation for Kitu runtime messaging."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "osc", "messaging"]
+categories = ["network-programming", "data-structures"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }
