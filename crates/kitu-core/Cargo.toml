@@ -3,6 +3,13 @@ name = "kitu-core"
 version = "0.1.0"
 edition = "2021"
 publish = false
+description = "Foundational Kitu runtime types, errors, and timing primitives."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "runtime", "core"]
+categories = ["game-development", "data-structures"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 thiserror = { workspace = true }

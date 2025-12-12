@@ -3,6 +3,13 @@ name = "kitu-transport"
 version = "0.1.0"
 edition = "2021"
 publish = false
+description = "Transport abstraction and adapters for moving OSC/IR messages."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "transport", "messaging"]
+categories = ["network-programming", "game-development"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }

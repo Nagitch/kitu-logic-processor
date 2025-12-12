@@ -3,6 +3,13 @@ name = "kitu-scripting-rhai"
 version = "0.1.0"
 edition = "2021"
 publish = false
+description = "Rhai scripting bindings and helpers for the Kitu runtime."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "rhai", "scripting"]
+categories = ["game-development"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }

@@ -3,6 +3,13 @@ name = "kitu-web-admin-backend"
 version = "0.1.0"
 edition = "2021"
 publish = false
+description = "Backend glue (HTTP/WS) for the Kitu web admin experience."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "web", "admin"]
+categories = ["web-programming::http-server", "game-development"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }
