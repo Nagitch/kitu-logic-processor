@@ -3,9 +3,19 @@
 This document summarizes the foundational setup required to streamline ongoing development of the *kitu-logic-processor* repository.
 It serves as a reference for establishing consistent development environments, repository structure, and tooling.
 
----
 
-## 1. Repository Meta
+## Table of Contents
+- [Repository Meta](#repository-meta)
+- [Rust Toolchain & Static Analysis](#rust-toolchain-static-analysis)
+- [Dev Container / VSCode Integration](#dev-container-vscode-integration)
+- [CI / Automated Checks](#ci-automated-checks)
+- [Initial Code Skeleton](#initial-code-skeleton)
+- [Documentation Structure](#documentation-structure)
+- [Git Management & Miscellaneous](#git-management-miscellaneous)
+- [AGENT.md Highlights](#agentmd-highlights)
+- [Summary](#summary)
+
+## Repository Meta
 
 **Essential Components**
 
@@ -28,9 +38,8 @@ It serves as a reference for establishing consistent development environments, r
   - Commit message conventions (if any)
   - Branching strategy (main / develop / feature-*)
 
----
 
-## 2. Rust Toolchain & Static Analysis
+## Rust Toolchain & Static Analysis
 
 **Core Rust Setup**
 
@@ -55,9 +64,8 @@ It serves as a reference for establishing consistent development environments, r
   - `just test` → `cargo test --all`
   - `just check-all` → runs all of the above
 
----
 
-## 3. Dev Container / VSCode Integration
+## Dev Container / VSCode Integration
 
 ### `.devcontainer/devcontainer.json`
 
@@ -85,9 +93,8 @@ Minimum setup:
 - `extensions.json` — recommended extensions
 - `settings.json` — Rust Analyzer configuration, formatting rules
 
----
 
-## 4. CI / Automated Checks
+## CI / Automated Checks
 
 Use GitHub Actions with a workflow such as `rust-ci.yml`:
 
@@ -101,9 +108,8 @@ Optional:
 - Build documentation (`cargo doc --no-deps`)
 - Add scenario tests for logic execution
 
----
 
-## 5. Initial Code Skeleton
+## Initial Code Skeleton
 
 - `src/lib.rs`
   - Prepare module structure:
@@ -118,9 +124,8 @@ Optional:
 - `examples/`
   - Start with minimal example: `examples/minimal_sim.rs`
 
----
 
-## 6. Documentation Structure
+## Documentation Structure
 
 Recommended documents under `doc/`:
 
@@ -139,9 +144,8 @@ Recommended documents under `doc/`:
     - Scenario / replay tests
     - TSQ1 / TMD data-driven testing
 
----
 
-## 7. Git Management & Miscellaneous
+## Git Management & Miscellaneous
 
 - `.gitignore` — ignore output (`target/`, logs, temporary files, etc.)
 - `.editorconfig` — consistent indent style, newline rules
@@ -150,9 +154,8 @@ Recommended documents under `doc/`:
   - `feature_request.md`
   - `pull_request_template.md`
 
----
 
-## 8. AGENT.md Highlights
+## AGENT.md Highlights
 
 AGENT.md should explicitly define:
 
@@ -170,25 +173,24 @@ AGENT.md should explicitly define:
   - Design docs in `doc/`
   - Experiments in `sandbox/`
 
----
 
 ## Summary
 
 To bootstrap the project efficiently, prioritize:
 
-1. **Rust environment setup**  
+1. **Rust environment setup**
    (`rust-toolchain.toml`, lint/format configs, justfile)
 
-2. **Dev Container + VSCode integration**  
+2. **Dev Container + VSCode integration**
    (`.devcontainer/devcontainer.json`, `.vscode/settings.json`)
 
-3. **CI pipeline**  
+3. **CI pipeline**
    (fmt / clippy / test)
 
-4. **Meta documents**  
+4. **Meta documents**
    (`AGENT.md`, `CONTRIBUTING.md`, `doc/dev-workflow.md`)
 
-5. **Minimal Rust skeleton**  
+5. **Minimal Rust skeleton**
    (`src/lib.rs`, CLI entry, examples/)
 
 With this foundation prepared, subsequent implementation steps become significantly smoother.

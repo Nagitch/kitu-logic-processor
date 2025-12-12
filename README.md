@@ -2,9 +2,23 @@
 
 **Kitu**, a Rust–Unity hybrid framework for building deterministic, data‑driven games with a strong focus on developer experience.
 
----
 
-## 1. Introduction
+## Table of Contents
+- [Introduction](#introduction)
+- [High‑Level Architecture](#highlevel-architecture)
+- [Crates overview](#crates-overview)
+- [Backend Game Logic (Rust)](#backend-game-logic-rust)
+- [Communication Layer (OSC + osc‑ir + MessagePack)](#communication-layer-osc-oscir-messagepack)
+- [Unity Client (Presentation Layer)](#unity-client-presentation-layer)
+- [Kitu Shell](#kitu-shell)
+- [Data Systems (TMD + SQLite)](#data-systems-tmd-sqlite)
+- [Timeline & Automation (TSQ1)](#timeline-automation-tsq1)
+- [Web Admin Tools](#web-admin-tools)
+- [Development Workflow](#development-workflow)
+- [Deployment & Distribution](#deployment-distribution)
+- [Roadmap (TBD)](#roadmap-tbd)
+
+## Introduction
 
 Kitu separates **authoritative game logic** (Rust backend) from **presentation** (Unity). The backend runs the simulation, ECS, timelines, and scripting; Unity renders visuals, audio, and UI, and forwards player input as OSC events.
 
@@ -17,9 +31,8 @@ Goals:
 - Strong tooling (Shell, Web Admin, CI/replay)
 - Minimal coupling between teams (logic / art / design / QA)
 
----
 
-## 2. High‑Level Architecture
+## High‑Level Architecture
 
 At a high level, Kitu consists of:
 
@@ -44,13 +57,12 @@ At a high level, Kitu consists of:
 
 The guiding principles are: separation of concerns, determinism, data‑driven design, and event‑based communication.
 
-## 3.1 Crates overview
+## Crates overview
 
 For a quick map of the Rust crates that make up the backend, see [doc/crates-overview.md](doc/crates-overview.md).
 
----
 
-## 3. Backend Game Logic (Rust)
+## Backend Game Logic (Rust)
 
 The Rust backend is the authoritative “game universe”.
 
@@ -71,9 +83,8 @@ The backend can run:
 
 In both cases, the logic code is identical, ensuring identical behavior.
 
----
 
-## 4. Communication Layer (OSC + osc‑ir + MessagePack)
+## Communication Layer (OSC + osc‑ir + MessagePack)
 
 Kitu uses OSC semantics and the **osc‑ir** data model as a unified event layer.
 
@@ -90,9 +101,8 @@ Typical flows:
 
 This event‑driven layer allows loose coupling and shared tooling.
 
----
 
-## 5. Unity Client (Presentation Layer)
+## Unity Client (Presentation Layer)
 
 Unity is treated purely as a **renderer and input source**:
 
@@ -111,9 +121,8 @@ Unity responsibilities:
 
 This keeps Unity relatively simple and reduces coupling.
 
----
 
-## 6. Kitu Shell
+## Kitu Shell
 
 Kitu Shell is a runtime developer console that can connect to:
 
@@ -133,9 +142,8 @@ It allows:
 
 Shell commands use a consistent, extensible command model, and all actions go through the same event pipeline as normal gameplay.
 
----
 
-## 7. Data Systems (TMD + SQLite)
+## Data Systems (TMD + SQLite)
 
 Kitu is strongly data‑driven:
 
@@ -155,9 +163,8 @@ The backend:
 
 Unity typically does not read TMD/DB directly; it acts on backend results.
 
----
 
-## 8. Timeline & Automation (TSQ1)
+## Timeline & Automation (TSQ1)
 
 TSQ1 is Kitu’s **minimal, deterministic timeline format**:
 
@@ -165,19 +172,18 @@ TSQ1 is Kitu’s **minimal, deterministic timeline format**:
 - Used for cutscenes, UI transitions, scripted sequences, automation.
 - Executed entirely in the backend; Unity just consumes resulting events.
 
-Important: **TSQ1 does *not* define tween/easing itself**.  
+Important: **TSQ1 does *not* define tween/easing itself**.
 Interpolation and easing are implemented at the application layer:
 
 - Camera or UI interpolators interpret events like “move_to with duration”.
 - Backend/Unity code applies linear/eased curves, blending, crossfades.
 - TSQ1 remains simple, deterministic, and domain‑agnostic.
 
-TSQ1 is authored via TMD, direct files, scripts, or (in future) visual editors.  
+TSQ1 is authored via TMD, direct files, scripts, or (in future) visual editors.
 It is also a powerful tool for scenario testing and automation.
 
----
 
-## 9. Web Admin Tools
+## Web Admin Tools
 
 Web Admin is a browser‑based control plane for Kitu:
 
@@ -196,9 +202,8 @@ Key capabilities:
 
 Web Admin turns the backend into an observable, controllable system without needing Unity running.
 
----
 
-## 10. Development Workflow
+## Development Workflow
 
 Kitu’s workflow focuses on **fast iteration and strong separation**:
 
@@ -218,9 +223,8 @@ Typical loop:
 
 CI can run backend‑only scenario tests and performance checks without Unity.
 
----
 
-## 11. Deployment & Distribution
+## Deployment & Distribution
 
 Kitu supports multiple deployment patterns:
 
@@ -242,9 +246,8 @@ Additional aspects:
 - CI/CD pipelines build backend, client, bundles, and data, and deploy them.
 - Version compatibility checks between client and backend.
 
----
 
-## 12. Roadmap (TBD)
+## Roadmap (TBD)
 
 The long‑term roadmap is still being defined. Areas under consideration include:
 
@@ -256,6 +259,5 @@ The long‑term roadmap is still being defined. Areas under consideration includ
 
 A detailed, versioned roadmap will be published once the core architecture and workflows have stabilized through real projects.
 
----
 
 Kitu is intended as a long‑term foundation for building modern, data‑driven games with Rust and Unity. This README provides a high‑level architectural overview; individual crates, packages, and tools should provide more detailed API‑level documentation.

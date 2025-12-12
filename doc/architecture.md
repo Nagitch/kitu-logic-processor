@@ -1,5 +1,12 @@
 # Kitu MVP Architecture Documentation
 
+## Table of Contents
+- [TOC](#toc)
+- [Candidate next steps for deeper specification](#candidate-next-steps-for-deeper-specification)
+- [Kitu library layout (crates / Unity packages)](#kitu-library-layout-crates-unity-packages)
+- [Use case list](#use-case-list)
+- [Detailed flows](#detailed-flows)
+
 ## TOC
 
 - [1. Candidate next steps for deeper specification](#1-candidate-next-steps-for-deeper-specification)
@@ -21,7 +28,7 @@
   - [J. Save / load](#j-save--load)
 - [4. Detailed flows](#4-detailed-flows)
 
-## 1. Candidate next steps for deeper specification
+## Candidate next steps for deeper specification
 
 This section collects items to sort out before turning the Kitu architecture into concrete specs and implementations.
 
@@ -33,13 +40,12 @@ This section collects items to sort out before turning the Kitu architecture int
 6. **API design for Rhai scripts.**
 7. **Integration of Shell / Web Admin / replay.**
 
----
 
-## 2. Kitu library layout (crates / Unity packages)
+## Kitu library layout (crates / Unity packages)
 
 A summary of how to split the Kitu framework itself based on prior discussions.
 
-### 2.1 Rust workspace layout (kitu repository)
+### Rust workspace layout (kitu repository)
 
 ```
 kitu/
@@ -70,7 +76,7 @@ kitu/
     osc-ir/
 ```
 
-### 2.2 Responsibilities of each crate
+### Responsibilities of each crate
 
 - **kitu-core**: ID types, error types, time management, common utilities.
 - **kitu-ecs**: ECS abstraction layer (thin wrapper over bevy_ecs, etc.).
@@ -85,7 +91,7 @@ kitu/
 - **kitu-web-admin-backend**: Backend for the Web Admin (HTTP + WS).
 - **kitu-unity-ffi**: C API for embedding the cdylib in Unity.
 
-### 2.3 Game-app-side (stella-rpg) repository layout
+### Game-app-side (stella-rpg) repository layout
 
 ```
 stella-rpg/
@@ -110,7 +116,7 @@ stella-rpg/
     com.stella.game.editor/
 ```
 
-### 2.4 Responsibilities of each game-* crate
+### Responsibilities of each game-* crate
 
 - **game-core**: Entry point for StellaGame embedding KituRuntime.
 - **game-ecs-features**: Registers components and systems.
@@ -122,11 +128,10 @@ stella-rpg/
 - **game-shell-ext**: Game-specific shell commands.
 - **game-webadmin-ext**: Game-specific views/APIs for the Web Admin.
 
----
 
 This document lists the use cases for applications built with the Kitu framework (template project and Stella RPG) and shows the flow and participating libraries for each.
 
-## 3. Use case list
+## Use case list
 
 (This document is continuously updated with content discussed in chat.)
 
@@ -183,9 +188,8 @@ This document lists the use cases for applications built with the Kitu framework
 
 - UC-90: Save/load data
 
----
 
-## 4. Detailed flows
+## Detailed flows
 
 Detailed flows for UC-01 / UC-02 moved to `kitu_detailed_flows.md`.
 
