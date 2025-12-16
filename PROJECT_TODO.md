@@ -14,8 +14,8 @@ This file is maintained by both human contributors and AI assistants.
 
 ## TODO
 
-- [ ] .devcontainer setup
-  - [ ] review and merge
+- [x] .devcontainer setup
+  - [x] review and merge
 - [ ] Create initial project directory structure
   - [ ] review and merge
 - [ ] Additional development environment setup
