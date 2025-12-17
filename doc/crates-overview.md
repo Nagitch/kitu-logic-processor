@@ -19,6 +19,42 @@ This document summarizes the Rust crates under `crates/` in the `kitu-logic-proc
 | `kitu-web-admin-backend` | Backend pieces for the browser-based admin (HTTP/WS glue). | `kitu-core` |
 | `kitu-unity-ffi` | C-compatible FFI surface for embedding the runtime in Unity. | `kitu-core`, `kitu-runtime`, `kitu-transport` |
 
+## Dependency graph
+
+```mermaid
+graph TD
+    kitu_core["kitu-core"]
+    kitu_ecs["kitu-ecs"]
+    kitu_osc_ir["kitu-osc-ir"]
+    kitu_transport["kitu-transport"]
+    kitu_runtime["kitu-runtime"]
+    kitu_scripting_rhai["kitu-scripting-rhai"]
+    kitu_data_tmd["kitu-data-tmd"]
+    kitu_data_sqlite["kitu-data-sqlite"]
+    kitu_tsq1["kitu-tsq1"]
+    kitu_shell["kitu-shell"]
+    kitu_web_admin_backend["kitu-web-admin-backend"]
+    kitu_unity_ffi["kitu-unity-ffi"]
+
+    kitu_ecs --> kitu_core
+    kitu_osc_ir --> kitu_core
+    kitu_transport --> kitu_core
+    kitu_transport --> kitu_osc_ir
+    kitu_runtime --> kitu_core
+    kitu_runtime --> kitu_ecs
+    kitu_runtime --> kitu_transport
+    kitu_runtime --> kitu_osc_ir
+    kitu_scripting_rhai --> kitu_core
+    kitu_data_tmd --> kitu_core
+    kitu_data_sqlite --> kitu_core
+    kitu_tsq1 --> kitu_core
+    kitu_shell --> kitu_core
+    kitu_web_admin_backend --> kitu_core
+    kitu_unity_ffi --> kitu_core
+    kitu_unity_ffi --> kitu_runtime
+    kitu_unity_ffi --> kitu_transport
+```
+
 ## Crate notes
 
 ### `kitu-core`
