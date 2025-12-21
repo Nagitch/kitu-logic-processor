@@ -19,8 +19,9 @@ RUN rustup component add clippy rustfmt \
 
 # Fix cargo registry permissions to avoid "Permission denied" errors
 # Ensure vscode user can write to cargo registry directories
+# Note: The base image provides the 'rustlang' group and adds 'vscode' to it
 RUN mkdir -p /usr/local/cargo/registry/cache \
     && mkdir -p /usr/local/cargo/registry/index \
     && mkdir -p /usr/local/cargo/registry/src \
     && chown -R vscode:rustlang /usr/local/cargo/registry \
-    && chmod -R g+w /usr/local/cargo/registry
+    && chmod -R ug+rw /usr/local/cargo/registry
