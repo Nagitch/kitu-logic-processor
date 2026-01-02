@@ -58,6 +58,11 @@ impl TmdDocument {
     pub fn len(&self) -> usize {
         self.entries.len()
     }
+
+    /// Returns `true` if no entries were parsed.
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
 }
 
 #[cfg(test)]

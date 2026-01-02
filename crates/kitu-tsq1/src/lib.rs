@@ -77,6 +77,11 @@ impl Timeline {
     pub fn len(&self) -> usize {
         self.steps.len()
     }
+
+    /// Returns `true` if no steps are queued.
+    pub fn is_empty(&self) -> bool {
+        self.steps.is_empty()
+    }
 }
 
 #[cfg(test)]

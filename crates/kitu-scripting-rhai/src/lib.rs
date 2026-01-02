@@ -51,6 +51,11 @@ impl ScriptHost {
     pub fn len(&self) -> usize {
         self.scripts.len()
     }
+
+    /// Returns `true` if no scripts are registered.
+    pub fn is_empty(&self) -> bool {
+        self.scripts.is_empty()
+    }
 }
 
 #[cfg(test)]

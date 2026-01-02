@@ -29,10 +29,13 @@ pub struct Response {
     pub body: String,
 }
 
+/// Route handler function type.
+type RouteHandler = Box<dyn Fn(&Request) -> Result<Response> + Send + Sync>;
+
 /// Basic backend server with in-memory route handlers.
 #[derive(Default)]
 pub struct WebAdminServer {
-    routes: HashMap<String, Box<dyn Fn(&Request) -> Result<Response> + Send + Sync>>,
+    routes: HashMap<String, RouteHandler>,
     running: bool,
 }
 
