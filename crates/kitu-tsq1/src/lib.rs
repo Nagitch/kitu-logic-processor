@@ -77,6 +77,11 @@ impl Timeline {
     pub fn len(&self) -> usize {
         self.steps.len()
     }
+
+    /// Returns `true` if no steps are queued.
+    pub fn is_empty(&self) -> bool {
+        self.steps.is_empty()
+    }
 }
 
 #[cfg(test)]
@@ -107,6 +112,17 @@ mod tests {
         let script = "emit: start\nemit: end";
         let timeline = Timeline::parse(script).unwrap();
         assert_eq!(timeline.len(), 2);
+    }
+
+    #[test]
+    fn is_empty_reflects_timeline_state() {
+        let empty_timeline = Timeline::parse("").unwrap();
+        assert!(empty_timeline.is_empty());
+        assert_eq!(empty_timeline.len(), 0);
+
+        let populated_timeline = Timeline::parse("emit: start").unwrap();
+        assert!(!populated_timeline.is_empty());
+        assert_eq!(populated_timeline.len(), 1);
     }
 
     #[test]

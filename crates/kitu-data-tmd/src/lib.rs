@@ -58,6 +58,11 @@ impl TmdDocument {
     pub fn len(&self) -> usize {
         self.entries.len()
     }
+
+    /// Returns `true` if no entries were parsed.
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
 }
 
 #[cfg(test)]
@@ -69,6 +74,17 @@ mod tests {
         let doc = TmdDocument::parse("hp: 10\nname: hero").unwrap();
         assert_eq!(doc.len(), 2);
         assert_eq!(doc.get("hp").unwrap().value, "10");
+    }
+
+    #[test]
+    fn is_empty_returns_true_for_empty_document() {
+        let empty_doc = TmdDocument::parse("").unwrap();
+        assert!(empty_doc.is_empty());
+        assert_eq!(empty_doc.len(), 0);
+
+        let populated_doc = TmdDocument::parse("key: value").unwrap();
+        assert!(!populated_doc.is_empty());
+        assert_eq!(populated_doc.len(), 1);
     }
 
     #[test]

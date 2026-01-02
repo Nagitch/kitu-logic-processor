@@ -51,6 +51,11 @@ impl ScriptHost {
     pub fn len(&self) -> usize {
         self.scripts.len()
     }
+
+    /// Returns `true` if no scripts are registered.
+    pub fn is_empty(&self) -> bool {
+        self.scripts.is_empty()
+    }
 }
 
 #[cfg(test)]
@@ -65,6 +70,21 @@ mod tests {
 
         let err = host.invoke("demo", "run").unwrap_err();
         assert!(matches!(err, KituError::NotImplemented(value) if value == "run"));
+    }
+
+    #[test]
+    fn is_empty_reflects_script_registration() {
+        let mut host = ScriptHost::default();
+        assert!(host.is_empty());
+        assert_eq!(host.len(), 0);
+
+        host.register_script("script1", "fn main() { 1 }");
+        assert!(!host.is_empty());
+        assert_eq!(host.len(), 1);
+
+        host.register_script("script2", "fn main() { 2 }");
+        assert!(!host.is_empty());
+        assert_eq!(host.len(), 2);
     }
 
     #[test]
