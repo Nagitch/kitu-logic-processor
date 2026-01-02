@@ -79,7 +79,7 @@ mod tests {
         let mut world = EcsWorld::default();
         world.register_component("Transform").unwrap();
         assert!(world.register_component("Transform").is_err());
-        assert_eq!(world.register_component("Velocity").unwrap(), ());
+        world.register_component("Velocity").unwrap();
         assert_eq!(
             world.registered_components(),
             vec!["Transform".to_string(), "Velocity".to_string()]
