@@ -73,6 +73,21 @@ mod tests {
     }
 
     #[test]
+    fn is_empty_reflects_script_registration() {
+        let mut host = ScriptHost::default();
+        assert!(host.is_empty());
+        assert_eq!(host.len(), 0);
+
+        host.register_script("script1", "fn main() { 1 }");
+        assert!(!host.is_empty());
+        assert_eq!(host.len(), 1);
+
+        host.register_script("script2", "fn main() { 2 }");
+        assert!(!host.is_empty());
+        assert_eq!(host.len(), 2);
+    }
+
+    #[test]
     fn invoking_missing_script_returns_error() {
         let host = ScriptHost::default();
         let err = host.invoke("missing", "run").unwrap_err();

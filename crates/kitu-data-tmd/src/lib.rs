@@ -77,6 +77,17 @@ mod tests {
     }
 
     #[test]
+    fn is_empty_returns_true_for_empty_document() {
+        let empty_doc = TmdDocument::parse("").unwrap();
+        assert!(empty_doc.is_empty());
+        assert_eq!(empty_doc.len(), 0);
+
+        let populated_doc = TmdDocument::parse("key: value").unwrap();
+        assert!(!populated_doc.is_empty());
+        assert_eq!(populated_doc.len(), 1);
+    }
+
+    #[test]
     fn parsing_invalid_line_returns_error() {
         let result = TmdDocument::parse("invalid line");
         assert!(matches!(result, Err(KituError::InvalidInput(_))));

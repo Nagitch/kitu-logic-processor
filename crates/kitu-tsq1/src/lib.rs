@@ -115,6 +115,17 @@ mod tests {
     }
 
     #[test]
+    fn is_empty_reflects_timeline_state() {
+        let empty_timeline = Timeline::parse("").unwrap();
+        assert!(empty_timeline.is_empty());
+        assert_eq!(empty_timeline.len(), 0);
+
+        let populated_timeline = Timeline::parse("emit: start").unwrap();
+        assert!(!populated_timeline.is_empty());
+        assert_eq!(populated_timeline.len(), 1);
+    }
+
+    #[test]
     fn unknown_directives_error() {
         let script = "noop";
         assert!(Timeline::parse(script).is_err());
