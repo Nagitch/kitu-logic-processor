@@ -1,5 +1,9 @@
 # Kitu Logic Processor
 
+[![Rust CI](https://github.com/Nagitch/kitu-logic-processor/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/Nagitch/kitu-logic-processor/actions/workflows/rust-ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Rust 1.82](https://img.shields.io/badge/rust-1.82.0-orange.svg)](rust-toolchain.toml)
+
 Kitu は **Rust バックエンド + Unity クライアント** という構成で、決定的（deterministic）なゲームロジックと、高速な開発サイクル、開発者体験の向上を重視したフレームワークです。
 
 

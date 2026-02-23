@@ -14,12 +14,12 @@ This file is maintained by both human contributors and AI assistants.
 
 ## TODO
 
-- [ ] Additional development environment setup
-  - [ ] Add helper scripts/justfile entries for common workflows
-  - [ ] Verify rust-toolchain and devcontainer match CI expectations
-- [ ] Establish continuous integration
-  - [ ] fmt/clippy/test workflow in GitHub Actions
-  - [ ] Basic status badges in README
+- [x] Additional development environment setup
+  - [x] Add helper scripts/justfile entries for common workflows
+  - [x] Verify rust-toolchain and devcontainer match CI expectations
+- [x] Establish continuous integration
+  - [x] fmt/clippy/test workflow in GitHub Actions
+  - [x] Basic status badges in README
 - [ ] Define core runtime architecture
   - [ ] Document module boundaries (timeline, ecs, bridge)
   - [ ] Capture invariants and determinism requirements in `doc/architecture.md`
