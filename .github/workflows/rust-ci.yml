@@ -21,7 +21,8 @@ jobs:
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain-file: rust-toolchain.toml
+          toolchain: 1.82.0
+          components: rustfmt
 
       - name: Check formatting
         run: cargo fmt --all --check
@@ -36,7 +37,8 @@ jobs:
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain-file: rust-toolchain.toml
+          toolchain: 1.82.0
+          components: clippy
 
       - name: Cache cargo registry
         uses: actions/cache@v4
@@ -69,7 +71,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain-file: rust-toolchain.toml
+          toolchain: 1.82.0
 
       - name: Cache cargo registry
         uses: actions/cache@v4
@@ -102,7 +104,7 @@ jobs:
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain-file: rust-toolchain.toml
+          toolchain: 1.82.0
 
       - name: Cache cargo registry
         uses: actions/cache@v4
