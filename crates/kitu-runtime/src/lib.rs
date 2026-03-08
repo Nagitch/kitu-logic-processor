@@ -10,10 +10,11 @@
 //! (`kitu-osc-ir`), and future data or scripting layers. See `doc/crates-overview.md` for how the
 //! runtime coordinates the workspace crates.
 
-use std::time::Duration;
+use std::{collections::VecDeque, time::Duration};
 
-use kitu_core::{Result, Tick};
+use kitu_core::{KituError, Result, Tick};
 use kitu_ecs::EcsWorld;
+use kitu_osc_ir::OscBundle;
 use kitu_transport::{Transport, TransportEvent};
 
 /// Configuration for the runtime loop.
@@ -45,8 +46,13 @@ impl RuntimeConfig {
 pub struct Runtime<T: Transport> {
     config: RuntimeConfig,
     tick: Tick,
+    accumulator: Duration,
     transport: T,
     world: EcsWorld,
+    committed_inputs: VecDeque<OscBundle>,
+    pending_inputs: VecDeque<OscBundle>,
+    staged_outputs: VecDeque<OscBundle>,
+    output_buffer: VecDeque<OscBundle>,
 }
 
 impl<T: Transport> Runtime<T> {
@@ -66,8 +72,13 @@ impl<T: Transport> Runtime<T> {
         Self {
             config,
             tick: Tick::start(),
+            accumulator: Duration::ZERO,
             transport,
             world: EcsWorld::default(),
+            committed_inputs: VecDeque::new(),
+            pending_inputs: VecDeque::new(),
+            staged_outputs: VecDeque::new(),
+            output_buffer: VecDeque::new(),
         }
     }
 
@@ -76,11 +87,59 @@ impl<T: Transport> Runtime<T> {
         &mut self.world
     }
 
+    /// Enqueues an input bundle for the next tick.
+    pub fn enqueue_input(&mut self, input: OscBundle) {
+        self.pending_inputs.push_back(input);
+    }
+
+    /// Stages an output bundle that becomes visible after the current tick.
+    pub fn queue_output(&mut self, output: OscBundle) {
+        self.staged_outputs.push_back(output);
+    }
+
+    /// Drains all emitted output bundles in FIFO order.
+    pub fn drain_output_buffer(&mut self) -> Vec<OscBundle> {
+        self.output_buffer.drain(..).collect()
+    }
+
+    /// Drains committed input bundles in FIFO order.
+    ///
+    /// Input bundles are committed at the beginning of a tick and remain
+    /// available until explicitly drained by the caller.
+    pub fn drain_committed_inputs(&mut self) -> Vec<OscBundle> {
+        self.committed_inputs.drain(..).collect()
+    }
+
+    /// Processes as many fixed ticks as `dt` allows.
+    ///
+    /// Returns how many ticks were executed.
+    pub fn update(&mut self, dt: f32) -> Result<u32> {
+        if !dt.is_finite() {
+            return Err(KituError::InvalidInput("dt must be finite"));
+        }
+
+        if dt.is_sign_negative() {
+            return Err(KituError::InvalidInput("dt must be non-negative"));
+        }
+
+        self.accumulator += Duration::from_secs_f32(dt);
+        let frame_time = self.config.frame_time();
+        let mut executed = 0;
+
+        while self.accumulator >= frame_time {
+            self.tick_once()?;
+            self.accumulator -= frame_time;
+            executed += 1;
+        }
+
+        Ok(executed)
+    }
+
     /// Processes a single tick of the runtime loop.
     ///
-    /// This dispatches all scheduled ECS systems for the current tick and
-    /// polls the transport for pending events before incrementing the tick
-    /// counter.
+    /// This dispatches all scheduled ECS systems for the current tick, emits
+    /// staged outputs, polls transport events, and increments the tick counter.
+    /// Inputs received while polling are queued for the next tick.
     ///
     /// # Examples
     ///
@@ -94,12 +153,18 @@ impl<T: Transport> Runtime<T> {
     /// assert_eq!(runtime.current_tick().get(), 1);
     /// ```
     pub fn tick_once(&mut self) -> Result<()> {
+        self.committed_inputs.append(&mut self.pending_inputs);
+
         self.world.dispatch(self.tick)?;
+
+        self.output_buffer.append(&mut self.staged_outputs);
+
         while let Some(event) = self.transport.poll_event() {
-            if let TransportEvent::Message(_) = event {
-                // Future work: route to ECS systems or script hooks.
+            if let TransportEvent::Message(bundle) = event {
+                self.pending_inputs.push_back(bundle);
             }
         }
+
         self.tick = self.tick.next();
         Ok(())
     }
@@ -152,7 +217,6 @@ pub fn build_runtime<T: Transport>(transport: T) -> Runtime<T> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kitu_core::KituError;
     use kitu_transport::LocalChannel;
 
     #[test]
@@ -180,19 +244,85 @@ mod tests {
     }
 
     #[test]
-    fn tick_once_returns_error_when_dispatch_fails() {
-        struct FailingTransport;
-        impl Transport for FailingTransport {
+    fn update_uses_fixed_timestep_accumulator() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let executed = runtime.update(0.010).unwrap();
+        assert_eq!(executed, 0);
+        assert_eq!(runtime.current_tick().get(), 0);
+
+        let executed = runtime.update(0.010).unwrap();
+        assert_eq!(executed, 1);
+        assert_eq!(runtime.current_tick().get(), 1);
+    }
+
+    #[test]
+    fn update_rejects_non_finite_dt() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        assert!(runtime.update(f32::NAN).is_err());
+        assert!(runtime.update(f32::INFINITY).is_err());
+    }
+
+    #[test]
+    fn tick_applies_transport_input_on_next_tick() {
+        struct ScriptedTransport {
+            events: VecDeque<TransportEvent>,
+        }
+
+        impl Transport for ScriptedTransport {
             fn send(&mut self, _message: kitu_osc_ir::OscMessage) -> Result<()> {
-                Err(KituError::NotImplemented("send".into()))
+                Ok(())
             }
 
             fn poll_event(&mut self) -> Option<TransportEvent> {
-                None
+                self.events.pop_front()
             }
         }
 
-        let mut runtime = build_runtime(FailingTransport);
-        assert!(runtime.tick_once().is_ok());
+        let mut bundle = OscBundle::new();
+        bundle.push(kitu_osc_ir::OscMessage::new("/input/move"));
+
+        let transport = ScriptedTransport {
+            events: VecDeque::from([TransportEvent::Message(bundle)]),
+        };
+
+        let mut runtime = build_runtime(transport);
+
+        runtime.tick_once().unwrap();
+        assert_eq!(runtime.committed_inputs.len(), 0);
+        assert_eq!(runtime.pending_inputs.len(), 1);
+
+        runtime.tick_once().unwrap();
+        let committed = runtime.drain_committed_inputs();
+        assert_eq!(committed.len(), 1);
+        assert_eq!(runtime.pending_inputs.len(), 0);
+    }
+
+    #[test]
+    fn committed_inputs_are_preserved_until_drained() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        let mut input = OscBundle::new();
+        input.push(kitu_osc_ir::OscMessage::new("/input/attack"));
+        runtime.enqueue_input(input.clone());
+
+        runtime.tick_once().unwrap();
+        runtime.tick_once().unwrap();
+
+        let committed = runtime.drain_committed_inputs();
+        assert_eq!(committed, vec![input]);
+    }
+
+    #[test]
+    fn outputs_are_emitted_after_tick() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        let mut output = OscBundle::new();
+        output.push(kitu_osc_ir::OscMessage::new("/render/player/transform"));
+
+        runtime.queue_output(output.clone());
+        assert!(runtime.drain_output_buffer().is_empty());
+
+        runtime.tick_once().unwrap();
+        let drained = runtime.drain_output_buffer();
+        assert_eq!(drained, vec![output]);
     }
 }

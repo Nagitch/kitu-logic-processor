@@ -73,8 +73,8 @@ The Rust backend is the authoritative “game universe”.
 Core responsibilities:
 
 - ECS entities/components/systems for all simulation
-- Game loop driven by a high‑precision timer
-- Handling OSC input events from Unity/Web Admin/tests
+- Game loop driven by a fixed-timestep accumulator (`update(dt)` -> deterministic ticks)
+- Handling OSC input events from Unity/Web Admin/tests with next-tick application (`N` receive -> `N+1` apply)
 - Running Rhai scripts for configurable behavior (skills, quests, AI, etc.)
 - Executing TSQ1 timelines
 - Loading and validating TMD + SQLite data
@@ -86,6 +86,8 @@ The backend can run:
 - As an **embedded cdylib** inside Unity (for offline or single‑player builds)
 
 In both cases, the logic code is identical, ensuring identical behavior.
+
+Runtime execution contract: [`specs/runtime-execution-contract.md`](specs/runtime-execution-contract.md).
 
 
 ## Communication Layer (OSC + osc-ir + MessagePack)

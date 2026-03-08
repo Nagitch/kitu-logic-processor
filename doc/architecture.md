@@ -119,7 +119,8 @@ The runtime model is **authoritative, tick-driven, and deterministic-first**.
 
 - `kitu-runtime` owns the `Tick` counter and increments exactly once per successful `tick_once`.
 - `RuntimeConfig.tick_rate_hz` defines fixed tick cadence and frame duration.
-- Runtime loop is expected to run at fixed-step simulation; rendering side may interpolate externally.
+- `Runtime::update(dt)` uses a fixed-timestep accumulator and executes zero or more `tick_once` calls depending on accumulated time.
+- Runtime loop is fixed-step simulation; rendering side may interpolate externally.
 
 ### Per-tick execution phases (current MVP)
 
@@ -138,6 +139,7 @@ The runtime model is **authoritative, tick-driven, and deterministic-first**.
 ## Tick and event flow
 
 The per-tick order must remain explicit and stable, because replay/debug tools depend on it.
+Normative reference: `specs/runtime-execution-contract.md`.
 
 ```mermaid
 sequenceDiagram
@@ -145,15 +147,15 @@ sequenceDiagram
     participant Runtime as kitu-runtime
     participant ECS as kitu-ecs world
     participant Transport as kitu-transport
-    participant Modules as TSQ1 or Rhai or Data hooks
 
     Host->>Runtime: tick_once()
-    Runtime->>ECS: dispatch systems at current tick
+    Runtime->>Runtime: commit pending_inputs as tick N inputs
+    Runtime->>ECS: dispatch systems at tick N
     ECS-->>Runtime: deterministic state updates
+    Runtime->>Runtime: emit staged outputs to output_buffer
     Runtime->>Transport: poll_event() until empty
-    Transport-->>Runtime: TransportEvent values
-    Runtime->>Modules: process queued messages and hooks
-    Modules-->>Runtime: generated runtime actions
+    Transport-->>Runtime: Message events for tick N+1
+    Runtime->>Runtime: increment tick to N+1
     Runtime-->>Host: Result and next tick value
 ```
 
