@@ -58,6 +58,8 @@ Kitu separates **authoritative runtime logic** (Rust) from **presentation and pl
 
 Kitu is organized as a layered architecture where core primitives sit at the bottom, orchestration in the middle, and integration/tooling at the boundary.
 
+For diagram readability: arrows in dependency diagrams mean "depends on", while arrows in architecture flow diagrams mean information or control flow.
+
 ```mermaid
 flowchart LR
     subgraph Authoring[Authoring and Build Inputs]
@@ -121,10 +123,11 @@ The runtime model is **authoritative, tick-driven, and deterministic-first**.
 
 ### Per-tick execution phases (current MVP)
 
-1. Dispatch ECS systems for current tick.
-2. Poll transport events currently queued.
-3. Route/process message events (currently placeholder in skeleton).
-4. Increment tick counter.
+1. Freeze the committed input batch for the current tick.
+2. Dispatch ECS systems for the current tick.
+3. Emit runtime outputs/events produced by this tick.
+4. Poll transport events and enqueue newly received inputs for the next committed batch.
+5. Increment tick counter.
 
 ### Runtime extension points (planned but bounded by this architecture)
 
@@ -153,6 +156,14 @@ sequenceDiagram
     Modules-->>Runtime: generated runtime actions
     Runtime-->>Host: Result and next tick value
 ```
+
+### Input Application Timing
+
+Inputs received during tick `N` are not applied immediately to authoritative simulation state.
+They are queued and become part of the committed input batch for tick `N+1`.
+This keeps tick evaluation deterministic and independent from transport polling timing.
+
+This timing rule supports deterministic replay, stable network synchronization, and transport timing independence.
 
 ### Tick-based processing order requirements
 
