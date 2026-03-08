@@ -13,6 +13,7 @@ It is the normative specification for tick order, input timing, transport pollin
 
 - `RuntimeConfig.tick_rate_hz` defines the fixed simulation step (`frame_time`).
 - `Runtime::update(dt)` accumulates wall-clock delta and executes `tick_once()` while `accumulator >= frame_time`.
+- non-finite `dt` (`NaN`, `+/-∞`) is invalid input.
 - `dt < 0` is invalid input.
 
 Pseudo flow:
@@ -27,7 +28,7 @@ Pseudo flow:
 For tick `N`, execution order is fixed as follows:
 
 1. **Commit input batch for tick `N`**
-   - Move `pending_inputs` into `committed_inputs`.
+   - Append `pending_inputs` into `committed_inputs` (preserving any previously committed, not-yet-consumed inputs).
 2. **Dispatch ECS systems for tick `N`**
    - Authoritative state update phase.
 3. **Emit outputs for tick `N`**
@@ -57,6 +58,7 @@ Hosts should poll outputs after `update()`/`tick_once()` returns.
 - `enqueue_input(bundle)`: queue host-provided input for a future tick.
 - `queue_output(bundle)`: stage runtime outputs for emission at phase 3.
 - `drain_output_buffer()`: read emitted outputs in FIFO order.
+- `drain_committed_inputs()`: consume the committed input batch in FIFO order.
 
 ## Relationship to architecture docs
 

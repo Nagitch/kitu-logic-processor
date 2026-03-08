@@ -102,10 +102,22 @@ impl<T: Transport> Runtime<T> {
         self.output_buffer.drain(..).collect()
     }
 
+    /// Drains committed input bundles in FIFO order.
+    ///
+    /// Input bundles are committed at the beginning of a tick and remain
+    /// available until explicitly drained by the caller.
+    pub fn drain_committed_inputs(&mut self) -> Vec<OscBundle> {
+        self.committed_inputs.drain(..).collect()
+    }
+
     /// Processes as many fixed ticks as `dt` allows.
     ///
     /// Returns how many ticks were executed.
     pub fn update(&mut self, dt: f32) -> Result<u32> {
+        if !dt.is_finite() {
+            return Err(KituError::InvalidInput("dt must be finite"));
+        }
+
         if dt.is_sign_negative() {
             return Err(KituError::InvalidInput("dt must be non-negative"));
         }
@@ -141,7 +153,7 @@ impl<T: Transport> Runtime<T> {
     /// assert_eq!(runtime.current_tick().get(), 1);
     /// ```
     pub fn tick_once(&mut self) -> Result<()> {
-        self.committed_inputs = std::mem::take(&mut self.pending_inputs);
+        self.committed_inputs.append(&mut self.pending_inputs);
 
         self.world.dispatch(self.tick)?;
 
@@ -245,6 +257,13 @@ mod tests {
     }
 
     #[test]
+    fn update_rejects_non_finite_dt() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        assert!(runtime.update(f32::NAN).is_err());
+        assert!(runtime.update(f32::INFINITY).is_err());
+    }
+
+    #[test]
     fn tick_applies_transport_input_on_next_tick() {
         struct ScriptedTransport {
             events: VecDeque<TransportEvent>,
@@ -274,8 +293,23 @@ mod tests {
         assert_eq!(runtime.pending_inputs.len(), 1);
 
         runtime.tick_once().unwrap();
-        assert_eq!(runtime.committed_inputs.len(), 1);
+        let committed = runtime.drain_committed_inputs();
+        assert_eq!(committed.len(), 1);
         assert_eq!(runtime.pending_inputs.len(), 0);
+    }
+
+    #[test]
+    fn committed_inputs_are_preserved_until_drained() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        let mut input = OscBundle::new();
+        input.push(kitu_osc_ir::OscMessage::new("/input/attack"));
+        runtime.enqueue_input(input.clone());
+
+        runtime.tick_once().unwrap();
+        runtime.tick_once().unwrap();
+
+        let committed = runtime.drain_committed_inputs();
+        assert_eq!(committed, vec![input]);
     }
 
     #[test]
