@@ -24,8 +24,9 @@ This file is maintained by both human contributors and AI assistants.
   - [x] Document module boundaries (timeline, ecs, bridge)
   - [x] Capture invariants and determinism requirements in `doc/architecture.md`
 - [ ] Testing baseline
-  - [ ] Add unit tests for existing crates/modules
+  - [ ] Expand unit test coverage across existing crates/modules
   - [ ] Add integration tests covering sample logic flows
+  - [ ] Add deterministic replay test coverage for tick/event streams
 - [ ] Publish-readiness checklist per crate
   - [ ] Fill in package metadata and `include` directives
   - [ ] Validate `cargo publish --dry-run` where applicable

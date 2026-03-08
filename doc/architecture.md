@@ -123,13 +123,11 @@ The runtime model is **authoritative, tick-driven, and deterministic-first**.
 
 ### Per-tick execution phases (current MVP)
 
-For tick `N`, runtime processing follows this order:
-
-1. Freeze the committed input batch for tick `N` (already staged from the previous cycle).
-2. Dispatch ECS systems for tick `N` using only the frozen input batch.
-3. Emit runtime outputs/events produced by tick `N` (render, UI, debug, etc.).
-4. Poll transport events and enqueue accepted inputs into the staging buffer for tick `N+1`.
-5. Increment tick counter to `N+1`.
+1. Freeze the committed input batch for the current tick.
+2. Dispatch ECS systems for the current tick.
+3. Emit runtime outputs/events produced by this tick.
+4. Poll transport events and enqueue newly received inputs for the next committed batch.
+5. Increment tick counter.
 
 ### Runtime extension points (planned but bounded by this architecture)
 
@@ -146,23 +144,20 @@ sequenceDiagram
     participant Host as Host loop
     participant Runtime as kitu-runtime
     participant ECS as kitu-ecs world
-    participant Modules as TSQ1 or Rhai or Data hooks
     participant Transport as kitu-transport
+    participant Modules as TSQ1 or Rhai or Data hooks
 
-    Host->>Runtime: tick_once for tick N
-    Runtime->>Runtime: freeze staged inputs for tick N
-    Runtime->>ECS: dispatch systems for tick N
+    Host->>Runtime: tick_once()
+    Runtime->>ECS: dispatch systems at current tick
     ECS-->>Runtime: deterministic state updates
-    Runtime->>Modules: run timeline or script hooks for tick N
-    Modules-->>Runtime: runtime outputs for tick N
-    Runtime-->>Host: publish outputs from tick N
     Runtime->>Transport: poll_event() until empty
-    Transport-->>Runtime: inbound events
-    Runtime->>Runtime: enqueue accepted inputs for tick N+1
-    Runtime-->>Host: advance tick to N+1
+    Transport-->>Runtime: TransportEvent values
+    Runtime->>Modules: process queued messages and hooks
+    Modules-->>Runtime: generated runtime actions
+    Runtime-->>Host: Result and next tick value
 ```
 
-### Input application timing
+### Input Application Timing
 
 Inputs received during tick `N` are not applied immediately to authoritative simulation state.
 They are queued and become part of the committed input batch for tick `N+1`.
@@ -172,17 +167,10 @@ This timing rule supports deterministic replay, stable network synchronization, 
 
 ### Tick-based processing order requirements
 
-- Input applied during tick `N` must come only from the frozen tick `N` input batch.
-- Inputs polled during tick `N` are staged for tick `N+1`; they must not mutate tick `N` simulation results.
+- Input intake for tick `N` must be applied in a deterministic order before advancing to `N+1`.
 - ECS dispatch ordering must be stable for a given build/configuration.
 - Tick increment is the final phase of `tick_once`.
 - Tooling-triggered operations (shell/admin/replay) must enter the same message/event queue path as gameplay input.
-
-### Diagram arrow semantics
-
-- `A->>B` means a synchronous phase transition initiated by `A`.
-- `A-->>B` means returned data or emitted artifacts from `A` to `B` after processing.
-- Self-arrows on `Runtime` indicate internal state transitions (freeze, enqueue, tick advance) that are part of the authoritative tick contract.
 
 ## Determinism and invariants
 
