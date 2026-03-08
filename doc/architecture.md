@@ -1,132 +1,336 @@
 # Kitu MVP Architecture Documentation
 
-# TOC
+This document is the primary architecture source of truth for `kitu-logic-processor`.
+It defines the current MVP architecture, explicit architectural decisions, current assumptions, and open questions.
+For a quick crate index, use [`doc/crates-overview.md`](./crates-overview.md).
 
-- [Candidate next steps for deeper specification](#candidate-next-steps-for-deeper-specification)
-- [Kitu library layout (crates / Unity packages)](#kitu-library-layout-crates--unity-packages)
-  - [Rust workspace layout](#rust-workspace-layout-kitu-repository)
-  - [Responsibilities of each crate](#responsibilities-of-each-crate)
-  - [Game-app repository layout](#game-app-side-stella-rpg-repository-layout)
-  - [Responsibilities of each game-* crate](#responsibilities-of-each-game--crate)
+## Table of contents
+
+- [Overview](#overview)
+- [Scope and non-goals](#scope-and-non-goals)
+- [System architecture](#system-architecture)
+- [Runtime execution model](#runtime-execution-model)
+- [Tick and event flow](#tick-and-event-flow)
+- [Determinism and invariants](#determinism-and-invariants)
+- [Module / crate responsibilities](#module--crate-responsibilities)
+- [Integration boundaries](#integration-boundaries)
+- [Data/content pipeline](#datacontent-pipeline)
+- [Deployment modes](#deployment-modes)
 - [Use case list](#use-case-list)
-  - [A. Boot / main loop](#a-boot--main-loop)
-  - [B. Player control / movement](#b-player-control--movement)
-  - [C. Battle / enemies / damage](#c-battle--enemies--damage)
-  - [D. Status / items / level](#d-status--items--level)
-  - [E. Quests / flags / scenario](#e-quests--flags--scenario)
-  - [F. Presentation (TSQ1)](#f-presentation-tsq1)
-  - [G. UI / menu](#g-ui--menu)
-  - [H. Data-driven / hot reload](#h-data-driven--hot-reload)
-  - [I. Debug / tools / replay](#i-debug--tools--replay)
-  - [J. Save / load](#j-save--load)
-- [Detailed flows](#detailed-flows)
+- [Open questions / deferred decisions](#open-questions--deferred-decisions)
 
-## Candidate next steps for deeper specification
+## Overview
 
-This section collects items to sort out before turning the Kitu architecture into concrete specs and implementations.
+Kitu separates **authoritative runtime logic** (Rust) from **presentation and platform integration** (Unity, shell, web tools). The same runtime behavior should be reusable in both embedded and standalone modes.
 
-1. **Refine communication protocols (OSC / osc-ir / MessagePack).**
-2. **Detailed design for the Rust backend (Kitu Runtime).**
-3. **Abstraction for the Unity client (presentation layer).**
-4. **Kitu spec for TSQ1 timelines.**
-5. **Unified model for data-driven flow (TMD + SQLite).**
-6. **API design for Rhai scripts.**
-7. **Integration of Shell / Web Admin / replay.**
+### Architectural decisions (current)
 
+- `doc/architecture.md` is the detailed architecture specification.
+- Runtime orchestration is tick-based (`kitu-runtime` + `kitu-core::Tick`).
+- OSC-like IR (`kitu-osc-ir`) is the shared event model across runtime boundaries.
+- Transport is abstracted (`kitu-transport`) and must not contain gameplay rules.
+- Unity integration is via FFI boundary (`kitu-unity-ffi`) and should remain presentation-oriented.
 
-## Kitu library layout (crates / Unity packages)
+### Current assumptions
 
-A summary of how to split the Kitu framework itself based on prior discussions.
+- The workspace crate split in `Cargo.toml` reflects intended production boundaries.
+- Several crates are intentionally skeletons; architecture must still constrain future implementation direction.
+- TSQ1, TMD, SQLite, and Rhai are data/content inputs that should not bypass runtime validation boundaries.
 
-### Rust workspace layout (kitu repository)
+## Scope and non-goals
 
-```
-kitu/
-  Cargo.toml              # workspace
-  crates/
-    kitu-core/
-    kitu-ecs/
-    kitu-osc-ir/
-    kitu-transport/
-    kitu-runtime/
-    kitu-scripting-rhai/
-    kitu-data-tmd/
-    kitu-data-sqlite/
-    kitu-tsq1/
-    kitu-shell/
-    kitu-web-admin-backend/
-    kitu-unity-ffi/
-  tools/
-    kitu-cli/
-    kitu-replay-runner/
-  unity/
-    com.kitu.runtime/
-    com.kitu.transport/
-    com.kitu.editor/
-  specs/
-    tsq1/
-    tmd/
-    osc-ir/
-```
+### In scope
 
-### Responsibilities of each crate
+- Runtime loop boundaries and execution ordering.
+- Determinism constraints for simulation and replay.
+- Crate-level responsibility boundaries for current workspace crates.
+- Integration boundaries for Unity, shell/admin tools, and transport/protocol.
+- Data/content flow from authoring formats into runtime behavior.
 
-- **kitu-core**: ID types, error types, time management, common utilities.
-- **kitu-ecs**: ECS abstraction layer (thin wrapper over bevy_ecs, etc.).
-- **kitu-osc-ir**: Types for OSC-like events (address + args).
-- **kitu-transport**: Abstractions for sending/receiving over WebSocket / LocalChannel, etc.
-- **kitu-runtime**: Tick-based game loop and input/output event management.
-- **kitu-scripting-rhai**: Rhai script integration.
-- **kitu-data-tmd**: Parse TMD format into structured data.
-- **kitu-data-sqlite**: SQLite management, schema, accessors.
-- **kitu-tsq1**: TSQ1 AST and playback engine.
-- **kitu-shell**: CLI shell (fire /debug events, etc.).
-- **kitu-web-admin-backend**: Backend for the Web Admin (HTTP + WS).
-- **kitu-unity-ffi**: C API for embedding the cdylib in Unity.
+### Non-goals
 
-### Game-app-side (stella-rpg) repository layout
+- Final wire protocol details for every transport backend (e.g., exact WS framing).
+- Full gameplay rule design for specific games built on Kitu.
+- Unity scene-level implementation details and art/content production workflows.
+- Final persistence model for save/load and cross-version migration.
 
-```
-stella-rpg/
-  Cargo.toml
-  crates/
-    game-core/
-    game-ecs-features/
-    game-data-schema/
-    game-data-build/
-    game-logic/
-    game-timeline/
-    game-scripts/
-    game-shell-ext/
-    game-webadmin-ext/
-  data/
-    tmd/
-    tsq1/
-    scripts/
-    localization/
-  unity/
-    com.stella.game/
-    com.stella.game.editor/
+## System architecture
+
+Kitu is organized as a layered architecture where core primitives sit at the bottom, orchestration in the middle, and integration/tooling at the boundary.
+
+```mermaid
+flowchart LR
+    subgraph Authoring[Authoring and Build Inputs]
+        TMD[TMD files]
+        SQL[SQLite data]
+        TSQ1[TSQ1 timelines]
+        Rhai[Rhai scripts]
+    end
+
+    subgraph RuntimeCore[Authoritative Runtime Core]
+        Core[kitu-core]
+        ECS[kitu-ecs]
+        Runtime[kitu-runtime]
+        OscIR[kitu-osc-ir]
+        Transport[kitu-transport]
+        TSQ1Crate[kitu-tsq1]
+        TmdCrate[kitu-data-tmd]
+        SqlCrate[kitu-data-sqlite]
+        RhaiCrate[kitu-scripting-rhai]
+    end
+
+    subgraph Integrations[Integration Surfaces]
+        Unity[kitu-unity-ffi and Unity packages]
+        Shell[kitu-shell and kitu-cli]
+        WebAdmin[kitu-web-admin-backend]
+        Replay[kitu-replay-runner]
+    end
+
+    TMD --> TmdCrate
+    SQL --> SqlCrate
+    TSQ1 --> TSQ1Crate
+    Rhai --> RhaiCrate
+
+    TmdCrate --> Runtime
+    SqlCrate --> Runtime
+    TSQ1Crate --> Runtime
+    RhaiCrate --> Runtime
+
+    Core --> ECS
+    Core --> OscIR
+    Core --> Transport
+    ECS --> Runtime
+    OscIR --> Transport
+    Transport --> Runtime
+
+    Runtime --> Unity
+    Runtime --> Shell
+    Runtime --> WebAdmin
+    Runtime --> Replay
 ```
 
-### Responsibilities of each game-* crate
+## Runtime execution model
 
-- **game-core**: Entry point for StellaGame embedding KituRuntime.
-- **game-ecs-features**: Registers components and systems.
-- **game-data-schema**: Definitions for game-specific data types (Unit, Item, Skill, etc.).
-- **game-data-build**: Builds the datastore from TMD/SQLite.
-- **game-logic**: Game rules such as combat and movement.
-- **game-timeline**: Game-specific TSQ1 handling.
-- **game-scripts**: Exposes Rhai APIs and integrates game logic.
-- **game-shell-ext**: Game-specific shell commands.
-- **game-webadmin-ext**: Game-specific views/APIs for the Web Admin.
+The runtime model is **authoritative, tick-driven, and deterministic-first**.
 
+### Tick driver
 
-This document lists the use cases for applications built with the Kitu framework (template project and Stella RPG) and shows the flow and participating libraries for each.
+- `kitu-runtime` owns the `Tick` counter and increments exactly once per successful `tick_once`.
+- `RuntimeConfig.tick_rate_hz` defines fixed tick cadence and frame duration.
+- Runtime loop is expected to run at fixed-step simulation; rendering side may interpolate externally.
+
+### Per-tick execution phases (current MVP)
+
+For tick `N`, runtime processing follows this order:
+
+1. Freeze the committed input batch for tick `N` (already staged from the previous cycle).
+2. Dispatch ECS systems for tick `N` using only the frozen input batch.
+3. Emit runtime outputs/events produced by tick `N` (render, UI, debug, etc.).
+4. Poll transport events and enqueue accepted inputs into the staging buffer for tick `N+1`.
+5. Increment tick counter to `N+1`.
+
+### Runtime extension points (planned but bounded by this architecture)
+
+- TSQ1 timeline playback hooks execute within deterministic tick context.
+- Rhai script invocation occurs through runtime-owned APIs, not direct arbitrary host callbacks.
+- Data reload hooks (TMD/SQLite) must be scheduled at explicit safe points, not asynchronously mutating world state mid-phase.
+
+## Tick and event flow
+
+The per-tick order must remain explicit and stable, because replay/debug tools depend on it.
+
+```mermaid
+sequenceDiagram
+    participant Host as Host loop
+    participant Runtime as kitu-runtime
+    participant ECS as kitu-ecs world
+    participant Modules as TSQ1 or Rhai or Data hooks
+    participant Transport as kitu-transport
+
+    Host->>Runtime: tick_once for tick N
+    Runtime->>Runtime: freeze staged inputs for tick N
+    Runtime->>ECS: dispatch systems for tick N
+    ECS-->>Runtime: deterministic state updates
+    Runtime->>Modules: run timeline or script hooks for tick N
+    Modules-->>Runtime: runtime outputs for tick N
+    Runtime-->>Host: publish outputs from tick N
+    Runtime->>Transport: poll_event() until empty
+    Transport-->>Runtime: inbound events
+    Runtime->>Runtime: enqueue accepted inputs for tick N+1
+    Runtime-->>Host: advance tick to N+1
+```
+
+### Tick-based processing order requirements
+
+- Input applied during tick `N` must come only from the frozen tick `N` input batch.
+- Inputs polled during tick `N` are staged for tick `N+1`; they must not mutate tick `N` simulation results.
+- ECS dispatch ordering must be stable for a given build/configuration.
+- Tick increment is the final phase of `tick_once`.
+- Tooling-triggered operations (shell/admin/replay) must enter the same message/event queue path as gameplay input.
+
+### Diagram arrow semantics
+
+- `A->>B` means a synchronous phase transition initiated by `A`.
+- `A-->>B` means returned data or emitted artifacts from `A` to `B` after processing.
+- Self-arrows on `Runtime` indicate internal state transitions (freeze, enqueue, tick advance) that are part of the authoritative tick contract.
+
+## Determinism and invariants
+
+This section defines mandatory invariants for runtime and tools.
+
+### Determinism requirements
+
+- Equal initial state + equal ordered input stream + equal content version must produce equal tick-by-tick state transitions.
+- Runtime-relevant decisions must be tick-indexed; wall-clock time should not alter simulation outcomes.
+- Transports may differ by implementation, but must preserve semantic ordering as observed by runtime.
+
+### Core invariants
+
+- `Tick` is monotonic and never decremented.
+- Runtime state mutates only through runtime-controlled execution phases.
+- Transport layer does not apply gameplay logic.
+- Unity side does not become authoritative for gameplay decisions.
+- Replay system consumes and reproduces event streams rather than patching ECS state directly.
+
+### Assumptions still to validate
+
+- Exact deterministic contract for floating-point heavy systems across platforms.
+- Event ordering guarantees for future network transport backends.
+- Hot reload consistency model when content changes during active sessions.
+
+## Module / crate responsibilities
+
+For dependency details, see `doc/crates-overview.md`. This section defines allowed responsibility boundaries.
+
+```mermaid
+graph TD
+    Core[kitu-core: errors ticks time]
+    ECS[kitu-ecs: world and scheduling]
+    Osc[kitu-osc-ir: message IR]
+    Transport[kitu-transport: delivery abstraction]
+    Runtime[kitu-runtime: authoritative tick orchestration]
+    TMD[kitu-data-tmd: parse and load TMD]
+    SQLite[kitu-data-sqlite: schema and queries]
+    TSQ1[kitu-tsq1: timeline parse and playback]
+    Rhai[kitu-scripting-rhai: script host and bindings]
+    Shell[kitu-shell and kitu-cli: operator commands]
+    Web[kitu-web-admin-backend: admin API surface]
+    UnityFFI[kitu-unity-ffi: C ABI boundary]
+    Replay[kitu-replay-runner: deterministic playback]
+
+    Core --> ECS
+    Core --> Osc
+    Osc --> Transport
+    ECS --> Runtime
+    Transport --> Runtime
+    TMD --> Runtime
+    SQLite --> Runtime
+    TSQ1 --> Runtime
+    Rhai --> Runtime
+    Runtime --> Shell
+    Runtime --> Web
+    Runtime --> UnityFFI
+    Runtime --> Replay
+```
+
+### Responsibility rules by boundary
+
+- `kitu-core`: foundational types only; no transport/runtime orchestration.
+- `kitu-osc-ir`: protocol-neutral message model; no game rules or transport coupling.
+- `kitu-transport`: sending/receiving and connectivity events only.
+- `kitu-runtime`: only crate allowed to own authoritative tick loop orchestration.
+- `kitu-data-*`, `kitu-tsq1`, `kitu-scripting-rhai`: adapt data/content into runtime-consumable structures and commands.
+- `kitu-shell`, `kitu-web-admin-backend`, `kitu-unity-ffi`, replay tools: integration adapters around runtime, not alternate runtime implementations.
+
+## Integration boundaries
+
+### Unity/client side boundary
+
+- Unity and future client packages are presentation/input boundaries.
+- Unity sends input intents and receives runtime output events.
+- `kitu-unity-ffi` must provide a stable ABI and deterministic handoff into runtime-owned processing.
+- Client-side prediction, if introduced later, must be explicitly documented as non-authoritative.
+
+### Shell / admin / tooling boundary
+
+- Shell and admin commands are operator/tooling channels.
+- They may inspect state and send commands, but command effects must flow through runtime event pathways.
+- Tooling access control, auditability, and mutation safety are deployment concerns, not runtime loop concerns.
+
+### Transport/protocol boundary
+
+- Protocol semantics are represented in `kitu-osc-ir`.
+- Serialization/wire details are transport adapter concerns.
+- Runtime behavior must not depend on one specific transport technology (local channel, WS, TCP, etc.).
+
+## Data/content pipeline
+
+Content is data-driven, but runtime remains authoritative for application and timing.
+
+```mermaid
+flowchart TD
+    A[TMD source files] --> B[kitu-data-tmd parser and validator]
+    C[SQLite data and schema] --> D[kitu-data-sqlite access layer]
+    E[TSQ1 scripts] --> F[kitu-tsq1 parser and timeline model]
+    G[Rhai scripts] --> H[kitu-scripting-rhai host]
+
+    B --> I[Runtime content loader]
+    D --> I
+    F --> I
+    H --> I
+
+    I --> J[kitu-runtime tick loop]
+    J --> K[OSC-IR output events]
+    K --> L[Unity and tooling consumers]
+```
+
+### Pipeline boundary rules
+
+- TMD: authoring-friendly source format; parsed and validated before runtime use.
+- SQLite: structured storage and query boundary; runtime consumes validated records, not raw SQL strings from clients.
+- TSQ1: timeline behavior represented as deterministic, tick-aligned steps.
+- Rhai: scripted behavior must execute through constrained host APIs.
+- Runtime: final authority deciding when and how loaded content affects simulation state.
+
+## Deployment modes
+
+Kitu targets multiple deployment/integration modes while preserving one authoritative logic implementation.
+
+```mermaid
+flowchart LR
+    subgraph EmbeddedMode[Embedded mode]
+        UnityClient[Unity client]
+        FFI[kitu-unity-ffi]
+        RuntimeA[kitu-runtime]
+        UnityClient --> FFI --> RuntimeA
+    end
+
+    subgraph ServerMode[Standalone server mode]
+        Cli[kitu-cli]
+        RuntimeB[kitu-runtime]
+        Cli --> RuntimeB
+    end
+
+    subgraph ToolingMode[Tooling and operations mode]
+        Shell[kitu-shell]
+        WebAdmin[kitu-web-admin-backend]
+        Replay[kitu-replay-runner]
+        RuntimeC[kitu-runtime]
+        Shell --> RuntimeC
+        WebAdmin --> RuntimeC
+        Replay --> RuntimeC
+    end
+```
+
+### Deployment assumptions
+
+- Embedded and standalone modes share the same runtime logic path as much as possible.
+- Replay and diagnostics should operate in both local and CI contexts.
+- Production hardening details (network auth, process isolation, secrets) are deferred to implementation documents.
 
 ## Use case list
 
-(This document is continuously updated with content discussed in chat.)
+This list tracks scenario coverage and should remain aligned with runtime and tooling boundaries.
 
 ### A. Boot / main loop
 
@@ -181,9 +385,12 @@ This document lists the use cases for applications built with the Kitu framework
 
 - UC-90: Save/load data
 
+## Open questions / deferred decisions
 
-## Detailed flows
-
-Detailed flows for UC-01 / UC-02 moved to `kitu_detailed_flows.md`.
-
-Links or summaries for each UC will live here going forward.
+1. **Protocol finalization**: How strictly to lock OSC address schema and MessagePack envelope shape.
+2. **Deterministic numerics**: Policy for float determinism across CPU/OS combinations.
+3. **Hot reload model**: Whether changes apply at tick boundaries only, and rollback strategy on validation errors.
+4. **Script sandboxing**: Security and resource limits for Rhai in development vs production.
+5. **Persistence model**: Save/load snapshot granularity and schema evolution policy.
+6. **Web admin security**: Authentication/authorization model for remote operations.
+7. **Unity package layout**: Final package boundaries and release/versioning strategy under `unity/`.

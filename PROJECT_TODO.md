@@ -20,9 +20,9 @@ This file is maintained by both human contributors and AI assistants.
 - [x] Establish continuous integration
   - [x] fmt/clippy/test workflow in GitHub Actions
   - [x] Basic status badges in README
-- [ ] Define core runtime architecture
-  - [ ] Document module boundaries (timeline, ecs, bridge)
-  - [ ] Capture invariants and determinism requirements in `doc/architecture.md`
+- [x] Define core runtime architecture
+  - [x] Document module boundaries (timeline, ecs, bridge)
+  - [x] Capture invariants and determinism requirements in `doc/architecture.md`
 - [ ] Testing baseline
   - [ ] Add unit tests for existing crates/modules
   - [ ] Add integration tests covering sample logic flows
