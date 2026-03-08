@@ -1,3 +1,5 @@
 # Specifications
 
-Protocol and data format specifications (e.g., TSQ1, TMD, OSC-IR) will live here alongside reference assets.
+Protocol and behavior specifications live here.
+
+- `runtime-execution-contract.md`: authoritative runtime tick order, input timing, transport polling timing, and output emission timing.

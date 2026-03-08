@@ -170,12 +170,12 @@ Each Unity `Update()` sends `deltaTime` to Rust. KituRuntime advances simulation
 ```csharp
 void Update(){
     var dt = Time.deltaTime;
-    KituNative.Update(dt);
     SendInputIfAny();
+    KituNative.Update(dt);
 }
 ```
 
-Unity responsibilities: notify elapsed time, send input events (e.g., `/input/move`, `/input/attack`), avoid game logic. Rust API: `kitu-unity-ffi::kitu_update(handle, delta_seconds: f32)`.
+Unity responsibilities: notify elapsed time, send input events (e.g., `/input/move`, `/input/attack`), avoid game logic. Rust API: `kitu-unity-ffi::kitu_update(handle, delta_seconds: f32)`. Inputs that arrive during tick `N` are applied in tick `N+1`.
 
 ### Rust: `KituRuntime.update(dt)`
 
@@ -195,12 +195,14 @@ Accumulates deltaTime, runs as many ticks as needed, and keeps the simulation on
 
 Phases (order fixed for determinism):
 
-1. **Input processing**: apply `/input/move`, `/input/attack`, etc. to ECS state.
-2. **AI / scripts**: enemy behavior and quest logic via Rhai.
-3. **Physics / movement**: apply velocity to position, simple collision.
-4. **Combat / damage**: hit checks, skill effects, HP updates.
-5. **Death handling**: mark dead entities, despawn.
-6. **Collect render data**: transforms, UI info, enqueue Unity-bound events.
+1. **Commit queued inputs**: freeze previously queued input bundle as tick `N` input.
+2. **Input processing**: apply `/input/move`, `/input/attack`, etc. from committed inputs to ECS state.
+3. **AI / scripts**: enemy behavior and quest logic via Rhai.
+4. **Physics / movement**: apply velocity to position, simple collision.
+5. **Combat / damage**: hit checks, skill effects, HP updates.
+6. **Death handling**: mark dead entities, despawn.
+7. **Collect render data**: transforms, UI info, enqueue Unity-bound events.
+8. **Transport poll**: queue newly received inputs for tick `N+1`.
 
 Crates: `kitu-ecs`, `game-ecs-features`, `game-logic`, `kitu-tsq1` (when skills present), `kitu-runtime` (event management).
 
