@@ -123,7 +123,7 @@ impl<T: Transport> Runtime<T> {
         }
 
         let dt_secs = f64::from(dt);
-        if dt_secs > Duration::MAX.as_secs_f64() {
+        if dt_secs >= Duration::MAX.as_secs_f64() {
             return Err(KituError::InvalidInput("dt is too large"));
         }
 
@@ -284,6 +284,9 @@ mod tests {
     fn update_rejects_oversized_dt() {
         let mut runtime = build_runtime(LocalChannel::default());
         assert!(runtime.update(f32::MAX).is_err());
+
+        let boundary = Duration::MAX.as_secs_f64() as f32;
+        assert!(runtime.update(boundary).is_err());
     }
 
     #[test]
