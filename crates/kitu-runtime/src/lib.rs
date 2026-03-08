@@ -122,8 +122,25 @@ impl<T: Transport> Runtime<T> {
             return Err(KituError::InvalidInput("dt must be non-negative"));
         }
 
-        self.accumulator += Duration::from_secs_f32(dt);
+        let dt_secs = f64::from(dt);
+        if dt_secs > Duration::MAX.as_secs_f64() {
+            return Err(KituError::InvalidInput("dt is too large"));
+        }
+
+        if self.config.tick_rate_hz == 0 {
+            return Err(KituError::InvalidInput(
+                "tick_rate_hz must be greater than zero",
+            ));
+        }
+
+        self.accumulator += Duration::from_secs_f64(dt_secs);
         let frame_time = self.config.frame_time();
+        if frame_time.is_zero() {
+            return Err(KituError::InvalidInput(
+                "frame_time must be greater than zero",
+            ));
+        }
+
         let mut executed = 0;
 
         while self.accumulator >= frame_time {
@@ -261,6 +278,26 @@ mod tests {
         let mut runtime = build_runtime(LocalChannel::default());
         assert!(runtime.update(f32::NAN).is_err());
         assert!(runtime.update(f32::INFINITY).is_err());
+    }
+
+    #[test]
+    fn update_rejects_oversized_dt() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        assert!(runtime.update(f32::MAX).is_err());
+    }
+
+    #[test]
+    fn update_rejects_invalid_tick_rate() {
+        let mut runtime = Runtime::new(RuntimeConfig { tick_rate_hz: 0 }, LocalChannel::default());
+        assert!(runtime.update(0.016).is_err());
+
+        let mut runtime = Runtime::new(
+            RuntimeConfig {
+                tick_rate_hz: u32::MAX,
+            },
+            LocalChannel::default(),
+        );
+        assert!(runtime.update(0.016).is_err());
     }
 
     #[test]

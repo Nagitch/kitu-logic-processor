@@ -15,6 +15,8 @@ It is the normative specification for tick order, input timing, transport pollin
 - `Runtime::update(dt)` accumulates wall-clock delta and executes `tick_once()` while `accumulator >= frame_time`.
 - non-finite `dt` (`NaN`, `+/-∞`) is invalid input.
 - `dt < 0` is invalid input.
+- `dt` that exceeds `Duration::MAX` is invalid input.
+- `tick_rate_hz` must be non-zero and produce a positive non-zero `frame_time`.
 
 Pseudo flow:
 
