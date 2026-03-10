@@ -193,15 +193,15 @@ Accumulates deltaTime, runs as many ticks as needed, and keeps the simulation on
 
 ### ECS scheduling per tick
 
-The authoritative runtime contract for tick `N` is fixed as: 
+The authoritative runtime contract for tick `N` is fixed as the following ordered phases (same contract as `doc/architecture.md`):
 
-1. **Current tick batch freeze**: clear previous committed inputs, then commit `pending_inputs` as tick `N` input batch.
+1. **Current tick batch freeze**: clear the previous committed batch, then move `pending_inputs` into the committed input batch for tick `N`.
 2. **ECS dispatch**: run deterministic systems for tick `N` (input processing, AI/scripts, physics/movement, combat/damage, death handling, render-data collection).
 3. **Output emission**: move staged runtime outputs for tick `N` into the externally visible output buffer.
-4. **Transport poll for next tick input**: drain transport events and queue messages into `pending_inputs` for tick `N+1`.
+4. **Transport poll for next tick input**: drain transport events and queue received messages into `pending_inputs` for tick `N+1`.
 5. **Tick increment**: advance from tick `N` to `N+1` as the final phase.
 
-Important timing rule: inputs received while tick `N` is running are never applied in tick `N`; they are first eligible in tick `N+1`. Transport polling alone must not directly mutate world state.
+Important timing rule: inputs received while tick `N` is running are never applied in tick `N`; they are first eligible in tick `N+1` when that tick starts and freezes its committed batch. Transport polling alone must not directly mutate authoritative world state.
 
 Crates: `kitu-ecs`, `game-ecs-features`, `game-logic`, `kitu-tsq1` (when skills present), `kitu-runtime` (authoritative phase orchestration and buffers).
 
@@ -602,4 +602,3 @@ Layers: Unity `com.kitu.runtime` (event bus) and `com.stella.game` (view). Unity
 1. **Save**: serialize necessary ECS components/resources (player state, quests, inventory, flags) to a versioned format (e.g., SQLite/MessagePack file).
 2. **Load**: pause runtime, rebuild world from the save data, then resume ticks.
 3. **Validation**: handle schema migrations or missing data gracefully; emit UI notices on success/failure.
-
