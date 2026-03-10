@@ -102,10 +102,11 @@ impl<T: Transport> Runtime<T> {
         self.output_buffer.drain(..).collect()
     }
 
-    /// Drains committed input bundles in FIFO order.
+    /// Drains the current tick's committed input bundles in FIFO order.
     ///
-    /// Input bundles are committed at the beginning of a tick and remain
-    /// available until explicitly drained by the caller.
+    /// Input bundles are frozen from `pending_inputs` at the beginning of each
+    /// tick. Inputs that arrive while a tick executes are queued for the next
+    /// tick and do not mutate this committed batch.
     pub fn drain_committed_inputs(&mut self) -> Vec<OscBundle> {
         self.committed_inputs.drain(..).collect()
     }
@@ -170,6 +171,7 @@ impl<T: Transport> Runtime<T> {
     /// assert_eq!(runtime.current_tick().get(), 1);
     /// ```
     pub fn tick_once(&mut self) -> Result<()> {
+        self.committed_inputs.clear();
         self.committed_inputs.append(&mut self.pending_inputs);
 
         self.world.dispatch(self.tick)?;
@@ -235,6 +237,7 @@ pub fn build_runtime<T: Transport>(transport: T) -> Runtime<T> {
 mod tests {
     use super::*;
     use kitu_transport::LocalChannel;
+    use std::sync::{Arc, Mutex};
 
     #[test]
     fn runtime_advances_ticks() {
@@ -271,6 +274,15 @@ mod tests {
         let executed = runtime.update(0.010).unwrap();
         assert_eq!(executed, 1);
         assert_eq!(runtime.current_tick().get(), 1);
+    }
+
+    #[test]
+    fn update_consumes_multiple_ticks_when_dt_is_large_enough() {
+        let mut runtime = Runtime::new(RuntimeConfig { tick_rate_hz: 10 }, LocalChannel::default());
+
+        let executed = runtime.update(0.250).unwrap();
+        assert_eq!(executed, 2);
+        assert_eq!(runtime.current_tick().get(), 2);
     }
 
     #[test]
@@ -339,17 +351,78 @@ mod tests {
     }
 
     #[test]
-    fn committed_inputs_are_preserved_until_drained() {
+    fn committed_inputs_are_frozen_per_tick_batch() {
         let mut runtime = build_runtime(LocalChannel::default());
         let mut input = OscBundle::new();
         input.push(kitu_osc_ir::OscMessage::new("/input/attack"));
         runtime.enqueue_input(input.clone());
 
         runtime.tick_once().unwrap();
+        let committed = runtime.drain_committed_inputs();
+        assert_eq!(committed, vec![input]);
+
         runtime.tick_once().unwrap();
 
         let committed = runtime.drain_committed_inputs();
-        assert_eq!(committed, vec![input]);
+        assert!(committed.is_empty());
+    }
+
+    #[test]
+    fn transport_poll_alone_does_not_commit_input_in_same_tick() {
+        struct ScriptedTransport {
+            events: VecDeque<TransportEvent>,
+        }
+
+        impl Transport for ScriptedTransport {
+            fn send(&mut self, _message: kitu_osc_ir::OscMessage) -> Result<()> {
+                Ok(())
+            }
+
+            fn poll_event(&mut self) -> Option<TransportEvent> {
+                self.events.pop_front()
+            }
+        }
+
+        let mut bundle = OscBundle::new();
+        bundle.push(kitu_osc_ir::OscMessage::new("/input/jump"));
+
+        let transport = ScriptedTransport {
+            events: VecDeque::from([TransportEvent::Message(bundle)]),
+        };
+        let mut runtime = build_runtime(transport);
+
+        runtime.tick_once().unwrap();
+        assert!(runtime.drain_committed_inputs().is_empty());
+
+        runtime.tick_once().unwrap();
+        assert_eq!(runtime.drain_committed_inputs().len(), 1);
+    }
+
+    #[test]
+    fn tick_increment_happens_after_dispatch_phase() {
+        struct TickCaptureSystem {
+            seen_ticks: Arc<Mutex<Vec<u64>>>,
+        }
+
+        impl kitu_ecs::System for TickCaptureSystem {
+            fn run(&mut self, _world: &mut EcsWorld, tick: Tick) -> Result<()> {
+                self.seen_ticks.lock().unwrap().push(tick.get());
+                Ok(())
+            }
+        }
+
+        let mut runtime = build_runtime(LocalChannel::default());
+        let seen_ticks = Arc::new(Mutex::new(Vec::new()));
+
+        runtime.world_mut().schedule_system(TickCaptureSystem {
+            seen_ticks: Arc::clone(&seen_ticks),
+        });
+
+        runtime.tick_once().unwrap();
+
+        let ticks = seen_ticks.lock().unwrap().clone();
+        assert_eq!(ticks, vec![0]);
+        assert_eq!(runtime.current_tick().get(), 1);
     }
 
     #[test]
