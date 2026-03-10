@@ -30,12 +30,12 @@ Pseudo flow:
 For tick `N`, execution order is fixed as follows:
 
 1. **Commit input batch for tick `N`**
-   - Append `pending_inputs` into `committed_inputs` (preserving any previously committed, not-yet-consumed inputs).
+   - Clear previous committed inputs, then move `pending_inputs` into `committed_inputs` for tick `N`.
 2. **Dispatch ECS systems for tick `N`**
    - Authoritative state update phase.
 3. **Emit outputs for tick `N`**
    - Move staged outputs into externally visible `output_buffer`.
-4. **Poll transport**
+4. **Poll transport for next tick input**
    - Drain `poll_event()` until empty.
    - Any received `TransportEvent::Message` is enqueued into `pending_inputs`.
 5. **Advance tick**
