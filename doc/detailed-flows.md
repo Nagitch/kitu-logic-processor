@@ -193,18 +193,17 @@ Accumulates deltaTime, runs as many ticks as needed, and keeps the simulation on
 
 ### ECS scheduling per tick
 
-Phases (order fixed for determinism):
+The authoritative runtime contract for tick `N` is fixed as: 
 
-1. **Commit queued inputs**: freeze previously queued input bundle as tick `N` input.
-2. **Input processing**: apply `/input/move`, `/input/attack`, etc. from committed inputs to ECS state.
-3. **AI / scripts**: enemy behavior and quest logic via Rhai.
-4. **Physics / movement**: apply velocity to position, simple collision.
-5. **Combat / damage**: hit checks, skill effects, HP updates.
-6. **Death handling**: mark dead entities, despawn.
-7. **Collect render data**: transforms, UI info, enqueue Unity-bound events.
-8. **Transport poll**: queue newly received inputs for tick `N+1`.
+1. **Current tick batch freeze**: clear previous committed inputs, then commit `pending_inputs` as tick `N` input batch.
+2. **ECS dispatch**: run deterministic systems for tick `N` (input processing, AI/scripts, physics/movement, combat/damage, death handling, render-data collection).
+3. **Output emission**: move staged runtime outputs for tick `N` into the externally visible output buffer.
+4. **Transport poll for next tick input**: drain transport events and queue messages into `pending_inputs` for tick `N+1`.
+5. **Tick increment**: advance from tick `N` to `N+1` as the final phase.
 
-Crates: `kitu-ecs`, `game-ecs-features`, `game-logic`, `kitu-tsq1` (when skills present), `kitu-runtime` (event management).
+Important timing rule: inputs received while tick `N` is running are never applied in tick `N`; they are first eligible in tick `N+1`. Transport polling alone must not directly mutate world state.
+
+Crates: `kitu-ecs`, `game-ecs-features`, `game-logic`, `kitu-tsq1` (when skills present), `kitu-runtime` (authoritative phase orchestration and buffers).
 
 ### Output events `/render/*` `/ui/*` `/debug/*`
 

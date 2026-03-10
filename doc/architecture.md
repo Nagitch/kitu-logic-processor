@@ -124,11 +124,11 @@ The runtime model is **authoritative, tick-driven, and deterministic-first**.
 
 ### Per-tick execution phases (current MVP)
 
-1. Freeze the committed input batch for the current tick.
-2. Dispatch ECS systems for the current tick.
-3. Emit runtime outputs/events produced by this tick.
-4. Poll transport events and enqueue newly received inputs for the next committed batch.
-5. Increment tick counter.
+1. **Current tick batch freeze**: clear previous committed inputs, then move `pending_inputs` into the committed batch for tick `N`.
+2. **ECS dispatch**: run deterministic ECS systems for tick `N` against that frozen batch.
+3. **Output emission**: move staged outputs produced during tick `N` into the externally visible output buffer.
+4. **Transport poll for next tick**: drain transport events and enqueue received messages into `pending_inputs` for tick `N+1`.
+5. **Tick increment**: advance `tick` from `N` to `N+1` as the final phase.
 
 ### Runtime extension points (planned but bounded by this architecture)
 
@@ -162,7 +162,8 @@ sequenceDiagram
 ### Input Application Timing
 
 Inputs received during tick `N` are not applied immediately to authoritative simulation state.
-They are queued and become part of the committed input batch for tick `N+1`.
+They are queued in `pending_inputs` during the transport-poll phase and only become the committed batch when tick `N+1` begins.
+Transport polling itself must not directly mutate world state.
 This keeps tick evaluation deterministic and independent from transport polling timing.
 
 This timing rule supports deterministic replay, stable network synchronization, and transport timing independence.

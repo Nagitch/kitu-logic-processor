@@ -260,39 +260,15 @@ pub fn update(&mut self, dt: f32) {
 
 ### 1 tick の ECS スケジューリング
 
-1 tick ごとに、以下のフェーズを順序正しく実行する。 ゲームの決定性（determinism）を担保するため、順番は固定。
+権威ランタイムの契約として、tick `N` の順序は以下で固定。
 
-#### フェーズ 1：入力処理
+1. **current tick batch freeze**: 前 tick の committed batch をクリアし、`pending_inputs` を tick `N` の committed input batch として確定する。
+2. **ECS dispatch**: tick `N` の決定的システムを実行する（入力処理、AI/スクリプト、物理/移動、戦闘/ダメージ、死亡処理、描画データ収集）。
+3. **output emission**: tick `N` で stage された出力を、外部公開用 output buffer へ移す。
+4. **transport poll for next tick input**: transport を drain し、受信メッセージを tick `N+1` 用 `pending_inputs` に積む。
+5. **tick increment**: 最後に tick を `N` から `N+1` へ進める。
 
-- `/input/move` `/input/attack` などを ECS に反映
-- ゲームエンティティのステートを更新（Velocity, ActionState など）
-
-#### フェーズ 2：AI / スクリプト実行
-
-- 敵 AI の行動決定（移動・攻撃など）
-- Rhai スクリプトで書かれたクエスト進行ロジックの実行
-
-#### フェーズ 3：物理 / 移動
-
-- Velocity を Position に反映
-- コリジョン判定（簡易）
-
-#### フェーズ 4：戦闘 / ダメージ計算
-
-- 当たり判定
-- スキル効果
-- HP 数値の更新
-
-#### フェーズ 5：死亡処理
-
-- HP <= 0 のエンティティを死亡状態に
-- デスポーン処理
-
-#### フェーズ 6：レンダリング用データ収集
-
-- Transform の収集
-- UI 表示情報の収集（HP・ステータス・HUD）
-- Unity 側へ送るイベントをキューへ積む
+重要ルール：tick `N` 実行中に受信した入力は tick `N` では適用されず、最短で tick `N+1` から有効になる。transport poll 単体で world state を直接変更してはいけない。
 
 **関与 crate**
 
@@ -300,7 +276,7 @@ pub fn update(&mut self, dt: f32) {
 - `game-ecs-features`
 - `game-logic`
 - `kitu-tsq1`（スキル演出があれば）
-- `kitu-runtime`（イベント管理）
+- `kitu-runtime`（権威フェーズ順序とバッファ管理）
 
 
 ### `/render/*` `/ui/*` `/debug/*` の出力イベント生成
