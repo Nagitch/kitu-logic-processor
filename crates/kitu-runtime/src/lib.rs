@@ -17,6 +17,47 @@ use kitu_ecs::EcsWorld;
 use kitu_osc_ir::OscBundle;
 use kitu_transport::{Transport, TransportEvent};
 
+#[derive(Default)]
+struct AuthoritativeInputQueue {
+    committed_batch: VecDeque<OscBundle>,
+    pending_queue: VecDeque<OscBundle>,
+}
+
+impl AuthoritativeInputQueue {
+    fn enqueue_pending(&mut self, input: OscBundle) {
+        self.pending_queue.push_back(input);
+    }
+
+    fn commit_next_tick_batch(&mut self) {
+        self.committed_batch.clear();
+        self.committed_batch.append(&mut self.pending_queue);
+    }
+
+    fn drain_committed(&mut self) -> Vec<OscBundle> {
+        self.committed_batch.drain(..).collect()
+    }
+}
+
+#[derive(Default)]
+struct OutputBuffer {
+    staged: VecDeque<OscBundle>,
+    visible: VecDeque<OscBundle>,
+}
+
+impl OutputBuffer {
+    fn stage(&mut self, output: OscBundle) {
+        self.staged.push_back(output);
+    }
+
+    fn emit_staged(&mut self) {
+        self.visible.append(&mut self.staged);
+    }
+
+    fn drain_visible(&mut self) -> Vec<OscBundle> {
+        self.visible.drain(..).collect()
+    }
+}
+
 /// Configuration for the runtime loop.
 ///
 /// The configuration controls timing for the scheduler and ECS dispatch.
@@ -49,10 +90,8 @@ pub struct Runtime<T: Transport> {
     accumulator: Duration,
     transport: T,
     world: EcsWorld,
-    committed_inputs: VecDeque<OscBundle>,
-    pending_inputs: VecDeque<OscBundle>,
-    staged_outputs: VecDeque<OscBundle>,
-    output_buffer: VecDeque<OscBundle>,
+    inputs: AuthoritativeInputQueue,
+    outputs: OutputBuffer,
 }
 
 impl<T: Transport> Runtime<T> {
@@ -75,10 +114,8 @@ impl<T: Transport> Runtime<T> {
             accumulator: Duration::ZERO,
             transport,
             world: EcsWorld::default(),
-            committed_inputs: VecDeque::new(),
-            pending_inputs: VecDeque::new(),
-            staged_outputs: VecDeque::new(),
-            output_buffer: VecDeque::new(),
+            inputs: AuthoritativeInputQueue::default(),
+            outputs: OutputBuffer::default(),
         }
     }
 
@@ -89,17 +126,17 @@ impl<T: Transport> Runtime<T> {
 
     /// Enqueues an input bundle for the next tick.
     pub fn enqueue_input(&mut self, input: OscBundle) {
-        self.pending_inputs.push_back(input);
+        self.inputs.enqueue_pending(input);
     }
 
     /// Stages an output bundle that becomes visible after the current tick.
     pub fn queue_output(&mut self, output: OscBundle) {
-        self.staged_outputs.push_back(output);
+        self.outputs.stage(output);
     }
 
     /// Drains all emitted output bundles in FIFO order.
     pub fn drain_output_buffer(&mut self) -> Vec<OscBundle> {
-        self.output_buffer.drain(..).collect()
+        self.outputs.drain_visible()
     }
 
     /// Drains the current tick's committed input bundles in FIFO order.
@@ -108,7 +145,7 @@ impl<T: Transport> Runtime<T> {
     /// tick. Inputs that arrive while a tick executes are queued for the next
     /// tick and do not mutate this committed batch.
     pub fn drain_committed_inputs(&mut self) -> Vec<OscBundle> {
-        self.committed_inputs.drain(..).collect()
+        self.inputs.drain_committed()
     }
 
     /// Processes as many fixed ticks as `dt` allows.
@@ -171,16 +208,15 @@ impl<T: Transport> Runtime<T> {
     /// assert_eq!(runtime.current_tick().get(), 1);
     /// ```
     pub fn tick_once(&mut self) -> Result<()> {
-        self.committed_inputs.clear();
-        self.committed_inputs.append(&mut self.pending_inputs);
+        self.inputs.commit_next_tick_batch();
 
         self.world.dispatch(self.tick)?;
 
-        self.output_buffer.append(&mut self.staged_outputs);
+        self.outputs.emit_staged();
 
         while let Some(event) = self.transport.poll_event() {
             if let TransportEvent::Message(bundle) = event {
-                self.pending_inputs.push_back(bundle);
+                self.inputs.enqueue_pending(bundle);
             }
         }
 
@@ -341,13 +377,13 @@ mod tests {
         let mut runtime = build_runtime(transport);
 
         runtime.tick_once().unwrap();
-        assert_eq!(runtime.committed_inputs.len(), 0);
-        assert_eq!(runtime.pending_inputs.len(), 1);
+        assert_eq!(runtime.inputs.committed_batch.len(), 0);
+        assert_eq!(runtime.inputs.pending_queue.len(), 1);
 
         runtime.tick_once().unwrap();
         let committed = runtime.drain_committed_inputs();
         assert_eq!(committed.len(), 1);
-        assert_eq!(runtime.pending_inputs.len(), 0);
+        assert_eq!(runtime.inputs.pending_queue.len(), 0);
     }
 
     #[test]
@@ -393,9 +429,48 @@ mod tests {
 
         runtime.tick_once().unwrap();
         assert!(runtime.drain_committed_inputs().is_empty());
+        assert_eq!(runtime.inputs.pending_queue.len(), 1);
 
         runtime.tick_once().unwrap();
         assert_eq!(runtime.drain_committed_inputs().len(), 1);
+    }
+
+    #[test]
+    fn committed_and_pending_batches_are_kept_separate_per_tick() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut committed_input = OscBundle::new();
+        committed_input.push(kitu_osc_ir::OscMessage::new("/input/one"));
+        runtime.enqueue_input(committed_input.clone());
+        runtime.tick_once().unwrap();
+
+        let mut pending_input = OscBundle::new();
+        pending_input.push(kitu_osc_ir::OscMessage::new("/input/two"));
+        runtime.enqueue_input(pending_input.clone());
+
+        let committed_now = runtime.drain_committed_inputs();
+        assert_eq!(committed_now, vec![committed_input]);
+        assert_eq!(runtime.inputs.pending_queue.len(), 1);
+
+        runtime.tick_once().unwrap();
+        let committed_next = runtime.drain_committed_inputs();
+        assert_eq!(committed_next, vec![pending_input]);
+    }
+
+    #[test]
+    fn output_buffer_drain_preserves_fifo_order() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        let mut first = OscBundle::new();
+        first.push(kitu_osc_ir::OscMessage::new("/render/first"));
+        let mut second = OscBundle::new();
+        second.push(kitu_osc_ir::OscMessage::new("/render/second"));
+
+        runtime.queue_output(first.clone());
+        runtime.queue_output(second.clone());
+
+        runtime.tick_once().unwrap();
+        let drained = runtime.drain_output_buffer();
+        assert_eq!(drained, vec![first, second]);
     }
 
     #[test]
