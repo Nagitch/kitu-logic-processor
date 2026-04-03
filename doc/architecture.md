@@ -37,6 +37,12 @@ Kitu separates **authoritative runtime logic** (Rust) from **presentation and pl
 - Several crates are intentionally skeletons; architecture must still constrain future implementation direction.
 - TSQ1, TMD, SQLite, and Rhai are data/content inputs that should not bypass runtime validation boundaries.
 
+### Current implementation staging
+
+- P1 (runtime core implementation) remains **partial / frozen**.
+- P1 must not be treated as complete while `kitu-runtime` still lacks the full `update(dt)` path, authoritative input queue implementation, output drain implementation, and deterministic replay execution path.
+- Current repository work should prioritize P2-P4 design/docs/framework alignment so that implementation can return to P1 later without conflicting contracts.
+
 ## Scope and non-goals
 
 ### In scope
