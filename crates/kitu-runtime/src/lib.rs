@@ -14,7 +14,7 @@ use std::{collections::VecDeque, time::Duration};
 
 use kitu_core::{KituError, Result, Tick};
 use kitu_ecs::EcsWorld;
-use kitu_osc_ir::OscBundle;
+use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
 use kitu_transport::{Transport, TransportEvent};
 
 #[derive(Default)]
@@ -36,12 +36,35 @@ impl AuthoritativeInputQueue {
     fn drain_committed(&mut self) -> Vec<OscBundle> {
         self.committed_batch.drain(..).collect()
     }
+
+    fn committed_snapshot(&self) -> Vec<OscBundle> {
+        self.committed_batch.iter().cloned().collect()
+    }
 }
 
 #[derive(Default)]
 struct OutputBuffer {
     staged: VecDeque<OscBundle>,
     visible: VecDeque<OscBundle>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct PlayerTransform {
+    entity_id: String,
+    x: f32,
+    y: f32,
+    z: f32,
+}
+
+impl Default for PlayerTransform {
+    fn default() -> Self {
+        Self {
+            entity_id: "player:local".to_string(),
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
+    }
 }
 
 impl OutputBuffer {
@@ -92,6 +115,7 @@ pub struct Runtime<T: Transport> {
     world: EcsWorld,
     inputs: AuthoritativeInputQueue,
     outputs: OutputBuffer,
+    player_transform: PlayerTransform,
 }
 
 impl<T: Transport> Runtime<T> {
@@ -116,6 +140,7 @@ impl<T: Transport> Runtime<T> {
             world: EcsWorld::default(),
             inputs: AuthoritativeInputQueue::default(),
             outputs: OutputBuffer::default(),
+            player_transform: PlayerTransform::default(),
         }
     }
 
@@ -209,6 +234,7 @@ impl<T: Transport> Runtime<T> {
     /// ```
     pub fn tick_once(&mut self) -> Result<()> {
         self.inputs.commit_next_tick_batch();
+        self.apply_player_move_slice()?;
 
         self.world.dispatch(self.tick)?;
 
@@ -221,6 +247,29 @@ impl<T: Transport> Runtime<T> {
         }
 
         self.tick = self.tick.next();
+        Ok(())
+    }
+
+    fn apply_player_move_slice(&mut self) -> Result<()> {
+        let committed = self.inputs.committed_snapshot();
+        for bundle in committed {
+            for message in bundle.messages {
+                if message.address != "/input/move" {
+                    continue;
+                }
+
+                let (entity_id, x, y) = parse_move_input(&message)?;
+                self.player_transform.entity_id = entity_id;
+                self.player_transform.x += x;
+                self.player_transform.y += y;
+
+                self.queue_output(render_player_transform_message(
+                    self.tick,
+                    &self.player_transform,
+                ));
+            }
+        }
+
         Ok(())
     }
 
@@ -252,6 +301,48 @@ impl<T: Transport> Runtime<T> {
         }
         Ok(())
     }
+}
+
+fn parse_move_input(message: &OscMessage) -> Result<(String, f32, f32)> {
+    if message.args.len() != 3 {
+        return Err(KituError::InvalidInput(
+            "/input/move expects [entity_id, x, y]",
+        ));
+    }
+
+    let entity_id = match &message.args[0] {
+        OscArg::Str(id) if !id.is_empty() => id.clone(),
+        _ => {
+            return Err(KituError::InvalidInput(
+                "/input/move entity_id must be a non-empty string",
+            ));
+        }
+    };
+
+    let x = match message.args[1] {
+        OscArg::Float(value) => value,
+        _ => return Err(KituError::InvalidInput("/input/move x must be a float")),
+    };
+
+    let y = match message.args[2] {
+        OscArg::Float(value) => value,
+        _ => return Err(KituError::InvalidInput("/input/move y must be a float")),
+    };
+
+    Ok((entity_id, x, y))
+}
+
+fn render_player_transform_message(tick: Tick, transform: &PlayerTransform) -> OscBundle {
+    let mut message = OscMessage::new("/render/player/transform");
+    message.push_arg(OscArg::Str(transform.entity_id.clone()));
+    message.push_arg(OscArg::Int(tick.get() as i32));
+    message.push_arg(OscArg::Float(transform.x));
+    message.push_arg(OscArg::Float(transform.y));
+    message.push_arg(OscArg::Float(transform.z));
+
+    let mut bundle = OscBundle::new();
+    bundle.push(message);
+    bundle
 }
 
 /// Convenience helper for building a runtime with default configuration.
@@ -368,7 +459,7 @@ mod tests {
         }
 
         let mut bundle = OscBundle::new();
-        bundle.push(kitu_osc_ir::OscMessage::new("/input/move"));
+        bundle.push(kitu_osc_ir::OscMessage::new("/input/ping"));
 
         let transport = ScriptedTransport {
             events: VecDeque::from([TransportEvent::Message(bundle)]),
@@ -512,5 +603,72 @@ mod tests {
         runtime.tick_once().unwrap();
         let drained = runtime.drain_output_buffer();
         assert_eq!(drained, vec![output]);
+    }
+
+    #[test]
+    fn move_input_updates_transform_and_emits_render_message() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut message = OscMessage::new("/input/move");
+        message.push_arg(OscArg::Str("player:local".to_string()));
+        message.push_arg(OscArg::Float(1.0));
+        message.push_arg(OscArg::Float(-0.25));
+
+        let mut input = OscBundle::new();
+        input.push(message);
+        runtime.enqueue_input(input);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        let render = &outputs[0].messages[0];
+        assert_eq!(render.address, "/render/player/transform");
+        assert_eq!(
+            render.args,
+            vec![
+                OscArg::Str("player:local".to_string()),
+                OscArg::Int(0),
+                OscArg::Float(1.0),
+                OscArg::Float(-0.25),
+                OscArg::Float(0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn move_input_received_during_tick_is_applied_next_tick() {
+        struct ScriptedTransport {
+            events: VecDeque<TransportEvent>,
+        }
+
+        impl Transport for ScriptedTransport {
+            fn send(&mut self, _message: OscMessage) -> Result<()> {
+                Ok(())
+            }
+
+            fn poll_event(&mut self) -> Option<TransportEvent> {
+                self.events.pop_front()
+            }
+        }
+
+        let mut move_message = OscMessage::new("/input/move");
+        move_message.push_arg(OscArg::Str("player:local".to_string()));
+        move_message.push_arg(OscArg::Float(0.0));
+        move_message.push_arg(OscArg::Float(1.0));
+
+        let mut bundle = OscBundle::new();
+        bundle.push(move_message);
+        let transport = ScriptedTransport {
+            events: VecDeque::from([TransportEvent::Message(bundle)]),
+        };
+        let mut runtime = build_runtime(transport);
+
+        runtime.tick_once().unwrap();
+        assert!(runtime.drain_output_buffer().is_empty());
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].messages[0].address, "/render/player/transform");
     }
 }
