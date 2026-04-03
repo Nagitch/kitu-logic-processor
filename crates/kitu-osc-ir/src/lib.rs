@@ -17,6 +17,7 @@ use kitu_core::Result;
 #[derive(Debug, Clone, PartialEq)]
 pub enum OscArg {
     Int(i32),
+    Int64(i64),
     Float(f32),
     Str(String),
     Bool(bool),
@@ -55,6 +56,7 @@ impl OscMessage {
             }
             match arg {
                 OscArg::Int(v) => write!(&mut buf, "{v}").unwrap(),
+                OscArg::Int64(v) => write!(&mut buf, "{v}").unwrap(),
                 OscArg::Float(v) => write!(&mut buf, "{v}").unwrap(),
                 OscArg::Str(v) => write!(&mut buf, "\"{v}\"").unwrap(),
                 OscArg::Bool(v) => write!(&mut buf, "{v}").unwrap(),

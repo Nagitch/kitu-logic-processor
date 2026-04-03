@@ -26,7 +26,7 @@ fn player_move_slice_runs_end_to_end() {
         render.args,
         vec![
             OscArg::Str("player:local".to_string()),
-            OscArg::Int(0),
+            OscArg::Int64(0),
             OscArg::Float(1.5),
             OscArg::Float(2.0),
             OscArg::Float(0.0),
@@ -66,7 +66,7 @@ fn player_move_slice_accumulates_over_multiple_ticks() {
         second_render.args,
         vec![
             OscArg::Str("player:local".to_string()),
-            OscArg::Int(1),
+            OscArg::Int64(1),
             OscArg::Float(0.5),
             OscArg::Float(3.0),
             OscArg::Float(0.0),

@@ -252,6 +252,8 @@ impl<T: Transport> Runtime<T> {
 
     fn apply_player_move_slice(&mut self) -> Result<()> {
         let committed = self.inputs.committed_snapshot();
+        let mut parsed_moves = Vec::new();
+
         for bundle in committed {
             for message in bundle.messages {
                 if message.address != "/input/move" {
@@ -259,15 +261,16 @@ impl<T: Transport> Runtime<T> {
                 }
 
                 let (entity_id, x, y) = parse_move_input(&message)?;
-                self.player_transform.entity_id = entity_id;
-                self.player_transform.x += x;
-                self.player_transform.y += y;
-
-                self.queue_output(render_player_transform_message(
-                    self.tick,
-                    &self.player_transform,
-                ));
+                parsed_moves.push((entity_id, x, y));
             }
+        }
+
+        for (entity_id, x, y) in parsed_moves {
+            self.player_transform.entity_id = entity_id;
+            self.player_transform.x += x;
+            self.player_transform.y += y;
+            let output = render_player_transform_message(self.tick, &self.player_transform)?;
+            self.queue_output(output);
         }
 
         Ok(())
@@ -332,17 +335,19 @@ fn parse_move_input(message: &OscMessage) -> Result<(String, f32, f32)> {
     Ok((entity_id, x, y))
 }
 
-fn render_player_transform_message(tick: Tick, transform: &PlayerTransform) -> OscBundle {
+fn render_player_transform_message(tick: Tick, transform: &PlayerTransform) -> Result<OscBundle> {
     let mut message = OscMessage::new("/render/player/transform");
     message.push_arg(OscArg::Str(transform.entity_id.clone()));
-    message.push_arg(OscArg::Int(tick.get() as i32));
+    let tick_i64 = i64::try_from(tick.get())
+        .map_err(|_| KituError::InvalidInput("tick is too large to encode"))?;
+    message.push_arg(OscArg::Int64(tick_i64));
     message.push_arg(OscArg::Float(transform.x));
     message.push_arg(OscArg::Float(transform.y));
     message.push_arg(OscArg::Float(transform.z));
 
     let mut bundle = OscBundle::new();
     bundle.push(message);
-    bundle
+    Ok(bundle)
 }
 
 /// Convenience helper for building a runtime with default configuration.
@@ -627,7 +632,7 @@ mod tests {
             render.args,
             vec![
                 OscArg::Str("player:local".to_string()),
-                OscArg::Int(0),
+                OscArg::Int64(0),
                 OscArg::Float(1.0),
                 OscArg::Float(-0.25),
                 OscArg::Float(0.0),
@@ -670,5 +675,50 @@ mod tests {
         let outputs = runtime.drain_output_buffer();
         assert_eq!(outputs.len(), 1);
         assert_eq!(outputs[0].messages[0].address, "/render/player/transform");
+    }
+
+    #[test]
+    fn invalid_move_batch_does_not_partially_apply_state_or_output() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut valid = OscMessage::new("/input/move");
+        valid.push_arg(OscArg::Str("player:local".to_string()));
+        valid.push_arg(OscArg::Float(1.0));
+        valid.push_arg(OscArg::Float(0.0));
+
+        let mut invalid = OscMessage::new("/input/move");
+        invalid.push_arg(OscArg::Str("player:local".to_string()));
+        invalid.push_arg(OscArg::Float(0.0));
+
+        let mut mixed_batch = OscBundle::new();
+        mixed_batch.push(valid);
+        mixed_batch.push(invalid);
+        runtime.enqueue_input(mixed_batch);
+
+        assert!(runtime.tick_once().is_err());
+        assert_eq!(runtime.current_tick().get(), 0);
+        assert!(runtime.drain_output_buffer().is_empty());
+
+        let mut recovery = OscMessage::new("/input/move");
+        recovery.push_arg(OscArg::Str("player:local".to_string()));
+        recovery.push_arg(OscArg::Float(0.5));
+        recovery.push_arg(OscArg::Float(0.0));
+        let mut recovery_batch = OscBundle::new();
+        recovery_batch.push(recovery);
+        runtime.enqueue_input(recovery_batch);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            outputs[0].messages[0].args,
+            vec![
+                OscArg::Str("player:local".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(0.5),
+                OscArg::Float(0.0),
+                OscArg::Float(0.0),
+            ]
+        );
     }
 }
