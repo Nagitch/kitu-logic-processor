@@ -14,6 +14,12 @@ This file is maintained by both human contributors and AI assistants.
 
 ## TODO
 
+- [ ] P1 runtime core implementation remains partial / frozen
+  - [ ] Do not mark P1 complete
+  - [ ] `kitu-runtime` full `update(dt)` implementation is deferred
+  - [ ] authoritative input queue implementation is deferred
+  - [ ] output drain implementation is deferred
+  - [ ] deterministic replay execution implementation is deferred
 - [x] Additional development environment setup
   - [x] Add helper scripts/justfile entries for common workflows
   - [x] Verify rust-toolchain and devcontainer match CI expectations
@@ -23,6 +29,19 @@ This file is maintained by both human contributors and AI assistants.
 - [x] Define core runtime architecture
   - [x] Document module boundaries (timeline, ecs, bridge)
   - [x] Capture invariants and determinism requirements in `doc/architecture.md`
+- [x] P2 minimum vertical slice specification
+  - [x] Define `/input/move` contract
+  - [x] Define authoritative state update boundary
+  - [x] Define `/render/player/transform` contract
+- [x] P3 integration / replay framework design
+  - [x] Define `kitu-integration-runner` directory structure
+  - [x] Define scenario format
+  - [x] Define expected output format
+  - [x] Define summary/report format
+- [x] P4 surrounding specifications and maintenance docs
+  - [x] Add initial specs under `specs/`
+  - [x] Update `PROJECT_TODO.md` to match the current state
+  - [x] Record that P1 is partial / frozen
 - [ ] Testing baseline
   - [ ] Expand unit test coverage across existing crates/modules
   - [ ] Add integration tests covering sample logic flows
