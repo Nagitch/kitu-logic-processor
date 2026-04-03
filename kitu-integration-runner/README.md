@@ -7,7 +7,7 @@ At the current stage, the repository defines the checked-in scenario and report 
 
 - Framework/design phase only.
 - Deterministic replay executor is not implemented yet.
-- The authoritative runtime implementation work in P1 remains partial / frozen.
+- The authoritative runtime loop baseline exists in `kitu-runtime`, but replay integration on top of it is not implemented yet.
 
 ## Normative spec
 
@@ -35,4 +35,4 @@ Generated run artifacts should be emitted outside the checked-in scenario files,
 - Replay must consume ordered runtime-boundary messages, not direct ECS state patches.
 - Unity remains a presentation/input boundary and is not required for the initial scenario contract.
 - Transport remains delivery-only and must not become a gameplay logic layer.
-- The framework must stay compatible with a later return to P1 runtime implementation.
+- The framework must stay compatible with the current runtime contract and future vertical-slice implementation work.
