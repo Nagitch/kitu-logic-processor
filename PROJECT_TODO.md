@@ -34,7 +34,7 @@ Remaining work:
 
 Status:
 
-- In progress: baseline implementation exists, but repository-wide validation is still incomplete.
+- In progress: first end-to-end gameplay slice validation and integration-level tests now exist; final completion review is pending.
 
 Repository state:
 
@@ -46,26 +46,26 @@ Repository state:
 
 Remaining work:
 
-- [ ] Validate the current runtime loop through the first real end-to-end gameplay slice.
-- [ ] Expand testing beyond `kitu-runtime` unit tests into integration-level validation.
+- [x] Validate the current runtime loop through the first real end-to-end gameplay slice.
+- [x] Expand testing beyond `kitu-runtime` unit tests into integration-level validation.
 - [ ] Re-evaluate whether P1 can be considered complete after the vertical slice and replay smoke path exist.
 
 ### P2 — Build the minimum vertical slice
 
 Status:
 
-- In progress: slice contract is defined; implementation is still pending.
+- In progress: the player move slice is now implemented in runtime, while Unity/host boundary work is still pending.
 
 Repository state:
 
 - [x] `specs/vertical-slice-player-move.md` defines `/input/move` -> authoritative state update -> `/render/player/transform`.
-- [ ] The slice is not implemented end-to-end in code yet.
+- [x] `kitu-runtime` processes `/input/move` into authoritative position updates and emits `/render/player/transform`.
 
 Remaining work:
 
-- [ ] Implement the minimum input payload handling for `/input/move`.
-- [ ] Implement deterministic authoritative state update for the player move slice.
-- [ ] Emit `/render/player/transform` from the runtime-owned output path.
+- [x] Implement the minimum input payload handling for `/input/move`.
+- [x] Implement deterministic authoritative state update for the player move slice.
+- [x] Emit `/render/player/transform` from the runtime-owned output path.
 - [ ] Define and implement the minimum boundary between runtime and Unity / host.
 - [ ] Extend `kitu-unity-ffi` only as much as needed for the slice.
 

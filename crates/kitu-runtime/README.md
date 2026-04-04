@@ -7,6 +7,7 @@ Tick-based orchestrator that wires Kitu ECS, transports, and future scripting/ti
 - Run `update(dt)` with a fixed-timestep accumulator.
 - Apply transport input on the next tick (`N` receive -> `N+1` apply).
 - Emit staged runtime output after ECS dispatch and before transport polling.
+- Implement the minimum player move vertical slice (`/input/move` -> `/render/player/transform`).
 - Bridge transports, scripting, and data playback while keeping the loop embeddable.
 
 ## Publish readiness

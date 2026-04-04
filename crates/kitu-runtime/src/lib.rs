@@ -10,11 +10,14 @@
 //! (`kitu-osc-ir`), and future data or scripting layers. See `doc/crates-overview.md` for how the
 //! runtime coordinates the workspace crates.
 
-use std::{collections::VecDeque, time::Duration};
+use std::{
+    collections::{HashMap, VecDeque},
+    time::Duration,
+};
 
 use kitu_core::{KituError, Result, Tick};
 use kitu_ecs::EcsWorld;
-use kitu_osc_ir::OscBundle;
+use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
 use kitu_transport::{Transport, TransportEvent};
 
 #[derive(Default)]
@@ -36,12 +39,33 @@ impl AuthoritativeInputQueue {
     fn drain_committed(&mut self) -> Vec<OscBundle> {
         self.committed_batch.drain(..).collect()
     }
+
+    fn committed_snapshot(&self) -> Vec<OscBundle> {
+        self.committed_batch.iter().cloned().collect()
+    }
 }
 
 #[derive(Default)]
 struct OutputBuffer {
     staged: VecDeque<OscBundle>,
     visible: VecDeque<OscBundle>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct PlayerTransform {
+    x: f32,
+    y: f32,
+    z: f32,
+}
+
+impl Default for PlayerTransform {
+    fn default() -> Self {
+        Self {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
+    }
 }
 
 impl OutputBuffer {
@@ -91,7 +115,9 @@ pub struct Runtime<T: Transport> {
     transport: T,
     world: EcsWorld,
     inputs: AuthoritativeInputQueue,
+    committed_input_tick: Option<Tick>,
     outputs: OutputBuffer,
+    player_transforms: HashMap<String, PlayerTransform>,
 }
 
 impl<T: Transport> Runtime<T> {
@@ -115,7 +141,9 @@ impl<T: Transport> Runtime<T> {
             transport,
             world: EcsWorld::default(),
             inputs: AuthoritativeInputQueue::default(),
+            committed_input_tick: None,
             outputs: OutputBuffer::default(),
+            player_transforms: HashMap::new(),
         }
     }
 
@@ -145,7 +173,11 @@ impl<T: Transport> Runtime<T> {
     /// tick. Inputs that arrive while a tick executes are queued for the next
     /// tick and do not mutate this committed batch.
     pub fn drain_committed_inputs(&mut self) -> Vec<OscBundle> {
-        self.inputs.drain_committed()
+        let drained = self.inputs.drain_committed();
+        if self.inputs.committed_batch.is_empty() {
+            self.committed_input_tick = None;
+        }
+        drained
     }
 
     /// Processes as many fixed ticks as `dt` allows.
@@ -208,9 +240,21 @@ impl<T: Transport> Runtime<T> {
     /// assert_eq!(runtime.current_tick().get(), 1);
     /// ```
     pub fn tick_once(&mut self) -> Result<()> {
-        self.inputs.commit_next_tick_batch();
+        if self.committed_input_tick != Some(self.tick) {
+            self.inputs.commit_next_tick_batch();
+            self.committed_input_tick = Some(self.tick);
+        }
 
+        let parsed_moves = match self.collect_move_inputs() {
+            Ok(parsed) => parsed,
+            Err(error) => {
+                self.inputs.drain_committed();
+                self.committed_input_tick = None;
+                return Err(error);
+            }
+        };
         self.world.dispatch(self.tick)?;
+        self.apply_player_move_slice(parsed_moves)?;
 
         self.outputs.emit_staged();
 
@@ -221,6 +265,36 @@ impl<T: Transport> Runtime<T> {
         }
 
         self.tick = self.tick.next();
+        Ok(())
+    }
+
+    fn collect_move_inputs(&self) -> Result<Vec<(String, f32, f32)>> {
+        let committed = self.inputs.committed_snapshot();
+        let mut parsed_moves = Vec::new();
+
+        for bundle in committed {
+            for message in bundle.messages {
+                if message.address != "/input/move" {
+                    continue;
+                }
+
+                let (entity_id, x, y) = parse_move_input(&message)?;
+                parsed_moves.push((entity_id, x, y));
+            }
+        }
+
+        Ok(parsed_moves)
+    }
+
+    fn apply_player_move_slice(&mut self, parsed_moves: Vec<(String, f32, f32)>) -> Result<()> {
+        for (entity_id, x, y) in parsed_moves {
+            let transform = self.player_transforms.entry(entity_id.clone()).or_default();
+            transform.x += x;
+            transform.y += y;
+            let output = render_player_transform_message(self.tick, &entity_id, transform)?;
+            self.queue_output(output);
+        }
+
         Ok(())
     }
 
@@ -252,6 +326,56 @@ impl<T: Transport> Runtime<T> {
         }
         Ok(())
     }
+}
+
+fn parse_move_input(message: &OscMessage) -> Result<(String, f32, f32)> {
+    if message.args.len() != 3 {
+        return Err(KituError::InvalidInput(
+            "/input/move expects [entity_id, x, y]",
+        ));
+    }
+
+    let entity_id = match &message.args[0] {
+        OscArg::Str(id) if !id.is_empty() => id.clone(),
+        _ => {
+            return Err(KituError::InvalidInput(
+                "/input/move entity_id must be a non-empty string",
+            ));
+        }
+    };
+
+    let x = parse_move_component(&message.args[1], "/input/move x must be numeric")?;
+    let y = parse_move_component(&message.args[2], "/input/move y must be numeric")?;
+
+    Ok((entity_id, x, y))
+}
+
+fn parse_move_component(arg: &OscArg, error_message: &'static str) -> Result<f32> {
+    match arg {
+        OscArg::Float(value) => Ok(*value),
+        OscArg::Int(value) => Ok(*value as f32),
+        OscArg::Int64(value) => Ok(*value as f32),
+        _ => Err(KituError::InvalidInput(error_message)),
+    }
+}
+
+fn render_player_transform_message(
+    tick: Tick,
+    entity_id: &str,
+    transform: &PlayerTransform,
+) -> Result<OscBundle> {
+    let mut message = OscMessage::new("/render/player/transform");
+    message.push_arg(OscArg::Str(entity_id.to_string()));
+    let tick_i64 = i64::try_from(tick.get())
+        .map_err(|_| KituError::InvalidInput("tick is too large to encode"))?;
+    message.push_arg(OscArg::Int64(tick_i64));
+    message.push_arg(OscArg::Float(transform.x));
+    message.push_arg(OscArg::Float(transform.y));
+    message.push_arg(OscArg::Float(transform.z));
+
+    let mut bundle = OscBundle::new();
+    bundle.push(message);
+    Ok(bundle)
 }
 
 /// Convenience helper for building a runtime with default configuration.
@@ -368,7 +492,7 @@ mod tests {
         }
 
         let mut bundle = OscBundle::new();
-        bundle.push(kitu_osc_ir::OscMessage::new("/input/move"));
+        bundle.push(kitu_osc_ir::OscMessage::new("/input/ping"));
 
         let transport = ScriptedTransport {
             events: VecDeque::from([TransportEvent::Message(bundle)]),
@@ -512,5 +636,296 @@ mod tests {
         runtime.tick_once().unwrap();
         let drained = runtime.drain_output_buffer();
         assert_eq!(drained, vec![output]);
+    }
+
+    #[test]
+    fn move_input_updates_transform_and_emits_render_message() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut message = OscMessage::new("/input/move");
+        message.push_arg(OscArg::Str("player:local".to_string()));
+        message.push_arg(OscArg::Float(1.0));
+        message.push_arg(OscArg::Float(-0.25));
+
+        let mut input = OscBundle::new();
+        input.push(message);
+        runtime.enqueue_input(input);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        let render = &outputs[0].messages[0];
+        assert_eq!(render.address, "/render/player/transform");
+        assert_eq!(
+            render.args,
+            vec![
+                OscArg::Str("player:local".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(1.0),
+                OscArg::Float(-0.25),
+                OscArg::Float(0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn move_input_received_during_tick_is_applied_next_tick() {
+        struct ScriptedTransport {
+            events: VecDeque<TransportEvent>,
+        }
+
+        impl Transport for ScriptedTransport {
+            fn send(&mut self, _message: OscMessage) -> Result<()> {
+                Ok(())
+            }
+
+            fn poll_event(&mut self) -> Option<TransportEvent> {
+                self.events.pop_front()
+            }
+        }
+
+        let mut move_message = OscMessage::new("/input/move");
+        move_message.push_arg(OscArg::Str("player:local".to_string()));
+        move_message.push_arg(OscArg::Float(0.0));
+        move_message.push_arg(OscArg::Float(1.0));
+
+        let mut bundle = OscBundle::new();
+        bundle.push(move_message);
+        let transport = ScriptedTransport {
+            events: VecDeque::from([TransportEvent::Message(bundle)]),
+        };
+        let mut runtime = build_runtime(transport);
+
+        runtime.tick_once().unwrap();
+        assert!(runtime.drain_output_buffer().is_empty());
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(outputs[0].messages[0].address, "/render/player/transform");
+    }
+
+    #[test]
+    fn invalid_move_batch_does_not_partially_apply_state_or_output() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut valid = OscMessage::new("/input/move");
+        valid.push_arg(OscArg::Str("player:local".to_string()));
+        valid.push_arg(OscArg::Float(1.0));
+        valid.push_arg(OscArg::Float(0.0));
+
+        let mut invalid = OscMessage::new("/input/move");
+        invalid.push_arg(OscArg::Str("player:local".to_string()));
+        invalid.push_arg(OscArg::Float(0.0));
+
+        let mut mixed_batch = OscBundle::new();
+        mixed_batch.push(valid);
+        mixed_batch.push(invalid);
+        runtime.enqueue_input(mixed_batch);
+
+        assert!(runtime.tick_once().is_err());
+        assert_eq!(runtime.current_tick().get(), 0);
+        assert!(runtime.drain_output_buffer().is_empty());
+        assert!(runtime.drain_committed_inputs().is_empty());
+
+        let mut recovery = OscMessage::new("/input/move");
+        recovery.push_arg(OscArg::Str("player:local".to_string()));
+        recovery.push_arg(OscArg::Float(0.5));
+        recovery.push_arg(OscArg::Float(0.0));
+        let mut recovery_batch = OscBundle::new();
+        recovery_batch.push(recovery);
+        runtime.enqueue_input(recovery_batch);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            outputs[0].messages[0].args,
+            vec![
+                OscArg::Str("player:local".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(0.5),
+                OscArg::Float(0.0),
+                OscArg::Float(0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn move_slice_is_not_applied_when_dispatch_fails() {
+        struct FailsOnceSystem {
+            has_failed: bool,
+        }
+
+        impl kitu_ecs::System for FailsOnceSystem {
+            fn run(&mut self, _world: &mut EcsWorld, _tick: Tick) -> Result<()> {
+                if self.has_failed {
+                    Ok(())
+                } else {
+                    self.has_failed = true;
+                    Err(KituError::InvalidInput("dispatch failure"))
+                }
+            }
+        }
+
+        let mut runtime = build_runtime(LocalChannel::default());
+        runtime
+            .world_mut()
+            .schedule_system(FailsOnceSystem { has_failed: false });
+
+        let mut move_message = OscMessage::new("/input/move");
+        move_message.push_arg(OscArg::Str("player:local".to_string()));
+        move_message.push_arg(OscArg::Float(1.0));
+        move_message.push_arg(OscArg::Float(2.0));
+        let mut input = OscBundle::new();
+        input.push(move_message);
+        runtime.enqueue_input(input);
+
+        assert!(runtime.tick_once().is_err());
+        assert!(runtime.drain_output_buffer().is_empty());
+        assert_eq!(runtime.current_tick().get(), 0);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            outputs[0].messages[0].args,
+            vec![
+                OscArg::Str("player:local".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(1.0),
+                OscArg::Float(2.0),
+                OscArg::Float(0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn invalid_move_input_is_rejected_before_dispatch_runs() {
+        struct CounterSystem {
+            runs: Arc<Mutex<u32>>,
+        }
+
+        impl kitu_ecs::System for CounterSystem {
+            fn run(&mut self, _world: &mut EcsWorld, _tick: Tick) -> Result<()> {
+                *self.runs.lock().unwrap() += 1;
+                Ok(())
+            }
+        }
+
+        let mut runtime = build_runtime(LocalChannel::default());
+        let runs = Arc::new(Mutex::new(0));
+        runtime.world_mut().schedule_system(CounterSystem {
+            runs: Arc::clone(&runs),
+        });
+
+        let mut invalid = OscMessage::new("/input/move");
+        invalid.push_arg(OscArg::Str("player:local".to_string()));
+        invalid.push_arg(OscArg::Float(1.0));
+        let mut batch = OscBundle::new();
+        batch.push(invalid);
+        runtime.enqueue_input(batch);
+
+        assert!(runtime.tick_once().is_err());
+        assert_eq!(*runs.lock().unwrap(), 0);
+    }
+
+    #[test]
+    fn move_slice_keeps_entity_transforms_isolated() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut p1 = OscMessage::new("/input/move");
+        p1.push_arg(OscArg::Str("player:one".to_string()));
+        p1.push_arg(OscArg::Float(1.0));
+        p1.push_arg(OscArg::Float(0.0));
+
+        let mut p2 = OscMessage::new("/input/move");
+        p2.push_arg(OscArg::Str("player:two".to_string()));
+        p2.push_arg(OscArg::Float(0.0));
+        p2.push_arg(OscArg::Float(2.0));
+
+        let mut batch = OscBundle::new();
+        batch.push(p1);
+        batch.push(p2);
+        runtime.enqueue_input(batch);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 2);
+        assert_eq!(
+            outputs[0].messages[0].args,
+            vec![
+                OscArg::Str("player:one".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(1.0),
+                OscArg::Float(0.0),
+                OscArg::Float(0.0),
+            ]
+        );
+        assert_eq!(
+            outputs[1].messages[0].args,
+            vec![
+                OscArg::Str("player:two".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(0.0),
+                OscArg::Float(2.0),
+                OscArg::Float(0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn invalid_move_batch_is_dropped_and_does_not_stick_runtime() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut invalid = OscMessage::new("/input/move");
+        invalid.push_arg(OscArg::Str("player:local".to_string()));
+        invalid.push_arg(OscArg::Float(0.0));
+        let mut invalid_batch = OscBundle::new();
+        invalid_batch.push(invalid);
+        runtime.enqueue_input(invalid_batch);
+
+        assert!(runtime.tick_once().is_err());
+        assert_eq!(runtime.current_tick().get(), 0);
+        assert!(runtime.drain_committed_inputs().is_empty());
+
+        let mut valid = OscMessage::new("/input/move");
+        valid.push_arg(OscArg::Str("player:local".to_string()));
+        valid.push_arg(OscArg::Float(1.0));
+        valid.push_arg(OscArg::Float(0.0));
+        let mut valid_batch = OscBundle::new();
+        valid_batch.push(valid);
+        runtime.enqueue_input(valid_batch);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+    }
+
+    #[test]
+    fn move_parser_accepts_integer_components() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut int_move = OscMessage::new("/input/move");
+        int_move.push_arg(OscArg::Str("player:local".to_string()));
+        int_move.push_arg(OscArg::Int(1));
+        int_move.push_arg(OscArg::Int64(2));
+        let mut batch = OscBundle::new();
+        batch.push(int_move);
+        runtime.enqueue_input(batch);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            outputs[0].messages[0].args,
+            vec![
+                OscArg::Str("player:local".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(1.0),
+                OscArg::Float(2.0),
+                OscArg::Float(0.0),
+            ]
+        );
     }
 }
