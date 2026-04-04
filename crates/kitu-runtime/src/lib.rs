@@ -245,7 +245,14 @@ impl<T: Transport> Runtime<T> {
             self.committed_input_tick = Some(self.tick);
         }
 
-        let parsed_moves = self.collect_move_inputs()?;
+        let parsed_moves = match self.collect_move_inputs() {
+            Ok(parsed) => parsed,
+            Err(error) => {
+                self.inputs.drain_committed();
+                self.committed_input_tick = None;
+                return Err(error);
+            }
+        };
         self.world.dispatch(self.tick)?;
         self.apply_player_move_slice(parsed_moves)?;
 
@@ -337,17 +344,19 @@ fn parse_move_input(message: &OscMessage) -> Result<(String, f32, f32)> {
         }
     };
 
-    let x = match message.args[1] {
-        OscArg::Float(value) => value,
-        _ => return Err(KituError::InvalidInput("/input/move x must be a float")),
-    };
-
-    let y = match message.args[2] {
-        OscArg::Float(value) => value,
-        _ => return Err(KituError::InvalidInput("/input/move y must be a float")),
-    };
+    let x = parse_move_component(&message.args[1], "/input/move x must be numeric")?;
+    let y = parse_move_component(&message.args[2], "/input/move y must be numeric")?;
 
     Ok((entity_id, x, y))
+}
+
+fn parse_move_component(arg: &OscArg, error_message: &'static str) -> Result<f32> {
+    match arg {
+        OscArg::Float(value) => Ok(*value),
+        OscArg::Int(value) => Ok(*value as f32),
+        OscArg::Int64(value) => Ok(*value as f32),
+        _ => Err(KituError::InvalidInput(error_message)),
+    }
 }
 
 fn render_player_transform_message(
@@ -717,7 +726,7 @@ mod tests {
         assert!(runtime.tick_once().is_err());
         assert_eq!(runtime.current_tick().get(), 0);
         assert!(runtime.drain_output_buffer().is_empty());
-        assert_eq!(runtime.drain_committed_inputs().len(), 1);
+        assert!(runtime.drain_committed_inputs().is_empty());
 
         let mut recovery = OscMessage::new("/input/move");
         recovery.push_arg(OscArg::Str("player:local".to_string()));
@@ -859,6 +868,61 @@ mod tests {
                 OscArg::Str("player:two".to_string()),
                 OscArg::Int64(0),
                 OscArg::Float(0.0),
+                OscArg::Float(2.0),
+                OscArg::Float(0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn invalid_move_batch_is_dropped_and_does_not_stick_runtime() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut invalid = OscMessage::new("/input/move");
+        invalid.push_arg(OscArg::Str("player:local".to_string()));
+        invalid.push_arg(OscArg::Float(0.0));
+        let mut invalid_batch = OscBundle::new();
+        invalid_batch.push(invalid);
+        runtime.enqueue_input(invalid_batch);
+
+        assert!(runtime.tick_once().is_err());
+        assert_eq!(runtime.current_tick().get(), 0);
+        assert!(runtime.drain_committed_inputs().is_empty());
+
+        let mut valid = OscMessage::new("/input/move");
+        valid.push_arg(OscArg::Str("player:local".to_string()));
+        valid.push_arg(OscArg::Float(1.0));
+        valid.push_arg(OscArg::Float(0.0));
+        let mut valid_batch = OscBundle::new();
+        valid_batch.push(valid);
+        runtime.enqueue_input(valid_batch);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+    }
+
+    #[test]
+    fn move_parser_accepts_integer_components() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut int_move = OscMessage::new("/input/move");
+        int_move.push_arg(OscArg::Str("player:local".to_string()));
+        int_move.push_arg(OscArg::Int(1));
+        int_move.push_arg(OscArg::Int64(2));
+        let mut batch = OscBundle::new();
+        batch.push(int_move);
+        runtime.enqueue_input(batch);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            outputs[0].messages[0].args,
+            vec![
+                OscArg::Str("player:local".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(1.0),
                 OscArg::Float(2.0),
                 OscArg::Float(0.0),
             ]
