@@ -10,7 +10,10 @@
 //! (`kitu-osc-ir`), and future data or scripting layers. See `doc/crates-overview.md` for how the
 //! runtime coordinates the workspace crates.
 
-use std::{collections::VecDeque, time::Duration};
+use std::{
+    collections::{HashMap, VecDeque},
+    time::Duration,
+};
 
 use kitu_core::{KituError, Result, Tick};
 use kitu_ecs::EcsWorld;
@@ -50,7 +53,6 @@ struct OutputBuffer {
 
 #[derive(Debug, Clone, PartialEq)]
 struct PlayerTransform {
-    entity_id: String,
     x: f32,
     y: f32,
     z: f32,
@@ -59,7 +61,6 @@ struct PlayerTransform {
 impl Default for PlayerTransform {
     fn default() -> Self {
         Self {
-            entity_id: "player:local".to_string(),
             x: 0.0,
             y: 0.0,
             z: 0.0,
@@ -116,7 +117,7 @@ pub struct Runtime<T: Transport> {
     inputs: AuthoritativeInputQueue,
     committed_input_tick: Option<Tick>,
     outputs: OutputBuffer,
-    player_transform: PlayerTransform,
+    player_transforms: HashMap<String, PlayerTransform>,
 }
 
 impl<T: Transport> Runtime<T> {
@@ -142,7 +143,7 @@ impl<T: Transport> Runtime<T> {
             inputs: AuthoritativeInputQueue::default(),
             committed_input_tick: None,
             outputs: OutputBuffer::default(),
-            player_transform: PlayerTransform::default(),
+            player_transforms: HashMap::new(),
         }
     }
 
@@ -244,8 +245,9 @@ impl<T: Transport> Runtime<T> {
             self.committed_input_tick = Some(self.tick);
         }
 
+        let parsed_moves = self.collect_move_inputs()?;
         self.world.dispatch(self.tick)?;
-        self.apply_player_move_slice()?;
+        self.apply_player_move_slice(parsed_moves)?;
 
         self.outputs.emit_staged();
 
@@ -259,7 +261,7 @@ impl<T: Transport> Runtime<T> {
         Ok(())
     }
 
-    fn apply_player_move_slice(&mut self) -> Result<()> {
+    fn collect_move_inputs(&self) -> Result<Vec<(String, f32, f32)>> {
         let committed = self.inputs.committed_snapshot();
         let mut parsed_moves = Vec::new();
 
@@ -274,11 +276,15 @@ impl<T: Transport> Runtime<T> {
             }
         }
 
+        Ok(parsed_moves)
+    }
+
+    fn apply_player_move_slice(&mut self, parsed_moves: Vec<(String, f32, f32)>) -> Result<()> {
         for (entity_id, x, y) in parsed_moves {
-            self.player_transform.entity_id = entity_id;
-            self.player_transform.x += x;
-            self.player_transform.y += y;
-            let output = render_player_transform_message(self.tick, &self.player_transform)?;
+            let transform = self.player_transforms.entry(entity_id.clone()).or_default();
+            transform.x += x;
+            transform.y += y;
+            let output = render_player_transform_message(self.tick, &entity_id, transform)?;
             self.queue_output(output);
         }
 
@@ -344,9 +350,13 @@ fn parse_move_input(message: &OscMessage) -> Result<(String, f32, f32)> {
     Ok((entity_id, x, y))
 }
 
-fn render_player_transform_message(tick: Tick, transform: &PlayerTransform) -> Result<OscBundle> {
+fn render_player_transform_message(
+    tick: Tick,
+    entity_id: &str,
+    transform: &PlayerTransform,
+) -> Result<OscBundle> {
     let mut message = OscMessage::new("/render/player/transform");
-    message.push_arg(OscArg::Str(transform.entity_id.clone()));
+    message.push_arg(OscArg::Str(entity_id.to_string()));
     let tick_i64 = i64::try_from(tick.get())
         .map_err(|_| KituError::InvalidInput("tick is too large to encode"))?;
     message.push_arg(OscArg::Int64(tick_i64));
@@ -775,6 +785,80 @@ mod tests {
                 OscArg::Str("player:local".to_string()),
                 OscArg::Int64(0),
                 OscArg::Float(1.0),
+                OscArg::Float(2.0),
+                OscArg::Float(0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn invalid_move_input_is_rejected_before_dispatch_runs() {
+        struct CounterSystem {
+            runs: Arc<Mutex<u32>>,
+        }
+
+        impl kitu_ecs::System for CounterSystem {
+            fn run(&mut self, _world: &mut EcsWorld, _tick: Tick) -> Result<()> {
+                *self.runs.lock().unwrap() += 1;
+                Ok(())
+            }
+        }
+
+        let mut runtime = build_runtime(LocalChannel::default());
+        let runs = Arc::new(Mutex::new(0));
+        runtime.world_mut().schedule_system(CounterSystem {
+            runs: Arc::clone(&runs),
+        });
+
+        let mut invalid = OscMessage::new("/input/move");
+        invalid.push_arg(OscArg::Str("player:local".to_string()));
+        invalid.push_arg(OscArg::Float(1.0));
+        let mut batch = OscBundle::new();
+        batch.push(invalid);
+        runtime.enqueue_input(batch);
+
+        assert!(runtime.tick_once().is_err());
+        assert_eq!(*runs.lock().unwrap(), 0);
+    }
+
+    #[test]
+    fn move_slice_keeps_entity_transforms_isolated() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let mut p1 = OscMessage::new("/input/move");
+        p1.push_arg(OscArg::Str("player:one".to_string()));
+        p1.push_arg(OscArg::Float(1.0));
+        p1.push_arg(OscArg::Float(0.0));
+
+        let mut p2 = OscMessage::new("/input/move");
+        p2.push_arg(OscArg::Str("player:two".to_string()));
+        p2.push_arg(OscArg::Float(0.0));
+        p2.push_arg(OscArg::Float(2.0));
+
+        let mut batch = OscBundle::new();
+        batch.push(p1);
+        batch.push(p2);
+        runtime.enqueue_input(batch);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 2);
+        assert_eq!(
+            outputs[0].messages[0].args,
+            vec![
+                OscArg::Str("player:one".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(1.0),
+                OscArg::Float(0.0),
+                OscArg::Float(0.0),
+            ]
+        );
+        assert_eq!(
+            outputs[1].messages[0].args,
+            vec![
+                OscArg::Str("player:two".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(0.0),
                 OscArg::Float(2.0),
                 OscArg::Float(0.0),
             ]
