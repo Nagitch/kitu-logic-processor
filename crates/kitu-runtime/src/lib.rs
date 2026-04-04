@@ -114,6 +114,7 @@ pub struct Runtime<T: Transport> {
     transport: T,
     world: EcsWorld,
     inputs: AuthoritativeInputQueue,
+    committed_input_tick: Option<Tick>,
     outputs: OutputBuffer,
     player_transform: PlayerTransform,
 }
@@ -139,6 +140,7 @@ impl<T: Transport> Runtime<T> {
             transport,
             world: EcsWorld::default(),
             inputs: AuthoritativeInputQueue::default(),
+            committed_input_tick: None,
             outputs: OutputBuffer::default(),
             player_transform: PlayerTransform::default(),
         }
@@ -170,7 +172,11 @@ impl<T: Transport> Runtime<T> {
     /// tick. Inputs that arrive while a tick executes are queued for the next
     /// tick and do not mutate this committed batch.
     pub fn drain_committed_inputs(&mut self) -> Vec<OscBundle> {
-        self.inputs.drain_committed()
+        let drained = self.inputs.drain_committed();
+        if self.inputs.committed_batch.is_empty() {
+            self.committed_input_tick = None;
+        }
+        drained
     }
 
     /// Processes as many fixed ticks as `dt` allows.
@@ -233,10 +239,13 @@ impl<T: Transport> Runtime<T> {
     /// assert_eq!(runtime.current_tick().get(), 1);
     /// ```
     pub fn tick_once(&mut self) -> Result<()> {
-        self.inputs.commit_next_tick_batch();
-        self.apply_player_move_slice()?;
+        if self.committed_input_tick != Some(self.tick) {
+            self.inputs.commit_next_tick_batch();
+            self.committed_input_tick = Some(self.tick);
+        }
 
         self.world.dispatch(self.tick)?;
+        self.apply_player_move_slice()?;
 
         self.outputs.emit_staged();
 
@@ -698,6 +707,7 @@ mod tests {
         assert!(runtime.tick_once().is_err());
         assert_eq!(runtime.current_tick().get(), 0);
         assert!(runtime.drain_output_buffer().is_empty());
+        assert_eq!(runtime.drain_committed_inputs().len(), 1);
 
         let mut recovery = OscMessage::new("/input/move");
         recovery.push_arg(OscArg::Str("player:local".to_string()));
@@ -717,6 +727,55 @@ mod tests {
                 OscArg::Int64(0),
                 OscArg::Float(0.5),
                 OscArg::Float(0.0),
+                OscArg::Float(0.0),
+            ]
+        );
+    }
+
+    #[test]
+    fn move_slice_is_not_applied_when_dispatch_fails() {
+        struct FailsOnceSystem {
+            has_failed: bool,
+        }
+
+        impl kitu_ecs::System for FailsOnceSystem {
+            fn run(&mut self, _world: &mut EcsWorld, _tick: Tick) -> Result<()> {
+                if self.has_failed {
+                    Ok(())
+                } else {
+                    self.has_failed = true;
+                    Err(KituError::InvalidInput("dispatch failure"))
+                }
+            }
+        }
+
+        let mut runtime = build_runtime(LocalChannel::default());
+        runtime
+            .world_mut()
+            .schedule_system(FailsOnceSystem { has_failed: false });
+
+        let mut move_message = OscMessage::new("/input/move");
+        move_message.push_arg(OscArg::Str("player:local".to_string()));
+        move_message.push_arg(OscArg::Float(1.0));
+        move_message.push_arg(OscArg::Float(2.0));
+        let mut input = OscBundle::new();
+        input.push(move_message);
+        runtime.enqueue_input(input);
+
+        assert!(runtime.tick_once().is_err());
+        assert!(runtime.drain_output_buffer().is_empty());
+        assert_eq!(runtime.current_tick().get(), 0);
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            outputs[0].messages[0].args,
+            vec![
+                OscArg::Str("player:local".to_string()),
+                OscArg::Int64(0),
+                OscArg::Float(1.0),
+                OscArg::Float(2.0),
                 OscArg::Float(0.0),
             ]
         );
