@@ -101,6 +101,7 @@ name = "kitu-unity-ffi"
 version = "0.1.0"
 dependencies = [
  "kitu-core",
+ "kitu-osc-ir",
  "kitu-runtime",
  "kitu-transport",
 ]

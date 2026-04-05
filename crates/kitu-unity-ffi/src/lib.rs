@@ -81,7 +81,11 @@ impl UnityHandle {
     }
 
     /// Queues one `/input/move` command for runtime-owned processing on the next tick.
-    pub fn submit_move_input(&self, entity_id: &str, x: f32, y: f32) {
+    pub fn submit_move_input(&self, entity_id: &str, x: f32, y: f32) -> bool {
+        if entity_id.len() > MAX_ENTITY_ID_BYTES {
+            return false;
+        }
+
         let mut message = OscMessage::new("/input/move");
         message.push_arg(OscArg::Str(entity_id.to_string()));
         message.push_arg(OscArg::Float(x));
@@ -92,6 +96,7 @@ impl UnityHandle {
 
         let mut guard = self.runtime.lock().expect("runtime mutex poisoned");
         guard.enqueue_input(bundle);
+        true
     }
 
     /// Advances the runtime by one tick.
@@ -144,7 +149,7 @@ pub extern "C" fn kitu_init() -> *mut UnityHandle {
 ///   external synchronization.
 #[no_mangle]
 pub unsafe extern "C" fn kitu_tick(handle: *mut UnityHandle) -> i32 {
-    let Some(handle) = handle.as_mut() else {
+    let Some(handle) = handle.as_ref() else {
         return -1;
     };
     match handle.tick() {
@@ -166,7 +171,7 @@ pub unsafe extern "C" fn kitu_submit_move_input(
     x: f32,
     y: f32,
 ) -> i32 {
-    let Some(handle) = handle.as_mut() else {
+    let Some(handle) = handle.as_ref() else {
         return -1;
     };
     if entity_id.is_null() {
@@ -175,7 +180,9 @@ pub unsafe extern "C" fn kitu_submit_move_input(
     let Ok(entity_id) = CStr::from_ptr(entity_id).to_str() else {
         return -3;
     };
-    handle.submit_move_input(entity_id, x, y);
+    if !handle.submit_move_input(entity_id, x, y) {
+        return -4;
+    }
     0
 }
 
@@ -195,7 +202,7 @@ pub unsafe extern "C" fn kitu_pop_render_transform(
     handle: *mut UnityHandle,
     out_event: *mut KituRenderTransformEvent,
 ) -> i32 {
-    let Some(handle) = handle.as_mut() else {
+    let Some(handle) = handle.as_ref() else {
         return -1;
     };
     let Some(out_event) = out_event.as_mut() else {
@@ -275,7 +282,7 @@ mod tests {
     #[test]
     fn boundary_smoke_executes_move_slice() {
         let handle = UnityHandle::initialize();
-        handle.submit_move_input("player-1", 1.5, -2.0);
+        assert!(handle.submit_move_input("player-1", 1.5, -2.0));
         handle.tick().unwrap();
 
         let event = handle
@@ -315,6 +322,15 @@ mod tests {
             "ffi-player"
         );
 
+        unsafe { drop(Box::from_raw(ptr)) };
+    }
+
+    #[test]
+    fn ffi_submit_rejects_oversized_entity_id() {
+        let ptr = kitu_init();
+        let oversized_id = CString::new("x".repeat(MAX_ENTITY_ID_BYTES + 1)).unwrap();
+        let status = unsafe { kitu_submit_move_input(ptr, oversized_id.as_ptr(), 0.0, 0.0) };
+        assert_eq!(status, -4);
         unsafe { drop(Box::from_raw(ptr)) };
     }
 }
