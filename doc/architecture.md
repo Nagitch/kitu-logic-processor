@@ -77,8 +77,7 @@ exists:
 - runtime emits `/render/player/transform`
 
 missing:
-- minimum runtime-to-host boundary is not fully defined and implemented
-- minimal `kitu-unity-ffi` slice support is still pending
+- keep the Unity boundary minimal as future slices expand beyond movement
 
 ### P3 — Integration and Replay Foundation
 
@@ -322,6 +321,36 @@ graph TD
 - Unity sends input intents and receives runtime output events.
 - `kitu-unity-ffi` must provide a stable ABI and deterministic handoff into runtime-owned processing.
 - Client-side prediction, if introduced later, must be explicitly documented as non-authoritative.
+
+#### Minimum runtime ↔ host boundary for the player-move slice (implemented)
+
+Boundary ownership for the current vertical slice is explicit:
+
+- Runtime owns authoritative gameplay state and tick progression.
+- Host/Unity owns player-facing input collection and render consumption only.
+- `kitu-unity-ffi` owns translation between host ABI calls and runtime OSC-IR bundles/events.
+
+Runtime responsibilities in this slice:
+
+- Accept `/input/move` payloads only through runtime input queue ingestion.
+- Apply deterministic state updates on runtime tick execution.
+- Emit `/render/player/transform` via runtime output buffer.
+
+Host/Unity responsibilities in this slice:
+
+- Submit movement intent (`entity_id`, `x`, `y`) through `kitu-unity-ffi`.
+- Drive runtime advancement via explicit tick calls.
+- Poll emitted render transforms and apply them to presentation objects.
+
+Current minimal FFI surface for this boundary:
+
+- `kitu_submit_move_input`: host submits one movement intent into runtime-owned input path.
+- `kitu_tick`: host advances runtime by one tick.
+- `kitu_pop_render_transform`: host drains runtime-owned render events from output path.
+
+Boundary smoke check:
+
+- `crates/kitu-unity-ffi` includes an FFI-level smoke test that submits move input, executes one tick, and validates `/render/player/transform` output through the boundary API.
 
 ### Shell / admin / tooling boundary
 
