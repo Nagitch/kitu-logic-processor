@@ -7,6 +7,7 @@ For a quick crate index, use [`doc/crates-overview.md`](./crates-overview.md).
 ## Table of contents
 
 - [Overview](#overview)
+- [Current implementation staging](#current-implementation-staging)
 - [Scope and non-goals](#scope-and-non-goals)
 - [System architecture](#system-architecture)
 - [Runtime execution model](#runtime-execution-model)
@@ -37,11 +38,72 @@ Kitu separates **authoritative runtime logic** (Rust) from **presentation and pl
 - Several crates are intentionally skeletons; architecture must still constrain future implementation direction.
 - TSQ1, TMD, SQLite, and Rhai are data/content inputs that should not bypass runtime validation boundaries.
 
-### Current implementation staging
+## Current Implementation Staging
 
-- P1 (runtime core implementation) remains **partial / frozen**.
-- P1 must not be treated as complete while `kitu-runtime` still lacks the full `update(dt)` path, authoritative input queue implementation, output drain implementation, and deterministic replay execution path.
-- Current repository work should prioritize P2-P4 design/docs/framework alignment so that implementation can return to P1 later without conflicting contracts.
+### P0 — Execution Semantics
+
+status: implemented
+
+exists:
+- runtime execution contract is documented
+- baseline phase ordering exists in `kitu-runtime`
+- accumulator and ordering tests exist
+
+missing:
+- ongoing maintenance to keep docs and tests aligned when semantics evolve
+
+### P1 — Runtime Core Viability
+
+status: partial
+
+exists:
+- fixed-timestep `update(dt)` baseline exists
+- authoritative queue split exists
+- output drain path exists
+- `tick_once()` ordering is implemented and unit-tested
+- first slice and integration-level validation exist in baseline form
+
+missing:
+- explicit closure decision after replay smoke path and boundary-level validation are in place
+- stronger proof that runtime baseline is ready to be treated as complete MVP core
+
+### P2 — Minimum Vertical Slice
+
+status: partial
+
+exists:
+- `/input/move` slice is specified
+- runtime processes movement input into authoritative state updates
+- runtime emits `/render/player/transform`
+
+missing:
+- minimum runtime-to-host boundary is not fully defined and implemented
+- minimal `kitu-unity-ffi` slice support is still pending
+
+### P3 — Integration and Replay Foundation
+
+status: partial
+
+exists:
+- framework contract is defined
+- runner directory structure exists
+
+missing:
+- checked-in smoke scenario
+- initial `scenario.json` and `expected.json`
+- minimal replay runner that produces `summary.json`
+
+### P4 — Documentation and Maintenance Alignment
+
+status: partial
+
+exists:
+- core specs, CI, and architecture docs exist
+- roadmap structure exists
+
+missing:
+- stronger synchronization between roadmap, architecture, specs, and crate READMEs
+- clearer distinction between design-only work and implemented work
 
 ## Scope and non-goals
 
