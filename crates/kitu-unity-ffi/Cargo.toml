@@ -13,5 +13,6 @@ include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }
+kitu-osc-ir = { path = "../kitu-osc-ir" }
 kitu-runtime = { path = "../kitu-runtime" }
 kitu-transport = { path = "../kitu-transport" }

@@ -273,7 +273,7 @@ files_expected_to_change:
 
 ### Task: Define and implement the minimum boundary between runtime and Unity / host
 
-status: spec_only
+status: implemented
 
 context:
 - runtime behavior exists, but boundary ownership and minimal host contract remain incomplete
