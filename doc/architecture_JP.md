@@ -1,12 +1,16 @@
 # Kitu MVP Architecture Documentation
 
+> 同期ポリシー（2026-04-09 更新）:
+> - 本ドキュメントの正本は英語版 `doc/architecture.md` です。
+> - 英語版の変更に追従する際は、同一PR/コミットで本ファイルも更新してください。
+> - 同期を後回しにする場合は `PROJECT_TODO.md` に追跡タスクを追加してください。
+
 ## Table of Contents
 - [次にやるとよさそうな詳細化ステップ（候補）](#次にやるとよさそうな詳細化ステップ候補)
 - [Kitu ライブラリ構成まとめ（crate / Unity パッケージ）](#kitu-ライブラリ構成まとめcrate--unity-パッケージ)
   - [Rust Workspace 全体構成（kitu リポジトリ）](#rust-workspace-全体構成kitu-リポジトリ)
   - [各 crate の責務](#各-crate-の責務)
-  - [ゲームアプリ側（stella-rpg）リポジトリ構造](#ゲームアプリ側stella-rpgリポジトリ構造)
-  - [各 game-\* crate の責務](#各-game--crate-の責務)
+  - [Unity 検証アプリ（kitu-integration-runner 配下）](#unity-検証アプリkitu-integration-runner-配下)
 - [ユースケース一覧](#ユースケース一覧)
   - [A. 起動・基本ループ](#a-起動基本ループ)
   - [B. プレイヤー操作・移動](#b-プレイヤー操作移動)
@@ -85,45 +89,27 @@ kitu/
 - **kitu-web-admin-backend**: Web Admin のバックエンド（HTTP + WS）
 - **kitu-unity-ffi**: Unity 組み込み cdylib 用の C API
 
-### ゲームアプリ側（stella-rpg）リポジトリ構造
+### Unity 検証アプリ（kitu-integration-runner 配下）
 
 ```
-stella-rpg/
-  Cargo.toml
-  crates/
-    game-core/
-    game-ecs-features/
-    game-data-schema/
-    game-data-build/
-    game-logic/
-    game-timeline/
-    game-scripts/
-    game-shell-ext/
-    game-webadmin-ext/
-  data/
-    tmd/
-    tsq1/
-    scripts/
-    localization/
-  unity/
-    com.stella.game/
-    com.stella.game.editor/
+kitu-integration-runner/
+  unity-app/
+    .gitkeep
+    (将来) Unity プロジェクト一式
+      - Packages/
+      - ProjectSettings/
+      - Assets/
 ```
 
-### 各 game-\* crate の責務
+この Unity 検証アプリの役割:
 
-- **game-core**: KituRuntime を組み込んだ StellaGame の入口
-- **game-ecs-features**: コンポーネント & システム登録
-- **game-data-schema**: ゲーム固有データ型の定義（Unit, Item, Skill…）
-- **game-data-build**: TMD/SQLite からデータストア構築
-- **game-logic**: 戦闘や移動などのゲームルール
-- **game-timeline**: ゲーム固有の TSQ1 ハンドリング
-- **game-scripts**: Rhai API の公開・ゲームロジック統合
-- **game-shell-ext**: Shell 用のゲーム固有コマンド
-- **game-webadmin-ext**: Web Admin のゲーム固有ビュー/API
+- CI/CD で「アプリケーションが破壊されず動作すること」を継続検証する。
+- `kitu-unity-ffi` と `kitu-runtime` の統合境界を検証する。
+- 代表シナリオ（入力→tick更新→出力反映）を smoke テストとして実行する。
+- ゲーム固有実装の母体ではなく、回帰検証用の最小アプリとして管理する。
 
 
-このドキュメントでは、Kitu フレームワークを利用して実現するアプリケーション（テンプレートプロジェクトおよび Stella RPG）のユースケース一覧と、それぞれのアーキテクチャ上の流れ・関与するライブラリを整理します。
+このドキュメントでは、Kitu フレームワーク本体と、`kitu-integration-runner/unity-app` に配置する Unity 検証アプリのユースケース一覧を整理します。
 
 ## ユースケース一覧
 
@@ -188,4 +174,3 @@ stella-rpg/
 ※ 詳細フロー（UC-01 / UC-02）は `kitu_detailed_flows.md` に移動しました。
 
 ここには今後の各 UC のまとめリンクや要約のみを記述します。
-

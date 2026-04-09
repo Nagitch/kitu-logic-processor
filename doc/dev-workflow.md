@@ -122,7 +122,7 @@ The standard workflow for making changes is:
    - `cargo test --all`
 4. Update documentation where appropriate:
    - Rust doc comments for public APIs.
-   - Design and process docs under `doc/` (e.g., `architecture.md`, `testing-strategy.md`).
+   - Design and process docs under `doc/` (e.g., `architecture.md`, `crates-overview.md`, `detailed-flows.md`) and under `specs/` for protocol/runtime contracts.
 
 CI should run the same set of checks (fmt, clippy, tests), plus additional checks
 if needed (e.g., `cargo doc` for documentation builds).
@@ -134,16 +134,20 @@ The `doc/` directory is the main place for higher-level design and workflow docu
 Examples include:
 
 - `architecture.md` — overall architecture and module relationships.
-- `testing-strategy.md` — how we approach testing (unit, integration, scenario, replay).
-- `protocol-osc-ir.md` — OSC/IR protocol specifications.
-- `PRODUCTION_STRATEGY.md` — foundational setup and repository-wide practices.
-- `rust-doc-templates.md` — templates for Rust documentation (this file is referenced by that).
+- `crates-overview.md` — responsibilities and composition of workspace crates.
+- `detailed-flows.md` — detailed use-case flows and boundary interactions.
+- `rust-doc-templates.md` — templates for Rust documentation.
+- `../PRODUCTION_STRATEGY.md` — foundational setup and repository-wide practices.
+- `../specs/*.md` — protocol/runtime/replay specifications (authoritative contracts).
 
 Conventions:
 
 - English is the primary language for all documents.
 - When a Japanese version is provided (e.g., `*_JP.md`), it should be kept as close
   as reasonably possible to the English source, but English is the source of truth.
+- If an English source document changes, update the paired Japanese document in the
+  same change whenever feasible. If postponing, record the follow-up task in
+  `PROJECT_TODO.md` and annotate the Japanese file with a short sync note.
 
 
 ## AI Assistants
