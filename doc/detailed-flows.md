@@ -27,12 +27,21 @@
 
 This file collects the detailed architectural flows for each use case (UC-01, UC-02, etc.) implemented with Kitu.
 
+## Repository boundary note (updated)
+
+This repository no longer assumes a separate game implementation repository such as `stella-rpg`.
+For CI/CD and regression validation, use an in-repository Unity verification app under:
+
+- `kitu-integration-runner/unity-app/`
+
+Legacy names used for game-specific Unity layers in older examples should be interpreted as this Unity verification app layer (`kitu-integration-runner/unity-app`).
+
 
 ## UC-01: Game boot & scene initialization (detailed flow)
 
 ### Architectural checkpoints
 
-- Validate the **repository and crate split** between the Kitu framework and game-specific code (stella-rpg).
+- Validate the boundary between Kitu runtime crates and the in-repository Unity verification app (`kitu-integration-runner/unity-app`).
 - Confirm **cdylib / FFI responsibilities** between Unity and Rust (config passing, lifecycle).
 - Ensure layers for **data loading / ECS setup / initial event output** stay coherent at startup.
 
@@ -45,10 +54,11 @@ This file collects the detailed architectural flows for each use case (UC-01, UC
 - `kitu-tsq1`, `kitu-scripting-rhai`
 - `kitu-unity-ffi`
 
-**Game repository (stella-rpg)**
+**Unity verification app (in repository)**
 
-- Rust: `game-core`, `game-data-schema`, `game-data-build`, `game-ecs-features`, `game-logic`, `game-scripts`, `game-timeline`
-- Unity: `com.kitu.runtime` (shared bridge), `com.stella.game` (game-specific View layer)
+- Location: `kitu-integration-runner/unity-app`
+- Unity-side bridge: `com.kitu.runtime` (shared bridge)
+- Unity-side app/view scripts: validation-oriented presentation scripts used in CI/integration checks
 
 Assumes a **cdylib embedded in Unity**.
 
@@ -60,7 +70,7 @@ Unity flow:
 
 ```csharp
 void Start() {
-    var configJson = BuildStellaConfigJson();
+    var configJson = BuildAppConfigJson();
     KituNative.Initialize(configJson);
 }
 ```
@@ -81,32 +91,32 @@ kitu-unity-ffi::kitu_initialize(config_json: *const c_char)
 
 Handled by `kitu-unity-ffi`:
 
-1. Decode JSON → `StellaConfig`.
-2. Call `StellaGame::new(config)`.
-3. Store the created game instance globally.
+1. Decode JSON → `UnityAppConfig`.
+2. Create a runtime app context (runtime + adapters + bindings).
+3. Store the created app context globally.
 
-Key crates: `kitu-unity-ffi`, `game-core` (`StellaGame::new`).
+Key crates: `kitu-unity-ffi`, `kitu-runtime`, `kitu-data-*`, `kitu-scripting-rhai`, `kitu-tsq1`.
 
-### `StellaGame::new` (game-layer initialization)
+### Runtime app bootstrap (initialization)
 
 ```rust
-pub fn new(config: StellaConfig) -> Result<Self, KituError> {
+pub fn build_app(config: UnityAppConfig) -> Result<AppContext, KituError> {
     let mut runtime = KituRuntime::new(config.to_kitu_config())?;
 
-    let datastore = game_data_build::load_datastore(&config.data_root)?;
+    let datastore = kitu_data_build::load_datastore(&config.data_root)?;
 
-    game_ecs_features::register_components(runtime.world_mut());
-    game_ecs_features::register_systems(runtime.scheduler_mut());
+    app_features::register_components(runtime.world_mut());
+    app_features::register_systems(runtime.scheduler_mut());
 
-    game_logic::attach_to_runtime(&mut runtime, &datastore)?;
-    game_scripts::setup_rhai_api(&mut runtime, &datastore)?;
-    game_timeline::setup_timelines(&mut runtime)?;
+    app_logic::attach_to_runtime(&mut runtime, &datastore)?;
+    app_scripts::setup_rhai_api(&mut runtime, &datastore)?;
+    app_timeline::setup_timelines(&mut runtime)?;
 
-    Ok(Self { runtime })
+    Ok(AppContext { runtime })
 }
 ```
 
-Crates involved: Kitu (`kitu-runtime`, `kitu-ecs`, `kitu-data-*`, `kitu-tsq1`, `kitu-scripting-rhai`) and game-side (`game-core`, `game-data-build`, `game-data-schema`, `game-ecs-features`, `game-logic`, `game-scripts`, `game-timeline`).
+Crates involved: Kitu (`kitu-runtime`, `kitu-ecs`, `kitu-data-*`, `kitu-tsq1`, `kitu-scripting-rhai`, `kitu-unity-ffi`) plus test-app-side initialization glue in `kitu-integration-runner/unity-app`.
 
 ### Data loading and validation (TMD / SQLite)
 
@@ -148,7 +158,7 @@ Crates: `kitu-runtime` (output queue), `kitu-osc-ir` (`OscEvent`), game logic (`
 1. Call `KituNative.PollEvents()` to fetch Rust output events.
 2. Decode to C# `OscEvent`.
 3. Publish to `KituEventBus`.
-4. `com.stella.game` views handle rendering (create player GameObject, display enemies/objects, show HUD).
+4. `unity-app` views handle rendering (create player GameObject, display enemies/objects, show HUD).
 
 Result: Unity scene reaches its initial state.
 
@@ -228,7 +238,7 @@ foreach (var ev in events) {
 }
 ```
 
-`com.stella.game` consumes events to move transforms, play enemy spawn/death animations, and refresh HUD stats. Unity remains a pure view layer.
+`unity-app` consumes events to move transforms, play enemy spawn/death animations, and refresh HUD stats. Unity remains a pure view layer.
 
 ### Shell / WebAdmin / replay integration (overview)
 
@@ -320,7 +330,7 @@ Resulting event contains entity id and position.
 
 ### Unity view applies transform
 
-Layers: Unity `com.kitu.runtime` (event bus) and `com.stella.game` (view). Unity subscribes to `/render/player/transform` and updates the GameObject transform accordingly.
+Layers: Unity `com.kitu.runtime` (event bus) and `unity-app` (view). Unity subscribes to `/render/player/transform` and updates the GameObject transform accordingly.
 
 
 ## UC-11: Camera follow (detailed flow)

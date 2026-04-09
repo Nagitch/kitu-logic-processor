@@ -26,9 +26,16 @@ kitu-integration-runner/
   scenarios/
   reports/
   fixtures/
+  unity-app/
 ```
 
 Generated run artifacts should be emitted outside the checked-in scenario files, for example under a future `artifacts/` directory.
+
+## Unity verification app (`unity-app/`)
+
+- `unity-app/` is reserved for a minimal Unity project used in CI/CD and integration testing.
+- Its purpose is regression detection (boot/runtime-boundary smoke checks), not full game implementation hosting.
+- Keep the project lean and test-focused so it remains stable as an infrastructure asset.
 
 ## Design constraints
 
