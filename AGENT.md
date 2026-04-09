@@ -287,6 +287,6 @@ If `cargo publish --dry-run` fails due to workspace structure or feature depende
 - Reference documents required for all contributions:
   - **`doc/rust-doc-templates.md`**
   - **`doc/dev-workflow.md`**
-  - **`doc/PRODUCTION_STRATEGY.md`**
+  - **`PRODUCTION_STRATEGY.md`**
 - These documents must be updated when workflows or project structure changes.
 

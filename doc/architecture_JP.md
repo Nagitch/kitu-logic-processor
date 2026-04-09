@@ -1,5 +1,10 @@
 # Kitu MVP Architecture Documentation
 
+> 同期ポリシー（2026-04-09 更新）:
+> - 本ドキュメントの正本は英語版 `doc/architecture.md` です。
+> - 英語版の変更に追従する際は、同一PR/コミットで本ファイルも更新してください。
+> - 同期を後回しにする場合は `PROJECT_TODO.md` に追跡タスクを追加してください。
+
 ## Table of Contents
 - [次にやるとよさそうな詳細化ステップ（候補）](#次にやるとよさそうな詳細化ステップ候補)
 - [Kitu ライブラリ構成まとめ（crate / Unity パッケージ）](#kitu-ライブラリ構成まとめcrate--unity-パッケージ)
