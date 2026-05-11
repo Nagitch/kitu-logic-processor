@@ -1,6 +1,6 @@
 # Vertical Slice Specification: Player Move (P2 MVP)
 
-This document defines the minimum vertical slice contract for player movement without requiring the full end-to-end runtime implementation yet.
+This document defines the implemented minimum vertical slice contract for player movement.
 It covers:
 
 - `/input/move`
@@ -10,7 +10,8 @@ It covers:
 ## Status
 
 - Normative for boundary contracts and responsibility separation.
-- Intentionally leaves runtime internals and full ECS implementation open.
+- Implemented in `kitu-runtime` and exposed through the minimal `kitu-unity-ffi` movement boundary.
+- Runtime internals and future ECS expansion remain intentionally narrow for this slice.
 - Depends on `doc/architecture.md` and the runtime timing rules in `specs/runtime-execution-contract.md`.
 
 ## Slice purpose
@@ -22,7 +23,7 @@ The slice exists to validate the smallest authoritative path:
 3. authoritative state updates player transform
 4. runtime emits a render-facing transform message
 
-This is a contract-first slice, not the full implementation milestone.
+This is the first implemented gameplay slice, not a complete gameplay framework.
 
 ## Responsibility split
 
@@ -40,6 +41,12 @@ Does not own:
 - simulation authority
 - movement resolution
 - authoritative position state
+
+Current minimal FFI surface:
+
+- `kitu_submit_move_input(handle, entity_id, x, y)` submits movement intent into the runtime-owned input queue.
+- `kitu_tick(handle)` advances the runtime by one authoritative tick.
+- `kitu_pop_render_transform(handle, out_event)` drains one runtime-owned render transform event for presentation consumption.
 
 ### `kitu-runtime`
 

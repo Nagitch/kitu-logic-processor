@@ -188,11 +188,10 @@ These files are optional in the framework phase and must not be required for the
 
 ## Relationship to implementation work
 
-This framework is intentionally ready before:
+This framework is intentionally transport- and host-neutral. Current movement-slice runtime and Unity FFI work should plug into these scenario and report contracts rather than redefining them.
+
+Still-pending implementation work:
 
 - deterministic replay executor implementation
-- authoritative queue internals
-- Unity FFI expansion
+- checked-in movement-slice smoke scenario and expected output fixtures
 - transport backend finalization
-
-Those implementations should plug into this framework rather than redefining scenario or report contracts.
