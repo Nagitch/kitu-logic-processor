@@ -64,20 +64,23 @@ exists:
 - first slice and integration-level validation exist in baseline form
 
 missing:
-- explicit closure decision after replay smoke path and boundary-level validation are in place
+- explicit closure decision after the replay smoke path is in place
 - stronger proof that runtime baseline is ready to be treated as complete MVP core
 
 ### P2 — Minimum Vertical Slice
 
-status: partial
+status: implemented
 
 exists:
 - `/input/move` slice is specified
 - runtime processes movement input into authoritative state updates
 - runtime emits `/render/player/transform`
+- minimal `kitu-unity-ffi` boundary exposes movement input, tick advancement, and render transform polling
+- boundary smoke tests cover the movement slice through the FFI path
 
 missing:
-- keep the Unity boundary minimal as future slices expand beyond movement
+- no remaining core work for the current movement slice
+- future slices must keep the Unity boundary minimal and presentation-oriented
 
 ### P3 — Integration and Replay Foundation
 

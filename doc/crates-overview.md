@@ -104,3 +104,5 @@ graph TD
 ### `kitu-unity-ffi`
 - Exposes a stable C ABI for embedding the runtime in Unity as a `cdylib`.
 - Responsible for marshalling between Unity types/buffers and the Rust runtime API.
+- Current MVP surface covers the player-move slice only: initialize a runtime handle, submit movement intent, tick the runtime, and poll render transform output.
+- Must remain a presentation/input adapter; gameplay rules stay in `kitu-runtime`.

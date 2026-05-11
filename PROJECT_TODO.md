@@ -181,7 +181,7 @@ files_expected_to_change:
 
 ## P2 — Build the Minimum Vertical Slice
 
-status: partial
+status: implemented
 
 goal:
 Deliver the minimum end-to-end gameplay slice for player movement from input to authoritative state update to render event.
@@ -197,10 +197,15 @@ definition_of_done:
 repository_state:
 - `specs/vertical-slice-player-move.md` defines `/input/move` -> authoritative state update -> `/render/player/transform`
 - `kitu-runtime` processes `/input/move` into authoritative position updates and emits `/render/player/transform`
+- `kitu-unity-ffi` exposes the minimal movement-slice boundary:
+  - `kitu_submit_move_input`
+  - `kitu_tick`
+  - `kitu_pop_render_transform`
+- `kitu-runtime` and `kitu-unity-ffi` tests cover the movement slice and FFI boundary smoke path
 
 remaining_work:
-- Define and implement the minimum boundary between runtime and Unity / host
-- Extend `kitu-unity-ffi` only as much as needed for the slice
+- No remaining core work for the current movement slice
+- Keep the Unity / host boundary minimal as future slices expand beyond movement
 
 ### Task: Implement the minimum input payload handling for `/input/move`
 
@@ -276,7 +281,7 @@ files_expected_to_change:
 status: implemented
 
 context:
-- runtime behavior exists, but boundary ownership and minimal host contract remain incomplete
+- runtime behavior exists, and boundary ownership plus the minimal host contract are documented and implemented
 
 input:
 - current vertical slice behavior
@@ -299,16 +304,17 @@ files_expected_to_change:
 
 ### Task: Extend `kitu-unity-ffi` only as much as needed for the slice
 
-status: spec_only
+status: implemented
 
 context:
-- FFI should remain minimal and presentation-oriented
+- FFI remains minimal and presentation-oriented for the current movement slice
 
 input:
 - minimum vertical slice boundary
 
 output:
 - smallest FFI surface needed for movement slice execution
+- implemented C ABI calls for submitting movement input, ticking the runtime, and polling render transforms
 
 definition_of_done:
 - only slice-required FFI APIs are added or updated

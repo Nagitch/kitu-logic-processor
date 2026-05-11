@@ -87,7 +87,7 @@ kitu/
 - **kitu-tsq1**: TSQ1 の AST / 再生エンジン
 - **kitu-shell**: CLI シェル（/debug 用イベント発火など）
 - **kitu-web-admin-backend**: Web Admin のバックエンド（HTTP + WS）
-- **kitu-unity-ffi**: Unity 組み込み cdylib 用の C API
+- **kitu-unity-ffi**: Unity 組み込み cdylib 用の C API。現在の MVP surface はプレイヤー移動 slice に限定し、初期化、移動入力送信、tick 実行、`/render/player/transform` の取得を扱う。
 
 ### Unity 検証アプリ（kitu-integration-runner 配下）
 
