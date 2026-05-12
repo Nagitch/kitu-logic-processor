@@ -111,4 +111,4 @@ The current MVP planning requires these addresses to remain reserved and documen
 - `/input/move`
 - `/render/player/transform`
 
-Their concrete message shapes are defined in `specs/vertical-slice-player-move.md`.
+Their concrete message shapes are defined in `vertical-slice-player-move.md`.

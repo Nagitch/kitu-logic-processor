@@ -1,7 +1,7 @@
 # Runtime Execution Specification (MVP)
 
 This document defines the runtime-side execution boundary for the current MVP phase.
-It complements `specs/runtime-execution-contract.md` by describing the runtime responsibilities and extension boundaries without fixing the internal implementation too early.
+It complements `runtime-execution-contract.md` by describing the runtime responsibilities and extension boundaries without fixing the internal implementation too early.
 
 ## Status
 
@@ -76,7 +76,7 @@ Those additions must preserve the same authority boundary:
 
 ## Relationship to other specs
 
-- `specs/runtime-execution-contract.md`: detailed tick contract and API-facing timing rules.
-- `specs/transport-envelope.md`: transport-facing envelope shape and metadata rules.
-- `specs/osc-addressing.md`: message address namespace and ownership rules.
-- `specs/vertical-slice-player-move.md`: first minimal vertical slice built on this execution model.
+- `runtime-execution-contract.md`: detailed tick contract and API-facing timing rules.
+- `transport-envelope.md`: transport-facing envelope shape and metadata rules.
+- `osc-addressing.md`: message address namespace and ownership rules.
+- `vertical-slice-player-move.md`: first minimal vertical slice built on this execution model.

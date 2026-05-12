@@ -43,12 +43,15 @@ AI assistants may create missing parts if intent is clear.
   - `architecture.md`
   - `dev-workflow.md`
   - `rust-doc-templates.md`
-  - `PRODUCTION_STRATEGY.md`
+  - `specs/`
+    - protocol/runtime/replay specifications
 - `.devcontainer/`
   - `devcontainer.json`
   - (optional) `Dockerfile`
 - `.github/workflows/`
+- `.github/ISSUE_TEMPLATE/`
 - `AGENT.md`
+- `PRODUCTION_STRATEGY.md`
 - `CONTRIBUTING.md`
 - `README.md`, `README_JP.md` (optional)
 
@@ -139,14 +142,15 @@ CI should mirror the same checks.
 
 ---
 
-## 8. Open tasks / TODO for AI
+## 8. Work Tracking for AI
 
-Project-level tasks are maintained inside **`PROJECT_TODO.md`**.  
+Project-level tasks are maintained as **GitHub Issues**.
 AI assistants must:
 
-- Add new tasks there instead of inside AGENT.md.
-- Update or close tasks when work progresses.
-- Keep the task list concise and readable.
+- Use `.github/ISSUE_TEMPLATE/work-item.md` when creating new work items.
+- Update related Issues or PR descriptions when work progresses.
+- Close Issues only when their definition of done is satisfied.
+- Keep task management out of standalone Markdown TODO files unless the user explicitly asks for a temporary planning document.
 
 ---
 
@@ -256,7 +260,7 @@ For crates that are internal-only or not intended for crates.io publication in t
 * Set `[package] publish = false`
 * Treat the crate as publish-ready, including README and LICENSE, even if publication is deferred
 
-If `cargo publish --dry-run` fails due to workspace structure or feature dependencies, the failure reason and mitigation plan must be recorded as TODOs. Large refactors that would block MVP progress should be avoided.
+If `cargo publish --dry-run` fails due to workspace structure or feature dependencies, the failure reason and mitigation plan must be recorded in GitHub Issues. Large refactors that would block MVP progress should be avoided.
 
 ---
 
@@ -289,4 +293,3 @@ If `cargo publish --dry-run` fails due to workspace structure or feature depende
   - **`doc/dev-workflow.md`**
   - **`PRODUCTION_STRATEGY.md`**
 - These documents must be updated when workflows or project structure changes.
-

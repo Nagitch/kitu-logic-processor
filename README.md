@@ -87,7 +87,7 @@ The backend can run:
 
 In both cases, the logic code is identical, ensuring identical behavior.
 
-Runtime execution contract: [`specs/runtime-execution-contract.md`](specs/runtime-execution-contract.md).
+Runtime execution contract: [`doc/specs/runtime-execution-contract.md`](doc/specs/runtime-execution-contract.md).
 
 
 ## Communication Layer (OSC + osc-ir + MessagePack)

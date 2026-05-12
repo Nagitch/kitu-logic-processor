@@ -3,7 +3,7 @@
 > 同期ポリシー（2026-04-09 更新）:
 > - 本ドキュメントの正本は英語版 `doc/architecture.md` です。
 > - 英語版の変更に追従する際は、同一PR/コミットで本ファイルも更新してください。
-> - 同期を後回しにする場合は `PROJECT_TODO.md` に追跡タスクを追加してください。
+> - 同期を後回しにする場合は GitHub Issue を作成または更新してください。
 
 ## Table of Contents
 - [次にやるとよさそうな詳細化ステップ（候補）](#次にやるとよさそうな詳細化ステップ候補)
@@ -68,10 +68,11 @@ kitu/
     com.kitu.runtime/
     com.kitu.transport/
     com.kitu.editor/
-  specs/
-    tsq1/
-    tmd/
-    osc-ir/
+  doc/
+    specs/
+      tsq1/
+      tmd/
+      osc-ir/
 ```
 
 ### 各 crate の責務
