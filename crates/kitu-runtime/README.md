@@ -20,5 +20,5 @@ Tick-based orchestrator that wires Kitu ECS, transports, and future scripting/ti
   - `cargo publish --dry-run`
 
 ## Related docs
-- Runtime contract: `specs/runtime-execution-contract.md`
-- Runtime position within the workspace: `doc/crates-overview.md`
+- Runtime contract: [`doc/specs/runtime-execution-contract.md`](../../doc/specs/runtime-execution-contract.md)
+- Runtime position within the workspace: [`doc/crates-overview.md`](../../doc/crates-overview.md)

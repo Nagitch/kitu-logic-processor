@@ -12,7 +12,7 @@ It covers:
 - Normative for boundary contracts and responsibility separation.
 - Implemented in `kitu-runtime` and exposed through the minimal `kitu-unity-ffi` movement boundary.
 - Runtime internals and future ECS expansion remain intentionally narrow for this slice.
-- Depends on `doc/architecture.md` and the runtime timing rules in `specs/runtime-execution-contract.md`.
+- Depends on `../architecture.md` and the runtime timing rules in `runtime-execution-contract.md`.
 
 ## Slice purpose
 

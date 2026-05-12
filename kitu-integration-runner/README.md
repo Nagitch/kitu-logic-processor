@@ -11,7 +11,7 @@ At the current stage, the repository defines the checked-in scenario and report 
 
 ## Normative spec
 
-Use [`specs/integration-replay-framework.md`](../specs/integration-replay-framework.md) as the current source of truth for:
+Use [`doc/specs/integration-replay-framework.md`](../doc/specs/integration-replay-framework.md) as the current source of truth for:
 
 - directory structure
 - scenario format

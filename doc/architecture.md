@@ -101,10 +101,10 @@ status: partial
 
 exists:
 - core specs, CI, and architecture docs exist
-- roadmap structure exists
+- GitHub Issue based work tracking exists
 
 missing:
-- stronger synchronization between roadmap, architecture, specs, and crate READMEs
+- stronger synchronization between GitHub Issues, architecture, specs, and crate READMEs
 - clearer distinction between design-only work and implemented work
 
 ## Scope and non-goals
@@ -211,7 +211,7 @@ The canonical per-tick order is:
 ## Tick and event flow
 
 The per-tick order must remain explicit and stable, because replay/debug tools depend on it.
-Normative reference: `specs/runtime-execution-contract.md`.
+Normative reference: [`doc/specs/runtime-execution-contract.md`](specs/runtime-execution-contract.md).
 
 ```mermaid
 sequenceDiagram
