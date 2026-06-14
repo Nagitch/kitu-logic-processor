@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
+  import { browser } from "$app/environment";
   import type { WorldObject } from "$lib/types";
   import type {
     BufferGeometry,
@@ -82,8 +83,10 @@
   });
 
   onDestroy(() => {
-    cancelAnimationFrame(animationFrame);
-    renderer?.dispose();
+    if (browser) {
+      cancelAnimationFrame(animationFrame);
+      renderer?.dispose();
+    }
   });
 
   $effect(() => {
