@@ -4,10 +4,15 @@ import { derived, get, writable } from "svelte/store";
 import type {
   ClientOscMessage,
   DebugLogEntry,
-  JsonOscArg,
   ServerEvent,
   WorldSnapshot,
 } from "./types";
+import {
+  buildAdminWorldMove,
+  buildAdminWorldReset,
+  buildAdminWorldSpawn,
+  initializeOscIr,
+} from "./osc-ir";
 
 type ConnectionState = "idle" | "connecting" | "open" | "closed" | "error";
 
@@ -47,6 +52,9 @@ export function connectAdminSocket() {
   socket.addEventListener("open", () => {
     connectionState.set("open");
     lastError.set(null);
+    initializeOscIr().catch((error: unknown) => {
+      lastError.set(error instanceof Error ? error.message : String(error));
+    });
   });
 
   socket.addEventListener("message", (event) => {
@@ -66,9 +74,7 @@ export function connectAdminSocket() {
   });
 }
 
-export function sendOsc(address: string, args: JsonOscArg[] = []) {
-  const payload: ClientOscMessage = { address, args };
-
+export function sendOsc(payload: ClientOscMessage) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     lastError.set("WebSocket is not connected");
     return false;
@@ -78,26 +84,31 @@ export function sendOsc(address: string, args: JsonOscArg[] = []) {
   return true;
 }
 
-export function spawnObject(kind: string, x: number, y: number, z: number) {
-  return sendOsc("/admin/world/spawn", [
-    { type: "str", value: kind },
-    { type: "float", value: x },
-    { type: "float", value: y },
-    { type: "float", value: z },
-  ]);
+export async function spawnObject(
+  kind: string,
+  x: number,
+  y: number,
+  z: number,
+) {
+  return sendBuiltMessage(() => buildAdminWorldSpawn(kind, x, y, z));
 }
 
-export function moveObject(id: string, x: number, y: number, z: number) {
-  return sendOsc("/admin/world/move", [
-    { type: "str", value: id },
-    { type: "float", value: x },
-    { type: "float", value: y },
-    { type: "float", value: z },
-  ]);
+export async function moveObject(id: string, x: number, y: number, z: number) {
+  return sendBuiltMessage(() => buildAdminWorldMove(id, x, y, z));
 }
 
-export function resetWorld() {
-  return sendOsc("/admin/world/reset");
+export async function resetWorld() {
+  return sendBuiltMessage(buildAdminWorldReset);
+}
+
+async function sendBuiltMessage(build: () => Promise<ClientOscMessage>) {
+  try {
+    const payload = await build();
+    return sendOsc(payload);
+  } catch (error) {
+    lastError.set(error instanceof Error ? error.message : String(error));
+    return false;
+  }
 }
 
 function applyServerEvent(event: ServerEvent) {

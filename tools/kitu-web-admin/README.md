@@ -10,6 +10,22 @@ Initial browser admin vertical slice for organizing and debugging a Kitu logic p
 
 ## Run
 
+The frontend uses the shared Rust OSC-IR model through a generated WASM package.
+Local development requires Rust, the `wasm32-unknown-unknown` target, and the
+frontend npm dependencies before Vite starts:
+
+```sh
+rustup target add wasm32-unknown-unknown
+cd tools/kitu-web-admin/frontend
+npm install
+npm run wasm
+npm run dev
+```
+
+`npm run dev` and `npm run build` both run the WASM generation step first. The
+generated package is written to `frontend/static/kitu-osc-ir-wasm/` and is not
+committed.
+
 ```sh
 docker compose -f tools/kitu-web-admin/docker-compose.yml up --build
 ```
@@ -20,3 +36,6 @@ Then open:
 - Backend health: http://localhost:8787/health
 
 The Web Admin sends JSON-wrapped OSC-IR messages over WebSocket to create and move logical world objects. The backend logs inbound admin commands, ticks the Kitu runtime, and broadcasts world snapshots and debug logs back to the browser.
+In Docker Compose, the frontend image includes Node 22 and Rust 1.82 with the
+WASM target. The frontend service runs `npm install` and `npm run dev`; the
+`predev` script generates the OSC-IR WASM package before Vite starts.

@@ -1,6 +1,7 @@
 .svelte-kit
 build
 node_modules
+static/kitu-osc-ir-wasm
 dist
 .env
 .env.*
