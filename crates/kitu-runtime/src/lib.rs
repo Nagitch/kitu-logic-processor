@@ -17,6 +17,7 @@ use std::{
 
 use kitu_core::{KituError, Result, Tick};
 use kitu_ecs::EcsWorld;
+pub use kitu_ecs::{WorldObject, WorldSnapshot, WorldTransform};
 use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
 use kitu_transport::{Transport, TransportEvent};
 
@@ -42,6 +43,11 @@ impl AuthoritativeInputQueue {
 
     fn committed_snapshot(&self) -> Vec<OscBundle> {
         self.committed_batch.iter().cloned().collect()
+    }
+
+    fn clear(&mut self) {
+        self.committed_batch.clear();
+        self.pending_queue.clear();
     }
 }
 
@@ -79,6 +85,11 @@ impl OutputBuffer {
 
     fn drain_visible(&mut self) -> Vec<OscBundle> {
         self.visible.drain(..).collect()
+    }
+
+    fn clear(&mut self) {
+        self.staged.clear();
+        self.visible.clear();
     }
 }
 
@@ -152,6 +163,49 @@ impl<T: Transport> Runtime<T> {
         &mut self.world
     }
 
+    /// Spawns an object into the authoritative runtime/ECS world state.
+    pub fn spawn_world_object(
+        &mut self,
+        kind: impl Into<String>,
+        x: f32,
+        y: f32,
+        z: f32,
+    ) -> Result<WorldObject> {
+        let object = self
+            .world
+            .spawn_world_object(kind, WorldTransform::new(x, y, z))?;
+        self.enqueue_player_move(&object.id, x, z);
+        Ok(object)
+    }
+
+    /// Moves an existing object in the authoritative runtime/ECS world state.
+    pub fn move_world_object(&mut self, id: &str, x: f32, y: f32, z: f32) -> Result<WorldObject> {
+        let previous = self
+            .world
+            .world_object(id)
+            .ok_or(KituError::InvalidInput("unknown world object"))?
+            .clone();
+        let moved = self
+            .world
+            .move_world_object(id, WorldTransform::new(x, y, z))?;
+        self.enqueue_player_move(id, x - previous.transform.x, z - previous.transform.z);
+        Ok(moved)
+    }
+
+    /// Clears all objects from the authoritative runtime/ECS world state.
+    pub fn reset_world_objects(&mut self) {
+        self.world.reset_world_objects();
+        self.player_transforms.clear();
+        self.inputs.clear();
+        self.committed_input_tick = None;
+        self.outputs.clear();
+    }
+
+    /// Returns the authoritative runtime/ECS world snapshot.
+    pub fn inspect_world_state(&self) -> WorldSnapshot {
+        self.world.world_snapshot()
+    }
+
     /// Enqueues an input bundle for the next tick.
     pub fn enqueue_input(&mut self, input: OscBundle) {
         self.inputs.enqueue_pending(input);
@@ -178,6 +232,16 @@ impl<T: Transport> Runtime<T> {
             self.committed_input_tick = None;
         }
         drained
+    }
+
+    fn enqueue_player_move(&mut self, entity_id: &str, x: f32, z: f32) {
+        let mut message = OscMessage::new("/input/move");
+        message.push_arg(OscArg::Str(entity_id.to_string()));
+        message.push_arg(OscArg::Float(x));
+        message.push_arg(OscArg::Float(z));
+        let mut bundle = OscBundle::new();
+        bundle.push(message);
+        self.enqueue_input(bundle);
     }
 
     /// Processes as many fixed ticks as `dt` allows.
@@ -595,6 +659,40 @@ mod tests {
         runtime.tick_once().unwrap();
         let drained = runtime.drain_output_buffer();
         assert_eq!(drained, vec![first, second]);
+    }
+
+    #[test]
+    fn world_api_spawns_moves_and_snapshots_runtime_state() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        let object = runtime.spawn_world_object("enemy", 1.0, 2.0, 3.0).unwrap();
+        assert_eq!(object.id, "obj-1");
+
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        assert_eq!(outputs.len(), 1);
+
+        let moved = runtime
+            .move_world_object(&object.id, 4.0, 5.0, 6.0)
+            .unwrap();
+        assert_eq!(moved.transform, WorldTransform::new(4.0, 5.0, 6.0));
+
+        let snapshot = runtime.inspect_world_state();
+        assert_eq!(snapshot.objects, vec![moved]);
+    }
+
+    #[test]
+    fn world_api_reset_clears_runtime_state() {
+        let mut runtime = build_runtime(LocalChannel::default());
+
+        runtime
+            .spawn_world_object("trigger", 0.0, 0.0, 0.0)
+            .unwrap();
+        runtime.reset_world_objects();
+
+        assert!(runtime.inspect_world_state().objects.is_empty());
+        runtime.tick_once().unwrap();
+        assert!(runtime.drain_output_buffer().is_empty());
     }
 
     #[test]

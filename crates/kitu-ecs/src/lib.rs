@@ -19,14 +19,67 @@ pub trait System: Send + Sync + 'static {
     fn run(&mut self, world: &mut EcsWorld, tick: Tick) -> Result<()>;
 }
 
+/// Position for an object in the authoritative world state.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct WorldTransform {
+    /// X coordinate in world space.
+    pub x: f32,
+    /// Y coordinate in world space.
+    pub y: f32,
+    /// Z coordinate in world space.
+    pub z: f32,
+}
+
+impl WorldTransform {
+    /// Creates a transform from world-space coordinates.
+    pub const fn new(x: f32, y: f32, z: f32) -> Self {
+        Self { x, y, z }
+    }
+}
+
+/// Object tracked by the ECS-backed world state.
+#[derive(Debug, Clone, PartialEq)]
+pub struct WorldObject {
+    /// Stable object identifier assigned by the ECS world.
+    pub id: String,
+    /// Application-level object category.
+    pub kind: String,
+    /// Current object transform.
+    pub transform: WorldTransform,
+}
+
+/// Serializable-style snapshot of the ECS-backed world state.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct WorldSnapshot {
+    /// Objects currently present in the world.
+    pub objects: Vec<WorldObject>,
+}
+
 /// Minimal world representation for registering components and systems.
-#[derive(Default)]
 pub struct EcsWorld {
     components: Vec<String>,
     scheduled: VecDeque<Box<dyn System>>,
+    next_world_object_id: u64,
+    world_objects: Vec<WorldObject>,
+}
+
+impl Default for EcsWorld {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl EcsWorld {
+    /// Creates an empty ECS world.
+    pub fn new() -> Self {
+        Self {
+            components: Vec::new(),
+            scheduled: VecDeque::new(),
+            next_world_object_id: 1,
+            world_objects: Vec::new(),
+        }
+    }
+
     /// Registers a component type by name. The concrete storage will be wired later.
     pub fn register_component(&mut self, name: impl Into<String>) -> Result<()> {
         let name = name.into();
@@ -53,6 +106,60 @@ impl EcsWorld {
     /// Returns a snapshot of registered component names.
     pub fn registered_components(&self) -> Vec<String> {
         self.components.clone()
+    }
+
+    /// Spawns an object into the authoritative world state.
+    pub fn spawn_world_object(
+        &mut self,
+        kind: impl Into<String>,
+        transform: WorldTransform,
+    ) -> Result<WorldObject> {
+        let kind = kind.into();
+        if kind.is_empty() {
+            return Err(KituError::InvalidInput("world object kind cannot be empty"));
+        }
+
+        let id = format!("obj-{}", self.next_world_object_id);
+        self.next_world_object_id += 1;
+        let object = WorldObject {
+            id,
+            kind,
+            transform,
+        };
+        self.world_objects.push(object.clone());
+        Ok(object)
+    }
+
+    /// Moves an existing world object to an absolute transform.
+    pub fn move_world_object(
+        &mut self,
+        id: &str,
+        transform: WorldTransform,
+    ) -> Result<WorldObject> {
+        let object = self
+            .world_objects
+            .iter_mut()
+            .find(|object| object.id == id)
+            .ok_or(KituError::InvalidInput("unknown world object"))?;
+        object.transform = transform;
+        Ok(object.clone())
+    }
+
+    /// Returns a single object by id.
+    pub fn world_object(&self, id: &str) -> Option<&WorldObject> {
+        self.world_objects.iter().find(|object| object.id == id)
+    }
+
+    /// Removes all authoritative world objects.
+    pub fn reset_world_objects(&mut self) {
+        self.world_objects.clear();
+    }
+
+    /// Returns a stable snapshot of the authoritative world state.
+    pub fn world_snapshot(&self) -> WorldSnapshot {
+        WorldSnapshot {
+            objects: self.world_objects.clone(),
+        }
     }
 }
 
@@ -104,5 +211,26 @@ mod tests {
         system.run(&mut world, tick).unwrap();
         system.run(&mut world, tick).unwrap();
         assert_eq!(system.runs.get(&tick.get()), Some(&2));
+    }
+
+    #[test]
+    fn world_objects_spawn_move_and_snapshot() {
+        let mut world = EcsWorld::new();
+
+        let spawned = world
+            .spawn_world_object("enemy", WorldTransform::new(1.0, 2.0, 3.0))
+            .unwrap();
+        assert_eq!(spawned.id, "obj-1");
+
+        let moved = world
+            .move_world_object(&spawned.id, WorldTransform::new(4.0, 5.0, 6.0))
+            .unwrap();
+        assert_eq!(moved.transform, WorldTransform::new(4.0, 5.0, 6.0));
+
+        let snapshot = world.world_snapshot();
+        assert_eq!(snapshot.objects, vec![moved]);
+
+        world.reset_world_objects();
+        assert!(world.world_snapshot().objects.is_empty());
     }
 }
