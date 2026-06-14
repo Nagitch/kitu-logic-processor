@@ -50,14 +50,16 @@
   <title>World - Kitu Admin</title>
 </svelte:head>
 
-<div class="grid grid-cols-[1fr_360px] gap-4 max-xl:grid-cols-1">
+<div
+  class="grid min-w-0 grid-cols-[minmax(0,1fr)_360px] gap-4 max-xl:grid-cols-1"
+>
   <Panel title="World View" eyebrow="Scene">
-    <div class="h-[620px] min-h-[420px]">
+    <div class="h-[620px] min-h-[420px] min-w-0">
       <WorldCanvas objects={$worldSnapshot.objects} />
     </div>
   </Panel>
 
-  <div class="grid content-start gap-4">
+  <div class="grid min-w-0 content-start gap-4">
     <Panel title="Place Object" eyebrow="OSC /admin/world/spawn">
       <form
         class="grid gap-3"

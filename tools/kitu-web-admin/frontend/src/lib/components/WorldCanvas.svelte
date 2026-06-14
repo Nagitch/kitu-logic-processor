@@ -39,6 +39,8 @@
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.domElement.style.width = "100%";
+      renderer.domElement.style.height = "100%";
       host.appendChild(renderer.domElement);
 
       const grid = new THREE.GridHelper(36, 18, 0x94a3b8, 0xd1d5db);
@@ -52,7 +54,7 @@
 
       const resize = () => {
         const rect = host.getBoundingClientRect();
-        renderer?.setSize(rect.width, rect.height);
+        renderer?.setSize(rect.width, rect.height, false);
         if (camera) {
           camera.aspect = rect.width / Math.max(rect.height, 1);
           camera.updateProjectionMatrix();
@@ -133,5 +135,5 @@
 
 <div
   bind:this={host}
-  class="h-full min-h-[360px] w-full overflow-hidden rounded-md border border-border bg-white"
+  class="h-full min-h-[360px] w-full min-w-0 overflow-hidden rounded-md border border-border bg-white [contain:layout_paint_size]"
 ></div>

@@ -16,7 +16,9 @@
   } = $props();
 </script>
 
-<section class={cn("rounded-lg border border-border bg-white", className)}>
+<section
+  class={cn("min-w-0 rounded-lg border border-border bg-white", className)}
+>
   <header
     class="flex min-h-14 items-center justify-between gap-3 border-b border-border px-4"
   >
@@ -34,7 +36,7 @@
       </div>
     {/if}
   </header>
-  <div class="p-4">
+  <div class="min-w-0 p-4">
     {@render children?.()}
   </div>
 </section>
