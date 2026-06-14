@@ -1,0 +1,34 @@
+services:
+  backend:
+    image: rust:1.82
+    working_dir: /workspace
+    command: cargo run -p kitu-web-admin-demo-backend
+    environment:
+      RUST_LOG: info
+      KITU_WEB_ADMIN_BIND: 0.0.0.0:8787
+    ports:
+      - "8787:8787"
+    volumes:
+      - ../..:/workspace
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /workspace/tools/kitu-web-admin/frontend
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    environment:
+      PUBLIC_KITU_ADMIN_WS_URL: ws://localhost:8787/ws
+      PUBLIC_KITU_ADMIN_HTTP_URL: http://localhost:8787
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../..:/workspace
+      - web-admin-node-modules:/workspace/tools/kitu-web-admin/frontend/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  cargo-cache:
+  target-cache:
+  web-admin-node-modules:
