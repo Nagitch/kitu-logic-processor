@@ -92,8 +92,9 @@
   });
 
   $effect(() => {
+    const currentObjects = objects;
     if (scene && THREE) {
-      syncObjects(objects);
+      syncObjects(currentObjects);
     }
   });
 
