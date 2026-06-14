@@ -15,7 +15,7 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
+use kitu_osc_ir::{OscArg, OscMessage};
 use kitu_runtime::{build_runtime, Runtime};
 use kitu_transport::LocalChannel;
 use serde::{Deserialize, Serialize};
@@ -33,9 +33,7 @@ struct AppState {
 
 struct GameState {
     runtime: Runtime<LocalChannel>,
-    next_object_id: u64,
     next_log_id: u64,
-    objects: Vec<WorldObject>,
     logs: Vec<DebugLogEntry>,
 }
 
@@ -43,9 +41,7 @@ impl Default for GameState {
     fn default() -> Self {
         Self {
             runtime: build_runtime(LocalChannel::connected()),
-            next_object_id: 1,
             next_log_id: 1,
-            objects: Vec::new(),
             logs: Vec::new(),
         }
     }
@@ -307,7 +303,7 @@ fn handle_client_osc(state: &AppState, client_message: ClientOscMessage) -> Resu
             });
         }
         "/admin/world/reset" => {
-            guard.objects.clear();
+            guard.runtime.reset_world_objects();
             outgoing_events.push(ServerEvent::Log {
                 entry: guard.push_log(
                     LogLevel::Warn,
@@ -349,21 +345,11 @@ fn spawn_object(state: &mut GameState, message: &OscMessage) -> Result<WorldObje
     let x = numeric_arg(message, 1).unwrap_or(0.0);
     let y = numeric_arg(message, 2).unwrap_or(0.0);
     let z = numeric_arg(message, 3).unwrap_or(0.0);
-    let id = format!("obj-{}", state.next_object_id);
-    state.next_object_id += 1;
-
-    let object = WorldObject {
-        id: id.clone(),
-        kind: kind.clone(),
-        x,
-        y,
-        z,
-        color: color_for_kind(&kind).to_string(),
-    };
-
-    state.objects.push(object.clone());
-    enqueue_runtime_move(&mut state.runtime, &id, x, z);
-    Ok(object)
+    let object = state
+        .runtime
+        .spawn_world_object(kind, x, y, z)
+        .context("spawn runtime world object")?;
+    Ok(WorldObject::from_runtime(&object))
 }
 
 fn move_object(state: &mut GameState, message: &OscMessage) -> Result<WorldObject> {
@@ -376,31 +362,11 @@ fn move_object(state: &mut GameState, message: &OscMessage) -> Result<WorldObjec
     let z =
         numeric_arg(message, 3).ok_or_else(|| anyhow::anyhow!("/admin/world/move expects z"))?;
 
-    let object = state
-        .objects
-        .iter_mut()
-        .find(|object| object.id == id)
-        .ok_or_else(|| anyhow::anyhow!("unknown world object: {id}"))?;
-
-    let delta_x = x - object.x;
-    let delta_z = z - object.z;
-    object.x = x;
-    object.y = y;
-    object.z = z;
-    let moved = object.clone();
-
-    enqueue_runtime_move(&mut state.runtime, id, delta_x, delta_z);
-    Ok(moved)
-}
-
-fn enqueue_runtime_move(runtime: &mut Runtime<LocalChannel>, entity_id: &str, x: f32, z: f32) {
-    let mut message = OscMessage::new("/input/move");
-    message.push_arg(OscArg::Str(entity_id.to_string()));
-    message.push_arg(OscArg::Float(x));
-    message.push_arg(OscArg::Float(z));
-    let mut bundle = OscBundle::new();
-    bundle.push(message);
-    runtime.enqueue_input(bundle);
+    let moved = state
+        .runtime
+        .move_world_object(id, x, y, z)
+        .with_context(|| format!("move runtime world object: {id}"))?;
+    Ok(WorldObject::from_runtime(&moved))
 }
 
 fn numeric_arg(message: &OscMessage, index: usize) -> Option<f32> {
@@ -443,9 +409,14 @@ fn broadcast_error(state: &AppState, message: String) {
 
 impl GameState {
     fn snapshot(&self) -> WorldSnapshot {
+        let runtime_snapshot = self.runtime.inspect_world_state();
         WorldSnapshot {
             tick: self.runtime.current_tick().get(),
-            objects: self.objects.clone(),
+            objects: runtime_snapshot
+                .objects
+                .iter()
+                .map(WorldObject::from_runtime)
+                .collect(),
         }
     }
 
@@ -468,6 +439,19 @@ impl GameState {
             self.logs.remove(0);
         }
         entry
+    }
+}
+
+impl WorldObject {
+    fn from_runtime(object: &kitu_runtime::WorldObject) -> Self {
+        Self {
+            id: object.id.clone(),
+            kind: object.kind.clone(),
+            x: object.transform.x,
+            y: object.transform.y,
+            z: object.transform.z,
+            color: color_for_kind(&object.kind).to_string(),
+        }
     }
 }
 
@@ -558,7 +542,7 @@ mod tests {
 
         let object = spawn_object(&mut state, &spawn).unwrap();
         assert_eq!(object.id, "obj-1");
-        assert_eq!(state.objects.len(), 1);
+        assert_eq!(state.runtime.inspect_world_state().objects.len(), 1);
 
         let mut move_message = OscMessage::new("/admin/world/move");
         move_message.push_arg(OscArg::Str(object.id));
@@ -570,5 +554,8 @@ mod tests {
         assert_eq!(moved.x, 4.0);
         assert_eq!(moved.y, 0.5);
         assert_eq!(moved.z, 6.0);
+
+        let snapshot = state.snapshot();
+        assert_eq!(snapshot.objects, vec![moved]);
     }
 }
