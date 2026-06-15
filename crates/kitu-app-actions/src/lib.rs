@@ -9,7 +9,7 @@
 //! `kitu-runtime` owns the merged catalog at runtime. Tools such as the web admin
 //! and `kitu-cli` consume the same definitions instead of redefining commands.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use kitu_osc_ir::{OscArg, OscMessage};
 use serde::{Deserialize, Serialize};
@@ -82,9 +82,22 @@ impl AppActionCatalog {
         &mut self,
         actions: impl IntoIterator<Item = AppActionDefinition>,
     ) -> AppActionResult<()> {
-        for action in actions {
-            self.add_action(action)?;
+        let actions = actions.into_iter().collect::<Vec<_>>();
+        let mut ids = self
+            .actions
+            .iter()
+            .map(|action| action.id.as_str())
+            .collect::<HashSet<_>>();
+        for action in &actions {
+            action.validate()?;
+            if !ids.insert(action.id.as_str()) {
+                return Err(AppActionError::InvalidDefinition(format!(
+                    "duplicate action id `{}`",
+                    action.id
+                )));
+            }
         }
+        self.actions.extend(actions);
         Ok(())
     }
 
@@ -514,7 +527,8 @@ fn parse_manifest_builders(source: &str) -> AppActionResult<Vec<ManifestActionBu
     let mut section = ManifestSection::Action;
 
     for (line_index, raw_line) in source.lines().enumerate() {
-        let line = raw_line.split('#').next().unwrap_or("").trim();
+        let stripped = strip_manifest_comment(raw_line);
+        let line = stripped.trim();
         if line.is_empty() {
             continue;
         }
@@ -559,6 +573,34 @@ fn parse_manifest_builders(source: &str) -> AppActionResult<Vec<ManifestActionBu
         actions.push(action);
     }
     Ok(actions)
+}
+
+fn strip_manifest_comment(line: &str) -> String {
+    let mut in_string = false;
+    let mut escaped = false;
+    let mut output = String::new();
+
+    for ch in line.chars() {
+        if escaped {
+            output.push(ch);
+            escaped = false;
+            continue;
+        }
+        match ch {
+            '\\' if in_string => {
+                output.push(ch);
+                escaped = true;
+            }
+            '"' => {
+                output.push(ch);
+                in_string = !in_string;
+            }
+            '#' if !in_string => break,
+            _ => output.push(ch),
+        }
+    }
+
+    output
 }
 
 fn assign_manifest_value(
@@ -926,6 +968,79 @@ mod tests {
             actions[0].scope,
             AppActionScope::Project {
                 app_id: "demo".to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn extend_actions_is_atomic_when_batch_has_duplicate_id() {
+        let source = r#"
+            [[actions]]
+            id = "enemy.spawn"
+            label = "Enemy Spawn"
+
+            [actions.cli]
+            command = "enemy spawn"
+
+            [actions.output]
+            address = "/game/enemy/spawn"
+            args = []
+
+            [[actions]]
+            id = "spawn-object"
+            label = "Duplicate Spawn Object"
+
+            [actions.cli]
+            command = "duplicate spawn"
+
+            [actions.output]
+            address = "/game/duplicate/spawn"
+            args = []
+        "#;
+        let actions = load_project_actions_from_toml("demo", source).unwrap();
+        let mut catalog = kitu_general_catalog();
+        let original_len = catalog.actions.len();
+
+        let result = catalog.extend_actions(actions);
+
+        assert!(result.is_err());
+        assert_eq!(catalog.actions.len(), original_len);
+        assert!(catalog.action("enemy.spawn").is_none());
+    }
+
+    #[test]
+    fn project_manifest_preserves_hash_inside_quoted_strings() {
+        let source = r#"
+            [[actions]]
+            id = "level.load" # trailing comment
+            label = "Level #1"
+            description = "C# action"
+
+            [actions.cli]
+            command = "level load"
+
+            [[actions.inputs]]
+            name = "destination"
+            type = "string"
+            default = "room #42"
+
+            [actions.output]
+            address = "/game/level/load"
+            args = ["$destination", "literal # value"]
+        "#;
+
+        let actions = load_project_actions_from_toml("demo", source).unwrap();
+
+        assert_eq!(actions[0].label, "Level #1");
+        assert_eq!(actions[0].description.as_deref(), Some("C# action"));
+        assert_eq!(
+            actions[0].inputs[0].default,
+            Some(ActionValue::String("room #42".to_string()))
+        );
+        assert_eq!(
+            actions[0].output.args[1],
+            OscTemplateArg::Literal {
+                value: ActionValue::String("literal # value".to_string())
             }
         );
     }
