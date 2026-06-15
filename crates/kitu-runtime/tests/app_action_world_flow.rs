@@ -27,10 +27,15 @@ fn app_action_world_flow_updates_runtime_state_and_outputs() {
     assert_eq!(spawned[0].kind, "enemy");
     assert_eq!(spawned[0].transform, WorldTransform::new(1.0, 2.0, 3.0));
 
-    runtime.tick_once().expect("spawn output tick should succeed");
+    runtime
+        .tick_once()
+        .expect("spawn output tick should succeed");
     let spawn_outputs = runtime.drain_output_buffer();
     assert_eq!(spawn_outputs.len(), 1);
-    assert_eq!(spawn_outputs[0].messages[0].address, "/render/player/transform");
+    assert_eq!(
+        spawn_outputs[0].messages[0].address,
+        "/render/player/transform"
+    );
     assert_eq!(
         spawn_outputs[0].messages[0].args,
         vec![
@@ -58,7 +63,9 @@ fn app_action_world_flow_updates_runtime_state_and_outputs() {
     assert_eq!(moved.len(), 1);
     assert_eq!(moved[0].transform, WorldTransform::new(2.0, 5.0, 4.0));
 
-    runtime.tick_once().expect("move output tick should succeed");
+    runtime
+        .tick_once()
+        .expect("move output tick should succeed");
     let move_outputs = runtime.drain_output_buffer();
     assert_eq!(move_outputs.len(), 1);
     assert_eq!(
