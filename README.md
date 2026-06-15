@@ -35,6 +35,12 @@ Goals:
 - Strong tooling (Shell, Web Admin, CI/replay)
 - Minimal coupling between teams (logic / art / design / QA)
 
+Implementation status:
+
+- The current repository contains the MVP runtime core, the player-move vertical slice, and early replay/tooling foundations.
+- Several data/content and tooling sections below describe target architecture rather than finished production features.
+- For the current implemented/partial/staged breakdown, use [doc/architecture.md](doc/architecture.md#current-implementation-staging).
+
 
 ## High-Level Architecture
 
