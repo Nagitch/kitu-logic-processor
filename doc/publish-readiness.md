@@ -8,28 +8,29 @@ The authoritative policy is in [`AGENT.md`](../AGENT.md#cratesio-publish-ready-m
 - Do not run `cargo publish` without `--dry-run`.
 - Keep publishable crates ready for future publication while `publish = false` remains in force.
 - Treat workspace tools as non-publishable unless a future issue explicitly changes that decision.
-- Capture `cargo publish --dry-run` results in the relevant PR or issue before marking dry-run validation complete.
+- While `publish = false` remains in force, use `cargo package --list` to validate package include scope.
+- Run and capture `cargo publish --dry-run` only after a deliberate MVP publication step changes the relevant crate away from `publish = false`.
 
 ## Candidate crates
 
 Current future-publication candidates are the reusable crates under `crates/`.
 
-| Crate | Candidate | Metadata | `include` | README | Dry-run status |
+| Crate | Candidate | Metadata | `include` | README | Package validation |
 | --- | --- | --- | --- | --- | --- |
-| `kitu-core` | yes | present | present | present | pending #51 |
-| `kitu-ecs` | yes | present | present | present | pending #51 |
-| `kitu-osc-ir` | yes | present | present | present | pending #51 |
-| `kitu-transport` | yes | present | present | present | pending #51 |
-| `kitu-runtime` | yes | present | present | present | pending #51 |
-| `kitu-app-actions` | yes | present | present | present | pending #51 |
-| `kitu-osc-ir-wasm` | yes | pending #50 | pending #50 | present | pending #51 |
-| `kitu-scripting-rhai` | yes | present | present | present | pending #51 |
-| `kitu-data-tmd` | yes | present | present | present | pending #51 |
-| `kitu-data-sqlite` | yes | present | present | present | pending #51 |
-| `kitu-tsq1` | yes | present | present | present | pending #51 |
-| `kitu-shell` | yes | present | present | present | pending #51 |
-| `kitu-web-admin-backend` | yes | present | present | present | pending #51 |
-| `kitu-unity-ffi` | yes | present | present | present | pending #51 |
+| `kitu-core` | yes | present | present | present | pending package list |
+| `kitu-ecs` | yes | present | present | present | pending package list |
+| `kitu-osc-ir` | yes | present | present | present | pending package list |
+| `kitu-transport` | yes | present | present | present | pending package list |
+| `kitu-runtime` | yes | present | present | present | pending package list |
+| `kitu-app-actions` | yes | present | present | present | pending package list |
+| `kitu-osc-ir-wasm` | yes | pending #50 | pending #50 | present | pending package list |
+| `kitu-scripting-rhai` | yes | present | present | present | pending package list |
+| `kitu-data-tmd` | yes | present | present | present | pending package list |
+| `kitu-data-sqlite` | yes | present | present | present | pending package list |
+| `kitu-tsq1` | yes | present | present | present | pending package list |
+| `kitu-shell` | yes | present | present | present | pending package list |
+| `kitu-web-admin-backend` | yes | present | present | present | pending package list |
+| `kitu-unity-ffi` | yes | present | present | present | pending package list |
 
 ## Non-candidate workspace tools
 
@@ -49,4 +50,5 @@ For each candidate crate before MVP publication:
 - `README.md` exists and matches the package `readme`.
 - Crate-level docs explain responsibility boundaries and integration with the workspace.
 - Public APIs have tests or a documented exception.
-- `cargo publish --dry-run -p <crate>` has been executed after metadata changes and the result is captured in the PR or issue.
+- `cargo package --list -p <crate>` has been executed after metadata changes and the result is captured in the PR or issue.
+- `cargo publish --dry-run -p <crate>` is deferred until the project intentionally changes the crate's `publish = false` gate as part of MVP publication.
