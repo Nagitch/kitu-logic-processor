@@ -6,3 +6,8 @@ publish = false
 
 [dependencies]
 anyhow = { workspace = true }
+kitu-osc-ir = { path = "../../crates/kitu-osc-ir" }
+kitu-runtime = { path = "../../crates/kitu-runtime" }
+kitu-transport = { path = "../../crates/kitu-transport" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
