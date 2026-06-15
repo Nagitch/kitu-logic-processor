@@ -31,14 +31,19 @@ For tick `N`, execution order is fixed as follows:
 
 1. **Commit input batch for tick `N`**
    - Clear previous committed inputs, then move `pending_inputs` into `committed_inputs` for tick `N`.
-2. **Dispatch ECS systems for tick `N`**
-   - Authoritative state update phase.
-3. **Emit outputs for tick `N`**
+2. **Collect runtime-boundary inputs for tick `N`**
+   - Validate and snapshot committed messages that the current runtime owns directly.
+   - Current MVP behavior collects `/input/move` before ECS dispatch so invalid movement input fails the tick before state mutation.
+3. **Dispatch ECS systems for tick `N`**
+   - Run scheduled ECS systems in deterministic order.
+4. **Apply runtime-owned MVP slice updates**
+   - Current MVP behavior applies collected `/input/move` intents after ECS dispatch and stages `/render/player/transform`.
+5. **Emit outputs for tick `N`**
    - Move staged outputs into externally visible `output_buffer`.
-4. **Poll transport for next tick input**
+6. **Poll transport for next tick input**
    - Drain `poll_event()` until empty.
    - Any received `TransportEvent::Message` is enqueued into `pending_inputs`.
-5. **Advance tick**
+7. **Advance tick**
    - `tick = tick.next()`.
 
 ## Input timing rule (normative)
@@ -50,7 +55,7 @@ This rule is mandatory for deterministic replay and transport-timing independenc
 
 ## Output timing rule
 
-Outputs generated during tick `N` are staged during execution and only become externally visible in the output buffer at phase 3 of tick `N`.
+Outputs generated during tick `N` are staged during execution and only become externally visible in the output buffer at the output emission phase of tick `N`.
 Hosts should poll outputs after `update()`/`tick_once()` returns.
 
 ## Minimal API surface (MVP)
@@ -58,7 +63,7 @@ Hosts should poll outputs after `update()`/`tick_once()` returns.
 - `update(dt: f32) -> Result<u32>`: advance fixed ticks from an accumulator.
 - `tick_once() -> Result<()>`: execute exactly one authoritative tick with the fixed phase order.
 - `enqueue_input(bundle)`: queue host-provided input for a future tick.
-- `queue_output(bundle)`: stage runtime outputs for emission at phase 3.
+- `queue_output(bundle)`: stage runtime outputs for the output emission phase.
 - `drain_output_buffer()`: read emitted outputs in FIFO order.
 - `drain_committed_inputs()`: consume the committed input batch in FIFO order.
 
