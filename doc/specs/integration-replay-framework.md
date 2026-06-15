@@ -119,7 +119,7 @@ Minimal shape:
       "address": "/render/player/transform",
       "args": {
         "entity_id": "player:local",
-        "source_tick": 0,
+        "tick": 0,
         "position": { "x": 1.5, "y": 2.0, "z": 0.0 }
       }
     }
@@ -135,7 +135,7 @@ Rules:
 
 - compare logical message content, not concrete wire bytes
 - assert only the stable fields required by the scenario
-- `expected_outputs[].tick` is the externally visible output tick; `args.source_tick` is the authoritative tick that produced the transform.
+- `expected_outputs[].tick` is the externally visible output tick; `args.tick` is the authoritative tick that produced the transform.
 - leave room for future partial-match or ignore-field semantics without changing the overall structure
 
 ## Run summary / report format
