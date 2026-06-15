@@ -91,6 +91,9 @@ jobs:
           path: target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Run demo-game scenario tests
+        run: cargo test -p kitu-demo-game --test scenarios
+
       - name: Run tests
         run: cargo test --all
 

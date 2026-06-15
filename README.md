@@ -64,12 +64,21 @@ At a high level, Kitu consists of:
   - Kitu Shell (CLI console)
   - Web Admin (browser UI)
   - CI/replay, automation scripts
+- **Applications**
+  - `apps/demo-game` is the reference application built on the Kitu framework
+  - It hosts the current Web Admin vertical slice and app-level scenario tests
 
 The guiding principles are: separation of concerns, determinism, data‑driven design, and event‑based communication.
 
 ## Crates overview
 
 For a quick map of the Rust crates that make up the backend, see [doc/crates-overview.md](doc/crates-overview.md).
+
+## Applications
+
+Applications live under `apps/` and consume the reusable framework crates. The
+current reference app is `apps/demo-game`, which owns its project action
+manifest, admin host service, Docker Compose stack, and scenario tests.
 
 
 ## Backend Game Logic (Rust)
@@ -219,6 +228,9 @@ Web Admin turns the backend into an observable, controllable system without need
 
 Kitu’s workflow focuses on **fast iteration and strong separation**:
 
+- Development should run inside the Dev Container in `.devcontainer/`.
+- Host machines are not expected to have Rust/Cargo or frontend tooling
+  installed directly.
 - Backend developers work in Rust and Rhai, testing logic headlessly.
 - Unity developers focus on visuals, UI, asset setup, and Addressables.
 - Designers edit TMD, TSQ1, and DB content, often without touching code.

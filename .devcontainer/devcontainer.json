@@ -3,7 +3,12 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "rustup show && cargo --version",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
+  },
+  "postCreateCommand": "rustup show && cargo --version && node --version && npm --version",
   "customizations": {
     "vscode": {
       "extensions": [

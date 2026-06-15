@@ -1,16 +1,24 @@
 [package]
-name = "kitu-web-admin-demo-backend"
+name = "kitu-demo-game"
 version = "0.1.0"
 edition = "2021"
 publish = false
 
+[lib]
+name = "kitu_demo_game"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kitu-demo-game-admin-host"
+path = "src/bin/admin_host.rs"
+
 [dependencies]
 anyhow = { workspace = true }
 axum = { version = "0.7", features = ["ws"] }
-kitu-app-actions = { path = "../../../crates/kitu-app-actions" }
-kitu-osc-ir = { path = "../../../crates/kitu-osc-ir" }
-kitu-runtime = { path = "../../../crates/kitu-runtime" }
-kitu-transport = { path = "../../../crates/kitu-transport" }
+kitu-app-actions = { path = "../../crates/kitu-app-actions" }
+kitu-osc-ir = { path = "../../crates/kitu-osc-ir" }
+kitu-runtime = { path = "../../crates/kitu-runtime" }
+kitu-transport = { path = "../../crates/kitu-transport" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }

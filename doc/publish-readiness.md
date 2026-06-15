@@ -38,9 +38,9 @@ These packages are workspace utilities or demos and should remain `publish = fal
 
 - `tools/kitu-cli`
 - `tools/kitu-replay-runner`
-- `tools/kitu-web-admin/backend`
+- `apps/demo-game`
 
-If any tool becomes a future crates.io candidate, add full package metadata, add an explicit `include`, and move it into the candidate table above.
+If any tool or app becomes a future crates.io candidate, add full package metadata, add an explicit `include`, and move it into the candidate table above.
 
 ## Per-crate checklist
 

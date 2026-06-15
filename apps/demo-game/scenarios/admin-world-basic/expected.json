@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "admin-world-basic",
+  "expectedTick": 2,
+  "expectedObjects": [
+    {
+      "kind": "enemy",
+      "x": 4.0,
+      "y": 5.0,
+      "z": 6.0
+    }
+  ]
+}

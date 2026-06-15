@@ -61,9 +61,12 @@ kitu/
     kitu-shell/
     kitu-web-admin-backend/
     kitu-unity-ffi/
+  apps/
+    demo-game/
   tools/
     kitu-cli/
     kitu-replay-runner/
+    kitu-web-admin/
   unity/
     com.kitu.runtime/
     com.kitu.transport/
