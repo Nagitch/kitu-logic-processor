@@ -197,10 +197,12 @@ The runtime model is **authoritative, tick-driven, and deterministic-first**.
 The canonical per-tick order is:
 
 1. **Freeze committed input batch for current tick**: clear previous committed inputs, then move `pending_inputs` into the committed batch for tick `N`.
-2. **ECS dispatch / simulation**: run deterministic ECS systems for tick `N` against that frozen batch.
-3. **Output emission**: move staged outputs produced during tick `N` into the externally visible output buffer.
-4. **Transport poll for next tick input**: drain transport events and enqueue received messages into `pending_inputs` for tick `N+1`.
-5. **Tick increment**: advance `tick` from `N` to `N+1` as the final phase.
+2. **Runtime-boundary input collection**: validate and snapshot committed messages owned directly by the MVP runtime, currently `/input/move`.
+3. **ECS dispatch / simulation**: run deterministic ECS systems for tick `N`.
+4. **Runtime-owned MVP slice update**: apply collected movement intents and stage `/render/player/transform` outputs.
+5. **Output emission**: move staged outputs produced during tick `N` into the externally visible output buffer.
+6. **Transport poll for next tick input**: drain transport events and enqueue received messages into `pending_inputs` for tick `N+1`.
+7. **Tick increment**: advance `tick` from `N` to `N+1` as the final phase.
 
 ### Runtime extension points (planned but bounded by this architecture)
 
@@ -222,8 +224,10 @@ sequenceDiagram
 
     Host->>Runtime: tick_once()
     Runtime->>Runtime: commit pending_inputs as tick N inputs
+    Runtime->>Runtime: collect runtime-owned input messages
     Runtime->>ECS: dispatch systems at tick N
     ECS-->>Runtime: deterministic state updates
+    Runtime->>Runtime: apply MVP movement slice and stage outputs
     Runtime->>Runtime: emit staged outputs to output_buffer
     Runtime->>Transport: poll_event() until empty
     Transport-->>Runtime: Message events for tick N+1
@@ -243,7 +247,7 @@ This timing rule supports deterministic replay, stable network synchronization, 
 
 ### Tick-based processing order requirements
 
-- Input intake for tick `N` must be applied in a deterministic order before advancing to `N+1`.
+- Input intake for tick `N` must be collected and applied in a deterministic order before advancing to `N+1`.
 - ECS dispatch ordering must be stable for a given build/configuration.
 - Tick increment is the final phase of `tick_once`.
 - Tooling-triggered operations (shell/admin/replay) must enter the same message/event queue path as gameplay input.

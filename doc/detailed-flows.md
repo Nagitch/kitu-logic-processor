@@ -206,14 +206,16 @@ Accumulates deltaTime, runs as many ticks as needed, and keeps the simulation on
 The authoritative runtime contract for tick `N` is fixed as the following canonical ordered phases (same contract as `doc/architecture.md`):
 
 1. **Freeze committed input batch for current tick**: clear the previous committed batch, then move `pending_inputs` into the committed input batch for tick `N`.
-2. **ECS dispatch / simulation**: run deterministic systems for tick `N` (input processing, AI/scripts, physics/movement, combat/damage, death handling, render-data collection).
-3. **Output emission**: move staged runtime outputs for tick `N` into the externally visible output buffer.
-4. **Transport poll for next tick input**: drain transport events and queue received messages into `pending_inputs` for tick `N+1`.
-5. **Tick increment**: advance from tick `N` to `N+1` as the final phase.
+2. **Runtime-boundary input collection**: validate and snapshot committed messages owned directly by the current MVP runtime, including `/input/move`.
+3. **ECS dispatch / simulation**: run deterministic systems for tick `N` in scheduled FIFO order.
+4. **Runtime-owned MVP slice update**: apply collected movement intents and stage `/render/player/transform` outputs.
+5. **Output emission**: move staged runtime outputs for tick `N` into the externally visible output buffer.
+6. **Transport poll for next tick input**: drain transport events and queue received messages into `pending_inputs` for tick `N+1`.
+7. **Tick increment**: advance from tick `N` to `N+1` as the final phase.
 
 Important timing rule: **input received during tick `N` is applied on tick `N+1`**. Inputs received while tick `N` is running are never applied in tick `N`; they are first eligible in tick `N+1` when that tick starts and freezes its committed batch. Transport polling alone must not directly mutate authoritative world state.
 
-Crates: `kitu-ecs`, `game-ecs-features`, `game-logic`, `kitu-tsq1` (when skills present), `kitu-runtime` (authoritative phase orchestration and buffers).
+Crates: `kitu-ecs`, `game-ecs-features`, `game-logic`, `kitu-tsq1` (when skills present), `kitu-runtime` (authoritative phase orchestration, current MVP movement slice, and buffers).
 
 ### Output events `/render/*` `/ui/*` `/debug/*`
 
@@ -254,8 +256,8 @@ All share the same `KituRuntime` tick path, preserving consistent behavior.
 ### Architectural checkpoints
 
 - Keep **input interpretation in Unity** and **movement logic in Rust** for clear separation.
-- Reuse a simple pattern `/input/move` → ECS → `/render/player/transform`.
-- Ensure the Kitu ECS abstraction can extend to collisions/terrain later.
+- Reuse a simple pattern `/input/move` → runtime-owned MVP movement slice → `/render/player/transform`.
+- Keep the current movement slice narrow while leaving room to move richer collision/terrain systems into ECS later.
 
 ### Overview
 
@@ -288,45 +290,38 @@ args: { x: 0.5, y: 1.0 }
 
 Crates: `kitu-unity-ffi` (C API → `OscEvent`), `kitu-runtime` (input queue), `kitu-osc-ir` (`OscEvent`). Flow: convert to `OscEvent`, call `KituRuntime::enqueue_input`, defer processing until the next tick’s input phase.
 
-### ECS phase 1: update velocity
+### Runtime-boundary input collection
 
-Crates: `kitu-ecs`, `game-ecs-features` (`InputMove`, `Velocity`), `game-logic` (speed constants).
+Crates: `kitu-runtime`, `kitu-osc-ir`.
+
+At tick `N`, the runtime freezes pending inputs into the committed batch, validates `/input/move`, and snapshots the movement intents before ECS dispatch. Invalid movement messages fail the tick before any state mutation.
 
 ```rust
-fn input_movement_system(world: &mut World) {
-    let move_input = world.resource::<InputMoveState>();
-
-    for (_player, mut velocity) in world.query_mut::<(&PlayerTag, &mut Velocity)>() {
-        velocity.x = move_input.x * MOVE_SPEED;
-        velocity.y = move_input.y * MOVE_SPEED;
-    }
+fn collect_move_inputs(committed: &[OscBundle]) -> Result<Vec<(String, f32, f32)>> {
+    // Current MVP shape:
+    // /input/move(entity_id, x, y)
+    parse_runtime_owned_move_messages(committed)
 }
 ```
 
-### ECS phase 3: update position
+### ECS dispatch
 
-```rust
-fn movement_system(world: &mut World) {
-    for (_player, mut pos, vel) in world.query_mut::<(&PlayerTag, &mut Position, &Velocity)>() {
-        pos.x += vel.x;
-        pos.y += vel.y;
-    }
-}
-```
+The runtime dispatches scheduled ECS systems for tick `N` after input collection. The current MVP player-move slice does not require ECS systems to consume `InputMoveState`, but future richer movement systems may be introduced here if they preserve the same runtime authority and timing rules.
 
-### ECS phase 6: emit `/render/player/transform`
+### Runtime-owned MVP slice update and output staging
 
 Crates: `kitu-runtime`, `kitu-osc-ir`.
 
 ```rust
-fn gather_player_render_events(world: &World, out_events: &mut Vec<OscEvent>) {
-    for (_player, pos) in world.query::<(&PlayerTag, &Position)>() {
-        out_events.push(OscEvent::render_player_transform(1, pos));
+fn apply_player_move_slice(moves: Vec<(String, f32, f32)>, out: &mut OutputBuffer) {
+    for (entity_id, x, y) in moves {
+        let transform = update_runtime_owned_player_transform(entity_id, x, y);
+        out.stage(render_player_transform_message(transform));
     }
 }
 ```
 
-Resulting event contains entity id and position.
+The staged `/render/player/transform` output becomes externally visible during the output emission phase of the same tick. The resulting event contains entity id, authoritative tick, and position.
 
 ### Unity view applies transform
 
