@@ -137,6 +137,7 @@ Examples include:
 - `crates-overview.md` — responsibilities and composition of workspace crates.
 - `detailed-flows.md` — detailed use-case flows and boundary interactions.
 - `rust-doc-templates.md` — templates for Rust documentation.
+- `publish-readiness.md` — crates.io readiness checklist and dry-run tracking.
 - `doc/specs/*.md` — protocol/runtime/replay specifications (authoritative contracts).
 - `../PRODUCTION_STRATEGY.md` — foundational setup and repository-wide practices.
 

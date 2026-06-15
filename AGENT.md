@@ -160,6 +160,7 @@ AI assistants must:
 
 * Keep all crates in a state that is ready for future publication to crates.io ("publish-ready").
 * **Do not publish any crate to crates.io until the MVP is completed.**
+* Track candidate crates and per-crate readiness in `doc/publish-readiness.md`.
 
 This project prioritizes the ability to transition smoothly to crates.io publication after the MVP is complete. Therefore, even during active development, crates must maintain publication-quality metadata, documentation, and structure.
 
