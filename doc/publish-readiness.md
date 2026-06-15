@@ -17,20 +17,38 @@ Current future-publication candidates are the reusable crates under `crates/`.
 
 | Crate | Candidate | Metadata | `include` | README | Package validation |
 | --- | --- | --- | --- | --- | --- |
-| `kitu-core` | yes | present | present | present | pending package list |
-| `kitu-ecs` | yes | present | present | present | pending package list |
-| `kitu-osc-ir` | yes | present | present | present | pending package list |
-| `kitu-transport` | yes | present | present | present | pending package list |
-| `kitu-runtime` | yes | present | present | present | pending package list |
-| `kitu-app-actions` | yes | present | present | present | pending package list |
-| `kitu-osc-ir-wasm` | yes | present | present | present | pending package list |
-| `kitu-scripting-rhai` | yes | present | present | present | pending package list |
-| `kitu-data-tmd` | yes | present | present | present | pending package list |
-| `kitu-data-sqlite` | yes | present | present | present | pending package list |
-| `kitu-tsq1` | yes | present | present | present | pending package list |
-| `kitu-shell` | yes | present | present | present | pending package list |
-| `kitu-web-admin-backend` | yes | present | present | present | pending package list |
-| `kitu-unity-ffi` | yes | present | present | present | pending package list |
+| `kitu-core` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-ecs` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-osc-ir` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-transport` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-runtime` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-app-actions` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-osc-ir-wasm` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-scripting-rhai` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-data-tmd` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-data-sqlite` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-tsq1` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-shell` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-web-admin-backend` | yes | present | present | present | package list succeeded 2026-06-15 |
+| `kitu-unity-ffi` | yes | present | present | present | package list succeeded 2026-06-15 |
+
+## Package validation log
+
+Validation was run from the devcontainer on 2026-06-15.
+
+Command template:
+
+```sh
+cargo publish --dry-run -p <crate>
+cargo package --list -p <crate>
+```
+
+Result:
+
+- Every candidate crate returned the same dry-run blocker: `package.publish` must be set to `true` or a non-empty list in `Cargo.toml`.
+- This blocker is expected while the repository-wide no-publish policy keeps crates at `publish = false`.
+- `cargo package --list` succeeded for every candidate crate, confirming the explicit package include scope can be enumerated.
+- Re-run `cargo publish --dry-run -p <crate>` after the project intentionally changes the relevant crate from `publish = false` as part of the MVP publication process.
 
 ## Non-candidate workspace tools
 
