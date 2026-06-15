@@ -12,6 +12,8 @@ use kitu_transport::LocalChannel;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+const FLOAT_TOLERANCE: f64 = 0.00001;
+
 fn main() -> Result<()> {
     let args = CliArgs::parse(env::args().skip(1).collect())?;
     let summary = run_replay(&args.scenario, &args.expected)?;
@@ -24,7 +26,10 @@ fn main() -> Result<()> {
 
     println!("{}", summary_path.display());
     if summary.status != "pass" {
-        bail!("replay failed with {} mismatch(es)", summary.observed.mismatch_count);
+        bail!(
+            "replay failed with {} mismatch(es)",
+            summary.observed.mismatch_count
+        );
     }
     Ok(())
 }
@@ -271,7 +276,7 @@ fn observed_from_message(visible_tick: u64, message: &OscMessage) -> Result<Expe
     }
 
     let entity_id = string_arg(&message.args[0], "entity_id")?;
-    let source_tick = int64_arg(&message.args[1], "source_tick")?;
+    let tick = int64_arg(&message.args[1], "tick")?;
     let x = float_arg(&message.args[2], "x")?;
     let y = float_arg(&message.args[3], "y")?;
     let z = float_arg(&message.args[4], "z")?;
@@ -281,7 +286,7 @@ fn observed_from_message(visible_tick: u64, message: &OscMessage) -> Result<Expe
         address: message.address.clone(),
         args: serde_json::json!({
             "entity_id": entity_id,
-            "source_tick": source_tick,
+            "tick": tick,
             "position": {
                 "x": x,
                 "y": y,
@@ -319,10 +324,52 @@ fn mismatch_count(expected: &[ExpectedOutput], observed: &[ExpectedOutput]) -> u
     let pair_mismatches = expected
         .iter()
         .zip(observed)
-        .filter(|(expected, observed)| expected != observed)
+        .filter(|(expected, observed)| !outputs_match(expected, observed))
         .count();
     let length_mismatches = expected.len().abs_diff(observed.len());
     pair_mismatches + length_mismatches
+}
+
+fn outputs_match(expected: &ExpectedOutput, observed: &ExpectedOutput) -> bool {
+    expected.tick == observed.tick
+        && expected.address == observed.address
+        && args_match(&expected.args, &observed.args)
+}
+
+fn args_match(expected: &Value, observed: &Value) -> bool {
+    let Some(expected_object) = expected.as_object() else {
+        return expected == observed;
+    };
+    let Some(observed_object) = observed.as_object() else {
+        return false;
+    };
+
+    for (key, expected_value) in expected_object {
+        let Some(observed_value) = observed_object.get(key) else {
+            return false;
+        };
+
+        if key == "position" {
+            if !position_matches(expected_value, observed_value) {
+                return false;
+            }
+        } else if expected_value != observed_value {
+            return false;
+        }
+    }
+
+    expected_object.len() == observed_object.len()
+}
+
+fn position_matches(expected: &Value, observed: &Value) -> bool {
+    ["x", "y", "z"].iter().all(|axis| {
+        let expected = expected.get(axis).and_then(Value::as_f64);
+        let observed = observed.get(axis).and_then(Value::as_f64);
+        match (expected, observed) {
+            (Some(expected), Some(observed)) => (expected - observed).abs() <= FLOAT_TOLERANCE,
+            _ => false,
+        }
+    })
 }
 
 #[cfg(test)]
@@ -376,7 +423,7 @@ mod tests {
             observed.args,
             serde_json::json!({
                 "entity_id": "player:local",
-                "source_tick": 0,
+                "tick": 0,
                 "position": {
                     "x": 1.5,
                     "y": 2.0,
@@ -384,5 +431,37 @@ mod tests {
                 }
             })
         );
+    }
+
+    #[test]
+    fn output_matching_allows_f32_rounding_differences() {
+        let expected = ExpectedOutput {
+            tick: 1,
+            address: "/render/player/transform".to_string(),
+            args: serde_json::json!({
+                "entity_id": "player:local",
+                "tick": 0,
+                "position": {
+                    "x": 0.1,
+                    "y": 0.2,
+                    "z": 0.0
+                }
+            }),
+        };
+        let observed = ExpectedOutput {
+            tick: 1,
+            address: "/render/player/transform".to_string(),
+            args: serde_json::json!({
+                "entity_id": "player:local",
+                "tick": 0,
+                "position": {
+                    "x": 0.10000000149011612,
+                    "y": 0.20000000298023224,
+                    "z": 0.0
+                }
+            }),
+        };
+
+        assert!(outputs_match(&expected, &observed));
     }
 }
