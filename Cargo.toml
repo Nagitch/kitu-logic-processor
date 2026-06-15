@@ -14,9 +14,9 @@ members = [
     "crates/kitu-shell",
     "crates/kitu-web-admin-backend",
     "crates/kitu-unity-ffi",
+    "apps/demo-game",
     "tools/kitu-cli",
     "tools/kitu-replay-runner",
-    "tools/kitu-web-admin/backend",
 ]
 resolver = "2"
 

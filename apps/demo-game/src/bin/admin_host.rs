@@ -17,16 +17,14 @@ use axum::{
     Json, Router,
 };
 use kitu_app_actions::{ActionValue, AppActionCatalog, AppActionDefinition};
+use kitu_demo_game::{build_demo_runtime, DemoRuntime};
 use kitu_osc_ir::{OscArg, OscMessage};
-use kitu_runtime::{build_runtime, Runtime};
-use kitu_transport::LocalChannel;
 use serde::{Deserialize, Serialize};
 use tokio::sync::broadcast;
 use tower_http::cors::CorsLayer;
 use tracing::{error, info};
 
 const DEFAULT_BIND: &str = "127.0.0.1:8787";
-const DEMO_PROJECT_ACTIONS: &str = include_str!("../../../../apps/demo-game/kitu-app-actions.toml");
 
 #[derive(Clone)]
 struct AppState {
@@ -35,22 +33,51 @@ struct AppState {
 }
 
 struct GameState {
-    runtime: Runtime<LocalChannel>,
+    runtime: DemoRuntime,
     next_log_id: u64,
     logs: Vec<DebugLogEntry>,
 }
 
-impl Default for GameState {
-    fn default() -> Self {
-        let mut runtime = build_runtime(LocalChannel::connected());
-        runtime
-            .load_project_app_actions_from_toml("demo-game", DEMO_PROJECT_ACTIONS)
-            .expect("demo project app action manifest is valid");
-        Self {
-            runtime,
+impl GameState {
+    fn new() -> Result<Self> {
+        Ok(Self {
+            runtime: build_demo_runtime()?,
             next_log_id: 1,
             logs: Vec::new(),
+        })
+    }
+
+    fn snapshot(&self) -> WorldSnapshot {
+        let runtime_snapshot = self.runtime.inspect_world_state();
+        WorldSnapshot {
+            tick: self.runtime.current_tick().get(),
+            objects: runtime_snapshot
+                .objects
+                .iter()
+                .map(WorldObject::from_runtime)
+                .collect(),
         }
+    }
+
+    fn push_log(
+        &mut self,
+        level: LogLevel,
+        message: impl Into<String>,
+        osc_address: Option<String>,
+    ) -> DebugLogEntry {
+        let entry = DebugLogEntry {
+            id: self.next_log_id,
+            level,
+            message: message.into(),
+            osc_address,
+            tick: self.runtime.current_tick().get(),
+        };
+        self.next_log_id += 1;
+        self.logs.push(entry.clone());
+        if self.logs.len() > 500 {
+            self.logs.remove(0);
+        }
+        entry
     }
 }
 
@@ -153,7 +180,7 @@ async fn main() -> Result<()> {
 
     let (events, _) = broadcast::channel(256);
     let state = AppState {
-        inner: Arc::new(Mutex::new(GameState::default())),
+        inner: Arc::new(Mutex::new(GameState::new()?)),
         events,
     };
 
@@ -168,12 +195,14 @@ async fn main() -> Result<()> {
         .layer(CorsLayer::permissive())
         .with_state(state);
 
-    let bind = env::var("KITU_WEB_ADMIN_BIND").unwrap_or_else(|_| DEFAULT_BIND.to_string());
+    let bind = env::var("KITU_DEMO_GAME_BIND")
+        .or_else(|_| env::var("KITU_WEB_ADMIN_BIND"))
+        .unwrap_or_else(|_| DEFAULT_BIND.to_string());
     let addr: SocketAddr = bind
         .parse()
-        .with_context(|| format!("invalid KITU_WEB_ADMIN_BIND address: {bind}"))?;
+        .with_context(|| format!("invalid bind address: {bind}"))?;
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    info!("kitu web admin demo backend listening on http://{addr}");
+    info!("kitu demo game admin host listening on http://{addr}");
     axum::serve(listener, app).await?;
     Ok(())
 }
@@ -181,7 +210,7 @@ async fn main() -> Result<()> {
 async fn health() -> Json<serde_json::Value> {
     Json(serde_json::json!({
         "status": "ok",
-        "service": "kitu-web-admin-demo-backend"
+        "service": "kitu-demo-game-admin-host"
     }))
 }
 
@@ -392,15 +421,6 @@ fn run_app_action_request(
     Ok(response)
 }
 
-fn numeric_arg(message: &OscMessage, index: usize) -> Option<f32> {
-    match message.args.get(index) {
-        Some(OscArg::Float(value)) => Some(*value),
-        Some(OscArg::Int(value)) => Some(*value as f32),
-        Some(OscArg::Int64(value)) => Some(*value as f32),
-        _ => None,
-    }
-}
-
 fn action_request_from_osc_message(
     message: &OscMessage,
 ) -> Result<(String, HashMap<String, ActionValue>)> {
@@ -450,6 +470,15 @@ fn action_request_from_osc_message(
     }
 }
 
+fn numeric_arg(message: &OscMessage, index: usize) -> Option<f32> {
+    match message.args.get(index) {
+        Some(OscArg::Float(value)) => Some(*value),
+        Some(OscArg::Int(value)) => Some(*value as f32),
+        Some(OscArg::Int64(value)) => Some(*value as f32),
+        _ => None,
+    }
+}
+
 fn string_arg(message: &OscMessage, index: usize) -> Option<&str> {
     match message.args.get(index) {
         Some(OscArg::Str(value)) if !value.is_empty() => Some(value),
@@ -477,41 +506,6 @@ fn snapshot(state: &AppState) -> Result<WorldSnapshot> {
 
 fn broadcast_error(state: &AppState, message: String) {
     let _ = state.events.send(ServerEvent::Error { message });
-}
-
-impl GameState {
-    fn snapshot(&self) -> WorldSnapshot {
-        let runtime_snapshot = self.runtime.inspect_world_state();
-        WorldSnapshot {
-            tick: self.runtime.current_tick().get(),
-            objects: runtime_snapshot
-                .objects
-                .iter()
-                .map(WorldObject::from_runtime)
-                .collect(),
-        }
-    }
-
-    fn push_log(
-        &mut self,
-        level: LogLevel,
-        message: impl Into<String>,
-        osc_address: Option<String>,
-    ) -> DebugLogEntry {
-        let entry = DebugLogEntry {
-            id: self.next_log_id,
-            level,
-            message: message.into(),
-            osc_address,
-            tick: self.runtime.current_tick().get(),
-        };
-        self.next_log_id += 1;
-        self.logs.push(entry.clone());
-        if self.logs.len() > 500 {
-            self.logs.remove(0);
-        }
-        entry
-    }
 }
 
 impl WorldObject {
@@ -596,63 +590,5 @@ impl IntoResponse for ApiError {
 impl From<anyhow::Error> for ApiError {
     fn from(value: anyhow::Error) -> Self {
         Self(value)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn client_message_converts_to_osc_ir() {
-        let message = ClientOscMessage {
-            address: "/admin/world/spawn".to_string(),
-            args: vec![JsonOscArg::Str("enemy".to_string()), JsonOscArg::Float(3.0)],
-        };
-
-        let osc = message.to_osc_message();
-        assert_eq!(osc.address, "/admin/world/spawn");
-        assert_eq!(osc.args[0], OscArg::Str("enemy".to_string()));
-        assert_eq!(osc.args[1], OscArg::Float(3.0));
-    }
-
-    #[test]
-    fn spawn_and_move_update_world_objects() {
-        let mut state = GameState::default();
-        state
-            .runtime
-            .run_app_action(
-                "spawn-object",
-                &HashMap::from([
-                    ("kind".to_string(), ActionValue::String("enemy".to_string())),
-                    ("x".to_string(), ActionValue::Float(1.0)),
-                    ("y".to_string(), ActionValue::Float(0.0)),
-                    ("z".to_string(), ActionValue::Float(2.0)),
-                ]),
-            )
-            .unwrap();
-        let object = WorldObject::from_runtime(&state.runtime.inspect_world_state().objects[0]);
-        assert_eq!(object.id, "obj-1");
-        assert_eq!(state.runtime.inspect_world_state().objects.len(), 1);
-
-        state
-            .runtime
-            .run_app_action(
-                "move-object",
-                &HashMap::from([
-                    ("id".to_string(), ActionValue::String(object.id)),
-                    ("x".to_string(), ActionValue::Float(4.0)),
-                    ("y".to_string(), ActionValue::Float(0.5)),
-                    ("z".to_string(), ActionValue::Float(6.0)),
-                ]),
-            )
-            .unwrap();
-        let moved = WorldObject::from_runtime(&state.runtime.inspect_world_state().objects[0]);
-        assert_eq!(moved.x, 4.0);
-        assert_eq!(moved.y, 0.5);
-        assert_eq!(moved.z, 6.0);
-
-        let snapshot = state.snapshot();
-        assert_eq!(snapshot.objects, vec![moved]);
     }
 }

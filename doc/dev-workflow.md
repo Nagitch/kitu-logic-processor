@@ -19,6 +19,14 @@ contributors and AI assistants.
 
 - Development is expected to run inside the Dev Container (`.devcontainer/devcontainer.json`).
 - Rust toolchain is pinned via `rust-toolchain.toml`.
+- Host machines are not required to have `cargo`, `rustfmt`, `clippy`, Node, or
+  other build tools installed directly.
+- AI assistants should run validation commands through the Dev Container. If the
+  `devcontainer` CLI is unavailable, they may use Docker with the same
+  `.devcontainer/Dockerfile` toolchain or an equivalent project Compose service.
+- If neither Dev Container execution nor an equivalent Docker path is available,
+  contributors should report the blocked validation instead of treating host
+  tool absence as a project failure.
 - Core tooling:
   - `cargo` (build, test, doc)
   - `clippy` (linting)
@@ -115,17 +123,33 @@ in `src/lib.rs` to ensure that:
 The standard workflow for making changes is:
 
 1. Open the repository in VSCode using the Dev Container.
-2. Implement or modify code and tests.
-3. Ensure everything passes locally:
+2. Ensure the work has a corresponding GitHub Issue.
+3. Create the work branch from `origin/develop` when a branch does not already
+   exist.
+4. Prefer issue-linked branch names such as
+   `codex/issue-76-demo-game-app-split`.
+5. Implement or modify code and tests.
+6. Ensure everything passes locally:
    - `cargo fmt --all`
    - `cargo clippy --all-targets --all-features -- -D warnings`
    - `cargo test --all`
-4. Update documentation where appropriate:
+7. Update documentation where appropriate:
    - Rust doc comments for public APIs.
    - Design and process docs under `doc/` (e.g., `architecture.md`, `crates-overview.md`, `detailed-flows.md`) and protocol/runtime contracts under `doc/specs/`.
 
 CI should run the same set of checks (fmt, clippy, tests), plus additional checks
 if needed (e.g., `cargo doc` for documentation builds).
+
+For command-line Dev Container execution, prefer:
+
+```bash
+devcontainer exec --workspace-folder . cargo fmt --all --check
+devcontainer exec --workspace-folder . cargo clippy --all-targets --all-features -- -D warnings
+devcontainer exec --workspace-folder . cargo test --all
+```
+
+If the Dev Container CLI is not installed, use Docker only when it provides the
+same repository mount and toolchain as `.devcontainer/Dockerfile`.
 
 
 ## Documents under `doc/`

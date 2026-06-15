@@ -13,7 +13,7 @@ services:
       - cargo-cache:/usr/local/cargo/registry
       - target-cache:/workspace/target
 
-  frontend:
+  web-admin:
     build:
       context: ../..
       dockerfile: tools/kitu-web-admin/frontend/Dockerfile

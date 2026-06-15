@@ -5,14 +5,23 @@ Initial browser admin vertical slice for organizing and debugging a Kitu logic p
 ## Layout
 
 - `frontend/`: SvelteKit admin UI using local shadcn-svelte style components, Bits UI primitives, and Three.js.
-- `backend/`: Small Rust backend app using Kitu workspace crates and exposing OSC-IR style messages over WebSocket.
-- `docker-compose.yml`: Local development hosting for the admin UI and backend.
+- `docker-compose.yml`: Local development hosting for the admin UI and the `apps/demo-game` admin host.
+
+The demo backend is now owned by `apps/demo-game`, because it is an application
+that consumes the Kitu framework crates rather than a reusable Web Admin tool.
 
 ## Run
 
 The frontend uses the shared Rust OSC-IR model through a generated WASM package.
-Local development requires Rust, the `wasm32-unknown-unknown` target, and the
-frontend npm dependencies before Vite starts:
+Local development requires the demo-game admin host, Rust, the
+`wasm32-unknown-unknown` target, and the frontend npm dependencies before Vite
+starts:
+
+```sh
+cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
+```
+
+In another shell:
 
 ```sh
 rustup target add wasm32-unknown-unknown
@@ -33,7 +42,7 @@ docker compose -f tools/kitu-web-admin/docker-compose.yml up --build
 Then open:
 
 - Web Admin: http://localhost:5173
-- Backend health: http://localhost:8787/health
+- Demo game admin host health: http://localhost:8787/health
 
 The Web Admin sends JSON-wrapped OSC-IR messages over WebSocket to create and move logical world objects. The backend logs inbound admin commands, ticks the Kitu runtime, and broadcasts world snapshots and debug logs back to the browser.
 In Docker Compose, the frontend image includes Node 22 and Rust 1.82 with the

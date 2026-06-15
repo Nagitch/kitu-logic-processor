@@ -131,6 +131,36 @@ AI assistants may create missing parts if intent is clear.
 
 CI should mirror the same checks.
 
+### 6.1 Dev Container rule for AI assistants
+
+AI assistants must treat the Dev Container as the authoritative development
+environment for this repository.
+
+- Do not assume Rust, Cargo, rustfmt, Clippy, Node, or other build tools are
+  installed on the host.
+- Prefer running build, test, lint, format, and documentation commands inside
+  the Dev Container.
+- If the `devcontainer` CLI is available, use it to execute repository commands
+  in the configured container.
+- If the `devcontainer` CLI is unavailable but Docker is available, use a
+  materially equivalent container based on `.devcontainer/Dockerfile` or an
+  existing project Compose service that provides the same toolchain.
+- If neither path is available, do not silently skip validation. Report that the
+  command could not be run because the Dev Container execution path is
+  unavailable.
+- Keep `.devcontainer/devcontainer.json` and `.devcontainer/Dockerfile` updated
+  whenever required development tools change.
+
+Examples:
+
+```bash
+devcontainer exec --workspace-folder . cargo test --all
+devcontainer exec --workspace-folder . cargo fmt --all --check
+```
+
+When using Docker directly instead of the Dev Container CLI, the command must
+mount the repository as the workspace and run from the repository root.
+
 ---
 
 ## 7. How AI should apply changes
@@ -148,6 +178,11 @@ Project-level tasks are maintained as **GitHub Issues**.
 AI assistants must:
 
 - Use `.github/ISSUE_TEMPLATE/work-item.md` when creating new work items.
+- Before opening a PR for implementation work, ensure a corresponding GitHub
+  Issue exists.
+- If no corresponding branch exists, create one from `origin/develop`.
+- Prefer branch names that include the issue number, for example
+  `codex/issue-76-demo-game-app-split`.
 - Update related Issues or PR descriptions when work progresses.
 - Close Issues only when their definition of done is satisfied.
 - Keep task management out of standalone Markdown TODO files unless the user explicitly asks for a temporary planning document.

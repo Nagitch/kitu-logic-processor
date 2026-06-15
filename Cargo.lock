@@ -389,6 +389,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "kitu-demo-game"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "kitu-app-actions",
+ "kitu-osc-ir",
+ "kitu-runtime",
+ "kitu-transport",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "kitu-ecs"
 version = "0.1.0"
 dependencies = [
@@ -480,24 +498,6 @@ name = "kitu-web-admin-backend"
 version = "0.1.0"
 dependencies = [
  "kitu-core",
-]
-
-[[package]]
-name = "kitu-web-admin-demo-backend"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "kitu-app-actions",
- "kitu-osc-ir",
- "kitu-runtime",
- "kitu-transport",
- "serde",
- "serde_json",
- "tokio",
- "tower-http",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
