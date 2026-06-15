@@ -23,7 +23,7 @@ Current future-publication candidates are the reusable crates under `crates/`.
 | `kitu-transport` | yes | present | present | present | pending package list |
 | `kitu-runtime` | yes | present | present | present | pending package list |
 | `kitu-app-actions` | yes | present | present | present | pending package list |
-| `kitu-osc-ir-wasm` | yes | pending #50 | pending #50 | present | pending package list |
+| `kitu-osc-ir-wasm` | yes | present | present | present | pending package list |
 | `kitu-scripting-rhai` | yes | present | present | present | pending package list |
 | `kitu-data-tmd` | yes | present | present | present | pending package list |
 | `kitu-data-sqlite` | yes | present | present | present | pending package list |

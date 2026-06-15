@@ -4,6 +4,13 @@ edition.workspace = true
 version.workspace = true
 authors.workspace = true
 publish.workspace = true
+description = "WASM bindings for Kitu OSC/IR message conversion."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "osc", "wasm"]
+categories = ["wasm", "game-development"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
