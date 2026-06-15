@@ -1,13 +1,14 @@
 # Kitu Integration Runner
 
-This directory holds the framework definition for future integration and replay execution.
-At the current stage, the repository defines the checked-in scenario and report contracts first, while deterministic replay implementation remains deferred.
+This directory holds integration and replay scenarios plus the framework definition for replay execution.
+At the current stage, the repository includes the first smoke fixture pair and a minimal replay runner for that contract.
 
 ## Current status
 
-- Framework/design phase only.
-- Deterministic replay executor is not implemented yet.
-- The authoritative runtime loop baseline exists in `kitu-runtime`, but replay integration on top of it is not implemented yet.
+- Framework contract is defined.
+- `scenarios/smoke/player-move-basic/` contains the first runtime-boundary smoke fixture.
+- `tools/kitu-replay-runner` can run the smoke fixture pair and produce `summary.json`.
+- Broader replay coverage, richer reports, and Unity verification remain staged work.
 
 ## Normative spec
 
@@ -29,7 +30,7 @@ kitu-integration-runner/
   unity-app/
 ```
 
-Generated run artifacts should be emitted outside the checked-in scenario files, for example under a future `artifacts/` directory.
+Generated run artifacts should be emitted outside the checked-in scenario files, for example through the replay runner's `--output-dir`.
 
 ## Unity verification app (`unity-app/`)
 

@@ -1,12 +1,12 @@
 # Integration / Replay Framework Specification (P3 MVP)
 
 This document defines the planning framework for integration runs and replay-oriented artifacts.
-It establishes the directory layout and file contracts needed before implementing deterministic replay itself.
+It establishes the directory layout and file contracts used by the minimal replay runner and future replay expansion.
 
 ## Status
 
 - Normative for repository layout and artifact shapes.
-- Intentionally does not require a finished replay engine.
+- Intentionally does not require a full replay engine beyond the current smoke runner.
 - Compatible with `doc/architecture.md`, where replay consumes event streams instead of patching ECS state directly.
 
 ## Goals
@@ -82,12 +82,12 @@ Minimal shape:
       "at_tick": 0,
       "inbound": [
         {
-          "channel": "unity",
+          "channel": "runtime",
           "address": "/input/move",
           "args": {
             "entity_id": "player:local",
-            "x": 0.0,
-            "y": 1.0
+            "x": 1.5,
+            "y": 2.0
           }
         }
       ]
@@ -100,6 +100,7 @@ Rules:
 
 - `steps` are ordered and tick-indexed.
 - inbound messages describe intents/envelopes, never direct state patches.
+- `channel` identifies the boundary origin class; smoke replay uses `runtime` to mean direct runtime-boundary input.
 - scenario files may later grow setup fields, but the ordered input stream remains the core contract.
 
 ## Expected output format
@@ -118,7 +119,8 @@ Minimal shape:
       "address": "/render/player/transform",
       "args": {
         "entity_id": "player:local",
-        "position": { "x": 0.0, "y": 1.0, "z": 0.0 }
+        "source_tick": 0,
+        "position": { "x": 1.5, "y": 2.0, "z": 0.0 }
       }
     }
   ],
@@ -133,6 +135,7 @@ Rules:
 
 - compare logical message content, not concrete wire bytes
 - assert only the stable fields required by the scenario
+- `expected_outputs[].tick` is the externally visible output tick; `args.source_tick` is the authoritative tick that produced the transform.
 - leave room for future partial-match or ignore-field semantics without changing the overall structure
 
 ## Run summary / report format
@@ -146,12 +149,12 @@ Minimal shape:
 ```json
 {
   "schema_version": 1,
-  "run_id": "20260323T120000Z-player-move-basic",
+  "run_id": "player-move-basic-pass",
   "scenario_id": "player-move-basic",
   "mode": "integration",
   "status": "pass",
-  "started_at": "2026-03-23T12:00:00Z",
-  "finished_at": "2026-03-23T12:00:01Z",
+  "started_at": "1970-01-01T00:00:00Z",
+  "finished_at": "1970-01-01T00:00:00Z",
   "observed": {
     "output_count": 1,
     "mismatch_count": 0
@@ -168,6 +171,7 @@ Required meanings:
 - `status`: overall result such as `pass`, `fail`, or `error`
 - `observed.output_count`: number of logical outbound messages observed
 - `observed.mismatch_count`: number of assertion mismatches
+- `started_at` and `finished_at` may be deterministic sentinel timestamps for smoke replay summaries where wall-clock time is intentionally excluded.
 
 ### Optional detailed reports
 
@@ -190,8 +194,13 @@ These files are optional in the framework phase and must not be required for the
 
 This framework is intentionally transport- and host-neutral. Current movement-slice runtime and Unity FFI work should plug into these scenario and report contracts rather than redefining them.
 
+Implemented smoke path:
+
+- checked-in movement-slice smoke scenario and expected output fixtures
+- minimal replay runner that reads the fixture pair and writes `summary.json`
+
 Still-pending implementation work:
 
-- deterministic replay executor implementation
-- checked-in movement-slice smoke scenario and expected output fixtures
+- broader deterministic replay executor capabilities beyond the first smoke path
+- richer mismatch reports such as `diff.json`
 - transport backend finalization
