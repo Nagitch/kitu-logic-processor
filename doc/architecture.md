@@ -40,6 +40,13 @@ Kitu separates **authoritative runtime logic** (Rust) from **presentation and pl
 
 ## Current Implementation Staging
 
+Status terms in this section are used as follows:
+
+- `implemented`: code, tests, and docs exist for the stated MVP scope.
+- `implemented for MVP core`: the MVP core contract is complete, while broader feature expansion remains tracked separately.
+- `partial`: repository support exists, but explicit missing work remains listed below.
+- `staged work`: planned or future work that must not be read as implemented.
+
 ### P0 — Execution Semantics
 
 status: implemented
@@ -54,7 +61,7 @@ missing:
 
 ### P1 — Runtime Core Viability
 
-status: partial
+status: implemented for MVP core
 
 exists:
 - fixed-timestep `update(dt)` baseline exists
@@ -62,10 +69,10 @@ exists:
 - output drain path exists
 - `tick_once()` ordering is implemented and unit-tested
 - first slice and integration-level validation exist in baseline form
+- replay smoke path exists through checked-in fixture contracts and the minimal replay runner
 
 missing:
-- explicit closure decision after the replay smoke path is in place
-- stronger proof that runtime baseline is ready to be treated as complete MVP core
+- broader runtime features beyond the MVP core remain tracked as staged work, not P1 blockers
 
 ### P2 — Minimum Vertical Slice
 
@@ -89,11 +96,13 @@ status: partial
 exists:
 - framework contract is defined
 - runner directory structure exists
+- first checked-in smoke scenario exists
+- initial `scenario.json` and `expected.json` fixture pair exists
+- minimal replay runner can produce `summary.json`
 
 missing:
-- checked-in smoke scenario
-- initial `scenario.json` and `expected.json`
-- minimal replay runner that produces `summary.json`
+- broader deterministic replay coverage beyond the first smoke path
+- richer failure reports and scenario expansion
 
 ### P4 — Documentation and Maintenance Alignment
 
@@ -197,16 +206,20 @@ The runtime model is **authoritative, tick-driven, and deterministic-first**.
 The canonical per-tick order is:
 
 1. **Freeze committed input batch for current tick**: clear previous committed inputs, then move `pending_inputs` into the committed batch for tick `N`.
-2. **ECS dispatch / simulation**: run deterministic ECS systems for tick `N` against that frozen batch.
-3. **Output emission**: move staged outputs produced during tick `N` into the externally visible output buffer.
-4. **Transport poll for next tick input**: drain transport events and enqueue received messages into `pending_inputs` for tick `N+1`.
-5. **Tick increment**: advance `tick` from `N` to `N+1` as the final phase.
+2. **Runtime-boundary input collection**: validate and snapshot committed messages owned directly by the MVP runtime, currently `/input/move`.
+3. **ECS dispatch / simulation**: run deterministic ECS systems for tick `N`.
+4. **Runtime-owned MVP slice update**: apply collected movement intents and stage `/render/player/transform` outputs.
+5. **Output emission**: move staged outputs produced during tick `N` into the externally visible output buffer.
+6. **Transport poll for next tick input**: drain transport events and enqueue received messages into `pending_inputs` for tick `N+1`.
+7. **Tick increment**: advance `tick` from `N` to `N+1` as the final phase.
 
 ### Runtime extension points (planned but bounded by this architecture)
 
 - TSQ1 timeline playback hooks execute within deterministic tick context.
 - Rhai script invocation occurs through runtime-owned APIs, not direct arbitrary host callbacks.
 - Data reload hooks (TMD/SQLite) must be scheduled at explicit safe points, not asynchronously mutating world state mid-phase.
+
+These are staged extension points, not claims of complete subsystem implementation.
 
 ## Tick and event flow
 
@@ -222,8 +235,10 @@ sequenceDiagram
 
     Host->>Runtime: tick_once()
     Runtime->>Runtime: commit pending_inputs as tick N inputs
+    Runtime->>Runtime: collect runtime-owned input messages
     Runtime->>ECS: dispatch systems at tick N
     ECS-->>Runtime: deterministic state updates
+    Runtime->>Runtime: apply MVP movement slice and stage outputs
     Runtime->>Runtime: emit staged outputs to output_buffer
     Runtime->>Transport: poll_event() until empty
     Transport-->>Runtime: Message events for tick N+1
@@ -243,7 +258,7 @@ This timing rule supports deterministic replay, stable network synchronization, 
 
 ### Tick-based processing order requirements
 
-- Input intake for tick `N` must be applied in a deterministic order before advancing to `N+1`.
+- Input intake for tick `N` must be collected and applied in a deterministic order before advancing to `N+1`.
 - ECS dispatch ordering must be stable for a given build/configuration.
 - Tick increment is the final phase of `tick_once`.
 - Tooling-triggered operations (shell/admin/replay) must enter the same message/event queue path as gameplay input.
@@ -395,6 +410,16 @@ flowchart TD
 - TSQ1: timeline behavior represented as deterministic, tick-aligned steps.
 - Rhai: scripted behavior must execute through constrained host APIs.
 - Runtime: final authority deciding when and how loaded content affects simulation state.
+
+### Future subsystem entry points
+
+The following entry points define where staged subsystem work should connect when it becomes implementation work:
+
+- TSQ1 enters through deterministic tick scheduling in `kitu-runtime`; timeline playback must emit runtime-owned commands or OSC-IR messages rather than mutating presentation state directly.
+- TMD and SQLite enter through validation/loading boundaries; runtime consumes typed records or commands, not raw authoring files or SQL strings from clients.
+- Rhai enters through constrained host APIs; scripts may request runtime actions but must not receive direct ECS mutation access.
+
+These entry points are intentionally directional. They make future work visible without committing to a specific implementation order beyond the current MVP core.
 
 ## Deployment modes
 

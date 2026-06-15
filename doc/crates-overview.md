@@ -2,6 +2,8 @@
 
 This document summarizes the Rust crates under `crates/` in the `kitu-logic-processor` workspace. Use it as a quick reference for responsibilities, entry points, and how the crates compose the runtime.
 
+Status note: some data/content crates are staged entry points. Their responsibility descriptions define intended boundaries and should not be read as complete production implementations unless `doc/architecture.md` marks the related milestone as implemented.
+
 ## Quick map
 
 | Crate | Purpose | Key dependencies |
@@ -78,19 +80,19 @@ graph TD
 - Future extensions will plug in TSQ1 playback, scripting hooks, and data loaders via this crate.
 
 ### `kitu-scripting-rhai`
-- Builds the Rhai execution environment and exposes safe bindings for runtime state.
+- Staged entry point for building the Rhai execution environment and exposing safe bindings for runtime state.
 - Scripts should access gameplay data through APIs defined here instead of touching ECS internals directly.
 
 ### `kitu-data-tmd`
-- Parses TMD authoring assets into strongly typed structures ready for validation and loading.
+- Staged entry point for parsing TMD authoring assets into strongly typed structures ready for validation and loading.
 - Keep transformations and schema evolution logic here to isolate game/runtime code from raw TMD layout changes.
 
 ### `kitu-data-sqlite`
-- Encapsulates SQLite schema management, migrations, and query helpers.
+- Staged entry point for SQLite schema management, migrations, and query helpers.
 - Designed to be shared by build pipelines and runtime code that consume the same data store.
 
 ### `kitu-tsq1`
-- Implements the TSQ1 timeline model and playback helpers for driving presentation events.
+- Staged entry point for the TSQ1 timeline model and playback helpers for driving presentation events.
 - Should remain deterministic and testable, with output expressed as OSC/IR messages.
 
 ### `kitu-shell`

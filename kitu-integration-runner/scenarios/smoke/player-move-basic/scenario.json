@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "scenario_id": "player-move-basic",
+  "description": "single player move intent produces one transform output on the next tick",
+  "initial_state": {
+    "content_version": "dev",
+    "tick": 0
+  },
+  "steps": [
+    {
+      "at_tick": 0,
+      "inbound": [
+        {
+          "channel": "runtime",
+          "address": "/input/move",
+          "args": {
+            "entity_id": "player:local",
+            "x": 1.5,
+            "y": 2.0
+          }
+        }
+      ]
+    }
+  ]
+}
