@@ -7,7 +7,7 @@ It complements `runtime-execution-contract.md` by describing the runtime respons
 
 - Normative for execution phase boundaries and timing rules.
 - Intentionally non-prescriptive about concrete scheduler, queue, and buffer data structures.
-- Compatible with the current architecture in `doc/architecture.md`, where P1 remains partial / frozen.
+- Compatible with the current architecture in `doc/architecture.md`, where P1 is implemented for the MVP core and broader expansion is staged separately.
 
 ## Scope
 
@@ -17,10 +17,10 @@ It complements `runtime-execution-contract.md` by describing the runtime respons
 
 ## Non-goals
 
-- Final implementation of `Runtime::update(dt)`.
-- Final internal queue structures for committed/pending inputs.
+- Redesigning the implemented `Runtime::update(dt)` fixed-timestep behavior.
+- Freezing final internal queue structures beyond the documented committed/pending input contract.
 - Final ECS scheduler details.
-- Final replay execution engine.
+- Full replay execution engine beyond the current smoke path.
 
 ## Execution ownership
 
