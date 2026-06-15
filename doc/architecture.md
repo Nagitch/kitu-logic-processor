@@ -54,7 +54,7 @@ missing:
 
 ### P1 — Runtime Core Viability
 
-status: partial
+status: implemented for MVP core
 
 exists:
 - fixed-timestep `update(dt)` baseline exists
@@ -62,10 +62,10 @@ exists:
 - output drain path exists
 - `tick_once()` ordering is implemented and unit-tested
 - first slice and integration-level validation exist in baseline form
+- replay smoke path exists through checked-in fixture contracts and the minimal replay runner
 
 missing:
-- explicit closure decision after the replay smoke path is in place
-- stronger proof that runtime baseline is ready to be treated as complete MVP core
+- broader runtime features beyond the MVP core remain tracked as staged work, not P1 blockers
 
 ### P2 — Minimum Vertical Slice
 
@@ -89,11 +89,13 @@ status: partial
 exists:
 - framework contract is defined
 - runner directory structure exists
+- first checked-in smoke scenario exists
+- initial `scenario.json` and `expected.json` fixture pair exists
+- minimal replay runner can produce `summary.json`
 
 missing:
-- checked-in smoke scenario
-- initial `scenario.json` and `expected.json`
-- minimal replay runner that produces `summary.json`
+- broader deterministic replay coverage beyond the first smoke path
+- richer failure reports and scenario expansion
 
 ### P4 — Documentation and Maintenance Alignment
 
