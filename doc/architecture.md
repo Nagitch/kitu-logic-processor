@@ -40,6 +40,13 @@ Kitu separates **authoritative runtime logic** (Rust) from **presentation and pl
 
 ## Current Implementation Staging
 
+Status terms in this section are used as follows:
+
+- `implemented`: code, tests, and docs exist for the stated MVP scope.
+- `implemented for MVP core`: the MVP core contract is complete, while broader feature expansion remains tracked separately.
+- `partial`: repository support exists, but explicit missing work remains listed below.
+- `staged work`: planned or future work that must not be read as implemented.
+
 ### P0 — Execution Semantics
 
 status: implemented
