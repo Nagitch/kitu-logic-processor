@@ -3,6 +3,8 @@
 This document summarizes the foundational setup required to streamline ongoing development of the *kitu-logic-processor* repository.
 It serves as a reference for establishing consistent development environments, repository structure, and tooling.
 
+Status note: this is a bootstrap strategy document. Current implementation status and staged subsystem boundaries are tracked in `doc/architecture.md`.
+
 
 ## Table of Contents
 - [Repository Meta](#repository-meta)
@@ -194,4 +196,3 @@ To bootstrap the project efficiently, prioritize:
    (`src/lib.rs`, CLI entry, examples/)
 
 With this foundation prepared, subsequent implementation steps become significantly smoother.
-

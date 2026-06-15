@@ -217,6 +217,8 @@ The canonical per-tick order is:
 - Rhai script invocation occurs through runtime-owned APIs, not direct arbitrary host callbacks.
 - Data reload hooks (TMD/SQLite) must be scheduled at explicit safe points, not asynchronously mutating world state mid-phase.
 
+These are staged extension points, not claims of complete subsystem implementation.
+
 ## Tick and event flow
 
 The per-tick order must remain explicit and stable, because replay/debug tools depend on it.
@@ -404,6 +406,16 @@ flowchart TD
 - TSQ1: timeline behavior represented as deterministic, tick-aligned steps.
 - Rhai: scripted behavior must execute through constrained host APIs.
 - Runtime: final authority deciding when and how loaded content affects simulation state.
+
+### Future subsystem entry points
+
+The following entry points define where staged subsystem work should connect when it becomes implementation work:
+
+- TSQ1 enters through deterministic tick scheduling in `kitu-runtime`; timeline playback must emit runtime-owned commands or OSC-IR messages rather than mutating presentation state directly.
+- TMD and SQLite enter through validation/loading boundaries; runtime consumes typed records or commands, not raw authoring files or SQL strings from clients.
+- Rhai enters through constrained host APIs; scripts may request runtime actions but must not receive direct ECS mutation access.
+
+These entry points are intentionally directional. They make future work visible without committing to a specific implementation order beyond the current MVP core.
 
 ## Deployment modes
 
