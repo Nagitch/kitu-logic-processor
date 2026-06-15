@@ -464,4 +464,20 @@ mod tests {
 
         assert!(outputs_match(&expected, &observed));
     }
+
+    #[test]
+    fn replay_summary_is_deterministic_for_checked_in_smoke_fixture() {
+        let fixture_root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../kitu-integration-runner/scenarios/smoke/player-move-basic");
+        let scenario = fixture_root.join("scenario.json");
+        let expected = fixture_root.join("expected.json");
+
+        let first = run_replay(&scenario, &expected).unwrap();
+        let second = run_replay(&scenario, &expected).unwrap();
+
+        assert_eq!(first, second);
+        assert_eq!(first.status, "pass");
+        assert_eq!(first.observed.output_count, 1);
+        assert_eq!(first.observed.mismatch_count, 0);
+    }
 }
