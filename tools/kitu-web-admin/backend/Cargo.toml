@@ -7,6 +7,7 @@ publish = false
 [dependencies]
 anyhow = { workspace = true }
 axum = { version = "0.7", features = ["ws"] }
+kitu-app-actions = { path = "../../../crates/kitu-app-actions" }
 kitu-osc-ir = { path = "../../../crates/kitu-osc-ir" }
 kitu-runtime = { path = "../../../crates/kitu-runtime" }
 kitu-transport = { path = "../../../crates/kitu-transport" }

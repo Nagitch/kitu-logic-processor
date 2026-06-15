@@ -6,3 +6,7 @@ publish = false
 
 [dependencies]
 anyhow = { workspace = true }
+kitu-app-actions = { path = "../../crates/kitu-app-actions" }
+kitu-osc-ir = { path = "../../crates/kitu-osc-ir" }
+kitu-runtime = { path = "../../crates/kitu-runtime" }
+kitu-transport = { path = "../../crates/kitu-transport" }

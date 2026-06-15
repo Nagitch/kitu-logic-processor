@@ -16,3 +16,4 @@ kitu-core = { path = "../kitu-core" }
 kitu-ecs = { path = "../kitu-ecs" }
 kitu-transport = { path = "../kitu-transport" }
 kitu-osc-ir = { path = "../kitu-osc-ir" }
+kitu-app-actions = { path = "../kitu-app-actions" }

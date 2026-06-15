@@ -32,6 +32,45 @@ export type ClientOscMessage = {
   args: JsonOscArg[];
 };
 
+export type ActionValue =
+  | { type: "string"; value: string }
+  | { type: "float"; value: number }
+  | { type: "int"; value: number }
+  | { type: "bool"; value: boolean };
+
+export type AppActionScope =
+  | { type: "kitu-general" }
+  | { type: "project"; appId: string };
+
+export type ActionInputSpec = {
+  name: string;
+  label: string;
+  valueType: "string" | "float" | "int" | "bool";
+  required: boolean;
+  default?: ActionValue | null;
+};
+
+export type AppActionDefinition = {
+  id: string;
+  scope: AppActionScope;
+  label: string;
+  description?: string | null;
+  cli: { command: string };
+  ui: { kind: "form" | "button"; submitLabel: string; destructive: boolean };
+  inputs: ActionInputSpec[];
+  output: { address: string; args: unknown[] };
+};
+
+export type AppActionCatalog = {
+  actions: AppActionDefinition[];
+};
+
+export type ActionRunResponse = {
+  actionId: string;
+  osc: ClientOscMessage;
+  snapshot: WorldSnapshot;
+};
+
 export type ServerEvent =
   | { type: "connected"; protocol: string; tick: number }
   | { type: "state"; snapshot: WorldSnapshot }
