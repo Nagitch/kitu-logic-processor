@@ -7,3 +7,4 @@ Use [`doc/specs/integration-replay-framework.md`](../../doc/specs/integration-re
 ## Smoke scenarios
 
 - [`smoke/player-move-basic/scenario.json`](smoke/player-move-basic/scenario.json): sends a single `/input/move` intent through the authoritative runtime boundary.
+  Expected output: [`smoke/player-move-basic/expected.json`](smoke/player-move-basic/expected.json).

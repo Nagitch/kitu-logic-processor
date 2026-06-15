@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "scenario_id": "player-move-basic",
+  "expected_outputs": [
+    {
+      "tick": 1,
+      "address": "/render/player/transform",
+      "args": {
+        "entity_id": "player:local",
+        "tick": 0,
+        "position": {
+          "x": 1.5,
+          "y": 2.0,
+          "z": 0.0
+        }
+      }
+    }
+  ],
+  "expected_summary": {
+    "status": "pass",
+    "output_count": 1
+  }
+}
