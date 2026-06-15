@@ -2,17 +2,14 @@ import { browser } from "$app/environment";
 import { env } from "$env/dynamic/public";
 import { derived, get, writable } from "svelte/store";
 import type {
+  ActionRunResponse,
+  ActionValue,
+  AppActionCatalog,
   ClientOscMessage,
   DebugLogEntry,
   ServerEvent,
   WorldSnapshot,
 } from "./types";
-import {
-  buildAdminWorldMove,
-  buildAdminWorldReset,
-  buildAdminWorldSpawn,
-  initializeOscIr,
-} from "./osc-ir";
 
 type ConnectionState = "idle" | "connecting" | "open" | "closed" | "error";
 
@@ -25,6 +22,7 @@ export const connectionState = writable<ConnectionState>("idle");
 export const worldSnapshot = writable<WorldSnapshot>(defaultSnapshot);
 export const debugLogs = writable<DebugLogEntry[]>([]);
 export const lastError = writable<string | null>(null);
+export const appActionCatalog = writable<AppActionCatalog>({ actions: [] });
 
 export const objectCount = derived(
   worldSnapshot,
@@ -52,9 +50,7 @@ export function connectAdminSocket() {
   socket.addEventListener("open", () => {
     connectionState.set("open");
     lastError.set(null);
-    initializeOscIr().catch((error: unknown) => {
-      lastError.set(error instanceof Error ? error.message : String(error));
-    });
+    loadAppActions();
   });
 
   socket.addEventListener("message", (event) => {
@@ -90,25 +86,73 @@ export async function spawnObject(
   y: number,
   z: number,
 ) {
-  return sendBuiltMessage(() => buildAdminWorldSpawn(kind, x, y, z));
+  return runAppAction("spawn-object", {
+    kind: { type: "string", value: kind },
+    x: { type: "float", value: x },
+    y: { type: "float", value: y },
+    z: { type: "float", value: z },
+  });
 }
 
 export async function moveObject(id: string, x: number, y: number, z: number) {
-  return sendBuiltMessage(() => buildAdminWorldMove(id, x, y, z));
+  return runAppAction("move-object", {
+    id: { type: "string", value: id },
+    x: { type: "float", value: x },
+    y: { type: "float", value: y },
+    z: { type: "float", value: z },
+  });
 }
 
 export async function resetWorld() {
-  return sendBuiltMessage(buildAdminWorldReset);
+  return runAppAction("reset-world", {});
 }
 
-async function sendBuiltMessage(build: () => Promise<ClientOscMessage>) {
+export async function loadAppActions() {
   try {
-    const payload = await build();
-    return sendOsc(payload);
+    const response = await fetch(`${apiBaseUrl()}/app-actions`);
+    if (!response.ok) {
+      throw new Error(`App action catalog request failed: ${response.status}`);
+    }
+    const catalog = (await response.json()) as AppActionCatalog;
+    appActionCatalog.set(catalog);
+    return catalog;
   } catch (error) {
     lastError.set(error instanceof Error ? error.message : String(error));
-    return false;
+    return null;
   }
+}
+
+export async function runAppAction(
+  actionId: string,
+  inputs: Record<string, ActionValue>,
+) {
+  try {
+    const response = await fetch(
+      `${apiBaseUrl()}/app-actions/${encodeURIComponent(actionId)}/run`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ inputs }),
+      },
+    );
+    if (!response.ok) {
+      const error = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+      throw new Error(error?.error ?? `App action failed: ${response.status}`);
+    }
+    const result = (await response.json()) as ActionRunResponse;
+    worldSnapshot.set(result.snapshot);
+    lastError.set(null);
+    return result;
+  } catch (error) {
+    lastError.set(error instanceof Error ? error.message : String(error));
+    return null;
+  }
+}
+
+function apiBaseUrl() {
+  return env.PUBLIC_KITU_ADMIN_API_URL ?? "http://localhost:8787";
 }
 
 function applyServerEvent(event: ServerEvent) {

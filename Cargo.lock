@@ -348,10 +348,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "kitu-app-actions"
+version = "0.1.0"
+dependencies = [
+ "kitu-osc-ir",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "kitu-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "kitu-app-actions",
+ "kitu-osc-ir",
+ "kitu-runtime",
+ "kitu-transport",
 ]
 
 [[package]]
@@ -411,6 +424,7 @@ dependencies = [
 name = "kitu-runtime"
 version = "0.1.0"
 dependencies = [
+ "kitu-app-actions",
  "kitu-core",
  "kitu-ecs",
  "kitu-osc-ir",
@@ -469,6 +483,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
+ "kitu-app-actions",
  "kitu-osc-ir",
  "kitu-runtime",
  "kitu-transport",

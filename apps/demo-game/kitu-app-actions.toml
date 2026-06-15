@@ -1,0 +1,70 @@
+[[actions]]
+id = "enemy.spawn"
+label = "Enemy Spawn"
+description = "Spawn an enemy through a project-owned action definition."
+
+[actions.cli]
+command = "enemy spawn"
+
+[[actions.inputs]]
+name = "enemy_type"
+label = "Enemy Type"
+type = "string"
+required = true
+default = "slime"
+
+[[actions.inputs]]
+name = "x"
+label = "X"
+type = "float"
+required = true
+default = 0.0
+
+[[actions.inputs]]
+name = "z"
+label = "Z"
+type = "float"
+required = true
+default = 0.0
+
+[actions.output]
+address = "/game/enemy/spawn"
+args = ["$enemy_type", "$x", "$z"]
+
+[[actions]]
+id = "player.godmode"
+label = "Godmode"
+description = "Toggle a project-defined player capability."
+
+[actions.cli]
+command = "player godmode"
+
+[[actions.inputs]]
+name = "enabled"
+label = "Enabled"
+type = "bool"
+required = true
+default = true
+
+[actions.output]
+address = "/game/player/godmode"
+args = ["$enabled"]
+
+[[actions]]
+id = "map.fast-travel"
+label = "Fast Travel"
+description = "Move the player to a named project location."
+
+[actions.cli]
+command = "map fast-travel"
+
+[[actions.inputs]]
+name = "destination"
+label = "Destination"
+type = "string"
+required = true
+default = "town"
+
+[actions.output]
+address = "/game/map/fast-travel"
+args = ["$destination"]

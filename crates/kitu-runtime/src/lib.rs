@@ -15,6 +15,10 @@ use std::{
     time::Duration,
 };
 
+use kitu_app_actions::{
+    kitu_general_catalog, load_project_actions_from_toml, ActionValue, AppActionCatalog,
+    AppActionError, AppActionResult,
+};
 use kitu_core::{KituError, Result, Tick};
 use kitu_ecs::EcsWorld;
 pub use kitu_ecs::{WorldObject, WorldSnapshot, WorldTransform};
@@ -129,6 +133,16 @@ pub struct Runtime<T: Transport> {
     committed_input_tick: Option<Tick>,
     outputs: OutputBuffer,
     player_transforms: HashMap<String, PlayerTransform>,
+    app_actions: AppActionCatalog,
+}
+
+/// Result of executing an app action through the runtime.
+#[derive(Debug, Clone, PartialEq)]
+pub struct AppActionRunOutcome {
+    /// Executed action id.
+    pub action_id: String,
+    /// OSC-IR message produced by the shared action definition.
+    pub message: OscMessage,
 }
 
 impl<T: Transport> Runtime<T> {
@@ -155,6 +169,7 @@ impl<T: Transport> Runtime<T> {
             committed_input_tick: None,
             outputs: OutputBuffer::default(),
             player_transforms: HashMap::new(),
+            app_actions: kitu_general_catalog(),
         }
     }
 
@@ -206,6 +221,53 @@ impl<T: Transport> Runtime<T> {
         self.world.world_snapshot()
     }
 
+    /// Returns the merged Kitu general and project app action catalog.
+    pub fn app_action_catalog(&self) -> &AppActionCatalog {
+        &self.app_actions
+    }
+
+    /// Adds project-owned app action definitions to the runtime catalog.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use kitu_runtime::build_runtime;
+    /// use kitu_transport::LocalChannel;
+    ///
+    /// let runtime = build_runtime(LocalChannel::connected());
+    /// assert!(runtime.app_action_catalog().action("spawn-object").is_some());
+    /// ```
+    pub fn add_project_app_actions(
+        &mut self,
+        actions: impl IntoIterator<Item = kitu_app_actions::AppActionDefinition>,
+    ) -> AppActionResult<()> {
+        self.app_actions.extend_actions(actions)
+    }
+
+    /// Loads project app action definitions from a TOML manifest and merges them into the catalog.
+    pub fn load_project_app_actions_from_toml(
+        &mut self,
+        app_id: &str,
+        source: &str,
+    ) -> AppActionResult<()> {
+        let actions = load_project_actions_from_toml(app_id, source)?;
+        self.add_project_app_actions(actions)
+    }
+
+    /// Executes an app action by id using the runtime-owned catalog.
+    pub fn run_app_action(
+        &mut self,
+        action_id: &str,
+        inputs: &HashMap<String, ActionValue>,
+    ) -> AppActionResult<AppActionRunOutcome> {
+        let message = self.app_actions.materialize_message(action_id, inputs)?;
+        self.apply_app_action_message(&message)?;
+        Ok(AppActionRunOutcome {
+            action_id: action_id.to_string(),
+            message,
+        })
+    }
+
     /// Enqueues an input bundle for the next tick.
     pub fn enqueue_input(&mut self, input: OscBundle) {
         self.inputs.enqueue_pending(input);
@@ -242,6 +304,54 @@ impl<T: Transport> Runtime<T> {
         let mut bundle = OscBundle::new();
         bundle.push(message);
         self.enqueue_input(bundle);
+    }
+
+    fn apply_app_action_message(&mut self, message: &OscMessage) -> AppActionResult<()> {
+        match message.address.as_str() {
+            "/admin/world/spawn" => {
+                let kind = action_string_arg(message, 0)
+                    .unwrap_or("marker")
+                    .to_string();
+                let x = action_numeric_arg(message, 1).unwrap_or(0.0);
+                let y = action_numeric_arg(message, 2).unwrap_or(0.0);
+                let z = action_numeric_arg(message, 3).unwrap_or(0.0);
+                self.spawn_world_object(kind, x, y, z)
+                    .map_err(app_action_runtime_error)?;
+            }
+            "/admin/world/move" => {
+                let id =
+                    action_string_arg(message, 0).ok_or_else(|| AppActionError::InvalidInput {
+                        name: "id".to_string(),
+                        message: "object id is required".to_string(),
+                    })?;
+                let x =
+                    action_numeric_arg(message, 1).ok_or_else(|| AppActionError::InvalidInput {
+                        name: "x".to_string(),
+                        message: "x must be numeric".to_string(),
+                    })?;
+                let y =
+                    action_numeric_arg(message, 2).ok_or_else(|| AppActionError::InvalidInput {
+                        name: "y".to_string(),
+                        message: "y must be numeric".to_string(),
+                    })?;
+                let z =
+                    action_numeric_arg(message, 3).ok_or_else(|| AppActionError::InvalidInput {
+                        name: "z".to_string(),
+                        message: "z must be numeric".to_string(),
+                    })?;
+                self.move_world_object(id, x, y, z)
+                    .map_err(app_action_runtime_error)?;
+            }
+            "/admin/world/reset" => {
+                self.reset_world_objects();
+            }
+            _ => {
+                let mut bundle = OscBundle::new();
+                bundle.push(message.clone());
+                self.enqueue_input(bundle);
+            }
+        }
+        Ok(())
     }
 
     /// Processes as many fixed ticks as `dt` allows.
@@ -390,6 +500,26 @@ impl<T: Transport> Runtime<T> {
         }
         Ok(())
     }
+}
+
+fn action_numeric_arg(message: &OscMessage, index: usize) -> Option<f32> {
+    match message.args.get(index) {
+        Some(OscArg::Float(value)) => Some(*value),
+        Some(OscArg::Int(value)) => Some(*value as f32),
+        Some(OscArg::Int64(value)) => Some(*value as f32),
+        _ => None,
+    }
+}
+
+fn action_string_arg(message: &OscMessage, index: usize) -> Option<&str> {
+    match message.args.get(index) {
+        Some(OscArg::Str(value)) if !value.is_empty() => Some(value),
+        _ => None,
+    }
+}
+
+fn app_action_runtime_error(error: KituError) -> AppActionError {
+    AppActionError::InvalidDefinition(format!("runtime rejected action: {error}"))
 }
 
 fn parse_move_input(message: &OscMessage) -> Result<(String, f32, f32)> {
@@ -693,6 +823,50 @@ mod tests {
         assert!(runtime.inspect_world_state().objects.is_empty());
         runtime.tick_once().unwrap();
         assert!(runtime.drain_output_buffer().is_empty());
+    }
+
+    #[test]
+    fn runtime_exposes_and_runs_builtin_app_actions() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        let inputs = HashMap::from([
+            ("kind".to_string(), ActionValue::String("enemy".to_string())),
+            ("x".to_string(), ActionValue::Float(1.0)),
+            ("y".to_string(), ActionValue::Float(0.0)),
+            ("z".to_string(), ActionValue::Float(2.0)),
+        ]);
+
+        let outcome = runtime.run_app_action("spawn-object", &inputs).unwrap();
+
+        assert_eq!(outcome.message.address, "/admin/world/spawn");
+        assert_eq!(runtime.inspect_world_state().objects.len(), 1);
+    }
+
+    #[test]
+    fn runtime_loads_project_actions_into_catalog() {
+        let mut runtime = build_runtime(LocalChannel::default());
+        let manifest = r#"
+            [[actions]]
+            id = "enemy.spawn"
+            label = "Enemy Spawn"
+
+            [actions.cli]
+            command = "enemy spawn"
+
+            [[actions.inputs]]
+            name = "enemy_type"
+            type = "string"
+            required = true
+
+            [actions.output]
+            address = "/game/enemy/spawn"
+            args = ["$enemy_type"]
+        "#;
+
+        runtime
+            .load_project_app_actions_from_toml("demo", manifest)
+            .unwrap();
+
+        assert!(runtime.app_action_catalog().action("enemy.spawn").is_some());
     }
 
     #[test]

@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     env,
     net::SocketAddr,
     sync::{Arc, Mutex},
@@ -8,13 +9,14 @@ use anyhow::{Context, Result};
 use axum::{
     extract::{
         ws::{Message, WebSocket, WebSocketUpgrade},
-        State,
+        Path, State,
     },
     http::StatusCode,
     response::IntoResponse,
-    routing::get,
+    routing::{get, post},
     Json, Router,
 };
+use kitu_app_actions::{ActionValue, AppActionCatalog, AppActionDefinition};
 use kitu_osc_ir::{OscArg, OscMessage};
 use kitu_runtime::{build_runtime, Runtime};
 use kitu_transport::LocalChannel;
@@ -24,6 +26,7 @@ use tower_http::cors::CorsLayer;
 use tracing::{error, info};
 
 const DEFAULT_BIND: &str = "127.0.0.1:8787";
+const DEMO_PROJECT_ACTIONS: &str = include_str!("../../../../apps/demo-game/kitu-app-actions.toml");
 
 #[derive(Clone)]
 struct AppState {
@@ -39,8 +42,12 @@ struct GameState {
 
 impl Default for GameState {
     fn default() -> Self {
+        let mut runtime = build_runtime(LocalChannel::connected());
+        runtime
+            .load_project_app_actions_from_toml("demo-game", DEMO_PROJECT_ACTIONS)
+            .expect("demo project app action manifest is valid");
         Self {
-            runtime: build_runtime(LocalChannel::connected()),
+            runtime,
             next_log_id: 1,
             logs: Vec::new(),
         }
@@ -101,6 +108,21 @@ enum JsonOscArg {
     Bool(bool),
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ActionRunRequest {
+    #[serde(default)]
+    inputs: HashMap<String, ActionValue>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ActionRunResponse {
+    action_id: String,
+    osc: ClientOscMessage,
+    snapshot: WorldSnapshot,
+}
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 enum ServerEvent {
@@ -139,6 +161,9 @@ async fn main() -> Result<()> {
         .route("/health", get(health))
         .route("/state", get(state_snapshot))
         .route("/logs", get(logs_snapshot))
+        .route("/app-actions", get(app_action_catalog))
+        .route("/app-actions/:id", get(app_action_definition))
+        .route("/app-actions/:id/run", post(run_app_action))
         .route("/ws", get(ws_upgrade))
         .layer(CorsLayer::permissive())
         .with_state(state);
@@ -169,6 +194,39 @@ async fn logs_snapshot(
 ) -> Result<Json<Vec<DebugLogEntry>>, ApiError> {
     let guard = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
     Ok(Json(guard.logs.clone()))
+}
+
+async fn app_action_catalog(
+    State(state): State<AppState>,
+) -> Result<Json<AppActionCatalog>, ApiError> {
+    let guard = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
+    Ok(Json(guard.runtime.app_action_catalog().clone()))
+}
+
+async fn app_action_definition(
+    Path(action_id): Path<String>,
+    State(state): State<AppState>,
+) -> Result<Json<AppActionDefinition>, ApiError> {
+    let guard = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
+    let action = guard
+        .runtime
+        .app_action_catalog()
+        .action(&action_id)
+        .cloned()
+        .ok_or_else(|| ApiError::bad_request(format!("unknown app action: {action_id}")))?;
+    Ok(Json(action))
+}
+
+async fn run_app_action(
+    Path(action_id): Path<String>,
+    State(state): State<AppState>,
+    Json(request): Json<ActionRunRequest>,
+) -> Result<Json<ActionRunResponse>, ApiError> {
+    Ok(Json(run_app_action_request(
+        &state,
+        action_id,
+        request.inputs,
+    )?))
 }
 
 async fn ws_upgrade(ws: WebSocketUpgrade, State(state): State<AppState>) -> impl IntoResponse {
@@ -265,57 +323,45 @@ async fn send_event(socket: &mut WebSocket, event: &ServerEvent) -> Result<()> {
 }
 
 fn handle_client_osc(state: &AppState, client_message: ClientOscMessage) -> Result<()> {
+    let osc_message = client_message.to_osc_message();
+    let (action_id, inputs) = action_request_from_osc_message(&osc_message)?;
+    run_app_action_request(state, action_id, inputs)?;
+    Ok(())
+}
+
+fn run_app_action_request(
+    state: &AppState,
+    action_id: String,
+    inputs: HashMap<String, ActionValue>,
+) -> Result<ActionRunResponse> {
     let mut guard = state
         .inner
         .lock()
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
     let mut outgoing_events = Vec::new();
 
-    let osc_message = client_message.to_osc_message();
+    let outcome = guard
+        .runtime
+        .run_app_action(&action_id, &inputs)
+        .with_context(|| format!("run app action `{action_id}`"))?;
+    let osc_message = outcome.message;
+    outgoing_events.push(ServerEvent::Log {
+        entry: guard.push_log(
+            LogLevel::Info,
+            format!(
+                "app action {} -> {}",
+                outcome.action_id,
+                osc_message.to_debug_string()?
+            ),
+            Some(osc_message.address.clone()),
+        ),
+    });
+
     guard.push_log(
         LogLevel::Info,
-        format!("admin -> backend {}", osc_message.to_debug_string()?),
+        format!("runtime accepted action {}", outcome.action_id),
         Some(osc_message.address.clone()),
     );
-
-    match osc_message.address.as_str() {
-        "/admin/world/spawn" => {
-            let object = spawn_object(&mut guard, &osc_message)?;
-            outgoing_events.push(ServerEvent::Log {
-                entry: guard.push_log(
-                    LogLevel::Info,
-                    format!("spawned {} {}", object.kind, object.id),
-                    Some(osc_message.address.clone()),
-                ),
-            });
-        }
-        "/admin/world/move" => {
-            let moved = move_object(&mut guard, &osc_message)?;
-            outgoing_events.push(ServerEvent::Log {
-                entry: guard.push_log(
-                    LogLevel::Info,
-                    format!(
-                        "moved {} to ({:.1}, {:.1}, {:.1})",
-                        moved.id, moved.x, moved.y, moved.z
-                    ),
-                    Some(osc_message.address.clone()),
-                ),
-            });
-        }
-        "/admin/world/reset" => {
-            guard.runtime.reset_world_objects();
-            outgoing_events.push(ServerEvent::Log {
-                entry: guard.push_log(
-                    LogLevel::Warn,
-                    "cleared world objects",
-                    Some(osc_message.address.clone()),
-                ),
-            });
-        }
-        other => {
-            return Err(anyhow::anyhow!("unsupported OSC admin address: {other}"));
-        }
-    }
 
     guard.runtime.tick_once().context("tick Kitu runtime")?;
     for bundle in guard.runtime.drain_output_buffer() {
@@ -327,9 +373,15 @@ fn handle_client_osc(state: &AppState, client_message: ClientOscMessage) -> Resu
         }
     }
 
+    let snapshot = guard.snapshot();
     outgoing_events.push(ServerEvent::State {
-        snapshot: guard.snapshot(),
+        snapshot: snapshot.clone(),
     });
+    let response = ActionRunResponse {
+        action_id: outcome.action_id,
+        osc: ClientOscMessage::from(osc_message),
+        snapshot,
+    };
 
     drop(guard);
 
@@ -337,36 +389,7 @@ fn handle_client_osc(state: &AppState, client_message: ClientOscMessage) -> Resu
         let _ = state.events.send(event);
     }
 
-    Ok(())
-}
-
-fn spawn_object(state: &mut GameState, message: &OscMessage) -> Result<WorldObject> {
-    let kind = string_arg(message, 0).unwrap_or("marker").to_string();
-    let x = numeric_arg(message, 1).unwrap_or(0.0);
-    let y = numeric_arg(message, 2).unwrap_or(0.0);
-    let z = numeric_arg(message, 3).unwrap_or(0.0);
-    let object = state
-        .runtime
-        .spawn_world_object(kind, x, y, z)
-        .context("spawn runtime world object")?;
-    Ok(WorldObject::from_runtime(&object))
-}
-
-fn move_object(state: &mut GameState, message: &OscMessage) -> Result<WorldObject> {
-    let id = string_arg(message, 0)
-        .ok_or_else(|| anyhow::anyhow!("/admin/world/move expects object id"))?;
-    let x =
-        numeric_arg(message, 1).ok_or_else(|| anyhow::anyhow!("/admin/world/move expects x"))?;
-    let y =
-        numeric_arg(message, 2).ok_or_else(|| anyhow::anyhow!("/admin/world/move expects y"))?;
-    let z =
-        numeric_arg(message, 3).ok_or_else(|| anyhow::anyhow!("/admin/world/move expects z"))?;
-
-    let moved = state
-        .runtime
-        .move_world_object(id, x, y, z)
-        .with_context(|| format!("move runtime world object: {id}"))?;
-    Ok(WorldObject::from_runtime(&moved))
+    Ok(response)
 }
 
 fn numeric_arg(message: &OscMessage, index: usize) -> Option<f32> {
@@ -375,6 +398,55 @@ fn numeric_arg(message: &OscMessage, index: usize) -> Option<f32> {
         Some(OscArg::Int(value)) => Some(*value as f32),
         Some(OscArg::Int64(value)) => Some(*value as f32),
         _ => None,
+    }
+}
+
+fn action_request_from_osc_message(
+    message: &OscMessage,
+) -> Result<(String, HashMap<String, ActionValue>)> {
+    match message.address.as_str() {
+        "/admin/world/spawn" => Ok((
+            "spawn-object".to_string(),
+            HashMap::from([
+                (
+                    "kind".to_string(),
+                    ActionValue::String(string_arg(message, 0).unwrap_or("marker").to_string()),
+                ),
+                (
+                    "x".to_string(),
+                    ActionValue::Float(numeric_arg(message, 1).unwrap_or(0.0)),
+                ),
+                (
+                    "y".to_string(),
+                    ActionValue::Float(numeric_arg(message, 2).unwrap_or(0.0)),
+                ),
+                (
+                    "z".to_string(),
+                    ActionValue::Float(numeric_arg(message, 3).unwrap_or(0.0)),
+                ),
+            ]),
+        )),
+        "/admin/world/move" => {
+            let id = string_arg(message, 0)
+                .ok_or_else(|| anyhow::anyhow!("/admin/world/move expects object id"))?;
+            let x = numeric_arg(message, 1)
+                .ok_or_else(|| anyhow::anyhow!("/admin/world/move expects x"))?;
+            let y = numeric_arg(message, 2)
+                .ok_or_else(|| anyhow::anyhow!("/admin/world/move expects y"))?;
+            let z = numeric_arg(message, 3)
+                .ok_or_else(|| anyhow::anyhow!("/admin/world/move expects z"))?;
+            Ok((
+                "move-object".to_string(),
+                HashMap::from([
+                    ("id".to_string(), ActionValue::String(id.to_string())),
+                    ("x".to_string(), ActionValue::Float(x)),
+                    ("y".to_string(), ActionValue::Float(y)),
+                    ("z".to_string(), ActionValue::Float(z)),
+                ]),
+            ))
+        }
+        "/admin/world/reset" => Ok(("reset-world".to_string(), HashMap::new())),
+        other => Err(anyhow::anyhow!("unsupported OSC admin address: {other}")),
     }
 }
 
@@ -465,6 +537,15 @@ impl ClientOscMessage {
     }
 }
 
+impl From<OscMessage> for ClientOscMessage {
+    fn from(value: OscMessage) -> Self {
+        Self {
+            address: value.address,
+            args: value.args.into_iter().map(JsonOscArg::from).collect(),
+        }
+    }
+}
+
 impl From<JsonOscArg> for OscArg {
     fn from(value: JsonOscArg) -> Self {
         match value {
@@ -495,6 +576,10 @@ struct ApiError(anyhow::Error);
 impl ApiError {
     fn state_poisoned() -> Self {
         Self(anyhow::anyhow!("state lock poisoned"))
+    }
+
+    fn bad_request(message: impl Into<String>) -> Self {
+        Self(anyhow::anyhow!(message.into()))
     }
 }
 
@@ -534,23 +619,35 @@ mod tests {
     #[test]
     fn spawn_and_move_update_world_objects() {
         let mut state = GameState::default();
-        let mut spawn = OscMessage::new("/admin/world/spawn");
-        spawn.push_arg(OscArg::Str("enemy".to_string()));
-        spawn.push_arg(OscArg::Float(1.0));
-        spawn.push_arg(OscArg::Float(0.0));
-        spawn.push_arg(OscArg::Float(2.0));
-
-        let object = spawn_object(&mut state, &spawn).unwrap();
+        state
+            .runtime
+            .run_app_action(
+                "spawn-object",
+                &HashMap::from([
+                    ("kind".to_string(), ActionValue::String("enemy".to_string())),
+                    ("x".to_string(), ActionValue::Float(1.0)),
+                    ("y".to_string(), ActionValue::Float(0.0)),
+                    ("z".to_string(), ActionValue::Float(2.0)),
+                ]),
+            )
+            .unwrap();
+        let object = WorldObject::from_runtime(&state.runtime.inspect_world_state().objects[0]);
         assert_eq!(object.id, "obj-1");
         assert_eq!(state.runtime.inspect_world_state().objects.len(), 1);
 
-        let mut move_message = OscMessage::new("/admin/world/move");
-        move_message.push_arg(OscArg::Str(object.id));
-        move_message.push_arg(OscArg::Float(4.0));
-        move_message.push_arg(OscArg::Float(0.5));
-        move_message.push_arg(OscArg::Float(6.0));
-
-        let moved = move_object(&mut state, &move_message).unwrap();
+        state
+            .runtime
+            .run_app_action(
+                "move-object",
+                &HashMap::from([
+                    ("id".to_string(), ActionValue::String(object.id)),
+                    ("x".to_string(), ActionValue::Float(4.0)),
+                    ("y".to_string(), ActionValue::Float(0.5)),
+                    ("z".to_string(), ActionValue::Float(6.0)),
+                ]),
+            )
+            .unwrap();
+        let moved = WorldObject::from_runtime(&state.runtime.inspect_world_state().objects[0]);
         assert_eq!(moved.x, 4.0);
         assert_eq!(moved.y, 0.5);
         assert_eq!(moved.z, 6.0);

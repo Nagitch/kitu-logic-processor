@@ -1,0 +1,17 @@
+[package]
+name = "kitu-app-actions"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Shared application action catalog definitions for Kitu runtimes and tools."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "actions", "runtime"]
+categories = ["game-development", "data-structures"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
+
+[dependencies]
+kitu-osc-ir = { path = "../kitu-osc-ir" }
+serde = { version = "1", features = ["derive"] }
+thiserror = { workspace = true }

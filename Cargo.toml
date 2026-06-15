@@ -3,6 +3,7 @@ members = [
     "crates/kitu-core",
     "crates/kitu-ecs",
     "crates/kitu-osc-ir",
+    "crates/kitu-app-actions",
     "crates/kitu-osc-ir-wasm",
     "crates/kitu-transport",
     "crates/kitu-runtime",
