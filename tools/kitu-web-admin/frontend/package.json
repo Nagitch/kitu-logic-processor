@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "wasm": "wasm-pack build ../../../crates/kitu-osc-ir-wasm --target web --out-dir ../../tools/kitu-web-admin/frontend/static/kitu-osc-ir-wasm --out-name kitu_osc_ir_wasm",
-    "predev": "npm run wasm",
+    "predev": "pnpm run wasm",
     "dev": "vite",
-    "prebuild": "npm run wasm",
+    "prebuild": "pnpm run wasm",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -43,7 +43,10 @@
     "vite": "^8.0.16",
     "wasm-pack": "^0.15.0"
   },
-  "overrides": {
-    "cookie": "^1.1.1"
-  }
+  "pnpm": {
+    "overrides": {
+      "cookie": "^1.1.1"
+    }
+  },
+  "packageManager": "pnpm@8.3.1"
 }
