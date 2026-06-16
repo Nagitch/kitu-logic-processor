@@ -14,7 +14,7 @@ that consumes the Kitu framework crates rather than a reusable Web Admin tool.
 
 The frontend uses the shared Rust OSC-IR model through a generated WASM package.
 Local development requires the demo-game admin host, Rust, the
-`wasm32-unknown-unknown` target, and the frontend npm dependencies before Vite
+`wasm32-unknown-unknown` target, and the frontend pnpm dependencies before Vite
 starts:
 
 ```sh
@@ -26,12 +26,12 @@ In another shell:
 ```sh
 rustup target add wasm32-unknown-unknown
 cd tools/kitu-web-admin/frontend
-npm install
-npm run wasm
-npm run dev
+pnpm install
+pnpm run wasm
+pnpm run dev
 ```
 
-`npm run dev` and `npm run build` both run the WASM generation step first. The
+`pnpm run dev` and `pnpm run build` both run the WASM generation step first. The
 generated package is written to `frontend/static/kitu-osc-ir-wasm/` and is not
 committed.
 
@@ -46,5 +46,5 @@ Then open:
 
 The Web Admin sends JSON-wrapped OSC-IR messages over WebSocket to create and move logical world objects. The backend logs inbound admin commands, ticks the Kitu runtime, and broadcasts world snapshots and debug logs back to the browser.
 In Docker Compose, the frontend image includes Node 22 and Rust 1.82 with the
-WASM target. The frontend service runs `npm install` and `npm run dev`; the
+WASM target. The frontend service runs `pnpm install` and `pnpm run dev`; the
 `predev` script generates the OSC-IR WASM package before Vite starts.
