@@ -1,0 +1,24 @@
+# Unity generated files for the demo-game verification project.
+/kitu-unity-demo-game/[Ll]ibrary/
+/kitu-unity-demo-game/[Tt]emp/
+/kitu-unity-demo-game/[Oo]bj/
+/kitu-unity-demo-game/[Bb]uild/
+/kitu-unity-demo-game/[Bb]uilds/
+/kitu-unity-demo-game/[Ll]ogs/
+/kitu-unity-demo-game/[Uu]ser[Ss]ettings/
+/kitu-unity-demo-game/MemoryCaptures/
+/kitu-unity-demo-game/Recordings/
+
+# Unity-generated IDE/project files.
+/kitu-unity-demo-game/.vscode/
+/kitu-unity-demo-game/*.csproj
+/kitu-unity-demo-game/*.sln
+/kitu-unity-demo-game/*.slnx
+/kitu-unity-demo-game/*.user
+/kitu-unity-demo-game/*.pidb
+/kitu-unity-demo-game/*.booproj
+/kitu-unity-demo-game/*.svd
+/kitu-unity-demo-game/*.pdb
+/kitu-unity-demo-game/*.mdb
+/kitu-unity-demo-game/*.opendb
+/kitu-unity-demo-game/*.VC.db
