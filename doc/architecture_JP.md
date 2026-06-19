@@ -10,7 +10,7 @@
 - [Kitu ライブラリ構成まとめ（crate / Unity パッケージ）](#kitu-ライブラリ構成まとめcrate--unity-パッケージ)
   - [Rust Workspace 全体構成（kitu リポジトリ）](#rust-workspace-全体構成kitu-リポジトリ)
   - [各 crate の責務](#各-crate-の責務)
-  - [Unity 検証アプリ（kitu-integration-runner 配下）](#unity-検証アプリkitu-integration-runner-配下)
+  - [Unity demo-game 検証アプリ（kitu-integration-runner 配下）](#unity-demo-game-検証アプリkitu-integration-runner-配下)
 - [ユースケース一覧](#ユースケース一覧)
   - [A. 起動・基本ループ](#a-起動基本ループ)
   - [B. プレイヤー操作・移動](#b-プレイヤー操作移動)
@@ -67,7 +67,7 @@ kitu/
     kitu-cli/
     kitu-replay-runner/
     kitu-web-admin/
-  unity/
+  unity-packages/
     com.kitu.runtime/
     com.kitu.transport/
     com.kitu.editor/
@@ -93,11 +93,11 @@ kitu/
 - **kitu-web-admin-backend**: Web Admin のバックエンド（HTTP + WS）
 - **kitu-unity-ffi**: Unity 組み込み cdylib 用の C API。現在の MVP surface はプレイヤー移動 slice に限定し、初期化、移動入力送信、tick 実行、`/render/player/transform` の取得を扱う。
 
-### Unity 検証アプリ（kitu-integration-runner 配下）
+### Unity demo-game 検証アプリ（kitu-integration-runner 配下）
 
 ```
 kitu-integration-runner/
-  unity-app/
+  unity-demo-game/
     .gitkeep
     (将来) Unity プロジェクト一式
       - Packages/
@@ -105,7 +105,7 @@ kitu-integration-runner/
       - Assets/
 ```
 
-この Unity 検証アプリの役割:
+この Unity demo-game 検証アプリの役割:
 
 - CI/CD で「アプリケーションが破壊されず動作すること」を継続検証する。
 - `kitu-unity-ffi` と `kitu-runtime` の統合境界を検証する。
@@ -113,7 +113,7 @@ kitu-integration-runner/
 - ゲーム固有実装の母体ではなく、回帰検証用の最小アプリとして管理する。
 
 
-このドキュメントでは、Kitu フレームワーク本体と、`kitu-integration-runner/unity-app` に配置する Unity 検証アプリのユースケース一覧を整理します。
+このドキュメントでは、Kitu フレームワーク本体と、`kitu-integration-runner/unity-demo-game` に配置する Unity demo-game 検証アプリのユースケース一覧を整理します。
 
 ## ユースケース一覧
 
