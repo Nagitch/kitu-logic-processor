@@ -33,7 +33,7 @@ kitu-integration-runner/
     README.md
   fixtures/
     README.md
-  unity-app/
+  unity-demo-game/
     .gitkeep
 ```
 
@@ -42,7 +42,7 @@ Directory intent:
 - `scenarios/`: checked-in scenario definitions and expected results
 - `reports/`: documented output/report format examples; generated run artifacts stay out of git
 - `fixtures/`: reusable payload fragments or content fixtures if scenarios start sharing setup data
-- `unity-app/`: Unity verification app used by CI/CD to validate that the app still boots and exchanges runtime boundary messages without regressions
+- `unity-demo-game/`: Unity demo-game verification app used by CI/CD to validate that the app still boots and exchanges runtime boundary messages without regressions
 
 Generated outputs should live outside the checked-in scenario tree, for example under a future `artifacts/` directory or tool-provided temp output directory.
 

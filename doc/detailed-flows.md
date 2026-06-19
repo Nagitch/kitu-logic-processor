@@ -30,18 +30,18 @@ This file collects the detailed architectural flows for each use case (UC-01, UC
 ## Repository boundary note (updated)
 
 This repository no longer assumes a separate game implementation repository such as `stella-rpg`.
-For CI/CD and regression validation, use an in-repository Unity verification app under:
+For CI/CD and regression validation, use an in-repository Unity demo-game verification app under:
 
-- `kitu-integration-runner/unity-app/`
+- `kitu-integration-runner/unity-demo-game/`
 
-Legacy names used for game-specific Unity layers in older examples should be interpreted as this Unity verification app layer (`kitu-integration-runner/unity-app`).
+Legacy names used for game-specific Unity layers in older examples should be interpreted as this Unity demo-game verification app layer (`kitu-integration-runner/unity-demo-game`).
 
 
 ## UC-01: Game boot & scene initialization (detailed flow)
 
 ### Architectural checkpoints
 
-- Validate the boundary between Kitu runtime crates and the in-repository Unity verification app (`kitu-integration-runner/unity-app`).
+- Validate the boundary between Kitu runtime crates and the in-repository Unity demo-game verification app (`kitu-integration-runner/unity-demo-game`).
 - Confirm **cdylib / FFI responsibilities** between Unity and Rust (config passing, lifecycle).
 - Ensure layers for **data loading / ECS setup / initial event output** stay coherent at startup.
 
@@ -54,9 +54,9 @@ Legacy names used for game-specific Unity layers in older examples should be int
 - `kitu-tsq1`, `kitu-scripting-rhai`
 - `kitu-unity-ffi`
 
-**Unity verification app (in repository)**
+**Unity demo-game verification app (in repository)**
 
-- Location: `kitu-integration-runner/unity-app`
+- Location: `kitu-integration-runner/unity-demo-game`
 - Unity-side bridge: `com.kitu.runtime` (shared bridge)
 - Unity-side app/view scripts: validation-oriented presentation scripts used in CI/integration checks
 
@@ -116,7 +116,7 @@ pub fn build_app(config: UnityAppConfig) -> Result<AppContext, KituError> {
 }
 ```
 
-Crates involved: Kitu (`kitu-runtime`, `kitu-ecs`, `kitu-data-*`, `kitu-tsq1`, `kitu-scripting-rhai`, `kitu-unity-ffi`) plus test-app-side initialization glue in `kitu-integration-runner/unity-app`.
+Crates involved: Kitu (`kitu-runtime`, `kitu-ecs`, `kitu-data-*`, `kitu-tsq1`, `kitu-scripting-rhai`, `kitu-unity-ffi`) plus test-app-side initialization glue in `kitu-integration-runner/unity-demo-game`.
 
 ### Data loading and validation (TMD / SQLite)
 
@@ -158,7 +158,7 @@ Crates: `kitu-runtime` (output queue), `kitu-osc-ir` (`OscEvent`), game logic (`
 1. Call `KituNative.PollEvents()` to fetch Rust output events.
 2. Decode to C# `OscEvent`.
 3. Publish to `KituEventBus`.
-4. `unity-app` views handle rendering (create player GameObject, display enemies/objects, show HUD).
+4. `unity-demo-game` views handle rendering (create player GameObject, display enemies/objects, show HUD).
 
 Result: Unity scene reaches its initial state.
 
@@ -240,7 +240,7 @@ foreach (var ev in events) {
 }
 ```
 
-`unity-app` consumes events to move transforms, play enemy spawn/death animations, and refresh HUD stats. Unity remains a pure view layer.
+`unity-demo-game` consumes events to move transforms, play enemy spawn/death animations, and refresh HUD stats. Unity remains a pure view layer.
 
 ### Shell / WebAdmin / replay integration (overview)
 
@@ -325,7 +325,7 @@ The staged `/render/player/transform` output becomes externally visible during t
 
 ### Unity view applies transform
 
-Layers: Unity `com.kitu.runtime` (event bus) and `unity-app` (view). Unity subscribes to `/render/player/transform` and updates the GameObject transform accordingly.
+Layers: Unity `com.kitu.runtime` (event bus) and `unity-demo-game` (view). Unity subscribes to `/render/player/transform` and updates the GameObject transform accordingly.
 
 
 ## UC-11: Camera follow (detailed flow)

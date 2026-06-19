@@ -27,14 +27,15 @@ kitu-integration-runner/
   scenarios/
   reports/
   fixtures/
-  unity-app/
+  unity-demo-game/
 ```
 
 Generated run artifacts should be emitted outside the checked-in scenario files, for example through the replay runner's `--output-dir`.
 
-## Unity verification app (`unity-app/`)
+## Unity demo-game verification app (`unity-demo-game/`)
 
-- `unity-app/` is reserved for a minimal Unity project used in CI/CD and integration testing.
+- `unity-demo-game/` is reserved for the minimal Unity client project used in CI/CD and integration testing.
+- It mirrors `apps/demo-game` at the Unity presentation/input boundary so Rust-side demo-game checks and Unity smoke checks can be named consistently.
 - Its purpose is regression detection (boot/runtime-boundary smoke checks), not full game implementation hosting.
 - Keep the project lean and test-focused so it remains stable as an infrastructure asset.
 

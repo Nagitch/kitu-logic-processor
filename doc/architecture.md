@@ -522,4 +522,4 @@ This list tracks scenario coverage and should remain aligned with runtime and to
 4. **Script sandboxing**: Security and resource limits for Rhai in development vs production.
 5. **Persistence model**: Save/load snapshot granularity and schema evolution policy.
 6. **Web admin security**: Authentication/authorization model for remote operations.
-7. **Unity package layout**: Final package boundaries and release/versioning strategy under `unity/`.
+7. **Unity package layout**: Final package boundaries and release/versioning strategy under `unity-packages/`.
