@@ -5,3 +5,5 @@
 .DS_Store
 /.tmp/
 /.pnpm-store/
+/tools/kitu-webtransport-gateway/certs/
+/tools/kitu-webtransport-gateway/target/

@@ -14,3 +14,8 @@ include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 [dependencies]
 kitu-core = { path = "../kitu-core" }
 kitu-osc-ir = { path = "../kitu-osc-ir" }
+rmp = "=0.8.14"
+rmp-serde = "=1.1.2"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11"
+thiserror = { workspace = true }

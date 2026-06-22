@@ -10,8 +10,32 @@ import type {
   ServerEvent,
   WorldSnapshot,
 } from "./types";
+import { decodeKepEnvelope, encodeKepEnvelope, encodeOscPacket } from "./kep";
 
 type ConnectionState = "idle" | "connecting" | "open" | "closed" | "error";
+type WebTransportSession = {
+  readonly ready: Promise<void>;
+  readonly closed: Promise<unknown>;
+  createBidirectionalStream(): Promise<WebTransportBidirectionalStream>;
+  close(): void;
+};
+type WebTransportBidirectionalStream = {
+  readable: ReadableStream<Uint8Array>;
+  writable: WritableStream<Uint8Array>;
+};
+type WebTransportOptions = {
+  serverCertificateHashes?: Array<{
+    algorithm: "sha-256";
+    value: Uint8Array;
+  }>;
+};
+type WebTransportConstructor = new (
+  url: string,
+  options?: WebTransportOptions,
+) => WebTransportSession;
+type WebTransportSendResult = {
+  requestWritten: boolean;
+};
 
 const defaultSnapshot: WorldSnapshot = {
   tick: 0,
@@ -30,6 +54,8 @@ export const objectCount = derived(
 );
 
 let socket: WebSocket | null = null;
+let webTransport: WebTransportSession | null = null;
+let webTransportReady = false;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function connectAdminSocket() {
@@ -51,6 +77,7 @@ export function connectAdminSocket() {
     connectionState.set("open");
     lastError.set(null);
     loadAppActions();
+    connectAdminWebTransport();
   });
 
   socket.addEventListener("message", (event) => {
@@ -71,6 +98,27 @@ export function connectAdminSocket() {
 }
 
 export function sendOsc(payload: ClientOscMessage) {
+  if (webTransportReady && webTransport) {
+    sendOscOverWebTransport(webTransport, payload)
+      .then((result) => {
+        if (!result.requestWritten) {
+          sendOscOverWebSocket(payload);
+        }
+      })
+      .catch((error: unknown) => {
+        lastError.set(
+          error instanceof Error
+            ? error.message
+            : `WebTransport send failed: ${error}`,
+        );
+      });
+    return true;
+  }
+
+  return sendOscOverWebSocket(payload);
+}
+
+function sendOscOverWebSocket(payload: ClientOscMessage) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     lastError.set("WebSocket is not connected");
     return false;
@@ -78,6 +126,90 @@ export function sendOsc(payload: ClientOscMessage) {
 
   socket.send(JSON.stringify(payload));
   return true;
+}
+
+async function sendOscOverWebTransport(
+  session: WebTransportSession,
+  payload: ClientOscMessage,
+): Promise<WebTransportSendResult> {
+  let stream: WebTransportBidirectionalStream;
+  try {
+    stream = await session.createBidirectionalStream();
+  } catch (error) {
+    lastError.set(
+      error instanceof Error
+        ? `WebTransport stream failed: ${error.message}`
+        : `WebTransport stream failed: ${error}`,
+    );
+    return { requestWritten: false };
+  }
+  const writer = stream.writable.getWriter();
+  const oscPacket = encodeOscPacket(payload);
+  const envelope = encodeKepEnvelope({
+    payloadType: "osc",
+    route: env.PUBLIC_KITU_ADMIN_KEP_ROUTE ?? "/room/main",
+    flags: 0,
+    payload: oscPacket,
+  });
+
+  try {
+    try {
+      await writer.write(envelope);
+    } catch (error) {
+      lastError.set(
+        error instanceof Error
+          ? `WebTransport write failed: ${error.message}`
+          : `WebTransport write failed: ${error}`,
+      );
+      return { requestWritten: false };
+    }
+    await writer.close();
+    const response = await readStreamBytes(stream.readable);
+    if (response.length > 0) {
+      applyKepServerEvent(response);
+    }
+    lastError.set(null);
+    return { requestWritten: true };
+  } finally {
+    writer.releaseLock();
+  }
+}
+
+async function readStreamBytes(stream: ReadableStream<Uint8Array>) {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      length += value.length;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return bytes;
+}
+
+function applyKepServerEvent(bytes: Uint8Array) {
+  const envelope = decodeKepEnvelope(bytes);
+  if (envelope.payloadType !== "json") {
+    throw new Error(
+      `Unsupported KEP response payload: ${envelope.payloadType}`,
+    );
+  }
+
+  const json = new TextDecoder().decode(envelope.payload);
+  applyServerEvent(JSON.parse(json) as ServerEvent);
 }
 
 export async function spawnObject(
@@ -153,6 +285,78 @@ export async function runAppAction(
 
 function apiBaseUrl() {
   return env.PUBLIC_KITU_ADMIN_API_URL ?? "http://localhost:8787";
+}
+
+function connectAdminWebTransport() {
+  const url = env.PUBLIC_KITU_ADMIN_WT_URL;
+  if (!browser || !url || webTransport) return;
+
+  const Transport = (
+    window as Window & { WebTransport?: WebTransportConstructor }
+  ).WebTransport;
+  if (!Transport) {
+    return;
+  }
+
+  const options = webTransportOptions();
+  const session = options ? new Transport(url, options) : new Transport(url);
+  webTransport = session;
+
+  session.ready
+    .then(() => {
+      webTransportReady = true;
+    })
+    .catch((error: unknown) => {
+      webTransportReady = false;
+      webTransport = null;
+      lastError.set(
+        error instanceof Error
+          ? `WebTransport connection failed: ${error.message}`
+          : `WebTransport connection failed: ${error}`,
+      );
+    });
+
+  session.closed
+    .catch(() => null)
+    .finally(() => {
+      if (webTransport === session) {
+        webTransportReady = false;
+        webTransport = null;
+      }
+    });
+}
+
+function webTransportOptions(): WebTransportOptions | undefined {
+  const certificateHash = parseHexSha256(env.PUBLIC_KITU_ADMIN_WT_CERT_SHA256);
+  if (!certificateHash) return undefined;
+
+  return {
+    serverCertificateHashes: [
+      {
+        algorithm: "sha-256",
+        value: certificateHash,
+      },
+    ],
+  };
+}
+
+function parseHexSha256(value: string | undefined) {
+  if (!value) return null;
+
+  const normalized = value.replace(/[^a-fA-F0-9]/g, "");
+  if (normalized.length !== 64) {
+    lastError.set("WebTransport certificate SHA-256 must be 64 hex chars");
+    return null;
+  }
+
+  const bytes = new Uint8Array(32);
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = Number.parseInt(
+      normalized.slice(index * 2, index * 2 + 2),
+      16,
+    );
+  }
+  return bytes;
 }
 
 function applyServerEvent(event: ServerEvent) {

@@ -33,12 +33,18 @@ Endpoints:
 - Health: http://localhost:8787/health
 - Web Admin WebSocket: ws://localhost:8787/ws
 - Unity/runtime WebSocket: ws://localhost:8787/ws/runtime
+- Experimental WebTransport gateway: https://localhost:9443 over UDP
 
 The `/ws/runtime` endpoint is the development-time Unity vertical slice. It
 accepts OSC-IR JSON messages directly, including `/input/move`, advances the
 same runtime used by the embedded path, and broadcasts `/render/player/transform`
 responses for presentation clients. It also forwards world `state` snapshots so
 Unity can mirror Web Admin object spawn/move/reset actions.
+
+The WebTransport gateway is a separate local-development container. It receives
+KEP MessagePack envelopes, decodes OSC packet payloads, and relays them to the
+existing Web Admin WebSocket endpoint over the Docker internal network. The
+existing WebSocket endpoints remain the fallback and comparison path.
 
 ## Scenario tests
 
