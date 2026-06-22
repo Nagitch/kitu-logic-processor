@@ -115,10 +115,7 @@
     for (const object of currentObjects) {
       let mesh = meshes.get(object.id);
       if (!mesh) {
-        const geometry =
-          object.kind === "trigger"
-            ? new THREE.TorusGeometry(0.55, 0.15, 12, 32)
-            : new THREE.BoxGeometry(1, 1, 1);
+        const geometry = geometryForKind(object.kind);
         const material = new THREE.MeshStandardMaterial({
           color: object.color,
           roughness: 0.55,
@@ -131,6 +128,19 @@
       mesh.position.set(object.x, 0.5 + object.y, object.z);
       mesh.scale.setScalar(object.kind === "treasure" ? 0.8 : 1);
     }
+  }
+
+  function geometryForKind(kind: string): BufferGeometry {
+    if (!THREE) {
+      throw new Error("Three.js is not ready");
+    }
+    if (kind === "player") {
+      return new THREE.SphereGeometry(0.55, 24, 16);
+    }
+    if (kind === "trigger") {
+      return new THREE.TorusGeometry(0.55, 0.15, 12, 32);
+    }
+    return new THREE.BoxGeometry(1, 1, 1);
   }
 </script>
 

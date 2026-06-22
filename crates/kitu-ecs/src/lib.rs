@@ -114,13 +114,45 @@ impl EcsWorld {
         kind: impl Into<String>,
         transform: WorldTransform,
     ) -> Result<WorldObject> {
+        let id = format!("obj-{}", self.next_world_object_id);
+        self.next_world_object_id += 1;
+        self.insert_world_object(id, kind, transform)
+    }
+
+    /// Spawns an object with a caller-owned stable identifier.
+    pub fn spawn_world_object_with_id(
+        &mut self,
+        id: impl Into<String>,
+        kind: impl Into<String>,
+        transform: WorldTransform,
+    ) -> Result<WorldObject> {
+        let id = id.into();
+        if id.is_empty() {
+            return Err(KituError::InvalidInput("world object id cannot be empty"));
+        }
+        if self.world_object(&id).is_some() {
+            return Err(KituError::InvalidInput("world object id already exists"));
+        }
+        if let Some(number) = id
+            .strip_prefix("obj-")
+            .and_then(|suffix| suffix.parse::<u64>().ok())
+        {
+            self.next_world_object_id = self.next_world_object_id.max(number + 1);
+        }
+        self.insert_world_object(id, kind, transform)
+    }
+
+    fn insert_world_object(
+        &mut self,
+        id: String,
+        kind: impl Into<String>,
+        transform: WorldTransform,
+    ) -> Result<WorldObject> {
         let kind = kind.into();
         if kind.is_empty() {
             return Err(KituError::InvalidInput("world object kind cannot be empty"));
         }
 
-        let id = format!("obj-{}", self.next_world_object_id);
-        self.next_world_object_id += 1;
         let object = WorldObject {
             id,
             kind,
@@ -232,5 +264,33 @@ mod tests {
 
         world.reset_world_objects();
         assert!(world.world_snapshot().objects.is_empty());
+    }
+
+    #[test]
+    fn world_objects_can_use_caller_owned_ids() {
+        let mut world = EcsWorld::new();
+
+        let player = world
+            .spawn_world_object_with_id(
+                "player:local",
+                "player",
+                WorldTransform::new(1.0, 0.0, 2.0),
+            )
+            .unwrap();
+        assert_eq!(player.id, "player:local");
+        assert_eq!(player.kind, "player");
+
+        assert!(world
+            .spawn_world_object_with_id(
+                "player:local",
+                "player",
+                WorldTransform::new(0.0, 0.0, 0.0),
+            )
+            .is_err());
+
+        let generated = world
+            .spawn_world_object("enemy", WorldTransform::new(0.0, 0.0, 0.0))
+            .unwrap();
+        assert_eq!(generated.id, "obj-1");
     }
 }

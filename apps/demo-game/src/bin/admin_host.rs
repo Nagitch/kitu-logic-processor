@@ -192,6 +192,7 @@ async fn main() -> Result<()> {
         .route("/app-actions/:id", get(app_action_definition))
         .route("/app-actions/:id/run", post(run_app_action))
         .route("/ws", get(ws_upgrade))
+        .route("/ws/runtime", get(runtime_ws_upgrade))
         .layer(CorsLayer::permissive())
         .with_state(state);
 
@@ -262,6 +263,13 @@ async fn ws_upgrade(ws: WebSocketUpgrade, State(state): State<AppState>) -> impl
     ws.on_upgrade(move |socket| ws_loop(socket, state))
 }
 
+async fn runtime_ws_upgrade(
+    ws: WebSocketUpgrade,
+    State(state): State<AppState>,
+) -> impl IntoResponse {
+    ws.on_upgrade(move |socket| runtime_ws_loop(socket, state))
+}
+
 async fn ws_loop(mut socket: WebSocket, state: AppState) {
     if let Err(err) = send_initial_state(&mut socket, &state).await {
         error!("failed to send initial state: {err}");
@@ -312,6 +320,56 @@ async fn ws_loop(mut socket: WebSocket, state: AppState) {
     }
 }
 
+async fn runtime_ws_loop(mut socket: WebSocket, state: AppState) {
+    if let Err(err) = send_initial_runtime_state(&mut socket, &state).await {
+        error!("failed to send initial runtime state: {err}");
+        return;
+    }
+
+    let mut receiver = state.events.subscribe();
+
+    loop {
+        tokio::select! {
+            maybe_message = socket.recv() => {
+                match maybe_message {
+                    Some(Ok(Message::Text(text))) => {
+                        match serde_json::from_str::<ClientOscMessage>(&text) {
+                            Ok(message) => {
+                                if let Err(err) = handle_runtime_osc(&state, message) {
+                                    broadcast_error(&state, err.to_string());
+                                }
+                            }
+                            Err(err) => broadcast_error(&state, format!("invalid runtime client message: {err}")),
+                        }
+                    }
+                    Some(Ok(Message::Close(_))) | None => break,
+                    Some(Ok(_)) => {}
+                    Some(Err(err)) => {
+                        error!("runtime websocket receive error: {err}");
+                        break;
+                    }
+                }
+            }
+            event = receiver.recv() => {
+                match event {
+                    Ok(event) => {
+                        if let Err(err) = send_event(&mut socket, &event).await {
+                            error!("runtime websocket send error: {err}");
+                            break;
+                        }
+                    }
+                    Err(broadcast::error::RecvError::Lagged(_)) => {
+                        if let Ok(snapshot) = snapshot(&state) {
+                            let _ = send_event(&mut socket, &ServerEvent::State { snapshot }).await;
+                        }
+                    }
+                    Err(broadcast::error::RecvError::Closed) => break,
+                }
+            }
+        }
+    }
+}
+
 async fn send_initial_state(socket: &mut WebSocket, state: &AppState) -> Result<()> {
     let (tick, logs) = {
         let guard = state
@@ -344,6 +402,34 @@ async fn send_initial_state(socket: &mut WebSocket, state: &AppState) -> Result<
     Ok(())
 }
 
+async fn send_initial_runtime_state(socket: &mut WebSocket, state: &AppState) -> Result<()> {
+    let tick = {
+        let guard = state
+            .inner
+            .lock()
+            .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+        guard.runtime.current_tick().get()
+    };
+
+    send_event(
+        socket,
+        &ServerEvent::Connected {
+            protocol: "kitu-runtime-osc-ir-json-v1",
+            tick,
+        },
+    )
+    .await?;
+    send_event(
+        socket,
+        &ServerEvent::State {
+            snapshot: snapshot(state)?,
+        },
+    )
+    .await?;
+
+    Ok(())
+}
+
 async fn send_event(socket: &mut WebSocket, event: &ServerEvent) -> Result<()> {
     socket
         .send(Message::Text(serde_json::to_string(event)?))
@@ -356,6 +442,54 @@ fn handle_client_osc(state: &AppState, client_message: ClientOscMessage) -> Resu
     let (action_id, inputs) = action_request_from_osc_message(&osc_message)?;
     run_app_action_request(state, action_id, inputs)?;
     Ok(())
+}
+
+fn handle_runtime_osc(state: &AppState, client_message: ClientOscMessage) -> Result<()> {
+    let events = run_runtime_osc_request(state, client_message)?;
+    for event in events {
+        let _ = state.events.send(event);
+    }
+    Ok(())
+}
+
+fn run_runtime_osc_request(
+    state: &AppState,
+    client_message: ClientOscMessage,
+) -> Result<Vec<ServerEvent>> {
+    let osc_message = client_message.to_osc_message();
+    let mut bundle = kitu_osc_ir::OscBundle::new();
+    bundle.push(osc_message.clone());
+
+    let mut guard = state
+        .inner
+        .lock()
+        .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+    let mut outgoing_events = Vec::new();
+
+    guard.runtime.enqueue_input(bundle);
+    outgoing_events.push(ServerEvent::Log {
+        entry: guard.push_log(
+            LogLevel::Info,
+            format!("runtime input {}", osc_message.to_debug_string()?),
+            Some(osc_message.address),
+        ),
+    });
+
+    guard.runtime.tick_once().context("tick Kitu runtime")?;
+    for bundle in guard.runtime.drain_output_buffer() {
+        for message in bundle.messages {
+            outgoing_events.push(ServerEvent::Osc {
+                address: message.address.clone(),
+                args: message.args.into_iter().map(JsonOscArg::from).collect(),
+            });
+        }
+    }
+
+    outgoing_events.push(ServerEvent::State {
+        snapshot: guard.snapshot(),
+    });
+
+    Ok(outgoing_events)
 }
 
 fn run_app_action_request(
@@ -488,6 +622,7 @@ fn string_arg(message: &OscMessage, index: usize) -> Option<&str> {
 
 fn color_for_kind(kind: &str) -> &'static str {
     match kind {
+        "player" => "#38bdf8",
         "spawn-point" => "#2dd4bf",
         "enemy" => "#fb7185",
         "treasure" => "#facc15",
@@ -590,5 +725,116 @@ impl IntoResponse for ApiError {
 impl From<anyhow::Error> for ApiError {
     fn from(value: anyhow::Error) -> Self {
         Self(value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn test_state() -> AppState {
+        let (events, _) = broadcast::channel(16);
+        AppState {
+            inner: Arc::new(Mutex::new(GameState::new().unwrap())),
+            events,
+        }
+    }
+
+    #[test]
+    fn runtime_osc_request_executes_player_move_slice() {
+        let state = test_state();
+        let request = ClientOscMessage {
+            address: "/input/move".to_string(),
+            args: vec![
+                JsonOscArg::Str("player:local".to_string()),
+                JsonOscArg::Float(1.25),
+                JsonOscArg::Float(-0.5),
+            ],
+        };
+
+        let events = run_runtime_osc_request(&state, request).unwrap();
+        let render = events
+            .iter()
+            .find_map(|event| match event {
+                ServerEvent::Osc { address, args } if address == "/render/player/transform" => {
+                    Some(args)
+                }
+                _ => None,
+            })
+            .expect("expected render transform event");
+
+        assert_eq!(render[0], JsonOscArg::Str("player:local".to_string()));
+        assert_eq!(render[1], JsonOscArg::Int64(0));
+        assert_eq!(render[2], JsonOscArg::Float(1.25));
+        assert_eq!(render[3], JsonOscArg::Float(-0.5));
+        assert_eq!(render[4], JsonOscArg::Float(0.0));
+
+        let snapshot = events
+            .iter()
+            .find_map(|event| match event {
+                ServerEvent::State { snapshot } => Some(snapshot),
+                _ => None,
+            })
+            .expect("expected state event");
+        assert!(snapshot.objects.iter().any(|object| {
+            object.id == "player:local"
+                && object.kind == "player"
+                && object.x == 1.25
+                && object.y == 0.0
+                && object.z == -0.5
+        }));
+    }
+
+    #[test]
+    fn app_action_spawn_broadcasts_world_state_for_unity_clients() {
+        let state = test_state();
+        let response = run_app_action_request(
+            &state,
+            "spawn-object".to_string(),
+            HashMap::from([
+                ("kind".to_string(), ActionValue::String("enemy".to_string())),
+                ("x".to_string(), ActionValue::Float(2.0)),
+                ("y".to_string(), ActionValue::Float(0.5)),
+                ("z".to_string(), ActionValue::Float(-3.0)),
+            ]),
+        )
+        .unwrap();
+
+        assert_eq!(response.snapshot.objects.len(), 1);
+        assert_eq!(response.snapshot.objects[0].kind, "enemy");
+        assert_eq!(response.snapshot.objects[0].x, 2.0);
+        assert_eq!(response.snapshot.objects[0].y, 0.5);
+        assert_eq!(response.snapshot.objects[0].z, -3.0);
+
+        let mut receiver = state.events.subscribe();
+        let events = run_app_action_request(
+            &state,
+            "spawn-object".to_string(),
+            HashMap::from([
+                (
+                    "kind".to_string(),
+                    ActionValue::String("treasure".to_string()),
+                ),
+                ("x".to_string(), ActionValue::Float(4.0)),
+                ("y".to_string(), ActionValue::Float(0.0)),
+                ("z".to_string(), ActionValue::Float(1.5)),
+            ]),
+        )
+        .unwrap();
+        assert_eq!(events.snapshot.objects.len(), 2);
+
+        let mut saw_state = false;
+        while let Ok(event) = receiver.try_recv() {
+            if let ServerEvent::State { snapshot } = event {
+                saw_state = true;
+                assert_eq!(snapshot.objects.len(), 2);
+                assert!(snapshot
+                    .objects
+                    .iter()
+                    .any(|object| object.kind == "treasure"));
+            }
+        }
+
+        assert!(saw_state, "expected state broadcast after spawn action");
     }
 }
