@@ -153,7 +153,16 @@ async function sendOscOverWebTransport(
   });
 
   try {
-    await writer.write(envelope);
+    try {
+      await writer.write(envelope);
+    } catch (error) {
+      lastError.set(
+        error instanceof Error
+          ? `WebTransport write failed: ${error.message}`
+          : `WebTransport write failed: ${error}`,
+      );
+      return { requestWritten: false };
+    }
     await writer.close();
     const response = await readStreamBytes(stream.readable);
     if (response.length > 0) {
