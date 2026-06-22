@@ -19,12 +19,16 @@ use axum::{
 use kitu_app_actions::{ActionValue, AppActionCatalog, AppActionDefinition};
 use kitu_demo_game::{build_demo_runtime, DemoRuntime};
 use kitu_osc_ir::{OscArg, OscMessage};
+use kitu_transport::{
+    decode_kep_envelope, decode_osc_packet, encode_kep_envelope, KepEnvelope, KEP_PAYLOAD_OSC,
+};
 use serde::{Deserialize, Serialize};
 use tokio::sync::broadcast;
 use tower_http::cors::CorsLayer;
 use tracing::{error, info};
 
 const DEFAULT_BIND: &str = "127.0.0.1:8787";
+const KEP_ROUTE_SERVER_EVENT: &str = "/server/event";
 
 #[derive(Clone)]
 struct AppState {
@@ -172,6 +176,12 @@ enum ServerEvent {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum WsOutputMode {
+    Json,
+    Kep,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
@@ -277,6 +287,7 @@ async fn ws_loop(mut socket: WebSocket, state: AppState) {
     }
 
     let mut receiver = state.events.subscribe();
+    let mut output_mode = WsOutputMode::Json;
 
     loop {
         tokio::select! {
@@ -292,6 +303,17 @@ async fn ws_loop(mut socket: WebSocket, state: AppState) {
                             Err(err) => broadcast_error(&state, format!("invalid client message: {err}")),
                         }
                     }
+                    Some(Ok(Message::Binary(bytes))) => {
+                        output_mode = WsOutputMode::Kep;
+                        match decode_kep_osc_message(&bytes) {
+                            Ok(message) => {
+                                if let Err(err) = handle_client_osc_message(&state, message) {
+                                    broadcast_error(&state, err.to_string());
+                                }
+                            }
+                            Err(err) => broadcast_error(&state, format!("invalid client KEP message: {err:#}")),
+                        }
+                    }
                     Some(Ok(Message::Close(_))) | None => break,
                     Some(Ok(_)) => {}
                     Some(Err(err)) => {
@@ -303,14 +325,14 @@ async fn ws_loop(mut socket: WebSocket, state: AppState) {
             event = receiver.recv() => {
                 match event {
                     Ok(event) => {
-                        if let Err(err) = send_event(&mut socket, &event).await {
+                        if let Err(err) = send_event_with_mode(&mut socket, &event, output_mode).await {
                             error!("websocket send error: {err}");
                             break;
                         }
                     }
                     Err(broadcast::error::RecvError::Lagged(_)) => {
                         if let Ok(snapshot) = snapshot(&state) {
-                            let _ = send_event(&mut socket, &ServerEvent::State { snapshot }).await;
+                            let _ = send_event_with_mode(&mut socket, &ServerEvent::State { snapshot }, output_mode).await;
                         }
                     }
                     Err(broadcast::error::RecvError::Closed) => break,
@@ -327,6 +349,7 @@ async fn runtime_ws_loop(mut socket: WebSocket, state: AppState) {
     }
 
     let mut receiver = state.events.subscribe();
+    let mut output_mode = WsOutputMode::Json;
 
     loop {
         tokio::select! {
@@ -342,6 +365,17 @@ async fn runtime_ws_loop(mut socket: WebSocket, state: AppState) {
                             Err(err) => broadcast_error(&state, format!("invalid runtime client message: {err}")),
                         }
                     }
+                    Some(Ok(Message::Binary(bytes))) => {
+                        output_mode = WsOutputMode::Kep;
+                        match decode_kep_osc_message(&bytes) {
+                            Ok(message) => {
+                                if let Err(err) = handle_runtime_osc_message(&state, message) {
+                                    broadcast_error(&state, err.to_string());
+                                }
+                            }
+                            Err(err) => broadcast_error(&state, format!("invalid runtime KEP message: {err:#}")),
+                        }
+                    }
                     Some(Ok(Message::Close(_))) | None => break,
                     Some(Ok(_)) => {}
                     Some(Err(err)) => {
@@ -353,14 +387,14 @@ async fn runtime_ws_loop(mut socket: WebSocket, state: AppState) {
             event = receiver.recv() => {
                 match event {
                     Ok(event) => {
-                        if let Err(err) = send_event(&mut socket, &event).await {
+                        if let Err(err) = send_event_with_mode(&mut socket, &event, output_mode).await {
                             error!("runtime websocket send error: {err}");
                             break;
                         }
                     }
                     Err(broadcast::error::RecvError::Lagged(_)) => {
                         if let Ok(snapshot) = snapshot(&state) {
-                            let _ = send_event(&mut socket, &ServerEvent::State { snapshot }).await;
+                            let _ = send_event_with_mode(&mut socket, &ServerEvent::State { snapshot }, output_mode).await;
                         }
                     }
                     Err(broadcast::error::RecvError::Closed) => break,
@@ -437,26 +471,46 @@ async fn send_event(socket: &mut WebSocket, event: &ServerEvent) -> Result<()> {
         .context("send websocket event")
 }
 
+async fn send_event_with_mode(
+    socket: &mut WebSocket,
+    event: &ServerEvent,
+    mode: WsOutputMode,
+) -> Result<()> {
+    match mode {
+        WsOutputMode::Json => send_event(socket, event).await,
+        WsOutputMode::Kep => {
+            let bytes = encode_server_event_envelope(event)?;
+            socket
+                .send(Message::Binary(bytes))
+                .await
+                .context("send websocket KEP event")
+        }
+    }
+}
+
 fn handle_client_osc(state: &AppState, client_message: ClientOscMessage) -> Result<()> {
-    let osc_message = client_message.to_osc_message();
+    handle_client_osc_message(state, client_message.to_osc_message())
+}
+
+fn handle_client_osc_message(state: &AppState, osc_message: OscMessage) -> Result<()> {
     let (action_id, inputs) = action_request_from_osc_message(&osc_message)?;
     run_app_action_request(state, action_id, inputs)?;
     Ok(())
 }
 
 fn handle_runtime_osc(state: &AppState, client_message: ClientOscMessage) -> Result<()> {
-    let events = run_runtime_osc_request(state, client_message)?;
+    handle_runtime_osc_message(state, client_message.to_osc_message())
+}
+
+fn handle_runtime_osc_message(state: &AppState, osc_message: OscMessage) -> Result<()> {
+    let events = run_runtime_osc_request(state, osc_message)?;
     for event in events {
         let _ = state.events.send(event);
     }
     Ok(())
 }
 
-fn run_runtime_osc_request(
-    state: &AppState,
-    client_message: ClientOscMessage,
-) -> Result<Vec<ServerEvent>> {
-    let osc_message = client_message.to_osc_message();
+fn run_runtime_osc_request(state: &AppState, osc_message: OscMessage) -> Result<Vec<ServerEvent>> {
     let mut bundle = kitu_osc_ir::OscBundle::new();
     bundle.push(osc_message.clone());
 
@@ -490,6 +544,24 @@ fn run_runtime_osc_request(
     });
 
     Ok(outgoing_events)
+}
+
+fn decode_kep_osc_message(bytes: &[u8]) -> Result<OscMessage> {
+    let envelope = decode_kep_envelope(bytes).context("decode KEP envelope")?;
+    anyhow::ensure!(
+        envelope.payload_type == KEP_PAYLOAD_OSC,
+        "unsupported KEP payload type: {}",
+        envelope.payload_type
+    );
+    decode_osc_packet(&envelope.payload).context("decode KEP OSC payload")
+}
+
+fn encode_server_event_envelope(event: &ServerEvent) -> Result<Vec<u8>> {
+    let mut envelope =
+        KepEnvelope::json(serde_json::to_vec(event).context("encode server event JSON")?);
+    envelope.route = Some(KEP_ROUTE_SERVER_EVENT.to_string());
+    envelope.flags = Some(0);
+    encode_kep_envelope(&envelope).context("encode server event KEP envelope")
 }
 
 fn run_app_action_request(
@@ -752,7 +824,7 @@ mod tests {
             ],
         };
 
-        let events = run_runtime_osc_request(&state, request).unwrap();
+        let events = run_runtime_osc_request(&state, request.to_osc_message()).unwrap();
         let render = events
             .iter()
             .find_map(|event| match event {
@@ -836,5 +908,39 @@ mod tests {
         }
 
         assert!(saw_state, "expected state broadcast after spawn action");
+    }
+
+    #[test]
+    fn kep_binary_decodes_to_osc_message() {
+        let mut message = OscMessage::new("/admin/world/spawn");
+        message.push_arg(OscArg::Str("marker".to_string()));
+        message.push_arg(OscArg::Float(1.0));
+        message.push_arg(OscArg::Float(2.0));
+        message.push_arg(OscArg::Float(3.0));
+
+        let osc_packet = kitu_transport::encode_osc_packet(&message).unwrap();
+        let bytes =
+            kitu_transport::encode_kep_envelope(&kitu_transport::KepEnvelope::osc(osc_packet))
+                .unwrap();
+
+        let decoded = decode_kep_osc_message(&bytes).unwrap();
+
+        assert_eq!(decoded, message);
+    }
+
+    #[test]
+    fn server_event_encodes_to_json_kep_envelope() {
+        let bytes = encode_server_event_envelope(&ServerEvent::Error {
+            message: "test error".to_string(),
+        })
+        .unwrap();
+
+        let envelope = decode_kep_envelope(&bytes).unwrap();
+        assert_eq!(envelope.payload_type, kitu_transport::KEP_PAYLOAD_JSON);
+        assert_eq!(envelope.route.as_deref(), Some(KEP_ROUTE_SERVER_EVENT));
+
+        let event: serde_json::Value = serde_json::from_slice(&envelope.payload).unwrap();
+        assert_eq!(event["type"], "error");
+        assert_eq!(event["message"], "test error");
     }
 }

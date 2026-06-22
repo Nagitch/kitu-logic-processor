@@ -39,12 +39,32 @@ committed.
 docker compose -f tools/kitu-web-admin/docker-compose.yml up --build
 ```
 
+For browser WebTransport testing, first generate a short-lived development
+certificate and certificate hash:
+
+```sh
+tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh
+```
+
+To run the local WebTransport gateway smoke test:
+
+```sh
+tools/kitu-webtransport-gateway/scripts/smoke-in-docker.sh
+```
+
 Then open:
 
 - Web Admin: http://localhost:5173
 - Demo game admin host health: http://localhost:8787/health
+- Experimental WebTransport gateway: https://localhost:9443 over UDP
 
 The Web Admin sends JSON-wrapped OSC-IR messages over WebSocket to create and move logical world objects. The backend logs inbound admin commands, ticks the Kitu runtime, and broadcasts world snapshots and debug logs back to the browser.
+When `PUBLIC_KITU_ADMIN_WT_URL` is configured, browser OSC sends can use the
+experimental WebTransport gateway with KEP MessagePack envelopes. The existing
+WebSocket connection remains the fallback and the source of state/log events.
+The gateway compose service builds from
+`tools/kitu-webtransport-gateway/Dockerfile`, which intentionally uses Rust
+1.88 because the WebTransport crate currently requires it.
 In Docker Compose, the frontend image includes Node 22 and Rust 1.82 with the
 WASM target. The frontend service runs `pnpm install` and `pnpm run dev`; the
 `predev` script generates the OSC-IR WASM package before Vite starts.
