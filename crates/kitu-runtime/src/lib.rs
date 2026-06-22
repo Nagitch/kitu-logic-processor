@@ -462,13 +462,36 @@ impl<T: Transport> Runtime<T> {
 
     fn apply_player_move_slice(&mut self, parsed_moves: Vec<(String, f32, f32)>) -> Result<()> {
         for (entity_id, x, y) in parsed_moves {
-            let transform = self.player_transforms.entry(entity_id.clone()).or_default();
-            transform.x += x;
-            transform.y += y;
-            let output = render_player_transform_message(self.tick, &entity_id, transform)?;
+            let transform = {
+                let transform = self.player_transforms.entry(entity_id.clone()).or_default();
+                transform.x += x;
+                transform.y += y;
+                transform.clone()
+            };
+            self.sync_player_world_object(&entity_id, &transform)?;
+            let output = render_player_transform_message(self.tick, &entity_id, &transform)?;
             self.queue_output(output);
         }
 
+        Ok(())
+    }
+
+    fn sync_player_world_object(
+        &mut self,
+        entity_id: &str,
+        transform: &PlayerTransform,
+    ) -> Result<()> {
+        let world_transform = WorldTransform::new(transform.x, 0.0, transform.y);
+        match self.world.world_object(entity_id) {
+            Some(object) if object.kind == "player" => {
+                self.world.move_world_object(entity_id, world_transform)?;
+            }
+            Some(_) => {}
+            None => {
+                self.world
+                    .spawn_world_object_with_id(entity_id, "player", world_transform)?;
+            }
+        }
         Ok(())
     }
 
@@ -801,6 +824,14 @@ mod tests {
         runtime.tick_once().unwrap();
         let outputs = runtime.drain_output_buffer();
         assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            runtime.inspect_world_state().objects,
+            vec![WorldObject {
+                id: "obj-1".to_string(),
+                kind: "enemy".to_string(),
+                transform: WorldTransform::new(1.0, 2.0, 3.0),
+            }]
+        );
 
         let moved = runtime
             .move_world_object(&object.id, 4.0, 5.0, 6.0)
@@ -926,6 +957,14 @@ mod tests {
         runtime.tick_once().unwrap();
         let outputs = runtime.drain_output_buffer();
         assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            runtime.inspect_world_state().objects,
+            vec![WorldObject {
+                id: "player:local".to_string(),
+                kind: "player".to_string(),
+                transform: WorldTransform::new(1.0, 0.0, -0.25),
+            }]
+        );
         let render = &outputs[0].messages[0];
         assert_eq!(render.address, "/render/player/transform");
         assert_eq!(
@@ -1124,6 +1163,21 @@ mod tests {
         runtime.tick_once().unwrap();
         let outputs = runtime.drain_output_buffer();
         assert_eq!(outputs.len(), 2);
+        assert_eq!(
+            runtime.inspect_world_state().objects,
+            vec![
+                WorldObject {
+                    id: "player:one".to_string(),
+                    kind: "player".to_string(),
+                    transform: WorldTransform::new(1.0, 0.0, 0.0),
+                },
+                WorldObject {
+                    id: "player:two".to_string(),
+                    kind: "player".to_string(),
+                    transform: WorldTransform::new(0.0, 0.0, 2.0),
+                },
+            ]
+        );
         assert_eq!(
             outputs[0].messages[0].args,
             vec![

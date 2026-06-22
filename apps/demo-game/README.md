@@ -31,6 +31,14 @@ Endpoints:
 - Web Admin: http://localhost:5173
 - Demo game admin host: http://localhost:8787
 - Health: http://localhost:8787/health
+- Web Admin WebSocket: ws://localhost:8787/ws
+- Unity/runtime WebSocket: ws://localhost:8787/ws/runtime
+
+The `/ws/runtime` endpoint is the development-time Unity vertical slice. It
+accepts OSC-IR JSON messages directly, including `/input/move`, advances the
+same runtime used by the embedded path, and broadcasts `/render/player/transform`
+responses for presentation clients. It also forwards world `state` snapshots so
+Unity can mirror Web Admin object spawn/move/reset actions.
 
 ## Scenario tests
 

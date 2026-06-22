@@ -10,7 +10,7 @@ It covers:
 ## Status
 
 - Normative for boundary contracts and responsibility separation.
-- Implemented in `kitu-runtime` and exposed through the minimal `kitu-unity-ffi` movement boundary.
+- Implemented in `kitu-runtime` and exposed through both the dev/network WebSocket boundary and the minimal `kitu-unity-ffi` movement boundary.
 - Runtime internals and future ECS expansion remain intentionally narrow for this slice.
 - Depends on `../architecture.md` and the runtime timing rules in `runtime-execution-contract.md`.
 
@@ -41,6 +41,13 @@ Does not own:
 - simulation authority
 - movement resolution
 - authoritative position state
+
+Current dev/network surface:
+
+- `apps/demo-game` exposes `GET /ws/runtime` for Unity and tool clients.
+- Clients submit OSC-IR JSON messages such as `/input/move`.
+- The host enqueues the message into the same runtime path, advances one authoritative tick, and broadcasts `/render/player/transform` OSC-IR JSON responses.
+- The host also broadcasts world state snapshots after Web Admin actions so Unity can present spawned/moved/reset world objects during development.
 
 Current minimal FFI surface:
 
