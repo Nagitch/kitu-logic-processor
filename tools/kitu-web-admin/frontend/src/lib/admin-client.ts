@@ -16,11 +16,12 @@ type ConnectionState = "idle" | "connecting" | "open" | "closed" | "error";
 type WebTransportSession = {
   readonly ready: Promise<void>;
   readonly closed: Promise<unknown>;
-  createBidirectionalStream(): Promise<{
-    readable: ReadableStream<Uint8Array>;
-    writable: WritableStream<Uint8Array>;
-  }>;
+  createBidirectionalStream(): Promise<WebTransportBidirectionalStream>;
   close(): void;
+};
+type WebTransportBidirectionalStream = {
+  readable: ReadableStream<Uint8Array>;
+  writable: WritableStream<Uint8Array>;
 };
 type WebTransportOptions = {
   serverCertificateHashes?: Array<{
@@ -32,6 +33,9 @@ type WebTransportConstructor = new (
   url: string,
   options?: WebTransportOptions,
 ) => WebTransportSession;
+type WebTransportSendResult = {
+  requestWritten: boolean;
+};
 
 const defaultSnapshot: WorldSnapshot = {
   tick: 0,
@@ -95,14 +99,19 @@ export function connectAdminSocket() {
 
 export function sendOsc(payload: ClientOscMessage) {
   if (webTransportReady && webTransport) {
-    sendOscOverWebTransport(webTransport, payload).catch((error: unknown) => {
-      lastError.set(
-        error instanceof Error
-          ? error.message
-          : `WebTransport send failed: ${error}`,
-      );
-      sendOscOverWebSocket(payload);
-    });
+    sendOscOverWebTransport(webTransport, payload)
+      .then((result) => {
+        if (!result.requestWritten) {
+          sendOscOverWebSocket(payload);
+        }
+      })
+      .catch((error: unknown) => {
+        lastError.set(
+          error instanceof Error
+            ? error.message
+            : `WebTransport send failed: ${error}`,
+        );
+      });
     return true;
   }
 
@@ -122,8 +131,18 @@ function sendOscOverWebSocket(payload: ClientOscMessage) {
 async function sendOscOverWebTransport(
   session: WebTransportSession,
   payload: ClientOscMessage,
-) {
-  const stream = await session.createBidirectionalStream();
+): Promise<WebTransportSendResult> {
+  let stream: WebTransportBidirectionalStream;
+  try {
+    stream = await session.createBidirectionalStream();
+  } catch (error) {
+    lastError.set(
+      error instanceof Error
+        ? `WebTransport stream failed: ${error.message}`
+        : `WebTransport stream failed: ${error}`,
+    );
+    return { requestWritten: false };
+  }
   const writer = stream.writable.getWriter();
   const oscPacket = encodeOscPacket(payload);
   const envelope = encodeKepEnvelope({
@@ -141,6 +160,7 @@ async function sendOscOverWebTransport(
       applyKepServerEvent(response);
     }
     lastError.set(null);
+    return { requestWritten: true };
   } finally {
     writer.releaseLock();
   }
