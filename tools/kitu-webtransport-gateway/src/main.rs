@@ -5,11 +5,20 @@ use std::{
 };
 
 use anyhow::{Context, Result};
-use futures_util::{SinkExt, StreamExt};
+use futures_util::{
+    stream::{SplitSink, SplitStream},
+    FutureExt, SinkExt, StreamExt,
+};
 use kitu_transport::{decode_kep_envelope, KEP_PAYLOAD_JSON, KEP_PAYLOAD_OSC};
+use tokio::{net::TcpStream, sync::Mutex};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use tracing::{info, warn};
 use wtransport::{Endpoint, Identity, RecvStream, SendStream, ServerConfig};
+
+type InternalSocket =
+    tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<TcpStream>>;
+type InternalWriter = SplitSink<InternalSocket, Message>;
+type InternalReader = SplitStream<InternalSocket>;
 
 const DEFAULT_BIND_PORT: u16 = 9443;
 const DEFAULT_INTERNAL_WS_URL: &str = "ws://demo-game:8787/ws";
@@ -105,6 +114,9 @@ async fn load_identity(config: &GatewayConfig) -> Result<Identity> {
 
 async fn handle_connection(connection: wtransport::Connection, config: GatewayConfig) {
     let mut recent_messages = VecDeque::new();
+    let internal_relay = std::sync::Arc::new(Mutex::new(InternalWebSocketRelay::new(
+        config.internal_ws_url.clone(),
+    )));
 
     loop {
         match connection.accept_bi().await {
@@ -119,9 +131,10 @@ async fn handle_connection(connection: wtransport::Connection, config: GatewayCo
                 }
                 recent_messages.push_back(Instant::now());
 
-                let config = config.clone();
+                let internal_relay = internal_relay.clone();
                 tokio::spawn(async move {
-                    if let Err(err) = handle_stream(send_stream, recv_stream, config).await {
+                    if let Err(err) = handle_stream(send_stream, recv_stream, internal_relay).await
+                    {
                         warn!("WebTransport stream relay failed: {err:#}");
                     }
                 });
@@ -137,7 +150,7 @@ async fn handle_connection(connection: wtransport::Connection, config: GatewayCo
 async fn handle_stream(
     mut send_stream: SendStream,
     recv_stream: RecvStream,
-    config: GatewayConfig,
+    internal_relay: std::sync::Arc<Mutex<InternalWebSocketRelay>>,
 ) -> Result<()> {
     let bytes = read_stream(recv_stream).await?;
     let envelope = decode_kep_envelope(&bytes).context("decode KEP envelope")?;
@@ -145,7 +158,12 @@ async fn handle_stream(
         anyhow::bail!("unsupported KEP payload type: {}", envelope.payload_type);
     }
 
-    if let Some(response) = relay_kep_envelope(&config.internal_ws_url, bytes).await? {
+    if let Some(response) = internal_relay
+        .lock()
+        .await
+        .relay_kep_envelope(bytes)
+        .await?
+    {
         send_stream
             .write_all(&response)
             .await
@@ -173,54 +191,152 @@ async fn read_stream(mut recv_stream: RecvStream) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
-async fn relay_kep_envelope(internal_ws_url: &str, bytes: Vec<u8>) -> Result<Option<Vec<u8>>> {
-    let (socket, _) = connect_async(internal_ws_url)
-        .await
-        .with_context(|| format!("connect internal WebSocket {internal_ws_url}"))?;
-    let (mut writer, mut reader) = socket.split();
+struct InternalWebSocketRelay {
+    url: String,
+    writer: Option<InternalWriter>,
+    reader: Option<InternalReader>,
+}
 
-    tokio::time::sleep(Duration::from_millis(50)).await;
-    writer
-        .send(Message::Binary(bytes.into()))
-        .await
-        .context("send internal WebSocket KEP binary")?;
+impl InternalWebSocketRelay {
+    fn new(url: String) -> Self {
+        Self {
+            url,
+            writer: None,
+            reader: None,
+        }
+    }
 
-    let response = match tokio::time::timeout(Duration::from_secs(2), async {
-        while let Some(message) = reader.next().await {
-            match message.context("read internal WebSocket response")? {
+    async fn relay_kep_envelope(&mut self, bytes: Vec<u8>) -> Result<Option<Vec<u8>>> {
+        if self.writer.is_none() || self.reader.is_none() {
+            self.connect().await?;
+        }
+
+        match self.relay_connected(bytes).await {
+            Ok(response) => Ok(response),
+            Err(err) => {
+                self.reset();
+                Err(err)
+            }
+        }
+    }
+
+    async fn connect(&mut self) -> Result<()> {
+        let (socket, _) = connect_async(&self.url)
+            .await
+            .with_context(|| format!("connect internal WebSocket {}", self.url))?;
+        let (writer, reader) = socket.split();
+        self.writer = Some(writer);
+        self.reader = Some(reader);
+        info!(internal_ws_url = %self.url, "opened internal WebSocket relay");
+        tokio::time::sleep(Duration::from_millis(50)).await;
+        Ok(())
+    }
+
+    async fn relay_connected(&mut self, bytes: Vec<u8>) -> Result<Option<Vec<u8>>> {
+        if self.drain_idle_messages().await? {
+            self.reset();
+            self.connect().await?;
+        }
+
+        let writer = self
+            .writer
+            .as_mut()
+            .context("internal WebSocket writer is not connected")?;
+        writer
+            .send(Message::Binary(bytes.into()))
+            .await
+            .context("send internal WebSocket KEP binary")?;
+
+        let reader = self
+            .reader
+            .as_mut()
+            .context("internal WebSocket reader is not connected")?;
+        let response = match tokio::time::timeout(Duration::from_secs(2), async {
+            while let Some(message) = reader.next().await {
+                match message.context("read internal WebSocket response")? {
+                    Message::Binary(bytes) => {
+                        let response = bytes.to_vec();
+                        let envelope = decode_kep_envelope(&response)
+                            .context("decode internal WebSocket KEP response")?;
+                        if envelope.payload_type == KEP_PAYLOAD_JSON {
+                            return Ok::<Option<Vec<u8>>, anyhow::Error>(Some(response));
+                        }
+                        warn!(
+                            payload_type = envelope.payload_type,
+                            "ignoring unsupported internal WebSocket KEP response"
+                        );
+                    }
+                    Message::Close(_) => anyhow::bail!("internal WebSocket closed"),
+                    _ => {}
+                }
+            }
+            anyhow::bail!("internal WebSocket closed")
+        })
+        .await
+        {
+            Ok(result) => result?,
+            Err(_) => None,
+        };
+
+        if response.is_some() {
+            let _ = tokio::time::timeout(Duration::from_millis(200), async {
+                while reader.next().await.is_some() {}
+            })
+            .await;
+        }
+
+        Ok(response)
+    }
+
+    async fn drain_idle_messages(&mut self) -> Result<bool> {
+        let reader = self
+            .reader
+            .as_mut()
+            .context("internal WebSocket reader is not connected")?;
+        let mut drained = 0usize;
+        let mut disconnected = false;
+
+        while let Some(next) = reader.next().now_or_never() {
+            let Some(message) = next else {
+                disconnected = true;
+                break;
+            };
+            match message.context("read queued internal WebSocket message")? {
                 Message::Binary(bytes) => {
                     let response = bytes.to_vec();
                     let envelope = decode_kep_envelope(&response)
-                        .context("decode internal WebSocket KEP response")?;
+                        .context("decode queued internal WebSocket KEP response")?;
                     if envelope.payload_type == KEP_PAYLOAD_JSON {
-                        return Ok::<Option<Vec<u8>>, anyhow::Error>(Some(response));
+                        drained += 1;
+                        continue;
                     }
                     warn!(
                         payload_type = envelope.payload_type,
-                        "ignoring unsupported internal WebSocket KEP response"
+                        "ignoring unsupported queued internal WebSocket KEP response"
                     );
                 }
-                Message::Close(_) => return Ok::<Option<Vec<u8>>, anyhow::Error>(None),
+                Message::Close(_) => {
+                    disconnected = true;
+                    break;
+                }
                 _ => {}
             }
         }
-        Ok::<Option<Vec<u8>>, anyhow::Error>(None)
-    })
-    .await
-    {
-        Ok(result) => result?,
-        Err(_) => None,
-    };
 
-    if response.is_some() {
-        let _ = tokio::time::timeout(Duration::from_millis(200), async {
-            while reader.next().await.is_some() {}
-        })
-        .await;
+        if drained > 0 {
+            info!(
+                drained,
+                "dropped queued internal WebSocket KEP broadcasts before relaying request"
+            );
+        }
+        Ok(disconnected)
     }
 
-    let _ = writer.close().await;
-    Ok(response)
+    fn reset(&mut self) {
+        warn!(internal_ws_url = %self.url, "resetting internal WebSocket relay");
+        self.writer = None;
+        self.reader = None;
+    }
 }
 
 fn prune_rate_window(recent_messages: &mut VecDeque<Instant>) {
