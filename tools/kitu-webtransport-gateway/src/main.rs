@@ -233,7 +233,10 @@ impl InternalWebSocketRelay {
     }
 
     async fn relay_connected(&mut self, bytes: Vec<u8>) -> Result<Option<Vec<u8>>> {
-        self.drain_idle_messages().await?;
+        if self.drain_idle_messages().await? {
+            self.reset();
+            self.connect().await?;
+        }
 
         let writer = self
             .writer
@@ -285,14 +288,19 @@ impl InternalWebSocketRelay {
         Ok(response)
     }
 
-    async fn drain_idle_messages(&mut self) -> Result<()> {
+    async fn drain_idle_messages(&mut self) -> Result<bool> {
         let reader = self
             .reader
             .as_mut()
             .context("internal WebSocket reader is not connected")?;
         let mut drained = 0usize;
+        let mut disconnected = false;
 
-        while let Some(message) = reader.next().now_or_never().flatten() {
+        while let Some(next) = reader.next().now_or_never() {
+            let Some(message) = next else {
+                disconnected = true;
+                break;
+            };
             match message.context("read queued internal WebSocket message")? {
                 Message::Binary(bytes) => {
                     let response = bytes.to_vec();
@@ -307,7 +315,10 @@ impl InternalWebSocketRelay {
                         "ignoring unsupported queued internal WebSocket KEP response"
                     );
                 }
-                Message::Close(_) => anyhow::bail!("internal WebSocket closed"),
+                Message::Close(_) => {
+                    disconnected = true;
+                    break;
+                }
                 _ => {}
             }
         }
@@ -318,7 +329,7 @@ impl InternalWebSocketRelay {
                 "dropped queued internal WebSocket KEP broadcasts before relaying request"
             );
         }
-        Ok(())
+        Ok(disconnected)
     }
 
     fn reset(&mut self) {
