@@ -21,6 +21,21 @@ for attempt in $(seq 1 60); do
   sleep 1
 done
 
+for attempt in $(seq 1 60); do
+  if docker compose -f "$compose_file" run --rm \
+    -e KITU_WT_INTEGRATION_URL=https://webtransport-gateway:9443 \
+    -e KITU_WT_INTEGRATION_READY_ONLY=1 \
+    webtransport-gateway \
+    cargo run --locked --bin kitu-webtransport-gateway-integration-client >/dev/null 2>&1; then
+    break
+  fi
+  if [ "$attempt" -eq 60 ]; then
+    printf "%s\n" "webtransport-gateway did not become ready." >&2
+    exit 1
+  fi
+  sleep 1
+done
+
 docker compose -f "$compose_file" run --rm \
   -e KITU_WT_INTEGRATION_URL=https://webtransport-gateway:9443 \
   -e KITU_WT_INTEGRATION_OBJECT_ID=webtransport-integration \

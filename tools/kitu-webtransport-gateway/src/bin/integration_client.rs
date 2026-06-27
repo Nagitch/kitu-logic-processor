@@ -31,6 +31,12 @@ async fn main() -> Result<()> {
         .connect(url.as_str())
         .await
         .with_context(|| format!("connect WebTransport {url}"))?;
+    if env::var("KITU_WT_INTEGRATION_READY_ONLY").as_deref() == Ok("1") {
+        connection.close(0u32.into(), b"readiness complete");
+        endpoint.wait_idle().await;
+        println!("WebTransport gateway readiness check passed");
+        return Ok(());
+    }
 
     expect_spawn_response(&connection, &route, &object_id).await?;
     expect_no_response(
