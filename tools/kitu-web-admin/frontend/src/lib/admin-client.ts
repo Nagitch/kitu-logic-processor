@@ -2,11 +2,12 @@ import { browser } from "$app/environment";
 import { env } from "$env/dynamic/public";
 import { derived, get, writable } from "svelte/store";
 import type {
-  ActionRunResponse,
   ActionValue,
   AppActionCatalog,
+  AppActionDefinition,
   ClientOscMessage,
   DebugLogEntry,
+  JsonOscArg,
   ServerEvent,
   WorldSnapshot,
 } from "./types";
@@ -21,12 +22,7 @@ type WebTransportState =
   | "closed"
   | "error";
 type OscSendStatus = {
-  path:
-    | "none"
-    | "webtransport"
-    | "websocket-fallback"
-    | "websocket"
-    | "app-action";
+  path: "none" | "webtransport" | "websocket-fallback" | "websocket";
   phase: "idle" | "pending" | "sent" | "fallback" | "failed";
   detail: string | null;
 };
@@ -328,44 +324,100 @@ export async function runAppAction(
   actionId: string,
   inputs: Record<string, ActionValue>,
 ) {
-  lastOscSendStatus.set({
-    path: "app-action",
-    phase: "pending",
-    detail: actionId,
-  });
   try {
-    const response = await fetch(
-      `${apiBaseUrl()}/app-actions/${encodeURIComponent(actionId)}/run`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ inputs }),
-      },
-    );
-    if (!response.ok) {
-      const error = (await response.json().catch(() => null)) as {
-        error?: string;
-      } | null;
-      throw new Error(error?.error ?? `App action failed: ${response.status}`);
-    }
-    const result = (await response.json()) as ActionRunResponse;
-    worldSnapshot.set(result.snapshot);
-    lastOscSendStatus.set({
-      path: "app-action",
-      phase: "sent",
-      detail: result.osc.address,
-    });
-    lastError.set(null);
-    return result;
+    const action = await appActionDefinition(actionId);
+    const osc = materializeAppAction(action, inputs);
+    return sendOsc(osc);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     lastOscSendStatus.set({
-      path: "app-action",
+      path: "none",
       phase: "failed",
       detail: message,
     });
     lastError.set(message);
-    return null;
+    return false;
+  }
+}
+
+async function appActionDefinition(actionId: string) {
+  const cached = get(appActionCatalog).actions.find(
+    (action) => action.id === actionId,
+  );
+  if (cached) return cached;
+
+  const response = await fetch(
+    `${apiBaseUrl()}/app-actions/${encodeURIComponent(actionId)}`,
+  );
+  if (!response.ok) {
+    const error = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    throw new Error(error?.error ?? `App action failed: ${response.status}`);
+  }
+  return (await response.json()) as AppActionDefinition;
+}
+
+function materializeAppAction(
+  action: AppActionDefinition,
+  inputs: Record<string, ActionValue>,
+): ClientOscMessage {
+  const normalizedInputs = new Map<string, ActionValue>();
+  for (const input of action.inputs) {
+    const value = inputs[input.name] ?? input.default;
+    if (!value) {
+      if (input.required) {
+        throw new Error(`Missing app action input: ${input.name}`);
+      }
+      continue;
+    }
+    normalizedInputs.set(input.name, coerceActionValue(input.name, value));
+  }
+
+  return {
+    address: action.output.address,
+    args: action.output.args.map((arg) => {
+      if (arg.type === "literal") return actionValueToOscArg(arg.value);
+      const value = normalizedInputs.get(arg.name);
+      if (!value) throw new Error(`Missing app action input: ${arg.name}`);
+      return actionValueToOscArg(value);
+    }),
+  };
+}
+
+function coerceActionValue(name: string, value: ActionValue): ActionValue {
+  switch (value.type) {
+    case "float": {
+      const numberValue = Number(value.value);
+      if (!Number.isFinite(numberValue)) {
+        throw new Error(`Invalid app action input: ${name}`);
+      }
+      return { type: "float", value: numberValue };
+    }
+    case "int": {
+      const numberValue = Number(value.value);
+      if (!Number.isInteger(numberValue)) {
+        throw new Error(`Invalid app action input: ${name}`);
+      }
+      return { type: "int", value: numberValue };
+    }
+    case "bool":
+      return { type: "bool", value: Boolean(value.value) };
+    case "string":
+      return { type: "string", value: String(value.value) };
+  }
+}
+
+function actionValueToOscArg(value: ActionValue): JsonOscArg {
+  switch (value.type) {
+    case "float":
+      return { type: "float", value: value.value };
+    case "int":
+      return { type: "int", value: value.value };
+    case "bool":
+      return { type: "bool", value: value.value };
+    case "string":
+      return { type: "str", value: value.value };
   }
 }
 
