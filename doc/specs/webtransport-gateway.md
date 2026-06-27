@@ -165,6 +165,17 @@ WebSocket remains active for:
 For OSC sends, the browser tries WebTransport first after the WebTransport session is ready. If that send fails, it falls back to the existing WebSocket JSON send path.
 When WebTransport succeeds, the browser reads a KEP `json` response envelope from the response stream and applies the decoded `ServerEvent`.
 
+The Web Admin header exposes three independent operational statuses:
+
+- `WS`: the existing WebSocket connection state.
+- `WT`: WebTransport readiness (`disabled`, `unsupported`, `connecting`, `ready`, `closed`, or `error`).
+- `OSC`: the most recent OSC send path (`wt`, `ws fallback`, `ws`, or `none`).
+
+Safe WebTransport failures before the request is written are shown as
+`OSC ws fallback` and retried through the existing WebSocket JSON path.
+Failures after the WebTransport request is written are shown as failed
+WebTransport sends and are not retried over WebSocket.
+
 Browser datagram use is not part of the authoritative MVP send path. A future
 Web Admin UI may send small loss-tolerant preview or telemetry updates as KEP
 JSON datagrams after it confirms `WebTransportDatagramDuplexStream` support and
