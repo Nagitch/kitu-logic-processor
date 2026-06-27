@@ -44,6 +44,7 @@ certificate and certificate hash:
 
 ```sh
 tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh
+tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh
 ```
 
 To run the local WebTransport gateway smoke test:
