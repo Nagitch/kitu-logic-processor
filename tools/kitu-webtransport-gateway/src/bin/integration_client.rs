@@ -128,7 +128,9 @@ async fn read_optional_response(mut recv_stream: RecvStream) -> Result<Option<Ve
             Ok(None)
         }
         Ok(Err(err)) => Err(err).context("read WebTransport response"),
-        Err(_) if response.is_empty() => Ok(None),
+        Err(_) if response.is_empty() => {
+            anyhow::bail!("timed out waiting for validation stream to close")
+        }
         Err(_) => Ok(Some(response)),
     }
 }
