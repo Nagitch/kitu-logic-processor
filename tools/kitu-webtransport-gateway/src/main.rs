@@ -7,7 +7,7 @@ use std::{
 use anyhow::{Context, Result};
 use futures_util::{
     stream::{SplitSink, SplitStream},
-    SinkExt, StreamExt,
+    FutureExt, SinkExt, StreamExt,
 };
 use kitu_transport::{decode_kep_envelope, KEP_PAYLOAD_JSON, KEP_PAYLOAD_OSC};
 use tokio::{net::TcpStream, sync::Mutex};
@@ -233,6 +233,8 @@ impl InternalWebSocketRelay {
     }
 
     async fn relay_connected(&mut self, bytes: Vec<u8>) -> Result<Option<Vec<u8>>> {
+        self.drain_idle_messages().await?;
+
         let writer = self
             .writer
             .as_mut()
@@ -281,6 +283,42 @@ impl InternalWebSocketRelay {
         }
 
         Ok(response)
+    }
+
+    async fn drain_idle_messages(&mut self) -> Result<()> {
+        let reader = self
+            .reader
+            .as_mut()
+            .context("internal WebSocket reader is not connected")?;
+        let mut drained = 0usize;
+
+        while let Some(message) = reader.next().now_or_never().flatten() {
+            match message.context("read queued internal WebSocket message")? {
+                Message::Binary(bytes) => {
+                    let response = bytes.to_vec();
+                    let envelope = decode_kep_envelope(&response)
+                        .context("decode queued internal WebSocket KEP response")?;
+                    if envelope.payload_type == KEP_PAYLOAD_JSON {
+                        drained += 1;
+                        continue;
+                    }
+                    warn!(
+                        payload_type = envelope.payload_type,
+                        "ignoring unsupported queued internal WebSocket KEP response"
+                    );
+                }
+                Message::Close(_) => anyhow::bail!("internal WebSocket closed"),
+                _ => {}
+            }
+        }
+
+        if drained > 0 {
+            info!(
+                drained,
+                "dropped queued internal WebSocket KEP broadcasts before relaying request"
+            );
+        }
+        Ok(())
     }
 
     fn reset(&mut self) {
