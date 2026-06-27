@@ -204,7 +204,18 @@ async fn handle_datagrams(connection: wtransport::Connection) -> Result<()> {
             continue;
         }
 
-        if let Some(response) = handle_datagram_payload(bytes.as_ref())? {
+        let response = match handle_datagram_payload(bytes.as_ref()) {
+            Ok(response) => response,
+            Err(err) => {
+                warn!(
+                    connection_id = connection.stable_id(),
+                    "dropping invalid WebTransport KEP datagram: {err:#}"
+                );
+                continue;
+            }
+        };
+
+        if let Some(response) = response {
             if let Some(max_datagram_size) = connection.max_datagram_size() {
                 if response.len() > max_datagram_size {
                     warn!(

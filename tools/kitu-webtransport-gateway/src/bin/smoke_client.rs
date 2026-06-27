@@ -83,6 +83,10 @@ async fn main() -> Result<()> {
 }
 
 async fn send_datagram_probe(connection: &wtransport::Connection) -> Result<()> {
+    connection
+        .send_datagram(b"not a KEP datagram")
+        .context("send invalid KEP datagram probe")?;
+
     let mut envelope = KepEnvelope::json(br#"{"type":"webTransportDatagramProbe"}"#.to_vec());
     envelope.route = Some(KEP_ROUTE_DATAGRAM_PROBE.to_string());
     envelope.correlation_id = Some(1);
