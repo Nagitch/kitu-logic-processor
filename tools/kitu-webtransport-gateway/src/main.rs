@@ -11,7 +11,8 @@ use futures_util::{
     FutureExt, SinkExt, StreamExt,
 };
 use kitu_transport::{
-    decode_kep_envelope, encode_kep_envelope, KepEnvelope, KEP_PAYLOAD_JSON, KEP_PAYLOAD_OSC,
+    decode_kep_envelope, decode_kep_stream_frames, encode_kep_envelope,
+    encode_kep_stream_frame_bytes, KepEnvelope, KEP_PAYLOAD_JSON, KEP_PAYLOAD_OSC,
 };
 use tokio::{net::TcpStream, sync::Mutex};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
@@ -169,21 +170,31 @@ async fn handle_stream(
     internal_relay: std::sync::Arc<Mutex<InternalWebSocketRelay>>,
 ) -> Result<()> {
     let bytes = read_stream(recv_stream).await?;
-    let envelope = decode_kep_envelope(&bytes).context("decode KEP envelope")?;
+    let mut envelopes =
+        decode_kep_stream_frames(&bytes).context("decode WebTransport KEP frames")?;
+    anyhow::ensure!(
+        envelopes.len() == 1,
+        "expected exactly one KEP request frame, got {}",
+        envelopes.len()
+    );
+    let envelope = envelopes.pop().expect("frame count checked");
     if envelope.payload_type != KEP_PAYLOAD_OSC {
         anyhow::bail!("unsupported KEP payload type: {}", envelope.payload_type);
     }
+    let request_bytes = encode_kep_envelope(&envelope).context("encode internal WebSocket KEP")?;
 
-    if let Some(response) = internal_relay
+    for response in internal_relay
         .lock()
         .await
-        .relay_kep_envelope(bytes)
+        .relay_kep_envelope(request_bytes)
         .await?
     {
+        let frame =
+            encode_kep_stream_frame_bytes(&response).context("encode WebTransport KEP frame")?;
         send_stream
-            .write_all(&response)
+            .write_all(&frame)
             .await
-            .context("write WebTransport KEP response")?;
+            .context("write WebTransport KEP response frame")?;
     }
 
     send_stream
@@ -368,7 +379,7 @@ impl InternalWebSocketRelay {
         }
     }
 
-    async fn relay_kep_envelope(&mut self, bytes: Vec<u8>) -> Result<Option<Vec<u8>>> {
+    async fn relay_kep_envelope(&mut self, bytes: Vec<u8>) -> Result<Vec<Vec<u8>>> {
         if self.writer.is_none() || self.reader.is_none() {
             self.connect().await?;
         }
@@ -394,7 +405,7 @@ impl InternalWebSocketRelay {
         Ok(())
     }
 
-    async fn relay_connected(&mut self, bytes: Vec<u8>) -> Result<Option<Vec<u8>>> {
+    async fn relay_connected(&mut self, bytes: Vec<u8>) -> Result<Vec<Vec<u8>>> {
         if self.drain_idle_messages().await? {
             self.reset();
             self.connect().await?;
@@ -413,41 +424,58 @@ impl InternalWebSocketRelay {
             .reader
             .as_mut()
             .context("internal WebSocket reader is not connected")?;
-        let response = match tokio::time::timeout(Duration::from_secs(2), async {
-            while let Some(message) = reader.next().await {
-                match message.context("read internal WebSocket response")? {
-                    Message::Binary(bytes) => {
-                        let response = bytes.to_vec();
-                        let envelope = decode_kep_envelope(&response)
-                            .context("decode internal WebSocket KEP response")?;
-                        if envelope.payload_type == KEP_PAYLOAD_JSON {
-                            return Ok::<Option<Vec<u8>>, anyhow::Error>(Some(response));
-                        }
-                        warn!(
-                            payload_type = envelope.payload_type,
-                            "ignoring unsupported internal WebSocket KEP response"
-                        );
-                    }
-                    Message::Close(_) => anyhow::bail!("internal WebSocket closed"),
-                    _ => {}
-                }
-            }
-            anyhow::bail!("internal WebSocket closed")
-        })
+        let mut responses = Vec::new();
+        match tokio::time::timeout(
+            Duration::from_secs(2),
+            Self::read_next_json_kep_response(reader),
+        )
         .await
         {
-            Ok(result) => result?,
-            Err(_) => None,
-        };
-
-        if response.is_some() {
-            let _ = tokio::time::timeout(Duration::from_millis(200), async {
-                while reader.next().await.is_some() {}
-            })
-            .await;
+            Ok(Some(response)) => responses.push(response?),
+            Ok(None) | Err(_) => {}
         }
 
-        Ok(response)
+        while !responses.is_empty() {
+            match tokio::time::timeout(
+                Duration::from_millis(200),
+                Self::read_next_json_kep_response(reader),
+            )
+            .await
+            {
+                Ok(Some(response)) => responses.push(response?),
+                Ok(None) | Err(_) => break,
+            }
+        }
+
+        Ok(responses)
+    }
+
+    async fn read_next_json_kep_response(reader: &mut InternalReader) -> Option<Result<Vec<u8>>> {
+        while let Some(message) = reader.next().await {
+            match message.context("read internal WebSocket response") {
+                Ok(Message::Binary(bytes)) => {
+                    let response = bytes.to_vec();
+                    match decode_kep_envelope(&response)
+                        .context("decode internal WebSocket KEP response")
+                    {
+                        Ok(envelope) if envelope.payload_type == KEP_PAYLOAD_JSON => {
+                            return Some(Ok(response));
+                        }
+                        Ok(envelope) => {
+                            warn!(
+                                payload_type = envelope.payload_type,
+                                "ignoring unsupported internal WebSocket KEP response"
+                            );
+                        }
+                        Err(err) => return Some(Err(err)),
+                    }
+                }
+                Ok(Message::Close(_)) => return None,
+                Ok(_) => {}
+                Err(err) => return Some(Err(err)),
+            }
+        }
+        None
     }
 
     async fn drain_idle_messages(&mut self) -> Result<bool> {

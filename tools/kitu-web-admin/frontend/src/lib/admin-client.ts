@@ -11,7 +11,11 @@ import type {
   ServerEvent,
   WorldSnapshot,
 } from "./types";
-import { decodeKepEnvelope, encodeKepEnvelope, encodeOscPacket } from "./kep";
+import {
+  decodeKepStreamFrames,
+  encodeKepStreamFrame,
+  encodeOscPacket,
+} from "./kep";
 
 type ConnectionState = "idle" | "connecting" | "open" | "closed" | "error";
 type WebTransportState =
@@ -197,7 +201,7 @@ async function sendOscOverWebTransport(
   }
   const writer = stream.writable.getWriter();
   const oscPacket = encodeOscPacket(payload);
-  const envelope = encodeKepEnvelope({
+  const frame = encodeKepStreamFrame({
     payloadType: "osc",
     route: env.PUBLIC_KITU_ADMIN_KEP_ROUTE ?? "/room/main",
     flags: 0,
@@ -206,7 +210,7 @@ async function sendOscOverWebTransport(
 
   try {
     try {
-      await writer.write(envelope);
+      await writer.write(frame);
     } catch (error) {
       return {
         requestWritten: false,
@@ -220,7 +224,7 @@ async function sendOscOverWebTransport(
       await writer.close();
       const response = await readStreamBytes(stream.readable);
       if (response.length > 0) {
-        applyKepServerEvent(response);
+        applyKepServerEvents(response);
       }
     } catch (error) {
       throw new Error(
@@ -266,16 +270,18 @@ async function readStreamBytes(stream: ReadableStream<Uint8Array>) {
   return bytes;
 }
 
-function applyKepServerEvent(bytes: Uint8Array) {
-  const envelope = decodeKepEnvelope(bytes);
-  if (envelope.payloadType !== "json") {
-    throw new Error(
-      `Unsupported KEP response payload: ${envelope.payloadType}`,
-    );
-  }
+function applyKepServerEvents(bytes: Uint8Array) {
+  const textDecoder = new TextDecoder();
+  for (const envelope of decodeKepStreamFrames(bytes)) {
+    if (envelope.payloadType !== "json") {
+      throw new Error(
+        `Unsupported KEP response payload: ${envelope.payloadType}`,
+      );
+    }
 
-  const json = new TextDecoder().decode(envelope.payload);
-  applyServerEvent(JSON.parse(json) as ServerEvent);
+    const json = textDecoder.decode(envelope.payload);
+    applyServerEvent(JSON.parse(json) as ServerEvent);
+  }
 }
 
 export async function spawnObject(

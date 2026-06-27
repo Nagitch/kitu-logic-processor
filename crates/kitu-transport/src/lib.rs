@@ -23,6 +23,8 @@ const OSC_IMMEDIATE_TIMETAG: u64 = 1;
 pub const KEP_PAYLOAD_OSC: &str = "osc";
 /// Payload type used for UTF-8 JSON bytes inside KEP envelopes.
 pub const KEP_PAYLOAD_JSON: &str = "json";
+/// Number of bytes used by the WebTransport stream frame length prefix.
+pub const KEP_STREAM_FRAME_LENGTH_BYTES: usize = 4;
 
 /// Kitu Envelope Protocol message.
 ///
@@ -87,6 +89,17 @@ pub enum KepCodecError {
     /// The OSC packet used an unsupported type tag.
     #[error("unsupported OSC type tag: {0}")]
     UnsupportedOscType(char),
+    /// A KEP stream frame payload is too large for the uint32 length prefix.
+    #[error("KEP stream frame is too large: {0} bytes")]
+    StreamFrameTooLarge(usize),
+    /// A KEP stream frame ended before the expected byte count.
+    #[error("incomplete KEP stream frame: expected {expected} bytes, got {actual} bytes")]
+    IncompleteStreamFrame {
+        /// Expected number of envelope bytes after the length prefix.
+        expected: usize,
+        /// Actual number of envelope bytes available after the length prefix.
+        actual: usize,
+    },
 }
 
 /// Encodes a KEP envelope as MessagePack bytes.
@@ -97,6 +110,73 @@ pub fn encode_kep_envelope(envelope: &KepEnvelope) -> std::result::Result<Vec<u8
 /// Decodes a KEP envelope from MessagePack bytes.
 pub fn decode_kep_envelope(bytes: &[u8]) -> std::result::Result<KepEnvelope, KepCodecError> {
     rmp_serde::from_slice(bytes).map_err(KepCodecError::DecodeEnvelope)
+}
+
+/// Encodes a single KEP envelope into a length-prefixed stream frame.
+///
+/// The frame format is a 4-byte unsigned big-endian length followed by one
+/// MessagePack KEP envelope. It is intended for transports that expose a byte
+/// stream rather than message boundaries, such as WebTransport reliable streams.
+pub fn encode_kep_stream_frame(
+    envelope: &KepEnvelope,
+) -> std::result::Result<Vec<u8>, KepCodecError> {
+    let envelope_bytes = encode_kep_envelope(envelope)?;
+    encode_kep_stream_frame_bytes(&envelope_bytes)
+}
+
+/// Wraps encoded KEP envelope bytes in a length-prefixed stream frame.
+pub fn encode_kep_stream_frame_bytes(
+    envelope_bytes: &[u8],
+) -> std::result::Result<Vec<u8>, KepCodecError> {
+    let length: u32 = envelope_bytes
+        .len()
+        .try_into()
+        .map_err(|_| KepCodecError::StreamFrameTooLarge(envelope_bytes.len()))?;
+    let mut frame = Vec::with_capacity(KEP_STREAM_FRAME_LENGTH_BYTES + envelope_bytes.len());
+    frame.extend_from_slice(&length.to_be_bytes());
+    frame.extend_from_slice(envelope_bytes);
+    Ok(frame)
+}
+
+/// Decodes all length-prefixed KEP envelopes from a complete stream buffer.
+///
+/// The input must contain zero or more whole frames. A truncated length prefix or
+/// payload returns an error instead of silently dropping the partial envelope.
+pub fn decode_kep_stream_frames(
+    bytes: &[u8],
+) -> std::result::Result<Vec<KepEnvelope>, KepCodecError> {
+    let mut offset = 0;
+    let mut frames = Vec::new();
+
+    while offset < bytes.len() {
+        let remaining = bytes.len() - offset;
+        if remaining < KEP_STREAM_FRAME_LENGTH_BYTES {
+            return Err(KepCodecError::IncompleteStreamFrame {
+                expected: KEP_STREAM_FRAME_LENGTH_BYTES,
+                actual: remaining,
+            });
+        }
+
+        let length = u32::from_be_bytes(
+            bytes[offset..offset + KEP_STREAM_FRAME_LENGTH_BYTES]
+                .try_into()
+                .expect("slice length is checked"),
+        ) as usize;
+        offset += KEP_STREAM_FRAME_LENGTH_BYTES;
+
+        let remaining = bytes.len() - offset;
+        if remaining < length {
+            return Err(KepCodecError::IncompleteStreamFrame {
+                expected: length,
+                actual: remaining,
+            });
+        }
+
+        frames.push(decode_kep_envelope(&bytes[offset..offset + length])?);
+        offset += length;
+    }
+
+    Ok(frames)
 }
 
 /// Encodes a single OSC-IR message into an OSC packet binary.
@@ -479,6 +559,46 @@ mod tests {
         let decoded = decode_kep_envelope(&encoded).expect("decode envelope");
 
         assert_eq!(decoded, envelope);
+    }
+
+    #[test]
+    fn kep_stream_frames_round_trip_multiple_envelopes() {
+        let first = KepEnvelope {
+            payload_type: KEP_PAYLOAD_JSON.to_string(),
+            route: Some("/server/event".to_string()),
+            correlation_id: Some(1),
+            flags: Some(0),
+            payload: br#"{"type":"connected"}"#.to_vec(),
+        };
+        let second = KepEnvelope {
+            payload_type: KEP_PAYLOAD_JSON.to_string(),
+            route: Some("/server/event".to_string()),
+            correlation_id: Some(2),
+            flags: Some(0),
+            payload: br#"{"type":"state"}"#.to_vec(),
+        };
+
+        let mut bytes = encode_kep_stream_frame(&first).expect("encode first frame");
+        bytes.extend(encode_kep_stream_frame(&second).expect("encode second frame"));
+
+        let decoded = decode_kep_stream_frames(&bytes).expect("decode stream frames");
+        assert_eq!(decoded, vec![first, second]);
+    }
+
+    #[test]
+    fn kep_stream_frame_rejects_truncated_payload() {
+        let envelope = KepEnvelope::json(br#"{"type":"state"}"#.to_vec());
+        let mut bytes = encode_kep_stream_frame(&envelope).expect("encode frame");
+        bytes.pop();
+
+        let err = decode_kep_stream_frames(&bytes).expect_err("truncated frame should fail");
+        assert!(matches!(
+            err,
+            KepCodecError::IncompleteStreamFrame {
+                expected: _,
+                actual: _
+            }
+        ));
     }
 
     #[test]
