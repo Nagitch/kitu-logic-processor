@@ -141,13 +141,18 @@ Applications may define additional meanings.
 
 Contains the serialized payload.
 
-For OSC messages:
+For OSC messages or OSC bundles:
 
 ```text
 p = OSC Packet Binary
 ```
 
-The OSC payload remains unmodified and follows standard OSC encoding rules.
+The OSC payload remains unmodified and follows standard OSC encoding rules. The
+current Rust helpers support single OSC messages and OSC bundles containing
+message elements. Bundle helpers use the OSC immediate timetag because Kitu
+currently models scheduling outside the OSC payload. Nested bundles, blobs,
+arrays, and additional scalar tags are intentionally left unsupported until a
+concrete client requires them.
 
 For JSON messages:
 
@@ -207,12 +212,33 @@ KEP Envelope
 
 ## WebTransport Stream
 
-One KEP envelope per stream message.
+Reliable WebTransport streams are byte streams, so KEP envelopes are framed as
+an ordered sequence of length-prefixed messages.
+
+Each frame is:
+
+```text
+uint32_be envelope_length
+MessagePack KEP envelope bytes
+```
+
+The length prefix counts only the MessagePack KEP envelope bytes and does not
+include the four prefix bytes. Receivers must process frames in stream order and
+must treat a truncated length prefix or truncated envelope payload as a decode
+error.
+
+The current Web Admin gateway request path sends one `t = "osc"` frame on a
+bidirectional stream. The response path may send zero or more `t = "json"`
+frames on the same stream before finishing it.
 
 ```text
 WebTransport Stream
     ↓
-KEP Envelope
+uint32_be length + KEP Envelope
+    ↓
+uint32_be length + KEP Envelope
+    ↓
+...
 ```
 
 ---
@@ -227,7 +253,36 @@ WebTransport Datagram
 KEP Envelope
 ```
 
-Datagrams should remain within the practical MTU limits of the transport path.
+WebTransport Datagrams are unreliable and unordered. A KEP datagram may be lost,
+duplicated by application retries, or arrive after a newer datagram. Applications
+must not require acknowledgement, ordering, or replay determinism from the
+datagram transport itself.
+
+MVP datagram use is limited to small, loss-tolerant `t = "json"` envelopes such
+as browser-to-gateway telemetry probes or high-frequency preview state where a
+newer update supersedes an older update. OSC command envelopes, authoritative
+runtime input, and any request that mutates persistent state must continue to use
+reliable WebTransport streams or the existing WebSocket path.
+
+Each datagram must fit within the practical path MTU. Implementations should keep
+encoded KEP datagrams at or below 1200 bytes unless a peer-specific limit is
+known and validated through the WebTransport API.
+
+The initial gateway datagram probe route is:
+
+```text
+/gateway/datagram/probe
+```
+
+The gateway may respond with a best-effort JSON acknowledgement datagram on:
+
+```text
+/gateway/datagram/ack
+```
+
+This acknowledgement exists for development smoke validation and diagnostics. It
+does not make datagram delivery reliable and should not be used for gameplay or
+runtime command semantics.
 
 ---
 

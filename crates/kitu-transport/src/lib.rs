@@ -16,10 +16,15 @@ use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+const OSC_BUNDLE_HEADER: &[u8; 8] = b"#bundle\0";
+const OSC_IMMEDIATE_TIMETAG: u64 = 1;
+
 /// Payload type used for OSC packet binaries inside KEP envelopes.
 pub const KEP_PAYLOAD_OSC: &str = "osc";
 /// Payload type used for UTF-8 JSON bytes inside KEP envelopes.
 pub const KEP_PAYLOAD_JSON: &str = "json";
+/// Number of bytes used by the WebTransport stream frame length prefix.
+pub const KEP_STREAM_FRAME_LENGTH_BYTES: usize = 4;
 
 /// Kitu Envelope Protocol message.
 ///
@@ -84,6 +89,17 @@ pub enum KepCodecError {
     /// The OSC packet used an unsupported type tag.
     #[error("unsupported OSC type tag: {0}")]
     UnsupportedOscType(char),
+    /// A KEP stream frame payload is too large for the uint32 length prefix.
+    #[error("KEP stream frame is too large: {0} bytes")]
+    StreamFrameTooLarge(usize),
+    /// A KEP stream frame ended before the expected byte count.
+    #[error("incomplete KEP stream frame: expected {expected} bytes, got {actual} bytes")]
+    IncompleteStreamFrame {
+        /// Expected number of envelope bytes after the length prefix.
+        expected: usize,
+        /// Actual number of envelope bytes available after the length prefix.
+        actual: usize,
+    },
 }
 
 /// Encodes a KEP envelope as MessagePack bytes.
@@ -94,6 +110,73 @@ pub fn encode_kep_envelope(envelope: &KepEnvelope) -> std::result::Result<Vec<u8
 /// Decodes a KEP envelope from MessagePack bytes.
 pub fn decode_kep_envelope(bytes: &[u8]) -> std::result::Result<KepEnvelope, KepCodecError> {
     rmp_serde::from_slice(bytes).map_err(KepCodecError::DecodeEnvelope)
+}
+
+/// Encodes a single KEP envelope into a length-prefixed stream frame.
+///
+/// The frame format is a 4-byte unsigned big-endian length followed by one
+/// MessagePack KEP envelope. It is intended for transports that expose a byte
+/// stream rather than message boundaries, such as WebTransport reliable streams.
+pub fn encode_kep_stream_frame(
+    envelope: &KepEnvelope,
+) -> std::result::Result<Vec<u8>, KepCodecError> {
+    let envelope_bytes = encode_kep_envelope(envelope)?;
+    encode_kep_stream_frame_bytes(&envelope_bytes)
+}
+
+/// Wraps encoded KEP envelope bytes in a length-prefixed stream frame.
+pub fn encode_kep_stream_frame_bytes(
+    envelope_bytes: &[u8],
+) -> std::result::Result<Vec<u8>, KepCodecError> {
+    let length: u32 = envelope_bytes
+        .len()
+        .try_into()
+        .map_err(|_| KepCodecError::StreamFrameTooLarge(envelope_bytes.len()))?;
+    let mut frame = Vec::with_capacity(KEP_STREAM_FRAME_LENGTH_BYTES + envelope_bytes.len());
+    frame.extend_from_slice(&length.to_be_bytes());
+    frame.extend_from_slice(envelope_bytes);
+    Ok(frame)
+}
+
+/// Decodes all length-prefixed KEP envelopes from a complete stream buffer.
+///
+/// The input must contain zero or more whole frames. A truncated length prefix or
+/// payload returns an error instead of silently dropping the partial envelope.
+pub fn decode_kep_stream_frames(
+    bytes: &[u8],
+) -> std::result::Result<Vec<KepEnvelope>, KepCodecError> {
+    let mut offset = 0;
+    let mut frames = Vec::new();
+
+    while offset < bytes.len() {
+        let remaining = bytes.len() - offset;
+        if remaining < KEP_STREAM_FRAME_LENGTH_BYTES {
+            return Err(KepCodecError::IncompleteStreamFrame {
+                expected: KEP_STREAM_FRAME_LENGTH_BYTES,
+                actual: remaining,
+            });
+        }
+
+        let length = u32::from_be_bytes(
+            bytes[offset..offset + KEP_STREAM_FRAME_LENGTH_BYTES]
+                .try_into()
+                .expect("slice length is checked"),
+        ) as usize;
+        offset += KEP_STREAM_FRAME_LENGTH_BYTES;
+
+        let remaining = bytes.len() - offset;
+        if remaining < length {
+            return Err(KepCodecError::IncompleteStreamFrame {
+                expected: length,
+                actual: remaining,
+            });
+        }
+
+        frames.push(decode_kep_envelope(&bytes[offset..offset + length])?);
+        offset += length;
+    }
+
+    Ok(frames)
 }
 
 /// Encodes a single OSC-IR message into an OSC packet binary.
@@ -131,8 +214,56 @@ pub fn encode_osc_packet(message: &OscMessage) -> std::result::Result<Vec<u8>, K
     Ok(bytes)
 }
 
+/// Encodes an OSC-IR bundle into an OSC bundle packet binary.
+///
+/// Kitu currently models bundle scheduling outside the OSC payload, so encoded
+/// bundles use the OSC immediate timetag. Nested bundles are not represented by
+/// [`OscBundle`] and are therefore not emitted by this helper.
+///
+/// # Examples
+///
+/// ```
+/// use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
+/// use kitu_transport::{decode_osc_bundle, encode_osc_bundle};
+///
+/// let mut message = OscMessage::new("/input/move");
+/// message.push_arg(OscArg::Float(1.0));
+///
+/// let mut bundle = OscBundle::new();
+/// bundle.push(message);
+///
+/// let bytes = encode_osc_bundle(&bundle).expect("encode bundle");
+/// let decoded = decode_osc_bundle(&bytes).expect("decode bundle");
+/// assert_eq!(decoded.messages.len(), 1);
+/// ```
+pub fn encode_osc_bundle(bundle: &OscBundle) -> std::result::Result<Vec<u8>, KepCodecError> {
+    let mut bytes = Vec::new();
+    bytes.extend_from_slice(OSC_BUNDLE_HEADER);
+    bytes.extend_from_slice(&OSC_IMMEDIATE_TIMETAG.to_be_bytes());
+
+    for message in &bundle.messages {
+        let packet = encode_osc_packet(message)?;
+        let packet_len = i32::try_from(packet.len())
+            .map_err(|_| KepCodecError::InvalidOsc("bundle element is too large"))?;
+        bytes.extend_from_slice(&packet_len.to_be_bytes());
+        bytes.extend_from_slice(&packet);
+    }
+
+    Ok(bytes)
+}
+
 /// Decodes a single OSC packet binary into an OSC-IR message.
 pub fn decode_osc_packet(bytes: &[u8]) -> std::result::Result<OscMessage, KepCodecError> {
+    let (message, offset) = decode_osc_packet_with_offset(bytes)?;
+    if offset != bytes.len() {
+        return Err(KepCodecError::InvalidOsc("OSC packet has trailing bytes"));
+    }
+    Ok(message)
+}
+
+fn decode_osc_packet_with_offset(
+    bytes: &[u8],
+) -> std::result::Result<(OscMessage, usize), KepCodecError> {
     let (address, mut offset) = read_osc_string(bytes, 0)?;
     if address.is_empty() {
         return Err(KepCodecError::InvalidOsc("address must not be empty"));
@@ -179,7 +310,69 @@ pub fn decode_osc_packet(bytes: &[u8]) -> std::result::Result<OscMessage, KepCod
         return Err(KepCodecError::InvalidOsc("packet ended before arguments"));
     }
 
-    Ok(message)
+    Ok((message, offset))
+}
+
+/// Decodes an OSC bundle packet binary into an OSC-IR bundle.
+///
+/// This helper accepts bundles containing message elements. Nested bundle
+/// elements are rejected until `OscBundle` grows an explicit nested-bundle
+/// representation.
+///
+/// # Examples
+///
+/// ```
+/// use kitu_osc_ir::{OscBundle, OscMessage};
+/// use kitu_transport::{decode_osc_bundle, encode_osc_bundle};
+///
+/// let mut bundle = OscBundle::new();
+/// bundle.push(OscMessage::new("/tick"));
+///
+/// let bytes = encode_osc_bundle(&bundle).expect("encode bundle");
+/// let decoded = decode_osc_bundle(&bytes).expect("decode bundle");
+/// assert_eq!(decoded.messages[0].address, "/tick");
+/// ```
+pub fn decode_osc_bundle(bytes: &[u8]) -> std::result::Result<OscBundle, KepCodecError> {
+    if bytes.len() < 16 {
+        return Err(KepCodecError::InvalidOsc("bundle packet is too short"));
+    }
+    if bytes.get(..8) != Some(OSC_BUNDLE_HEADER) {
+        return Err(KepCodecError::InvalidOsc("missing OSC bundle header"));
+    }
+    let timetag = u64::from_be_bytes(
+        bytes[8..16]
+            .try_into()
+            .expect("bundle timetag length checked"),
+    );
+    if timetag != OSC_IMMEDIATE_TIMETAG {
+        return Err(KepCodecError::InvalidOsc(
+            "non-immediate OSC bundle timetags are not supported",
+        ));
+    }
+
+    let mut offset = 16;
+    let mut bundle = OscBundle::new();
+    while offset < bytes.len() {
+        let element_len = read_i32(bytes, offset)?;
+        offset += 4;
+        let element_len = usize::try_from(element_len)
+            .map_err(|_| KepCodecError::InvalidOsc("bundle element size is negative"))?;
+        let element_end = offset
+            .checked_add(element_len)
+            .ok_or(KepCodecError::InvalidOsc("bundle element size overflows"))?;
+        let element = bytes
+            .get(offset..element_end)
+            .ok_or(KepCodecError::InvalidOsc("bundle element is truncated"))?;
+        if element.get(..8) == Some(OSC_BUNDLE_HEADER) {
+            return Err(KepCodecError::InvalidOsc(
+                "nested OSC bundles are not supported",
+            ));
+        }
+        bundle.push(decode_osc_packet(element)?);
+        offset = element_end;
+    }
+
+    Ok(bundle)
 }
 
 fn write_osc_string(bytes: &mut Vec<u8>, value: &str) {
@@ -369,6 +562,46 @@ mod tests {
     }
 
     #[test]
+    fn kep_stream_frames_round_trip_multiple_envelopes() {
+        let first = KepEnvelope {
+            payload_type: KEP_PAYLOAD_JSON.to_string(),
+            route: Some("/server/event".to_string()),
+            correlation_id: Some(1),
+            flags: Some(0),
+            payload: br#"{"type":"connected"}"#.to_vec(),
+        };
+        let second = KepEnvelope {
+            payload_type: KEP_PAYLOAD_JSON.to_string(),
+            route: Some("/server/event".to_string()),
+            correlation_id: Some(2),
+            flags: Some(0),
+            payload: br#"{"type":"state"}"#.to_vec(),
+        };
+
+        let mut bytes = encode_kep_stream_frame(&first).expect("encode first frame");
+        bytes.extend(encode_kep_stream_frame(&second).expect("encode second frame"));
+
+        let decoded = decode_kep_stream_frames(&bytes).expect("decode stream frames");
+        assert_eq!(decoded, vec![first, second]);
+    }
+
+    #[test]
+    fn kep_stream_frame_rejects_truncated_payload() {
+        let envelope = KepEnvelope::json(br#"{"type":"state"}"#.to_vec());
+        let mut bytes = encode_kep_stream_frame(&envelope).expect("encode frame");
+        bytes.pop();
+
+        let err = decode_kep_stream_frames(&bytes).expect_err("truncated frame should fail");
+        assert!(matches!(
+            err,
+            KepCodecError::IncompleteStreamFrame {
+                expected: _,
+                actual: _
+            }
+        ));
+    }
+
+    #[test]
     fn osc_packet_round_trips_supported_args() {
         let mut message = OscMessage::new("/avatar/pose");
         message.push_arg(OscArg::Float(1.0));
@@ -382,5 +615,101 @@ mod tests {
         let decoded = decode_osc_packet(&encoded).expect("decode OSC packet");
 
         assert_eq!(decoded, message);
+    }
+
+    #[test]
+    fn osc_bundle_round_trips_messages() {
+        let mut first = OscMessage::new("/input/move");
+        first.push_arg(OscArg::Str("player:local".to_string()));
+        first.push_arg(OscArg::Float(1.0));
+
+        let mut second = OscMessage::new("/input/jump");
+        second.push_arg(OscArg::Bool(true));
+
+        let mut bundle = OscBundle::new();
+        bundle.push(first);
+        bundle.push(second);
+
+        let encoded = encode_osc_bundle(&bundle).expect("encode OSC bundle");
+        assert_eq!(&encoded[..8], OSC_BUNDLE_HEADER);
+        assert_eq!(
+            u64::from_be_bytes(encoded[8..16].try_into().expect("timetag bytes")),
+            OSC_IMMEDIATE_TIMETAG
+        );
+
+        let decoded = decode_osc_bundle(&encoded).expect("decode OSC bundle");
+
+        assert_eq!(decoded, bundle);
+    }
+
+    #[test]
+    fn osc_bundle_rejects_truncated_element() {
+        let mut encoded = Vec::new();
+        encoded.extend_from_slice(OSC_BUNDLE_HEADER);
+        encoded.extend_from_slice(&OSC_IMMEDIATE_TIMETAG.to_be_bytes());
+        encoded.extend_from_slice(&64_i32.to_be_bytes());
+        encoded.extend_from_slice(b"/a\0\0");
+
+        let err = decode_osc_bundle(&encoded).expect_err("truncated element should fail");
+
+        assert!(err.to_string().contains("bundle element is truncated"));
+    }
+
+    #[test]
+    fn osc_bundle_rejects_nested_bundle_elements() {
+        let nested = encode_osc_bundle(&OscBundle::new()).expect("encode nested bundle");
+        let mut encoded = Vec::new();
+        encoded.extend_from_slice(OSC_BUNDLE_HEADER);
+        encoded.extend_from_slice(&OSC_IMMEDIATE_TIMETAG.to_be_bytes());
+        encoded.extend_from_slice(&(nested.len() as i32).to_be_bytes());
+        encoded.extend_from_slice(&nested);
+
+        let err = decode_osc_bundle(&encoded).expect_err("nested bundle should fail");
+
+        assert!(err
+            .to_string()
+            .contains("nested OSC bundles are not supported"));
+    }
+
+    #[test]
+    fn osc_bundle_rejects_non_immediate_timetag() {
+        let mut encoded = Vec::new();
+        encoded.extend_from_slice(OSC_BUNDLE_HEADER);
+        encoded.extend_from_slice(&2_u64.to_be_bytes());
+
+        let err = decode_osc_bundle(&encoded).expect_err("non-immediate timetag should fail");
+
+        assert!(err
+            .to_string()
+            .contains("non-immediate OSC bundle timetags are not supported"));
+    }
+
+    #[test]
+    fn osc_bundle_rejects_trailing_bytes_inside_element() {
+        let message = encode_osc_packet(&OscMessage::new("/tick")).expect("encode OSC packet");
+        let mut element = message.clone();
+        element.extend_from_slice(&[0, 0, 0, 0]);
+
+        let mut encoded = Vec::new();
+        encoded.extend_from_slice(OSC_BUNDLE_HEADER);
+        encoded.extend_from_slice(&OSC_IMMEDIATE_TIMETAG.to_be_bytes());
+        encoded.extend_from_slice(&(element.len() as i32).to_be_bytes());
+        encoded.extend_from_slice(&element);
+
+        let err = decode_osc_bundle(&encoded).expect_err("trailing bytes should fail");
+
+        assert!(err.to_string().contains("OSC packet has trailing bytes"));
+    }
+
+    #[test]
+    fn osc_bundle_rejects_negative_element_size() {
+        let mut encoded = Vec::new();
+        encoded.extend_from_slice(OSC_BUNDLE_HEADER);
+        encoded.extend_from_slice(&OSC_IMMEDIATE_TIMETAG.to_be_bytes());
+        encoded.extend_from_slice(&(-1_i32).to_be_bytes());
+
+        let err = decode_osc_bundle(&encoded).expect_err("negative element size should fail");
+
+        assert!(err.to_string().contains("bundle element size is negative"));
     }
 }

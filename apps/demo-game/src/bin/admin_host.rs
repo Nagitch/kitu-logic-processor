@@ -493,8 +493,15 @@ fn handle_client_osc(state: &AppState, client_message: ClientOscMessage) -> Resu
 }
 
 fn handle_client_osc_message(state: &AppState, osc_message: OscMessage) -> Result<()> {
-    let (action_id, inputs) = action_request_from_osc_message(&osc_message)?;
-    run_app_action_request(state, action_id, inputs)?;
+    if let Some((action_id, inputs)) = action_request_from_osc_message(&osc_message)? {
+        run_app_action_request(state, action_id, inputs)?;
+        return Ok(());
+    }
+
+    let events = run_runtime_osc_request(state, osc_message)?;
+    for event in events {
+        let _ = state.events.send(event);
+    }
     Ok(())
 }
 
@@ -629,9 +636,9 @@ fn run_app_action_request(
 
 fn action_request_from_osc_message(
     message: &OscMessage,
-) -> Result<(String, HashMap<String, ActionValue>)> {
+) -> Result<Option<(String, HashMap<String, ActionValue>)>> {
     match message.address.as_str() {
-        "/admin/world/spawn" => Ok((
+        "/admin/world/spawn" => Ok(Some((
             "spawn-object".to_string(),
             HashMap::from([
                 (
@@ -651,7 +658,7 @@ fn action_request_from_osc_message(
                     ActionValue::Float(numeric_arg(message, 3).unwrap_or(0.0)),
                 ),
             ]),
-        )),
+        ))),
         "/admin/world/move" => {
             let id = string_arg(message, 0)
                 .ok_or_else(|| anyhow::anyhow!("/admin/world/move expects object id"))?;
@@ -661,7 +668,7 @@ fn action_request_from_osc_message(
                 .ok_or_else(|| anyhow::anyhow!("/admin/world/move expects y"))?;
             let z = numeric_arg(message, 3)
                 .ok_or_else(|| anyhow::anyhow!("/admin/world/move expects z"))?;
-            Ok((
+            Ok(Some((
                 "move-object".to_string(),
                 HashMap::from([
                     ("id".to_string(), ActionValue::String(id.to_string())),
@@ -669,10 +676,10 @@ fn action_request_from_osc_message(
                     ("y".to_string(), ActionValue::Float(y)),
                     ("z".to_string(), ActionValue::Float(z)),
                 ]),
-            ))
+            )))
         }
-        "/admin/world/reset" => Ok(("reset-world".to_string(), HashMap::new())),
-        other => Err(anyhow::anyhow!("unsupported OSC admin address: {other}")),
+        "/admin/world/reset" => Ok(Some(("reset-world".to_string(), HashMap::new()))),
+        _ => Ok(None),
     }
 }
 
@@ -908,6 +915,27 @@ mod tests {
         }
 
         assert!(saw_state, "expected state broadcast after spawn action");
+    }
+
+    #[test]
+    fn admin_websocket_accepts_project_action_osc() {
+        let state = test_state();
+        let mut receiver = state.events.subscribe();
+        let mut message = OscMessage::new("/game/enemy/spawn");
+        message.push_arg(OscArg::Str("slime".to_string()));
+        message.push_arg(OscArg::Float(1.0));
+        message.push_arg(OscArg::Float(2.0));
+
+        handle_client_osc_message(&state, message).unwrap();
+
+        let mut saw_state = false;
+        while let Ok(event) = receiver.try_recv() {
+            if let ServerEvent::State { .. } = event {
+                saw_state = true;
+            }
+        }
+
+        assert!(saw_state, "expected state broadcast after project OSC");
     }
 
     #[test]

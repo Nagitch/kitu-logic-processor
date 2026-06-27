@@ -2,17 +2,34 @@ import { browser } from "$app/environment";
 import { env } from "$env/dynamic/public";
 import { derived, get, writable } from "svelte/store";
 import type {
-  ActionRunResponse,
   ActionValue,
   AppActionCatalog,
+  AppActionDefinition,
   ClientOscMessage,
   DebugLogEntry,
+  JsonOscArg,
   ServerEvent,
   WorldSnapshot,
 } from "./types";
-import { decodeKepEnvelope, encodeKepEnvelope, encodeOscPacket } from "./kep";
+import {
+  decodeKepStreamFrames,
+  encodeKepStreamFrame,
+  encodeOscPacket,
+} from "./kep";
 
 type ConnectionState = "idle" | "connecting" | "open" | "closed" | "error";
+type WebTransportState =
+  | "disabled"
+  | "unsupported"
+  | "connecting"
+  | "ready"
+  | "closed"
+  | "error";
+type OscSendStatus = {
+  path: "none" | "webtransport" | "websocket-fallback" | "websocket";
+  phase: "idle" | "pending" | "sent" | "fallback" | "failed";
+  detail: string | null;
+};
 type WebTransportSession = {
   readonly ready: Promise<void>;
   readonly closed: Promise<unknown>;
@@ -35,6 +52,7 @@ type WebTransportConstructor = new (
 ) => WebTransportSession;
 type WebTransportSendResult = {
   requestWritten: boolean;
+  fallbackReason?: string;
 };
 
 const defaultSnapshot: WorldSnapshot = {
@@ -47,6 +65,13 @@ export const worldSnapshot = writable<WorldSnapshot>(defaultSnapshot);
 export const debugLogs = writable<DebugLogEntry[]>([]);
 export const lastError = writable<string | null>(null);
 export const appActionCatalog = writable<AppActionCatalog>({ actions: [] });
+export const webTransportState = writable<WebTransportState>("disabled");
+export const webTransportDetail = writable<string | null>(null);
+export const lastOscSendStatus = writable<OscSendStatus>({
+  path: "none",
+  phase: "idle",
+  detail: null,
+});
 
 export const objectCount = derived(
   worldSnapshot,
@@ -99,32 +124,62 @@ export function connectAdminSocket() {
 
 export function sendOsc(payload: ClientOscMessage) {
   if (webTransportReady && webTransport) {
+    lastOscSendStatus.set({
+      path: "webtransport",
+      phase: "pending",
+      detail: "opening stream",
+    });
     sendOscOverWebTransport(webTransport, payload)
       .then((result) => {
         if (!result.requestWritten) {
-          sendOscOverWebSocket(payload);
+          sendOscOverWebSocket(payload, {
+            path: "websocket-fallback",
+            detail: result.fallbackReason ?? "WebTransport pre-write failure",
+          });
         }
       })
       .catch((error: unknown) => {
-        lastError.set(
+        const message =
           error instanceof Error
             ? error.message
-            : `WebTransport send failed: ${error}`,
-        );
+            : `WebTransport send failed: ${error}`;
+        lastOscSendStatus.set({
+          path: "webtransport",
+          phase: "failed",
+          detail: message,
+        });
+        lastError.set(message);
       });
     return true;
   }
 
-  return sendOscOverWebSocket(payload);
+  return sendOscOverWebSocket(payload, {
+    path: "websocket",
+    detail: webTransportBypassReason(),
+  });
 }
 
-function sendOscOverWebSocket(payload: ClientOscMessage) {
+function sendOscOverWebSocket(
+  payload: ClientOscMessage,
+  status: Pick<OscSendStatus, "path" | "detail">,
+) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
+    lastOscSendStatus.set({
+      path: status.path,
+      phase: "failed",
+      detail: "WebSocket is not connected",
+    });
     lastError.set("WebSocket is not connected");
     return false;
   }
 
   socket.send(JSON.stringify(payload));
+  lastOscSendStatus.set({
+    path: status.path,
+    phase: status.path === "websocket-fallback" ? "fallback" : "sent",
+    detail: status.detail,
+  });
+  lastError.set(null);
   return true;
 }
 
@@ -136,16 +191,17 @@ async function sendOscOverWebTransport(
   try {
     stream = await session.createBidirectionalStream();
   } catch (error) {
-    lastError.set(
-      error instanceof Error
-        ? `WebTransport stream failed: ${error.message}`
-        : `WebTransport stream failed: ${error}`,
-    );
-    return { requestWritten: false };
+    return {
+      requestWritten: false,
+      fallbackReason:
+        error instanceof Error
+          ? `Stream unavailable: ${error.message}`
+          : `Stream unavailable: ${error}`,
+    };
   }
   const writer = stream.writable.getWriter();
   const oscPacket = encodeOscPacket(payload);
-  const envelope = encodeKepEnvelope({
+  const frame = encodeKepStreamFrame({
     payloadType: "osc",
     route: env.PUBLIC_KITU_ADMIN_KEP_ROUTE ?? "/room/main",
     flags: 0,
@@ -154,20 +210,34 @@ async function sendOscOverWebTransport(
 
   try {
     try {
-      await writer.write(envelope);
+      await writer.write(frame);
     } catch (error) {
-      lastError.set(
+      return {
+        requestWritten: false,
+        fallbackReason:
+          error instanceof Error
+            ? `Write unavailable: ${error.message}`
+            : `Write unavailable: ${error}`,
+      };
+    }
+    try {
+      await writer.close();
+      const response = await readStreamBytes(stream.readable);
+      if (response.length > 0) {
+        applyKepServerEvents(response);
+      }
+    } catch (error) {
+      throw new Error(
         error instanceof Error
-          ? `WebTransport write failed: ${error.message}`
-          : `WebTransport write failed: ${error}`,
+          ? `WebTransport post-write failed: ${error.message}`
+          : `WebTransport post-write failed: ${error}`,
       );
-      return { requestWritten: false };
     }
-    await writer.close();
-    const response = await readStreamBytes(stream.readable);
-    if (response.length > 0) {
-      applyKepServerEvent(response);
-    }
+    lastOscSendStatus.set({
+      path: "webtransport",
+      phase: "sent",
+      detail: "response applied",
+    });
     lastError.set(null);
     return { requestWritten: true };
   } finally {
@@ -200,16 +270,18 @@ async function readStreamBytes(stream: ReadableStream<Uint8Array>) {
   return bytes;
 }
 
-function applyKepServerEvent(bytes: Uint8Array) {
-  const envelope = decodeKepEnvelope(bytes);
-  if (envelope.payloadType !== "json") {
-    throw new Error(
-      `Unsupported KEP response payload: ${envelope.payloadType}`,
-    );
-  }
+function applyKepServerEvents(bytes: Uint8Array) {
+  const textDecoder = new TextDecoder();
+  for (const envelope of decodeKepStreamFrames(bytes)) {
+    if (envelope.payloadType !== "json") {
+      throw new Error(
+        `Unsupported KEP response payload: ${envelope.payloadType}`,
+      );
+    }
 
-  const json = new TextDecoder().decode(envelope.payload);
-  applyServerEvent(JSON.parse(json) as ServerEvent);
+    const json = textDecoder.decode(envelope.payload);
+    applyServerEvent(JSON.parse(json) as ServerEvent);
+  }
 }
 
 export async function spawnObject(
@@ -259,27 +331,99 @@ export async function runAppAction(
   inputs: Record<string, ActionValue>,
 ) {
   try {
-    const response = await fetch(
-      `${apiBaseUrl()}/app-actions/${encodeURIComponent(actionId)}/run`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ inputs }),
-      },
-    );
-    if (!response.ok) {
-      const error = (await response.json().catch(() => null)) as {
-        error?: string;
-      } | null;
-      throw new Error(error?.error ?? `App action failed: ${response.status}`);
-    }
-    const result = (await response.json()) as ActionRunResponse;
-    worldSnapshot.set(result.snapshot);
-    lastError.set(null);
-    return result;
+    const action = await appActionDefinition(actionId);
+    const osc = materializeAppAction(action, inputs);
+    return sendOsc(osc);
   } catch (error) {
-    lastError.set(error instanceof Error ? error.message : String(error));
-    return null;
+    const message = error instanceof Error ? error.message : String(error);
+    lastOscSendStatus.set({
+      path: "none",
+      phase: "failed",
+      detail: message,
+    });
+    lastError.set(message);
+    return false;
+  }
+}
+
+async function appActionDefinition(actionId: string) {
+  const cached = get(appActionCatalog).actions.find(
+    (action) => action.id === actionId,
+  );
+  if (cached) return cached;
+
+  const response = await fetch(
+    `${apiBaseUrl()}/app-actions/${encodeURIComponent(actionId)}`,
+  );
+  if (!response.ok) {
+    const error = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    throw new Error(error?.error ?? `App action failed: ${response.status}`);
+  }
+  return (await response.json()) as AppActionDefinition;
+}
+
+function materializeAppAction(
+  action: AppActionDefinition,
+  inputs: Record<string, ActionValue>,
+): ClientOscMessage {
+  const normalizedInputs = new Map<string, ActionValue>();
+  for (const input of action.inputs) {
+    const value = inputs[input.name] ?? input.default;
+    if (!value) {
+      if (input.required) {
+        throw new Error(`Missing app action input: ${input.name}`);
+      }
+      continue;
+    }
+    normalizedInputs.set(input.name, coerceActionValue(input.name, value));
+  }
+
+  return {
+    address: action.output.address,
+    args: action.output.args.map((arg) => {
+      if (arg.type === "literal") return actionValueToOscArg(arg.value);
+      const value = normalizedInputs.get(arg.name);
+      if (!value) throw new Error(`Missing app action input: ${arg.name}`);
+      return actionValueToOscArg(value);
+    }),
+  };
+}
+
+function coerceActionValue(name: string, value: ActionValue): ActionValue {
+  switch (value.type) {
+    case "float": {
+      const numberValue = Number(value.value);
+      if (!Number.isFinite(numberValue)) {
+        throw new Error(`Invalid app action input: ${name}`);
+      }
+      return { type: "float", value: numberValue };
+    }
+    case "int": {
+      const numberValue = Number(value.value);
+      if (!Number.isInteger(numberValue)) {
+        throw new Error(`Invalid app action input: ${name}`);
+      }
+      return { type: "int", value: numberValue };
+    }
+    case "bool":
+      return { type: "bool", value: Boolean(value.value) };
+    case "string":
+      return { type: "string", value: String(value.value) };
+  }
+}
+
+function actionValueToOscArg(value: ActionValue): JsonOscArg {
+  switch (value.type) {
+    case "float":
+      return { type: "float", value: value.value };
+    case "int":
+      return { type: "int", value: value.value };
+    case "bool":
+      return { type: "bool", value: value.value };
+    case "string":
+      return { type: "str", value: value.value };
   }
 }
 
@@ -289,33 +433,50 @@ function apiBaseUrl() {
 
 function connectAdminWebTransport() {
   const url = env.PUBLIC_KITU_ADMIN_WT_URL;
-  if (!browser || !url || webTransport) return;
+  if (!browser || webTransport) return;
+  if (!url) {
+    webTransportState.set("disabled");
+    webTransportDetail.set("PUBLIC_KITU_ADMIN_WT_URL is not set");
+    return;
+  }
 
   const Transport = (
     window as Window & { WebTransport?: WebTransportConstructor }
   ).WebTransport;
   if (!Transport) {
+    webTransportState.set("unsupported");
+    webTransportDetail.set("window.WebTransport is unavailable");
     return;
   }
 
   const options = webTransportOptions();
+  if (options === null) return;
+  webTransportState.set("connecting");
+  webTransportDetail.set(url);
   const session = options ? new Transport(url, options) : new Transport(url);
   webTransport = session;
 
   session.ready
     .then(() => {
       webTransportReady = true;
+      webTransportState.set("ready");
+      webTransportDetail.set(url);
     })
     .catch((error: unknown) => {
       webTransportReady = false;
       webTransport = null;
       const detail = error instanceof Error ? error.message : String(error);
       const certificateHint = env.PUBLIC_KITU_ADMIN_WT_CERT_SHA256
-        ? ""
-        : " Run tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh and restart Compose, or use a browser-trusted certificate.";
-      lastError.set(
-        `WebTransport connection failed: ${detail}.${certificateHint}`,
+        ? null
+        : "Run tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh and restart Compose, or use a browser-trusted certificate.";
+      const message = certificateHint
+        ? `WebTransport connection failed: ${detail}. ${certificateHint}`
+        : `WebTransport connection failed: ${detail}`;
+      webTransportState.set("error");
+      webTransportDetail.set(
+        certificateHint ? `${detail}. ${certificateHint}` : detail,
       );
+      lastError.set(message);
     });
 
   session.closed
@@ -324,13 +485,21 @@ function connectAdminWebTransport() {
       if (webTransport === session) {
         webTransportReady = false;
         webTransport = null;
+        webTransportState.set("closed");
+        webTransportDetail.set("session closed");
       }
     });
 }
 
-function webTransportOptions(): WebTransportOptions | undefined {
-  const certificateHash = parseHexSha256(env.PUBLIC_KITU_ADMIN_WT_CERT_SHA256);
-  if (!certificateHash) return undefined;
+function webTransportOptions(): WebTransportOptions | undefined | null {
+  const rawCertificateHash = env.PUBLIC_KITU_ADMIN_WT_CERT_SHA256;
+  if (!rawCertificateHash) return undefined;
+  const certificateHash = parseHexSha256(rawCertificateHash);
+  if (!certificateHash) {
+    webTransportState.set("error");
+    webTransportDetail.set("certificate SHA-256 must be 64 hex chars");
+    return null;
+  }
 
   return {
     serverCertificateHashes: [
@@ -361,6 +530,24 @@ function parseHexSha256(value: string | undefined) {
     );
   }
   return bytes;
+}
+
+function webTransportBypassReason() {
+  const state = get(webTransportState);
+  switch (state) {
+    case "disabled":
+      return "WebTransport disabled";
+    case "unsupported":
+      return "WebTransport unsupported";
+    case "connecting":
+      return "WebTransport connecting";
+    case "closed":
+      return "WebTransport closed";
+    case "error":
+      return "WebTransport unavailable";
+    case "ready":
+      return "WebTransport not ready";
+  }
 }
 
 function applyServerEvent(event: ServerEvent) {
