@@ -28,6 +28,9 @@ docker compose -f "$compose_file" run --rm \
   cargo run --locked --bin kitu-webtransport-gateway-smoke-client
 
 curl -fsS http://localhost:8787/state \
-  | grep -q '"kind":"webtransport-smoke"'
+  | grep -q '"kind":"webtransport-smoke-0"'
+
+curl -fsS http://localhost:8787/state \
+  | grep -q '"kind":"webtransport-smoke-1"'
 
 printf "%s\n" "WebTransport gateway smoke test passed."

@@ -109,12 +109,12 @@ Gateway smoke validation can be run from the repository root:
 tools/kitu-webtransport-gateway/scripts/smoke-in-docker.sh
 ```
 
-The smoke script starts `demo-game` and `webtransport-gateway`, sends one KEP
-`osc` envelope over a WebTransport bidirectional stream, verifies that a KEP
-`json` response envelope is returned on the response stream, sends a KEP
-`json` datagram probe, verifies a KEP `json` datagram ack, and checks that the
-existing application server state contains the spawned `webtransport-smoke`
-object.
+The smoke script starts `demo-game` and `webtransport-gateway`, sends two KEP
+`osc` envelopes over two bidirectional streams in one WebTransport session,
+verifies that KEP `json` response envelopes are returned, sends a KEP `json`
+datagram probe, verifies a KEP `json` datagram ack, and checks that the existing
+application server state contains the spawned `webtransport-smoke-0` and
+`webtransport-smoke-1` objects.
 
 ## TLS notes
 
@@ -197,6 +197,24 @@ After a connection sends a binary KEP request, subsequent server events on that
 connection are sent as KEP binary frames with `t = "json"` and
 `r = "/server/event"`.
 
+## Internal relay lifecycle
+
+Each accepted WebTransport session owns one lazy internal WebSocket relay to
+`KITU_GATEWAY_INTERNAL_WS_URL`. The relay is opened on the first bidirectional
+stream that carries a valid KEP `osc` request and is reused by later streams in
+the same WebTransport session.
+
+Gateway stream handling serializes access to the relay for now. This keeps the
+internal WebSocket message order unambiguous while the gateway remains an
+experiment lane. If a relay send or read returns an error, the gateway drops the
+internal WebSocket handle. The next WebTransport stream in the same session may
+open a fresh internal WebSocket connection. A response timeout is treated as an
+empty response for the request and does not by itself reset the relay.
+
+The relay lifecycle is intentionally local to the WebTransport session. It does
+not replace the existing WebSocket endpoints, and it does not change the
+browser/Unity fallback paths.
+
 ## Browser connection check
 
 1. Start the compose stack.
@@ -256,7 +274,6 @@ belongs on the reliable stream/WebSocket path instead.
 ## Follow-up work
 
 - Add a stable development TLS/certificate-hash workflow for browser verification.
-- Keep a persistent internal WebSocket connection per WebTransport session instead of connecting once per stream.
 - Stream multiple app-server KEP responses per WebTransport request if the protocol needs more than one response envelope.
 - Add integration tests that run the gateway against a demo-game container.
 - Expand OSC packet support if bundles, blobs, or arrays become required.

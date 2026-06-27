@@ -12,6 +12,7 @@ const DEFAULT_ROUTE: &str = "/room/main";
 const DEFAULT_OBJECT_ID: &str = "webtransport-smoke";
 const KEP_ROUTE_DATAGRAM_PROBE: &str = "/gateway/datagram/probe";
 const KEP_ROUTE_DATAGRAM_ACK: &str = "/gateway/datagram/ack";
+const SEND_COUNT: usize = 2;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -34,15 +35,36 @@ async fn main() -> Result<()> {
         .await
         .with_context(|| format!("connect WebTransport {url}"))?;
 
+    for index in 0..SEND_COUNT {
+        let current_object_id = format!("{object_id}-{index}");
+        send_spawn_request(&connection, &route, &current_object_id)
+            .await
+            .with_context(|| format!("send WebTransport KEP request {index}"))?;
+    }
+    send_datagram_probe(&connection).await?;
+    connection.close(0u32.into(), b"smoke complete");
+    endpoint.wait_idle().await;
+
+    println!(
+        "sent {SEND_COUNT} WebTransport KEP smoke OSC /admin/world/spawn requests for {object_id}-* on one session; received datagram ack"
+    );
+    Ok(())
+}
+
+async fn send_spawn_request(
+    connection: &wtransport::Connection,
+    route: &str,
+    object_id: &str,
+) -> Result<()> {
     let mut message = OscMessage::new("/admin/world/spawn");
-    message.push_arg(OscArg::Str(object_id.clone()));
+    message.push_arg(OscArg::Str(object_id.to_string()));
     message.push_arg(OscArg::Float(1.0));
     message.push_arg(OscArg::Float(2.0));
     message.push_arg(OscArg::Float(3.0));
 
     let osc_packet = encode_osc_packet(&message).context("encode OSC packet")?;
     let mut envelope = KepEnvelope::osc(osc_packet);
-    envelope.route = Some(route);
+    envelope.route = Some(route.to_string());
     envelope.flags = Some(0);
     let bytes = encode_kep_envelope(&envelope).context("encode KEP envelope")?;
 
@@ -70,14 +92,6 @@ async fn main() -> Result<()> {
     anyhow::ensure!(
         response_json.get("type").is_some(),
         "expected server event JSON response"
-    );
-    send_datagram_probe(&connection).await?;
-    connection.close(0u32.into(), b"smoke complete");
-    endpoint.wait_idle().await;
-
-    println!(
-        "sent WebTransport KEP smoke OSC /admin/world/spawn for {object_id}; received KEP {} response and datagram ack",
-        response_envelope.payload_type
     );
     Ok(())
 }
