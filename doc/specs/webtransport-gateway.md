@@ -207,6 +207,8 @@ the encoded payload size. It must keep OSC actions on the reliable send path.
 - `decode_kep_envelope`
 - `encode_osc_packet`
 - `decode_osc_packet`
+- `encode_osc_bundle`
+- `decode_osc_bundle`
 
 Supported OSC packet argument types:
 
@@ -215,6 +217,14 @@ Supported OSC packet argument types:
 - `f`: float32
 - `s`: string
 - `T` / `F`: bool
+
+Supported OSC packet shapes:
+
+- Single OSC messages.
+- OSC bundles containing message elements with the immediate timetag.
+
+Nested OSC bundles, blobs, arrays, and additional scalar tags are not supported
+until a concrete Web Admin, runtime, Unity, or replay path requires them.
 
 `apps/demo-game/src/bin/admin_host.rs` accepts KEP on the existing WebSocket endpoints:
 

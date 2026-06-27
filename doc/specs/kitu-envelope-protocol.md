@@ -141,13 +141,18 @@ Applications may define additional meanings.
 
 Contains the serialized payload.
 
-For OSC messages:
+For OSC messages or OSC bundles:
 
 ```text
 p = OSC Packet Binary
 ```
 
-The OSC payload remains unmodified and follows standard OSC encoding rules.
+The OSC payload remains unmodified and follows standard OSC encoding rules. The
+current Rust helpers support single OSC messages and OSC bundles containing
+message elements. Bundle helpers use the OSC immediate timetag because Kitu
+currently models scheduling outside the OSC payload. Nested bundles, blobs,
+arrays, and additional scalar tags are intentionally left unsupported until a
+concrete client requires them.
 
 For JSON messages:
 
