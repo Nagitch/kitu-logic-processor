@@ -1,10 +1,14 @@
+name: kitu-demo-game-verification
+
 services:
   demo-game:
+    container_name: kitu-demo-game
     image: rust:1.82
     working_dir: /workspace
     command: cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
     environment:
       RUST_LOG: info
+      RUSTUP_TOOLCHAIN: 1.82.0
       KITU_DEMO_GAME_BIND: 0.0.0.0:8787
     ports:
       - "8787:8787"
@@ -14,6 +18,7 @@ services:
       - target-cache:/workspace/target
 
   webtransport-gateway:
+    container_name: kitu-webtransport-gateway
     build:
       context: ../..
       dockerfile: tools/kitu-webtransport-gateway/Dockerfile
@@ -36,6 +41,7 @@ services:
       - demo-game
 
   web-admin:
+    container_name: kitu-web-admin
     build:
       context: ../..
       dockerfile: tools/kitu-web-admin/frontend/Dockerfile

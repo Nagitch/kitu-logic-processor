@@ -83,13 +83,7 @@ use streams.
 
 ## Docker Compose
 
-Both local compose files include the gateway:
-
-```sh
-docker compose -f tools/kitu-web-admin/docker-compose.yml up --build
-```
-
-or:
+The local verification Compose stack includes the gateway:
 
 ```sh
 docker compose -f apps/demo-game/docker-compose.yml up --build
@@ -99,7 +93,7 @@ Services:
 
 - `demo-game`: existing app server on `http://localhost:8787`.
 - `webtransport-gateway`: WebTransport gateway on UDP `9443`.
-- `frontend` or `web-admin`: Web Admin on `http://localhost:5173`.
+- `web-admin`: Web Admin on `http://localhost:5173`.
 
 The frontend receives:
 
@@ -175,9 +169,8 @@ the check script reports that the certificate expires within 24 hours, regenerat
 it before browser testing and restart the Compose stack so both the gateway and
 frontend receive the same env file.
 
-Both Compose files load the same generated `webtransport.env` if it exists:
+The verification Compose stack loads the generated `webtransport.env` if it exists:
 
-- `tools/kitu-web-admin/docker-compose.yml`
 - `apps/demo-game/docker-compose.yml`
 
 If `webtransport.env` does not exist, the gateway falls back to an ephemeral
@@ -199,17 +192,16 @@ tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh
 tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh
 ```
 
-2. Confirm both Compose files consume the generated env file:
+2. Confirm the Compose stack consumes the generated env file:
 
 ```sh
-docker compose -f tools/kitu-web-admin/docker-compose.yml config
 docker compose -f apps/demo-game/docker-compose.yml config
 ```
 
 3. Start the Web Admin stack:
 
 ```sh
-docker compose -f tools/kitu-web-admin/docker-compose.yml up --build
+docker compose -f apps/demo-game/docker-compose.yml up --build
 ```
 
 4. Open `http://localhost:5173` in a browser with WebTransport support.
@@ -323,7 +315,7 @@ tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh
 5. Check gateway logs:
 
 ```sh
-docker compose -f tools/kitu-web-admin/docker-compose.yml logs --no-color webtransport-gateway
+docker compose -f apps/demo-game/docker-compose.yml logs --no-color webtransport-gateway
 ```
 
 6. Check the existing app server logs and Web Admin state updates.
