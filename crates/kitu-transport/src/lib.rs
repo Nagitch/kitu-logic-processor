@@ -249,6 +249,16 @@ pub fn decode_osc_bundle(bytes: &[u8]) -> std::result::Result<OscBundle, KepCode
     if bytes.get(..8) != Some(OSC_BUNDLE_HEADER) {
         return Err(KepCodecError::InvalidOsc("missing OSC bundle header"));
     }
+    let timetag = u64::from_be_bytes(
+        bytes[8..16]
+            .try_into()
+            .expect("bundle timetag length checked"),
+    );
+    if timetag != OSC_IMMEDIATE_TIMETAG {
+        return Err(KepCodecError::InvalidOsc(
+            "non-immediate OSC bundle timetags are not supported",
+        ));
+    }
 
     let mut offset = 16;
     let mut bundle = OscBundle::new();
@@ -529,6 +539,19 @@ mod tests {
         assert!(err
             .to_string()
             .contains("nested OSC bundles are not supported"));
+    }
+
+    #[test]
+    fn osc_bundle_rejects_non_immediate_timetag() {
+        let mut encoded = Vec::new();
+        encoded.extend_from_slice(OSC_BUNDLE_HEADER);
+        encoded.extend_from_slice(&2_u64.to_be_bytes());
+
+        let err = decode_osc_bundle(&encoded).expect_err("non-immediate timetag should fail");
+
+        assert!(err
+            .to_string()
+            .contains("non-immediate OSC bundle timetags are not supported"));
     }
 
     #[test]
