@@ -16,6 +16,10 @@ path = "src/main.rs"
 name = "kitu-webtransport-gateway-smoke-client"
 path = "src/bin/smoke_client.rs"
 
+[[bin]]
+name = "kitu-webtransport-gateway-integration-client"
+path = "src/bin/integration_client.rs"
+
 [dependencies]
 anyhow = "1"
 futures-util = "0.3"

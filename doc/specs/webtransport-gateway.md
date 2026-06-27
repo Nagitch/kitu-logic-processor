@@ -116,6 +116,23 @@ datagram probe, verifies a KEP `json` datagram ack, and checks that the existing
 application server state contains the spawned `webtransport-smoke-0` and
 `webtransport-smoke-1` objects.
 
+Gateway Docker integration validation can be run from the repository root:
+
+```sh
+tools/kitu-webtransport-gateway/scripts/integration-in-docker.sh
+```
+
+The integration script starts the same `demo-game` and `webtransport-gateway`
+containers, verifies the successful KEP OSC request and KEP JSON response path,
+then sends invalid KEP bytes and an unsupported `t = "json"` stream request to
+confirm the gateway rejects validation failures without producing a successful
+response. It also checks that the existing application server state contains the
+spawned `webtransport-integration` object.
+
+Use the smoke script for a quick local health check. Use the integration script
+when changing gateway validation, relay behavior, stream handling, TLS setup, or
+Docker wiring, and before wiring these checks into CI.
+
 ## TLS notes
 
 WebTransport requires TLS because it runs over HTTP/3 and QUIC.
