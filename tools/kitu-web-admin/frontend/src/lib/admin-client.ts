@@ -21,7 +21,12 @@ type WebTransportState =
   | "closed"
   | "error";
 type OscSendStatus = {
-  path: "none" | "webtransport" | "websocket-fallback" | "websocket";
+  path:
+    | "none"
+    | "webtransport"
+    | "websocket-fallback"
+    | "websocket"
+    | "app-action";
   phase: "idle" | "pending" | "sent" | "fallback" | "failed";
   detail: string | null;
 };
@@ -323,6 +328,11 @@ export async function runAppAction(
   actionId: string,
   inputs: Record<string, ActionValue>,
 ) {
+  lastOscSendStatus.set({
+    path: "app-action",
+    phase: "pending",
+    detail: actionId,
+  });
   try {
     const response = await fetch(
       `${apiBaseUrl()}/app-actions/${encodeURIComponent(actionId)}/run`,
@@ -340,10 +350,21 @@ export async function runAppAction(
     }
     const result = (await response.json()) as ActionRunResponse;
     worldSnapshot.set(result.snapshot);
+    lastOscSendStatus.set({
+      path: "app-action",
+      phase: "sent",
+      detail: result.osc.address,
+    });
     lastError.set(null);
     return result;
   } catch (error) {
-    lastError.set(error instanceof Error ? error.message : String(error));
+    const message = error instanceof Error ? error.message : String(error);
+    lastOscSendStatus.set({
+      path: "app-action",
+      phase: "failed",
+      detail: message,
+    });
+    lastError.set(message);
     return null;
   }
 }

@@ -36,6 +36,7 @@
     webtransport: "wt",
     "websocket-fallback": "ws fallback",
     websocket: "ws",
+    "app-action": "action",
   };
 </script>
 
