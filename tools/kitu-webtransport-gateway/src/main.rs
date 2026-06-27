@@ -166,7 +166,7 @@ async fn read_stream(mut recv_stream: RecvStream) -> Result<Vec<u8>> {
     while let Some(read) = recv_stream.read(&mut chunk).await.context("read stream")? {
         bytes.extend_from_slice(&chunk[..read]);
         if bytes.len() > MAX_STREAM_BYTES {
-            anyhow::bail!("stream exceeds {} bytes", MAX_STREAM_BYTES);
+            anyhow::bail!("stream exceeds {MAX_STREAM_BYTES} bytes");
         }
     }
 
