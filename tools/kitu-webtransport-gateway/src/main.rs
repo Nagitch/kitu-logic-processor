@@ -5,8 +5,11 @@ use std::{
 };
 
 use anyhow::{Context, Result};
-use futures_util::{SinkExt, StreamExt};
-use kitu_transport::{decode_kep_envelope, KEP_PAYLOAD_JSON, KEP_PAYLOAD_OSC};
+use futures_util::{SinkExt, Stream, StreamExt};
+use kitu_transport::{
+    decode_kep_envelope, decode_kep_stream_frames, encode_kep_envelope,
+    encode_kep_stream_frame_bytes, KEP_PAYLOAD_JSON, KEP_PAYLOAD_OSC,
+};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use tracing::{info, warn};
 use wtransport::{Endpoint, Identity, RecvStream, SendStream, ServerConfig};
@@ -140,16 +143,26 @@ async fn handle_stream(
     config: GatewayConfig,
 ) -> Result<()> {
     let bytes = read_stream(recv_stream).await?;
-    let envelope = decode_kep_envelope(&bytes).context("decode KEP envelope")?;
+    let mut envelopes =
+        decode_kep_stream_frames(&bytes).context("decode WebTransport KEP frames")?;
+    anyhow::ensure!(
+        envelopes.len() == 1,
+        "expected exactly one KEP request frame, got {}",
+        envelopes.len()
+    );
+    let envelope = envelopes.pop().expect("frame count checked");
     if envelope.payload_type != KEP_PAYLOAD_OSC {
         anyhow::bail!("unsupported KEP payload type: {}", envelope.payload_type);
     }
+    let request_bytes = encode_kep_envelope(&envelope).context("encode internal WebSocket KEP")?;
 
-    if let Some(response) = relay_kep_envelope(&config.internal_ws_url, bytes).await? {
+    for response in relay_kep_envelope(&config.internal_ws_url, request_bytes).await? {
+        let frame =
+            encode_kep_stream_frame_bytes(&response).context("encode WebTransport KEP frame")?;
         send_stream
-            .write_all(&response)
+            .write_all(&frame)
             .await
-            .context("write WebTransport KEP response")?;
+            .context("write WebTransport KEP response frame")?;
     }
 
     send_stream
@@ -173,7 +186,7 @@ async fn read_stream(mut recv_stream: RecvStream) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
-async fn relay_kep_envelope(internal_ws_url: &str, bytes: Vec<u8>) -> Result<Option<Vec<u8>>> {
+async fn relay_kep_envelope(internal_ws_url: &str, bytes: Vec<u8>) -> Result<Vec<Vec<u8>>> {
     let (socket, _) = connect_async(internal_ws_url)
         .await
         .with_context(|| format!("connect internal WebSocket {internal_ws_url}"))?;
@@ -185,42 +198,62 @@ async fn relay_kep_envelope(internal_ws_url: &str, bytes: Vec<u8>) -> Result<Opt
         .await
         .context("send internal WebSocket KEP binary")?;
 
-    let response = match tokio::time::timeout(Duration::from_secs(2), async {
-        while let Some(message) = reader.next().await {
-            match message.context("read internal WebSocket response")? {
-                Message::Binary(bytes) => {
-                    let response = bytes.to_vec();
-                    let envelope = decode_kep_envelope(&response)
-                        .context("decode internal WebSocket KEP response")?;
-                    if envelope.payload_type == KEP_PAYLOAD_JSON {
-                        return Ok::<Option<Vec<u8>>, anyhow::Error>(Some(response));
-                    }
-                    warn!(
-                        payload_type = envelope.payload_type,
-                        "ignoring unsupported internal WebSocket KEP response"
-                    );
-                }
-                Message::Close(_) => return Ok::<Option<Vec<u8>>, anyhow::Error>(None),
-                _ => {}
-            }
-        }
-        Ok::<Option<Vec<u8>>, anyhow::Error>(None)
-    })
+    let mut responses = Vec::new();
+    match tokio::time::timeout(
+        Duration::from_secs(2),
+        read_next_json_kep_response(&mut reader),
+    )
     .await
     {
-        Ok(result) => result?,
-        Err(_) => None,
-    };
+        Ok(Some(response)) => responses.push(response?),
+        Ok(None) | Err(_) => {}
+    }
 
-    if response.is_some() {
-        let _ = tokio::time::timeout(Duration::from_millis(200), async {
-            while reader.next().await.is_some() {}
-        })
-        .await;
+    while !responses.is_empty() {
+        match tokio::time::timeout(
+            Duration::from_millis(200),
+            read_next_json_kep_response(&mut reader),
+        )
+        .await
+        {
+            Ok(Some(response)) => responses.push(response?),
+            Ok(None) | Err(_) => break,
+        }
     }
 
     let _ = writer.close().await;
-    Ok(response)
+    Ok(responses)
+}
+
+async fn read_next_json_kep_response<R>(reader: &mut R) -> Option<Result<Vec<u8>>>
+where
+    R: Stream<Item = std::result::Result<Message, tokio_tungstenite::tungstenite::Error>> + Unpin,
+{
+    while let Some(message) = reader.next().await {
+        match message.context("read internal WebSocket response") {
+            Ok(Message::Binary(bytes)) => {
+                let response = bytes.to_vec();
+                match decode_kep_envelope(&response)
+                    .context("decode internal WebSocket KEP response")
+                {
+                    Ok(envelope) if envelope.payload_type == KEP_PAYLOAD_JSON => {
+                        return Some(Ok(response));
+                    }
+                    Ok(envelope) => {
+                        warn!(
+                            payload_type = envelope.payload_type,
+                            "ignoring unsupported internal WebSocket KEP response"
+                        );
+                    }
+                    Err(err) => return Some(Err(err)),
+                }
+            }
+            Ok(Message::Close(_)) => return None,
+            Ok(_) => {}
+            Err(err) => return Some(Err(err)),
+        }
+    }
+    None
 }
 
 fn prune_rate_window(recent_messages: &mut VecDeque<Instant>) {

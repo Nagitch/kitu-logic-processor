@@ -207,12 +207,33 @@ KEP Envelope
 
 ## WebTransport Stream
 
-One KEP envelope per stream message.
+Reliable WebTransport streams are byte streams, so KEP envelopes are framed as
+an ordered sequence of length-prefixed messages.
+
+Each frame is:
+
+```text
+uint32_be envelope_length
+MessagePack KEP envelope bytes
+```
+
+The length prefix counts only the MessagePack KEP envelope bytes and does not
+include the four prefix bytes. Receivers must process frames in stream order and
+must treat a truncated length prefix or truncated envelope payload as a decode
+error.
+
+The current Web Admin gateway request path sends one `t = "osc"` frame on a
+bidirectional stream. The response path may send zero or more `t = "json"`
+frames on the same stream before finishing it.
 
 ```text
 WebTransport Stream
     ↓
-KEP Envelope
+uint32_be length + KEP Envelope
+    ↓
+uint32_be length + KEP Envelope
+    ↓
+...
 ```
 
 ---

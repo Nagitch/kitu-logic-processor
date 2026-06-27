@@ -40,6 +40,18 @@ export function encodeKepEnvelope(envelope: KepEnvelopeInput): Uint8Array {
   return writer.finish();
 }
 
+export function encodeKepStreamFrame(envelope: KepEnvelopeInput): Uint8Array {
+  const envelopeBytes = encodeKepEnvelope(envelope);
+  const frame = new Uint8Array(4 + envelopeBytes.length);
+  new DataView(frame.buffer, frame.byteOffset, frame.byteLength).setUint32(
+    0,
+    envelopeBytes.length,
+    false,
+  );
+  frame.set(envelopeBytes, 4);
+  return frame;
+}
+
 export function decodeKepEnvelope(bytes: Uint8Array): KepEnvelope {
   const reader = new ByteReader(bytes);
   const size = reader.readMapHeader();
@@ -72,6 +84,33 @@ export function decodeKepEnvelope(bytes: Uint8Array): KepEnvelope {
   if (!envelope.payloadType) throw new Error("KEP envelope is missing t");
   if (!envelope.payload) throw new Error("KEP envelope is missing p");
   return envelope as KepEnvelope;
+}
+
+export function decodeKepStreamFrames(bytes: Uint8Array): KepEnvelope[] {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const envelopes: KepEnvelope[] = [];
+  let offset = 0;
+
+  while (offset < bytes.length) {
+    if (bytes.length - offset < 4) {
+      throw new Error("incomplete KEP stream frame length");
+    }
+
+    const length = view.getUint32(offset, false);
+    offset += 4;
+    if (bytes.length - offset < length) {
+      throw new Error(
+        `incomplete KEP stream frame payload: expected ${length} bytes, got ${
+          bytes.length - offset
+        } bytes`,
+      );
+    }
+
+    envelopes.push(decodeKepEnvelope(bytes.slice(offset, offset + length)));
+    offset += length;
+  }
+
+  return envelopes;
 }
 
 export function encodeOscPacket(message: ClientOscMessage): Uint8Array {

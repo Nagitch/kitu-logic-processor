@@ -52,9 +52,19 @@ Candidates considered:
 
 The first implementation uses internal WebSocket because it has the smallest blast radius. Text frames retain the existing JSON OSC-IR shape for browser and Unity fallback clients. Binary frames carry one KEP envelope per WebSocket message.
 
-The client-to-server path uses `t = "osc"` and `p = OSC packet binary`. The gateway validates the KEP envelope and forwards the original MessagePack bytes to `ws://demo-game:8787/ws`; the existing application server decodes KEP, extracts the OSC packet binary, and runs the same OSC handling path used by JSON clients.
+The client-to-server WebTransport stream path uses one length-prefixed KEP
+frame containing `t = "osc"` and `p = OSC packet binary`. The gateway validates
+the KEP envelope and forwards the KEP MessagePack envelope bytes to
+`ws://demo-game:8787/ws`; the existing application server decodes KEP, extracts
+the OSC packet binary, and runs the same OSC handling path used by JSON clients.
 
-The server-to-client path uses `t = "json"` and `p = ServerEvent JSON bytes` with route `/server/event`. This keeps the current `ServerEvent` shape intact while making the transport hop KEP-native in both directions. The WebTransport gateway relays the first KEP JSON response from the internal WebSocket back on the WebTransport response stream.
+The server-to-client WebTransport stream path uses a sequence of length-prefixed
+KEP frames. Each frame carries `t = "json"` and `p = ServerEvent JSON bytes`
+with route `/server/event`. This keeps the current `ServerEvent` shape intact
+while making the transport hop KEP-native in both directions. After the internal
+WebSocket produces the first KEP JSON response, the gateway drains additional
+KEP JSON responses for a short window and writes each one to the same
+WebTransport response stream in arrival order before finishing the stream.
 
 ## Docker Compose
 
@@ -94,11 +104,11 @@ Gateway smoke validation can be run from the repository root:
 tools/kitu-webtransport-gateway/scripts/smoke-in-docker.sh
 ```
 
-The smoke script starts `demo-game` and `webtransport-gateway`, sends one KEP
-`osc` envelope over a WebTransport bidirectional stream, verifies that a KEP
-`json` response envelope is returned on the response stream, and checks that the
-existing application server state contains the spawned `webtransport-smoke`
-object.
+The smoke script starts `demo-game` and `webtransport-gateway`, sends one
+length-prefixed KEP `osc` frame over a WebTransport bidirectional stream,
+verifies that at least two length-prefixed KEP `json` response frames are
+returned on the response stream, and checks that the existing application server
+state contains the spawned `webtransport-smoke` object.
 
 ## TLS notes
 
@@ -147,7 +157,9 @@ WebSocket remains active for:
 - fallback OSC sends.
 
 For OSC sends, the browser tries WebTransport first after the WebTransport session is ready. If that send fails, it falls back to the existing WebSocket JSON send path.
-When WebTransport succeeds, the browser reads a KEP `json` response envelope from the response stream and applies the decoded `ServerEvent`.
+When WebTransport succeeds, the browser reads KEP `json` response frames from
+the response stream and applies the decoded `ServerEvent` values in stream
+order.
 
 ## Implemented KEP support
 
@@ -173,8 +185,9 @@ Supported OSC packet argument types:
 - Binary frames: KEP MessagePack envelopes with `t = "osc"` and `p = OSC packet binary`.
 
 After a connection sends a binary KEP request, subsequent server events on that
-connection are sent as KEP binary frames with `t = "json"` and
-`r = "/server/event"`.
+connection are sent as KEP binary WebSocket messages with `t = "json"` and
+`r = "/server/event"`. The gateway converts those message boundaries to
+length-prefixed WebTransport stream frames.
 
 ## Browser connection check
 
@@ -232,7 +245,6 @@ If WebTransport is unavailable, fails TLS verification, or fails while sending, 
 
 - Add a stable development TLS/certificate-hash workflow for browser verification.
 - Keep a persistent internal WebSocket connection per WebTransport session instead of connecting once per stream.
-- Stream multiple app-server KEP responses per WebTransport request if the protocol needs more than one response envelope.
 - Add WebTransport datagram support for high-frequency real-time updates.
 - Add integration tests that run the gateway against a demo-game container.
 - Expand OSC packet support if bundles, blobs, or arrays become required.

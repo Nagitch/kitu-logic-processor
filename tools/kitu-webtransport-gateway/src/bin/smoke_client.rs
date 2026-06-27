@@ -3,7 +3,8 @@ use std::{env, time::Duration};
 use anyhow::{Context, Result};
 use kitu_osc_ir::{OscArg, OscMessage};
 use kitu_transport::{
-    decode_kep_envelope, encode_kep_envelope, encode_osc_packet, KepEnvelope, KEP_PAYLOAD_JSON,
+    decode_kep_stream_frames, encode_kep_stream_frame, encode_osc_packet, KepEnvelope,
+    KEP_PAYLOAD_JSON,
 };
 use wtransport::{tls::Sha256Digest, ClientConfig, Endpoint};
 
@@ -42,7 +43,7 @@ async fn main() -> Result<()> {
     let mut envelope = KepEnvelope::osc(osc_packet);
     envelope.route = Some(route);
     envelope.flags = Some(0);
-    let bytes = encode_kep_envelope(&envelope).context("encode KEP envelope")?;
+    let bytes = encode_kep_stream_frame(&envelope).context("encode KEP stream frame")?;
 
     let (mut send_stream, mut recv_stream) = connection.open_bi().await?.await?;
     send_stream.write_all(&bytes).await?;
@@ -53,28 +54,32 @@ async fn main() -> Result<()> {
         response.extend_from_slice(&chunk[..read]);
     }
 
+    let response_envelopes =
+        decode_kep_stream_frames(&response).context("decode KEP response frames")?;
     anyhow::ensure!(
-        !response.is_empty(),
-        "expected WebTransport KEP response envelope"
+        response_envelopes.len() >= 2,
+        "expected at least two WebTransport KEP response envelopes, got {}",
+        response_envelopes.len()
     );
-    let response_envelope = decode_kep_envelope(&response).context("decode KEP response")?;
-    anyhow::ensure!(
-        response_envelope.payload_type == KEP_PAYLOAD_JSON,
-        "expected JSON KEP response, got {}",
-        response_envelope.payload_type
-    );
-    let response_json: serde_json::Value =
-        serde_json::from_slice(&response_envelope.payload).context("decode KEP response JSON")?;
-    anyhow::ensure!(
-        response_json.get("type").is_some(),
-        "expected server event JSON response"
-    );
+    for response_envelope in &response_envelopes {
+        anyhow::ensure!(
+            response_envelope.payload_type == KEP_PAYLOAD_JSON,
+            "expected JSON KEP response, got {}",
+            response_envelope.payload_type
+        );
+        let response_json: serde_json::Value = serde_json::from_slice(&response_envelope.payload)
+            .context("decode KEP response JSON")?;
+        anyhow::ensure!(
+            response_json.get("type").is_some(),
+            "expected server event JSON response"
+        );
+    }
     connection.close(0u32.into(), b"smoke complete");
     endpoint.wait_idle().await;
 
     println!(
-        "sent WebTransport KEP smoke OSC /admin/world/spawn for {object_id}; received KEP {} response",
-        response_envelope.payload_type
+        "sent WebTransport KEP smoke OSC /admin/world/spawn for {object_id}; received {} KEP JSON responses",
+        response_envelopes.len()
     );
     Ok(())
 }
