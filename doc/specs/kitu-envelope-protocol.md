@@ -227,7 +227,36 @@ WebTransport Datagram
 KEP Envelope
 ```
 
-Datagrams should remain within the practical MTU limits of the transport path.
+WebTransport Datagrams are unreliable and unordered. A KEP datagram may be lost,
+duplicated by application retries, or arrive after a newer datagram. Applications
+must not require acknowledgement, ordering, or replay determinism from the
+datagram transport itself.
+
+MVP datagram use is limited to small, loss-tolerant `t = "json"` envelopes such
+as browser-to-gateway telemetry probes or high-frequency preview state where a
+newer update supersedes an older update. OSC command envelopes, authoritative
+runtime input, and any request that mutates persistent state must continue to use
+reliable WebTransport streams or the existing WebSocket path.
+
+Each datagram must fit within the practical path MTU. Implementations should keep
+encoded KEP datagrams at or below 1200 bytes unless a peer-specific limit is
+known and validated through the WebTransport API.
+
+The initial gateway datagram probe route is:
+
+```text
+/gateway/datagram/probe
+```
+
+The gateway may respond with a best-effort JSON acknowledgement datagram on:
+
+```text
+/gateway/datagram/ack
+```
+
+This acknowledgement exists for development smoke validation and diagnostics. It
+does not make datagram delivery reliable and should not be used for gameplay or
+runtime command semantics.
 
 ---
 
