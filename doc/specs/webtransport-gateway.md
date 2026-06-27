@@ -56,6 +56,21 @@ The client-to-server path uses `t = "osc"` and `p = OSC packet binary`. The gate
 
 The server-to-client path uses `t = "json"` and `p = ServerEvent JSON bytes` with route `/server/event`. This keeps the current `ServerEvent` shape intact while making the transport hop KEP-native in both directions. The WebTransport gateway relays the first KEP JSON response from the internal WebSocket back on the WebTransport response stream.
 
+WebTransport datagrams are enabled only for loss-tolerant KEP JSON envelopes.
+The gateway currently accepts one MessagePack KEP envelope per datagram, rejects
+non-JSON datagram payload types, and leaves OSC command semantics on reliable
+streams or the WebSocket fallback path. The first implemented datagram slice is
+a browser/client-to-gateway probe on `/gateway/datagram/probe`; the gateway
+decodes it and replies with a best-effort KEP JSON acknowledgement datagram on
+`/gateway/datagram/ack`. This path exists to validate the transport mapping and
+development smoke coverage before routing real high-frequency preview updates.
+It must not be used for authoritative runtime input, persistent state mutation,
+or any action where loss or reordering would be user-visible.
+
+Datagram KEP envelopes should stay at or below 1200 encoded bytes unless a
+connection-specific WebTransport limit is checked first. Larger payloads should
+use streams.
+
 ## Docker Compose
 
 Both local compose files include the gateway:
@@ -96,7 +111,8 @@ tools/kitu-webtransport-gateway/scripts/smoke-in-docker.sh
 
 The smoke script starts `demo-game` and `webtransport-gateway`, sends one KEP
 `osc` envelope over a WebTransport bidirectional stream, verifies that a KEP
-`json` response envelope is returned on the response stream, and checks that the
+`json` response envelope is returned on the response stream, sends a KEP
+`json` datagram probe, verifies a KEP `json` datagram ack, and checks that the
 existing application server state contains the spawned `webtransport-smoke`
 object.
 
@@ -148,6 +164,11 @@ WebSocket remains active for:
 
 For OSC sends, the browser tries WebTransport first after the WebTransport session is ready. If that send fails, it falls back to the existing WebSocket JSON send path.
 When WebTransport succeeds, the browser reads a KEP `json` response envelope from the response stream and applies the decoded `ServerEvent`.
+
+Browser datagram use is not part of the authoritative MVP send path. A future
+Web Admin UI may send small loss-tolerant preview or telemetry updates as KEP
+JSON datagrams after it confirms `WebTransportDatagramDuplexStream` support and
+the encoded payload size. It must keep OSC actions on the reliable send path.
 
 ## Implemented KEP support
 
@@ -228,11 +249,14 @@ behavior regardless of transport.
 
 If WebTransport is unavailable, fails TLS verification, or fails while sending, the browser falls back to WebSocket for OSC send attempts.
 
+Datagram failure does not trigger replay or command fallback because datagrams
+must only carry data that can be dropped safely. If a payload needs fallback, it
+belongs on the reliable stream/WebSocket path instead.
+
 ## Follow-up work
 
 - Add a stable development TLS/certificate-hash workflow for browser verification.
 - Keep a persistent internal WebSocket connection per WebTransport session instead of connecting once per stream.
 - Stream multiple app-server KEP responses per WebTransport request if the protocol needs more than one response envelope.
-- Add WebTransport datagram support for high-frequency real-time updates.
 - Add integration tests that run the gateway against a demo-game container.
 - Expand OSC packet support if bundles, blobs, or arrays become required.

@@ -10,6 +10,8 @@ use wtransport::{tls::Sha256Digest, ClientConfig, Endpoint};
 const DEFAULT_URL: &str = "https://webtransport-gateway:9443";
 const DEFAULT_ROUTE: &str = "/room/main";
 const DEFAULT_OBJECT_ID: &str = "webtransport-smoke";
+const KEP_ROUTE_DATAGRAM_PROBE: &str = "/gateway/datagram/probe";
+const KEP_ROUTE_DATAGRAM_ACK: &str = "/gateway/datagram/ack";
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -69,12 +71,62 @@ async fn main() -> Result<()> {
         response_json.get("type").is_some(),
         "expected server event JSON response"
     );
+    send_datagram_probe(&connection).await?;
     connection.close(0u32.into(), b"smoke complete");
     endpoint.wait_idle().await;
 
     println!(
-        "sent WebTransport KEP smoke OSC /admin/world/spawn for {object_id}; received KEP {} response",
+        "sent WebTransport KEP smoke OSC /admin/world/spawn for {object_id}; received KEP {} response and datagram ack",
         response_envelope.payload_type
+    );
+    Ok(())
+}
+
+async fn send_datagram_probe(connection: &wtransport::Connection) -> Result<()> {
+    let mut envelope = KepEnvelope::json(br#"{"type":"webTransportDatagramProbe"}"#.to_vec());
+    envelope.route = Some(KEP_ROUTE_DATAGRAM_PROBE.to_string());
+    envelope.correlation_id = Some(1);
+    envelope.flags = Some(0);
+    let bytes = encode_kep_envelope(&envelope).context("encode KEP datagram probe")?;
+    if let Some(max_datagram_size) = connection.max_datagram_size() {
+        anyhow::ensure!(
+            bytes.len() <= max_datagram_size,
+            "KEP datagram probe is {} bytes, larger than peer limit {}",
+            bytes.len(),
+            max_datagram_size
+        );
+    }
+
+    connection
+        .send_datagram(&bytes)
+        .context("send KEP datagram probe")?;
+
+    let datagram = tokio::time::timeout(Duration::from_secs(2), connection.receive_datagram())
+        .await
+        .context("timeout waiting for KEP datagram ack")?
+        .context("receive KEP datagram ack")?;
+    let ack = decode_kep_envelope(&datagram.payload()).context("decode KEP datagram ack")?;
+    anyhow::ensure!(
+        ack.payload_type == KEP_PAYLOAD_JSON,
+        "expected JSON KEP datagram ack, got {}",
+        ack.payload_type
+    );
+    anyhow::ensure!(
+        ack.route.as_deref() == Some(KEP_ROUTE_DATAGRAM_ACK),
+        "expected KEP datagram ack route {}, got {:?}",
+        KEP_ROUTE_DATAGRAM_ACK,
+        ack.route
+    );
+    anyhow::ensure!(
+        ack.correlation_id == Some(1),
+        "expected KEP datagram ack correlation id 1, got {:?}",
+        ack.correlation_id
+    );
+    let payload: serde_json::Value =
+        serde_json::from_slice(&ack.payload).context("decode KEP datagram ack JSON")?;
+    anyhow::ensure!(
+        payload.get("type").and_then(serde_json::Value::as_str) == Some("webTransportDatagramAck"),
+        "expected webTransportDatagramAck payload, got {payload}"
     );
     Ok(())
 }
