@@ -58,8 +58,15 @@ export type AppActionDefinition = {
   cli: { command: string };
   ui: { kind: "form" | "button"; submitLabel: string; destructive: boolean };
   inputs: ActionInputSpec[];
-  output: { address: string; args: unknown[] };
+  output: {
+    address: string;
+    args: AppActionOutputArg[];
+  };
 };
+
+export type AppActionOutputArg =
+  | { type: "input"; name: string }
+  | { type: "literal"; value: ActionValue };
 
 export type AppActionCatalog = {
   actions: AppActionDefinition[];
