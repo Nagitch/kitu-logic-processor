@@ -113,26 +113,67 @@ Browser verification is the hard part. The local development path uses the
 WebTransport `serverCertificateHashes` option so the browser can authenticate a
 short-lived self-signed certificate without modifying the host OS trust store.
 
-Generate the local certificate files before starting Compose:
+Generate and verify the local certificate files before starting Compose:
 
 ```sh
 tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh
+tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh
 ```
 
 The script writes ignored files under `tools/kitu-webtransport-gateway/certs/`:
 
 - `webtransport-cert.pem`: ECDSA P-256 self-signed certificate for `localhost`, valid for 13 days.
 - `webtransport-key.pem`: private key used by the gateway.
-- `webtransport.env`: Compose env file containing `KITU_WT_GATEWAY_CERT`, `KITU_WT_GATEWAY_KEY`, and `PUBLIC_KITU_ADMIN_WT_CERT_SHA256`.
+- `webtransport.env`: Compose env file containing `KITU_WT_GATEWAY_CERT`, `KITU_WT_GATEWAY_KEY`, `PUBLIC_KITU_ADMIN_WT_CERT_SHA256`, and `KITU_WT_SMOKE_CERT_SHA256`.
 - `webtransport-cert.sha256`: SHA-256 hash of the DER certificate.
 
-Both Compose files load `webtransport.env` if it exists. If it does not exist,
-the gateway falls back to an ephemeral self-signed certificate, which is useful
-for server bring-up but most browsers will reject it.
+The 13-day validity window is intentionally short for browser development. When
+the check script reports that the certificate expires within 24 hours, regenerate
+it before browser testing and restart the Compose stack so both the gateway and
+frontend receive the same env file.
+
+Both Compose files load the same generated `webtransport.env` if it exists:
+
+- `tools/kitu-web-admin/docker-compose.yml`
+- `apps/demo-game/docker-compose.yml`
+
+If `webtransport.env` does not exist, the gateway falls back to an ephemeral
+self-signed certificate. That mode is useful for server bring-up and non-browser
+smoke work, but it is not the reliable browser verification path because the
+browser frontend does not receive a stable certificate hash for
+`serverCertificateHashes`.
 
 An OS-trusted local CA, for example through `mkcert`, is also possible, but it
 requires changing the developer machine trust store and is intentionally left as
 an explicit manual step rather than Compose startup behavior.
+
+Repeatable browser verification sequence:
+
+1. Generate and verify the dev certificate:
+
+```sh
+tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh
+tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh
+```
+
+2. Confirm both Compose files consume the generated env file:
+
+```sh
+docker compose -f tools/kitu-web-admin/docker-compose.yml config
+docker compose -f apps/demo-game/docker-compose.yml config
+```
+
+3. Start the Web Admin stack:
+
+```sh
+docker compose -f tools/kitu-web-admin/docker-compose.yml up --build
+```
+
+4. Open `http://localhost:5173` in a browser with WebTransport support.
+5. Confirm the Web Admin connects to WebSocket and can establish WebTransport
+   with `https://localhost:9443`.
+6. Trigger a World action and confirm gateway logs show an accepted
+   WebTransport session.
 
 ## Browser behavior
 
@@ -183,6 +224,7 @@ connection are sent as KEP binary frames with `t = "json"` and
 
 ```sh
 tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh
+tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh
 ```
 
 2. Open `http://localhost:5173`.
@@ -230,7 +272,6 @@ If WebTransport is unavailable, fails TLS verification, or fails while sending, 
 
 ## Follow-up work
 
-- Add a stable development TLS/certificate-hash workflow for browser verification.
 - Keep a persistent internal WebSocket connection per WebTransport session instead of connecting once per stream.
 - Stream multiple app-server KEP responses per WebTransport request if the protocol needs more than one response envelope.
 - Add WebTransport datagram support for high-frequency real-time updates.

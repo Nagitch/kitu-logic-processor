@@ -309,10 +309,12 @@ function connectAdminWebTransport() {
     .catch((error: unknown) => {
       webTransportReady = false;
       webTransport = null;
+      const detail = error instanceof Error ? error.message : String(error);
+      const certificateHint = env.PUBLIC_KITU_ADMIN_WT_CERT_SHA256
+        ? ""
+        : " Run tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh and restart Compose, or use a browser-trusted certificate.";
       lastError.set(
-        error instanceof Error
-          ? `WebTransport connection failed: ${error.message}`
-          : `WebTransport connection failed: ${error}`,
+        `WebTransport connection failed: ${detail}.${certificateHint}`,
       );
     });
 
@@ -345,7 +347,9 @@ function parseHexSha256(value: string | undefined) {
 
   const normalized = value.replace(/[^a-fA-F0-9]/g, "");
   if (normalized.length !== 64) {
-    lastError.set("WebTransport certificate SHA-256 must be 64 hex chars");
+    lastError.set(
+      "PUBLIC_KITU_ADMIN_WT_CERT_SHA256 must be 64 hex chars. Regenerate the WebTransport dev certificate.",
+    );
     return null;
   }
 

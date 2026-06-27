@@ -31,6 +31,7 @@ docker run --rm \
       printf "%s\n" "KITU_WT_GATEWAY_CERT=/workspace/tools/kitu-webtransport-gateway/certs/webtransport-cert.pem"
       printf "%s\n" "KITU_WT_GATEWAY_KEY=/workspace/tools/kitu-webtransport-gateway/certs/webtransport-key.pem"
       printf "%s\n" "PUBLIC_KITU_ADMIN_WT_CERT_SHA256=$cert_hash"
+      printf "%s\n" "KITU_WT_SMOKE_CERT_SHA256=$cert_hash"
     } > certs/webtransport.env
 
     printf "%s\n" "$cert_hash" > certs/webtransport-cert.sha256
@@ -40,3 +41,4 @@ docker run --rm \
 printf "Generated WebTransport dev certificate files in %s\n" "$cert_dir"
 printf "Certificate SHA-256: "
 cat "$cert_dir/webtransport-cert.sha256"
+printf "%s\n" "Run tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh to verify the generated files."
