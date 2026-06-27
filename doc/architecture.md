@@ -457,6 +457,28 @@ flowchart LR
 - Replay and diagnostics should operate in both local and CI contexts.
 - Production hardening details (network auth, process isolation, secrets) are deferred to implementation documents.
 
+### Runtime transport decision for MVP
+
+For the MVP, runtime clients use WebSocket as the authoritative transport path.
+The `/ws/runtime` endpoint remains the stable path for runtime input, tick
+execution, and replay-oriented validation.
+
+WebTransport is limited to the Web Admin / gateway experiment lane during the
+MVP. This lets the project validate browser KEP transport behavior without
+making runtime authority depend on the experimental gateway.
+
+Longer term, runtime transports should be selectable by platform:
+
+- Unity Editor: WebSocket.
+- Browser: WebTransport, with WebSocket fallback where appropriate.
+- Native desktop on Windows, macOS, and Linux: WebSocket or QUIC.
+- Native mobile: WebSocket or QUIC.
+
+Native platforms should treat QUIC as the likely transport backend name unless
+they specifically adopt HTTP/3/WebTransport semantics. All runtime transport
+backends must preserve the ordering and delivery guarantees required by
+deterministic tick execution and replay.
+
 ## Use case list
 
 This list tracks scenario coverage and should remain aligned with runtime and tooling boundaries.

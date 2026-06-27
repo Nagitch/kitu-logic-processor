@@ -203,7 +203,28 @@ The existing WebSocket endpoints are unchanged:
 - `ws://localhost:8787/ws`
 - `ws://localhost:8787/ws/runtime`
 
-The Unity runtime client remains WebSocket-only for now.
+The Unity runtime client remains WebSocket-only for the MVP. The `/ws/runtime`
+path is the authoritative runtime transport for MVP input, tick, and replay
+validation because it is already stable, ordered, and easy to exercise in local
+and CI environments.
+
+WebTransport remains limited to the Web Admin / gateway experiment lane for now.
+It is used to validate browser-originated KEP transport behavior without moving
+runtime authority away from the established WebSocket path.
+
+Future runtime transport backends should be selected by platform rather than
+forcing one protocol everywhere:
+
+- Unity Editor: WebSocket.
+- Browser: WebTransport, with WebSocket fallback where appropriate.
+- Native desktop on Windows, macOS, and Linux: WebSocket or QUIC.
+- Native mobile: WebSocket or QUIC.
+
+Native platforms should usually refer to a QUIC transport backend rather than a
+WebTransport backend unless the implementation specifically adopts the
+HTTP/3/WebTransport semantics. Authoritative runtime inputs must preserve the
+ordering and delivery guarantees required by deterministic tick and replay
+behavior regardless of transport.
 
 If WebTransport is unavailable, fails TLS verification, or fails while sending, the browser falls back to WebSocket for OSC send attempts.
 
@@ -213,6 +234,5 @@ If WebTransport is unavailable, fails TLS verification, or fails while sending, 
 - Keep a persistent internal WebSocket connection per WebTransport session instead of connecting once per stream.
 - Stream multiple app-server KEP responses per WebTransport request if the protocol needs more than one response envelope.
 - Add WebTransport datagram support for high-frequency real-time updates.
-- Decide whether `/ws/runtime` should also have a WebTransport route.
 - Add integration tests that run the gateway against a demo-game container.
 - Expand OSC packet support if bundles, blobs, or arrays become required.

@@ -93,6 +93,28 @@ kitu/
 - **kitu-web-admin-backend**: Web Admin のバックエンド（HTTP + WS）
 - **kitu-unity-ffi**: Unity 組み込み cdylib 用の C API。現在の MVP surface はプレイヤー移動 slice に限定し、初期化、移動入力送信、tick 実行、`/render/player/transform` の取得を扱う。
 
+### MVP における runtime transport 方針
+
+MVP では、runtime client の authoritative transport は WebSocket とする。
+`/ws/runtime` は runtime input、tick 実行、replay-oriented validation の安定
+経路として維持する。
+
+WebTransport は当面 Web Admin / gateway experiment lane に限定する。これに
+より、browser 由来の KEP transport behavior を検証しつつ、runtime authority を
+experimental gateway に依存させない。
+
+将来的には、runtime transport は platform ごとに選択可能にする。
+
+- Unity Editor: WebSocket
+- Browser: WebTransport。ただし必要に応じて WebSocket fallback を維持する。
+- Native desktop（Windows / macOS / Linux）: WebSocket または QUIC
+- Native mobile: WebSocket または QUIC
+
+Native platform では、HTTP/3/WebTransport semantics を明示的に採用しない限り、
+WebTransport ではなく QUIC transport backend と呼ぶ。いずれの transport backend
+でも、deterministic tick execution と replay に必要な ordering / delivery guarantee
+を維持しなければならない。
+
 ### Unity demo-game 検証アプリ（kitu-integration-runner 配下）
 
 ```
