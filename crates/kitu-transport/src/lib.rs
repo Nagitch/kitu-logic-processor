@@ -174,6 +174,16 @@ pub fn encode_osc_bundle(bundle: &OscBundle) -> std::result::Result<Vec<u8>, Kep
 
 /// Decodes a single OSC packet binary into an OSC-IR message.
 pub fn decode_osc_packet(bytes: &[u8]) -> std::result::Result<OscMessage, KepCodecError> {
+    let (message, offset) = decode_osc_packet_with_offset(bytes)?;
+    if offset != bytes.len() {
+        return Err(KepCodecError::InvalidOsc("OSC packet has trailing bytes"));
+    }
+    Ok(message)
+}
+
+fn decode_osc_packet_with_offset(
+    bytes: &[u8],
+) -> std::result::Result<(OscMessage, usize), KepCodecError> {
     let (address, mut offset) = read_osc_string(bytes, 0)?;
     if address.is_empty() {
         return Err(KepCodecError::InvalidOsc("address must not be empty"));
@@ -220,7 +230,7 @@ pub fn decode_osc_packet(bytes: &[u8]) -> std::result::Result<OscMessage, KepCod
         return Err(KepCodecError::InvalidOsc("packet ended before arguments"));
     }
 
-    Ok(message)
+    Ok((message, offset))
 }
 
 /// Decodes an OSC bundle packet binary into an OSC-IR bundle.
@@ -552,6 +562,23 @@ mod tests {
         assert!(err
             .to_string()
             .contains("non-immediate OSC bundle timetags are not supported"));
+    }
+
+    #[test]
+    fn osc_bundle_rejects_trailing_bytes_inside_element() {
+        let message = encode_osc_packet(&OscMessage::new("/tick")).expect("encode OSC packet");
+        let mut element = message.clone();
+        element.extend_from_slice(&[0, 0, 0, 0]);
+
+        let mut encoded = Vec::new();
+        encoded.extend_from_slice(OSC_BUNDLE_HEADER);
+        encoded.extend_from_slice(&OSC_IMMEDIATE_TIMETAG.to_be_bytes());
+        encoded.extend_from_slice(&(element.len() as i32).to_be_bytes());
+        encoded.extend_from_slice(&element);
+
+        let err = decode_osc_bundle(&encoded).expect_err("trailing bytes should fail");
+
+        assert!(err.to_string().contains("OSC packet has trailing bytes"));
     }
 
     #[test]
