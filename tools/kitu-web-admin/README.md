@@ -5,7 +5,6 @@ Initial browser admin vertical slice for organizing and debugging a Kitu logic p
 ## Layout
 
 - `frontend/`: SvelteKit admin UI using local shadcn-svelte style components, Bits UI primitives, and Three.js.
-- `docker-compose.yml`: Local development hosting for the admin UI and the `apps/demo-game` admin host.
 
 The demo backend is now owned by `apps/demo-game`, because it is an application
 that consumes the Kitu framework crates rather than a reusable Web Admin tool.
@@ -36,7 +35,7 @@ generated package is written to `frontend/static/kitu-osc-ir-wasm/` and is not
 committed.
 
 ```sh
-docker compose -f tools/kitu-web-admin/docker-compose.yml up --build
+docker compose -f apps/demo-game/docker-compose.yml up --build
 ```
 
 For browser WebTransport testing, first generate a short-lived development
