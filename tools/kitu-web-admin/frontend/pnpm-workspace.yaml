@@ -1,0 +1,6 @@
+overrides:
+  cookie: ^1.1.1
+
+minimumReleaseAgeExclude:
+  - postcss@8.5.16
+  - prettier@3.9.1

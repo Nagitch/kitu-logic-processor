@@ -199,8 +199,8 @@ async fn main() -> Result<()> {
         .route("/state", get(state_snapshot))
         .route("/logs", get(logs_snapshot))
         .route("/app-actions", get(app_action_catalog))
-        .route("/app-actions/:id", get(app_action_definition))
-        .route("/app-actions/:id/run", post(run_app_action))
+        .route("/app-actions/{id}", get(app_action_definition))
+        .route("/app-actions/{id}/run", post(run_app_action))
         .route("/ws", get(ws_upgrade))
         .route("/ws/runtime", get(runtime_ws_upgrade))
         .layer(CorsLayer::permissive())
@@ -466,7 +466,7 @@ async fn send_initial_runtime_state(socket: &mut WebSocket, state: &AppState) ->
 
 async fn send_event(socket: &mut WebSocket, event: &ServerEvent) -> Result<()> {
     socket
-        .send(Message::Text(serde_json::to_string(event)?))
+        .send(Message::Text(serde_json::to_string(event)?.into()))
         .await
         .context("send websocket event")
 }
@@ -481,7 +481,7 @@ async fn send_event_with_mode(
         WsOutputMode::Kep => {
             let bytes = encode_server_event_envelope(event)?;
             socket
-                .send(Message::Binary(bytes))
+                .send(Message::Binary(bytes.into()))
                 .await
                 .context("send websocket KEP event")
         }

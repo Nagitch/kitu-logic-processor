@@ -2,7 +2,7 @@
 
 [![Rust CI](https://github.com/Nagitch/kitu-logic-processor/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/Nagitch/kitu-logic-processor/actions/workflows/rust-ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Rust 1.82](https://img.shields.io/badge/rust-1.82.0-orange.svg)](rust-toolchain.toml)
+[![Rust 1.96](https://img.shields.io/badge/rust-1.96.0-orange.svg)](rust-toolchain.toml)
 
 **Kitu**, a Rust–Unity hybrid framework for building deterministic, data‑driven games with a strong focus on developer experience.
 

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/rust:1-bullseye
+FROM mcr.microsoft.com/devcontainers/rust:1-bookworm
 
 # Core build and troubleshooting tools
 RUN apt-get update \

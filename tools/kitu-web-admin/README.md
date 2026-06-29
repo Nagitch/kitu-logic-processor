@@ -63,8 +63,8 @@ When `PUBLIC_KITU_ADMIN_WT_URL` is configured, browser OSC sends can use the
 experimental WebTransport gateway with KEP MessagePack envelopes. The existing
 WebSocket connection remains the fallback and the source of state/log events.
 The gateway compose service builds from
-`tools/kitu-webtransport-gateway/Dockerfile`, which intentionally uses Rust
-1.88 because the WebTransport crate currently requires it.
-In Docker Compose, the frontend image includes Node 22 and Rust 1.82 with the
+`tools/kitu-webtransport-gateway/Dockerfile`, which uses the repository's
+current Rust 1.96 toolchain.
+In Docker Compose, the frontend image includes Node 24 and Rust 1.96 with the
 WASM target. The frontend service runs `pnpm install` and `pnpm run dev`; the
 `predev` script generates the OSC-IR WASM package before Vite starts.
