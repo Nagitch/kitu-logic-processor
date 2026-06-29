@@ -9,6 +9,9 @@ Initial browser admin vertical slice for organizing and debugging a Kitu logic p
 The demo backend is now owned by `apps/demo-game`, because it is an application
 that consumes the Kitu framework crates rather than a reusable Web Admin tool.
 
+The frontend uses Tailwind CSS 4 through the Vite plugin. Theme tokens live in
+`frontend/src/app.css`; there is no separate Tailwind or PostCSS config file.
+
 ## Run
 
 The frontend uses the shared Rust OSC-IR model through a generated WASM package.
