@@ -9,7 +9,7 @@ mkdir -p "$cert_dir"
 docker run --rm \
   -v "$repo_root:/workspace" \
   -w /workspace/tools/kitu-webtransport-gateway \
-  rust:1.88-bookworm \
+  rust:1.96.0-bookworm \
   sh -eu -c '
     mkdir -p certs
     openssl ecparam -name prime256v1 -genkey -noout -out certs/webtransport-key.pem

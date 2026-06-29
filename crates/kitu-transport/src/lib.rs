@@ -378,7 +378,7 @@ pub fn decode_osc_bundle(bytes: &[u8]) -> std::result::Result<OscBundle, KepCode
 fn write_osc_string(bytes: &mut Vec<u8>, value: &str) {
     bytes.extend_from_slice(value.as_bytes());
     bytes.push(0);
-    while bytes.len() % 4 != 0 {
+    while !bytes.len().is_multiple_of(4) {
         bytes.push(0);
     }
 }
@@ -401,7 +401,7 @@ fn read_osc_string(
         .map_err(|_| KepCodecError::InvalidOsc("OSC string is not UTF-8"))?
         .to_string();
     let mut next = end + 1;
-    while next % 4 != 0 {
+    while !next.is_multiple_of(4) {
         next += 1;
     }
     if next > bytes.len() {

@@ -19,12 +19,7 @@ import {
 
 type ConnectionState = "idle" | "connecting" | "open" | "closed" | "error";
 type WebTransportState =
-  | "disabled"
-  | "unsupported"
-  | "connecting"
-  | "ready"
-  | "closed"
-  | "error";
+  "disabled" | "unsupported" | "connecting" | "ready" | "closed" | "error";
 type OscSendStatus = {
   path: "none" | "webtransport" | "websocket-fallback" | "websocket";
   phase: "idle" | "pending" | "sent" | "fallback" | "failed";

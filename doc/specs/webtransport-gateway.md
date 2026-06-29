@@ -33,10 +33,9 @@ Existing Application Server Container
 
 ## Why `wtransport`
 
-The gateway uses the Rust `wtransport` crate because it provides a high-level WebTransport-over-HTTP/3 server API, supports QUIC streams and datagrams, and includes development self-signed identity helpers. The current 0.7.x crate requires Rust 1.88, so the gateway is excluded from the root Rust 1.82 workspace and owns `tools/kitu-webtransport-gateway/rust-toolchain.toml`.
+The gateway uses the Rust `wtransport` crate because it provides a high-level WebTransport-over-HTTP/3 server API, supports QUIC streams and datagrams, and includes development self-signed identity helpers. The current 0.7.x crate requires a newer Rust toolchain than the original root workspace pin, so the repository now keeps both the main workspace and gateway pinned to Rust 1.96.
 
-The main workspace remains pinned to Rust 1.82 for existing crates and CI.
-Gateway development and compose execution use `tools/kitu-webtransport-gateway/Dockerfile`, which is based on `rust:1.88-bookworm`.
+Gateway development and compose execution use `tools/kitu-webtransport-gateway/Dockerfile`, which is based on `rust:1.96.0-bookworm`.
 
 ## Internal protocol choice
 

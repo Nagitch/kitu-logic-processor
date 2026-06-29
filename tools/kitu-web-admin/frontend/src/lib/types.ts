@@ -39,8 +39,7 @@ export type ActionValue =
   | { type: "bool"; value: boolean };
 
 export type AppActionScope =
-  | { type: "kitu-general" }
-  | { type: "project"; appId: string };
+  { type: "kitu-general" } | { type: "project"; appId: string };
 
 export type ActionInputSpec = {
   name: string;
@@ -65,8 +64,7 @@ export type AppActionDefinition = {
 };
 
 export type AppActionOutputArg =
-  | { type: "input"; name: string }
-  | { type: "literal"; value: ActionValue };
+  { type: "input"; name: string } | { type: "literal"; value: ActionValue };
 
 export type AppActionCatalog = {
   actions: AppActionDefinition[];

@@ -1,6 +1,6 @@
 services:
   demo-game:
-    image: rust:1.82
+    image: rust:1.96.0-bookworm
     working_dir: /workspace
     command: cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
     environment:
