@@ -2,5 +2,8 @@ overrides:
   cookie: ^1.1.1
 
 minimumReleaseAgeExclude:
-  - postcss@8.5.16
+  - postcss@8.5.15
   - prettier@3.9.1
+
+allowBuilds:
+  wasm-pack: true
