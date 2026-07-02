@@ -24,6 +24,8 @@
 
 ## Introduction
 
+![Introduction](doc/assets/introduction.png)
+
 Kitu separates **authoritative game logic** (Rust backend) from **presentation** (Unity). The backend runs the simulation, ECS, timelines, and scripting; Unity renders visuals, audio, and UI, and forwards player input as OSC events.
 
 Goals:
@@ -43,6 +45,8 @@ Implementation status:
 
 
 ## High-Level Architecture
+
+![High-level architecture](doc/assets/high-level-architecture.png)
 
 At a high level, Kitu consists of:
 
@@ -83,6 +87,8 @@ manifest, admin host service, Docker Compose stack, and scenario tests.
 
 ## Backend Game Logic (Rust)
 
+![Backend game logic architecture](doc/assets/backend-game-logic-rust.png)
+
 The Rust backend is the authoritative “game universe”.
 
 Core responsibilities:
@@ -107,6 +113,8 @@ Runtime execution contract: [`doc/specs/runtime-execution-contract.md`](doc/spec
 
 ## Communication Layer (OSC + osc-ir + MessagePack)
 
+![Communication layer](doc/assets/communication-layer-osc-osc-ir-messagepack.png)
+
 Kitu uses OSC semantics and the **osc‑ir** data model as a unified event layer.
 
 - OSC provides hierarchical addresses like `/input/move`, `/game/spawn`, `/ui/dialog`.
@@ -124,6 +132,8 @@ This event‑driven layer allows loose coupling and shared tooling.
 
 
 ## Unity Client (Presentation Layer)
+
+![Unity client](doc/assets/unity-client-presentation-layer.png)
 
 Unity is treated purely as a **renderer and input source**:
 
@@ -144,6 +154,9 @@ This keeps Unity relatively simple and reduces coupling.
 
 
 ## Kitu Shell
+
+![Kitu Shell](doc/assets/kitu-shell.png)
+
 
 Kitu Shell is a runtime developer console that can connect to:
 
@@ -166,6 +179,8 @@ Shell commands use a consistent, extensible command model, and all actions go th
 
 ## Data Systems (TMD + SQLite)
 
+![Data systems](doc/assets/data-systems-tmd-sqlite.png)
+
 Kitu is strongly data‑driven:
 
 - **Tanu Markdown (TMD)** is used for human‑editable master data:
@@ -186,6 +201,8 @@ Unity typically does not read TMD/DB directly; it acts on backend results.
 
 
 ## Timeline & Automation (TSQ1)
+
+![Timeline and automation](doc/assets/timeline-and-automation-tsq1.png)
 
 TSQ1 is Kitu’s **minimal, deterministic timeline format**:
 
