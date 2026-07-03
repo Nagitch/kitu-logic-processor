@@ -9,6 +9,17 @@
 /kitu-unity-demo-game/MemoryCaptures/
 /kitu-unity-demo-game/Recordings/
 
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
 # Unity-generated IDE/project files.
 /kitu-unity-demo-game/.vscode/
 /kitu-unity-demo-game/*.csproj
