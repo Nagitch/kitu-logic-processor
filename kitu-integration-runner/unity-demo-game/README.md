@@ -22,7 +22,7 @@ Non-goal:
 
 ## Unity-only action RPG demo
 
-`Assets/Scenes/GameplayDemo.unity` is a self-contained gameplay smoke test.
+`Assets/KituDemoApp/KituDemoAppMain.unity` is a self-contained gameplay smoke test.
 It does not use Kitu, the Rust runtime, networking, or generated content. Open
 the scene and enter Play Mode; no backend process is required.
 
@@ -42,12 +42,19 @@ Controls:
 - Use potion: `E` or gamepad west/X
 - Restart after victory or defeat: `R`
 
-The gameplay code is isolated under `Assets/UnityOnlyActionRpg/Runtime/` so the
-placeholder meshes, materials, arena, and level layout can be replaced without
-introducing a Kitu dependency. `ActionRpgGameController` owns the game rules,
+All scene-specific files are contained under `Assets/KituDemoApp/`. Export that
+directory as a Unity package to transfer the scene, scripts, materials, and
+their GUID-preserving metadata together. The receiving project must provide
+Unity Input System `1.19.0` and Universal Render Pipeline `17.5.0`, because
+Unity packages exported from the Assets window do not include UPM dependencies.
+
+The gameplay code is isolated under
+`Assets/KituDemoApp/UnityOnlyActionRpg/Runtime/` so the placeholder meshes,
+materials, arena, and level layout can be replaced without introducing a Kitu
+dependency. `ActionRpgGameController` owns the game rules,
 `ActionRpgPlayerController` and `ActionRpgEnemy` own actor behavior,
-`ActionRpgPickup` owns item collection, and
-`ActionRpgHud`/`ActionRpgCameraFollow` cover presentation.
+`ActionRpgPickup` owns item collection, and `ActionRpgHud`/
+`ActionRpgCameraFollow` cover presentation.
 
 ## Development network slice
 
