@@ -20,6 +20,42 @@ Purpose:
 Non-goal:
 - Hosting full game-specific implementation.
 
+## Unity-only action RPG demo
+
+`Assets/KituDemoApp/KituDemoAppMain.unity` is a self-contained gameplay smoke test.
+It does not use Kitu, the Rust runtime, networking, or generated content. Open
+the scene and enter Play Mode; no backend process is required.
+
+The placeholder arena exercises the smallest complete action RPG loop:
+
+- third-person movement and camera follow
+- melee attack, enemy chase/attack, HP, damage, and death
+- enemy XP rewards and level-up stat growth
+- potion drops, proximity pickup, inventory count, and healing
+- an objective that completes after defeating three enemies and collecting a potion
+- HUD feedback plus victory/defeat and restart states
+
+Controls:
+
+- Move: `WASD`, arrow keys, or the gamepad left stick
+- Attack: `Space`, `J`, left mouse button, or gamepad south/A
+- Use potion: `E` or gamepad west/X
+- Restart after victory or defeat: `R`
+
+All scene-specific files are contained under `Assets/KituDemoApp/`. Export that
+directory as a Unity package to transfer the scene, scripts, materials, and
+their GUID-preserving metadata together. The receiving project must provide
+Unity Input System `1.19.0` and Universal Render Pipeline `17.5.0`, because
+Unity packages exported from the Assets window do not include UPM dependencies.
+
+The gameplay code is isolated under
+`Assets/KituDemoApp/UnityOnlyActionRpg/Runtime/` so the placeholder meshes,
+materials, arena, and level layout can be replaced without introducing a Kitu
+dependency. `ActionRpgGameController` owns the game rules,
+`ActionRpgPlayerController` and `ActionRpgEnemy` own actor behavior,
+`ActionRpgPickup` owns item collection, and `ActionRpgHud`/
+`ActionRpgCameraFollow` cover presentation.
+
 ## Development network slice
 
 The first Unity integration path uses a standalone Rust backend instead of
