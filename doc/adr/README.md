@@ -19,10 +19,12 @@ were recorded as ADRs on 2026-08-18.
 - **Deprecated**: retained for history but no longer recommended for new work.
 - **Superseded**: replaced by a linked later ADR.
 
-Accepted records are immutable except for typo and link corrections. Replace a
-decision by adding a new ADR and marking the old record superseded. New records
-start from [`template.md`](template.md), use the next four-digit number, and
-distinguish implemented behavior from staged architecture.
+Accepted records are immutable except for typo and link corrections and the
+lifecycle metadata needed to deprecate or supersede them. Replace a decision by
+adding a new ADR, changing the old record's status to **Superseded**, and linking
+the two records without rewriting the old decision. New records start from
+[`template.md`](template.md), use the next four-digit number, and distinguish
+implemented behavior from staged architecture.
 
 ## Index
 
