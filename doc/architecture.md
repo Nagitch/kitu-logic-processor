@@ -3,6 +3,8 @@
 This document is the primary architecture source of truth for `kitu-logic-processor`.
 It defines the current MVP architecture, explicit architectural decisions, current assumptions, and open questions.
 For a quick crate index, use [`doc/crates-overview.md`](./crates-overview.md).
+For the context, alternatives, and consequences behind accepted cross-cutting
+decisions, use the [`doc/adr` index](./adr/README.md).
 
 ## Table of contents
 

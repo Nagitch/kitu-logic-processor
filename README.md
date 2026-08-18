@@ -42,6 +42,8 @@ Implementation status:
 - The current repository contains the MVP runtime core, the player-move vertical slice, and early replay/tooling foundations.
 - Several data/content and tooling sections below describe target architecture rather than finished production features.
 - For the current implemented/partial/staged breakdown, use [doc/architecture.md](doc/architecture.md#current-implementation-staging).
+- For the rationale and tradeoffs behind accepted cross-cutting choices, use
+  the [architecture decision records](doc/adr/README.md).
 
 
 ## High-Level Architecture
