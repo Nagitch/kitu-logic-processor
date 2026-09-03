@@ -152,6 +152,7 @@ flowchart LR
 
     subgraph RuntimeCore[Authoritative Runtime Core]
         Core[kitu-core]
+        Calculation[kitu-calculation]
         ECS[kitu-ecs]
         Runtime[kitu-runtime]
         OscIR[kitu-osc-ir]
@@ -173,6 +174,7 @@ flowchart LR
     SQL --> SqlCrate
     TSQ1 --> TSQ1Crate
     Rhai --> RhaiCrate
+    Calculation --> Runtime
 
     TmdCrate --> Runtime
     SqlCrate --> Runtime
@@ -296,6 +298,7 @@ For dependency details, see `doc/crates-overview.md`. This section defines allow
 ```mermaid
 graph TD
     Core[kitu-core: errors ticks time]
+    Calculation[kitu-calculation: shared function adapter and KITU extensions]
     ECS[kitu-ecs: world and scheduling]
     Osc[kitu-osc-ir: message IR]
     Transport[kitu-transport: delivery abstraction]
@@ -310,6 +313,7 @@ graph TD
     Replay[kitu-replay-runner: deterministic playback]
 
     Core --> ECS
+    Calculation --> Runtime
     Core --> Osc
     Osc --> Transport
     ECS --> Runtime
@@ -327,6 +331,7 @@ graph TD
 ### Responsibility rules by boundary
 
 - `kitu-core`: foundational types only; no transport/runtime orchestration.
+- `kitu-calculation`: typed function adapter and `KITU.*` registration only; no parser, references, state, or presentation.
 - `kitu-osc-ir`: protocol-neutral message model; no game rules or transport coupling.
 - `kitu-transport`: sending/receiving and connectivity events only.
 - `kitu-runtime`: only crate allowed to own authoritative tick loop orchestration.

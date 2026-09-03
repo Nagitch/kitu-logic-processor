@@ -1,0 +1,15 @@
+[package]
+name = "kitu-calculation"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Kitu adapter and namespaced extensions for the shared OpenFormula calculation kernel."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+keywords = ["kitu", "openformula", "calculation"]
+categories = ["game-development", "mathematics"]
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
+
+[dependencies]
+openformula-kernel.workspace = true
