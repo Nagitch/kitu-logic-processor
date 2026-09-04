@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/kitu-core",
+    "crates/kitu-calculation",
     "crates/kitu-ecs",
     "crates/kitu-osc-ir",
     "crates/kitu-app-actions",
@@ -29,4 +30,5 @@ publish = false
 
 [workspace.dependencies]
 anyhow = "1"
+openformula-kernel = { git = "https://github.com/Nagitch/openformula-kernel.git", rev = "5448dcf6d130e4355da15aeed6c88e56a9a15673", default-features = false }
 thiserror = "2"

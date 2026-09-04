@@ -9,6 +9,7 @@ Status note: some data/content crates are staged entry points. Their responsibil
 | Crate | Purpose | Key dependencies |
 | --- | --- | --- |
 | `kitu-core` | Foundational types (errors, ticks, timestamps) shared across all crates. | – |
+| `kitu-calculation` | Shared OpenFormula function adapter and explicit `KITU.*` extension registration. | `openformula-kernel` |
 | `kitu-ecs` | Minimal ECS wrapper and scheduler used by the runtime loop. | `kitu-core` |
 | `kitu-osc-ir` | Core OSC/IR message types that travel across transports. | `kitu-core` |
 | `kitu-transport` | Message transport abstraction (local channel, network adapters). | `kitu-core`, `kitu-osc-ir` |
@@ -26,6 +27,7 @@ Status note: some data/content crates are staged entry points. Their responsibil
 ```mermaid
 graph TD
     kitu_core["kitu-core"]
+    kitu_calculation["kitu-calculation"]
     kitu_ecs["kitu-ecs"]
     kitu_osc_ir["kitu-osc-ir"]
     kitu_transport["kitu-transport"]
@@ -37,6 +39,8 @@ graph TD
     kitu_shell["kitu-shell"]
     kitu_web_admin_backend["kitu-web-admin-backend"]
     kitu_unity_ffi["kitu-unity-ffi"]
+
+    kitu_calculation --> openformula_kernel["openformula-kernel"]
 
     kitu_ecs --> kitu_core
     kitu_osc_ir --> kitu_core
@@ -62,6 +66,10 @@ graph TD
 ### `kitu-core`
 - Defines cross-crate primitives such as `KituError`, the `Result` alias, and tick/timestamp handling.
 - Keep error variants and time utilities cohesive here so downstream crates do not redefine them.
+
+### `kitu-calculation`
+- Adapts the version-pinned shared calculation registry without taking ownership of parsing, references, runtime triggers, or presentation.
+- Keeps product functions explicitly registered under `KITU.*`; standard names retain their shared OpenFormula-derived behavior.
 
 ### `kitu-ecs`
 - Provides the lightweight ECS world, scheduling, and `System` trait used by the runtime loop.
