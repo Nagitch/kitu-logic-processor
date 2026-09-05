@@ -261,7 +261,7 @@ impl ArenaConfig {
                 enemy.kind
             );
             ensure!(
-                (0..=10000).contains(&enemy.damage),
+                (1..=10000).contains(&enemy.damage),
                 "enemies/{}: damage out of range",
                 enemy.kind
             );

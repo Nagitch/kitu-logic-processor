@@ -6,7 +6,7 @@
   "defaultConfigurationHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
   "sourceSha256": {
     "apps/demo-game/src/arena.rs": "42157e265a20e9a25ac710dec832e80d4526b374a89a649b3e832432d0ab04d1",
-    "apps/demo-game/src/arena/config.rs": "55ae84ef8fc870df45cb70cbadadd290b63ce8bce49b3d5f73d6bdf14ce54b65",
+    "apps/demo-game/src/arena/config.rs": "4b4d651858b463a915ad01e320353020f952cada8cc2087b9e8072ad902a1bba",
     "apps/demo-game/src/arena/combat.rs": "f97040d3af5886efeae461d6a7cd7353f744627df4b6a096a252064af8ae2c56",
     "apps/demo-game/src/arena/inventory.rs": "095825e43b08a1a85d42a418c540640da6f91e37e3540f21973c6764a3c01af2",
     "apps/demo-game/src/bin/admin_host/content.rs": "9cf56088a3063d7bf28215e88136d7e30715ab1cda862dc117b5129639b79504",
@@ -22,7 +22,8 @@
       "clippyAllTargetsAllFeatures": "passed",
       "rustdocWarningsDenied": "passed",
       "modifiedPackageLists": "passed",
-      "afterDecimalAuthoringChange": "Arena/data-TMD/runtime tests and workspace Clippy passed"
+      "afterDecimalAuthoringChange": "Arena/data-TMD/runtime tests and workspace Clippy passed",
+      "reviewFix": "Zero enemy damage is rejected in typed configuration and real TMD evaluation; all four configuration tests and workspace all-target/all-feature Clippy passed."
     },
     "admin": {
       "check": "0 errors, 0 warnings",

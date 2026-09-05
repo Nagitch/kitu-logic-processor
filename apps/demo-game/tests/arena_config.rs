@@ -194,7 +194,7 @@ fn real_tmd_evaluation_preserves_defaults_and_changes_formula_values() {
 #[test]
 fn invalid_values_identities_and_formula_errors_are_rejected_as_whole_candidates() {
     let original = ArenaConfig::default();
-    for change in [0, 1, 2, 3, 4, 5] {
+    for change in [0, 1, 2, 3, 4, 5, 6] {
         let mut config = original.clone();
         match change {
             0 => config.items[1].interval = 0.0,
@@ -202,7 +202,8 @@ fn invalid_values_identities_and_formula_errors_are_rejected_as_whole_candidates
             2 => config.enemies[0].health = 0,
             3 => config.difficulty.health_growth = f32::NAN,
             4 => config.chests[0].item_id = "missing".into(),
-            _ => config.enemies[1].kind = 0,
+            5 => config.enemies[1].kind = 0,
+            _ => config.enemies[0].damage = 0,
         }
         assert!(config.validate().is_err());
         assert!(config.hash().is_err());
@@ -221,6 +222,22 @@ fn invalid_values_identities_and_formula_errors_are_rejected_as_whole_candidates
     doc.set_sources(sources).unwrap();
     assert!(ArenaConfig::from_tmd(&doc.bytes().unwrap()).is_err());
     assert!(ArenaConfig::from_tmd(b"damage: 100").is_err());
+    let mut doc = TanuDocument::read(&original.to_tmd().unwrap()).unwrap();
+    let mut sources = doc.sources().unwrap();
+    let DataSourceDefinition::FormulaTable { rows, columns, .. } =
+        sources.sources.get_mut("enemies").unwrap()
+    else {
+        panic!("managed table")
+    };
+    let damage = columns.iter().position(|c| c.name == "damage").unwrap();
+    rows[0].cells[damage].content = FormulaTableCellContent::Formula {
+        expression: "0".into(),
+    };
+    doc.set_sources(sources).unwrap();
+    let diagnostic = ArenaConfig::from_tmd(&doc.bytes().unwrap()).unwrap_err();
+    assert!(diagnostic
+        .to_string()
+        .contains("enemies/0: damage out of range"));
     let mut empty = original;
     empty.chests.clear();
     assert_eq!(
