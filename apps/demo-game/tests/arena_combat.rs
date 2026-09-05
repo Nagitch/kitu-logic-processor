@@ -1,6 +1,52 @@
 mod support;
 
 #[test]
+fn command_phase_events_preserve_lifecycle_order_without_duplicate_notifications() {
+    use kitu_osc_ir::OscArg;
+    let mut runtime = kitu_demo_game::build_arena_runtime().unwrap();
+    for (id, address) in [
+        (1, "start"),
+        (1, "start"),
+        (2, "start"),
+        (3, "menu"),
+        (4, "menu"),
+        (5, "start"),
+    ] {
+        support::send(
+            &mut runtime,
+            "commands",
+            id,
+            &format!("/input/arena/{address}"),
+            vec![],
+        );
+    }
+    runtime.tick_once().unwrap();
+    let messages: Vec<_> = runtime
+        .drain_output_buffer()
+        .into_iter()
+        .flat_map(|b| b.messages)
+        .collect();
+    let mut transitions = Vec::new();
+    for (order, message) in messages.iter().enumerate() {
+        if message.address != "/game/arena/phase" {
+            continue;
+        }
+        let OscArg::Str(json) = &message.args[0] else {
+            panic!("phase JSON")
+        };
+        let event: serde_json::Value = serde_json::from_str(json).unwrap();
+        assert_eq!(event["tick"], 0);
+        assert_eq!(event["order"], order);
+        assert_eq!(messages[order + 1].address, "/ui/arena/command");
+        transitions.push((
+            event["previous"].as_i64().unwrap(),
+            event["phase"].as_i64().unwrap(),
+        ));
+    }
+    assert_eq!(transitions, [(0, 1), (1, 0), (0, 1)]);
+}
+
+#[test]
 fn first_floor_combat_matches_every_frozen_csharp_state_field() {
     let (checkpoints, outcomes) = support::replay_reference("stock-eleven-death-retry", 470);
     assert!(checkpoints > 40);

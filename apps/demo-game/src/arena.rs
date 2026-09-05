@@ -372,7 +372,12 @@ impl RuntimeApplication for ArenaApplication {
                         } => Some((*item_id, *index, *slot)),
                         _ => None,
                     };
+                    let lifecycle = matches!(command, Command::Start | Command::Menu);
+                    let previous_phase = session.state.phase;
                     let code = execute(session, command);
+                    if lifecycle && code == "ok" && previous_phase != session.state.phase {
+                        session.state.emit_phase(previous_phase, tick, &mut output);
+                    }
                     if let Some((item_id, index, slot)) = inventory_request.filter(|_| code == "ok")
                     {
                         output.push(json_message(

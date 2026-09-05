@@ -165,11 +165,15 @@ impl ArenaState {
         self.phase = phase;
         self.portal_available = phase == 1 || phase == 4;
         self.chest_available = phase == 1 || (phase == 4 && self.floor % 5 == 0);
+        self.emit_phase(previous, tick, output);
+    }
+
+    pub(super) fn emit_phase(&self, previous: i32, tick: i64, output: &mut OscBundle) {
         emit(
             output,
             tick,
             "/game/arena/phase",
-            json!({"previous":previous,"phase":phase,"floor":self.floor,
+            json!({"previous":previous,"phase":self.phase,"floor":self.floor,
             "floorsCleared":self.floors_cleared,"enemiesDefeated":self.enemies_defeated,"bossesDefeated":self.bosses_defeated}),
         );
     }
