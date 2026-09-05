@@ -18,6 +18,8 @@ namespace UnityOnlyArena
         private float nextFrame;
         private bool requireMouseRelease = true;
         private bool synchronized;
+        private int selectedBackpack;
+        private Vector2 inventoryScroll;
         public string SessionId { get; private set; }
         public ArenaReferenceState State { get; private set; }
         public string Message { get; private set; } = "";
@@ -109,8 +111,13 @@ namespace UnityOnlyArena
         private void ReadInput()
         {
             var keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
-                Command(State.overlay == "pause" ? "resume" : "pause");
+            if (keyboard != null)
+            {
+                if (keyboard.escapeKey.wasPressedThisFrame)
+                    Command(State.overlay == "inventory" || State.overlay == "chest" ? "close" : State.overlay == "pause" ? "resume" : "pause");
+                if (keyboard.iKey.wasPressedThisFrame) Command(State.overlay == "inventory" || State.overlay == "chest" ? "close" : "inventory");
+                if (keyboard.eKey.wasPressedThisFrame) Command("chest");
+            }
             var mouse = Mouse.current;
             if (mouse == null || (!mouse.leftButton.isPressed && !mouse.rightButton.isPressed)) requireMouseRelease = false;
             // This timer samples devices; only the server owns the game clock.
@@ -141,6 +148,68 @@ namespace UnityOnlyArena
         private void OnApplicationFocus(bool focused) { if (!focused) { Command("pause"); requireMouseRelease = true; } }
         private void OnDestroy() { connection?.Dispose(); }
 
+        private static string ItemText(ArenaItemState item)
+        {
+            if (item == null || item.id == 0) return "Empty";
+            string detail = item.kind == (int)ItemKind.Shield ? $" · Shield {item.shield}" :
+                item.kind <= (int)ItemKind.HeavyShooter ? $" · {item.damage} damage / {item.interval:0.##}s" : "";
+            return item.name + detail;
+        }
+
+        private void DrawInventory()
+        {
+            var inventory = State.inventory;
+            var area = new Rect(Screen.width * .12f, 135, Screen.width * .76f, Mathf.Max(100, Screen.height - 150));
+            GUI.Box(area, "");
+            GUILayout.BeginArea(new Rect(area.x + 15, area.y + 10, area.width - 30, area.height - 20));
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(State.overlay == "chest" ? "SUPPLY CHEST · game paused" : "INVENTORY · game paused");
+            if (GUILayout.Button("Close", GUILayout.Width(100))) Command("close");
+            GUILayout.EndHorizontal();
+            inventoryScroll = GUILayout.BeginScrollView(inventoryScroll);
+            GUILayout.Label("Backpack · choose a destination for taking or swapping items");
+            for (int i = 0; i < inventory.backpack.Length; i++)
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Toggle(selectedBackpack == i, $"{i + 1}. {ItemText(inventory.backpack[i])}", "Button")) selectedBackpack = i;
+                var item = inventory.backpack[i];
+                if (item.id != 0)
+                {
+                    if (item.kind == (int)ItemKind.HealthUpgrade || item.kind == (int)ItemKind.AttackUpgrade)
+                    { if (GUILayout.Button("Use upgrade", GUILayout.Width(110))) Command("upgrade", item.id, i); }
+                    if (GUILayout.Button("Discard", GUILayout.Width(80))) Command("discard", item.id, i);
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.Space(10);
+            GUILayout.Label("Equipment · swaps preserve the outgoing item in the selected backpack slot");
+            for (int slot = 0; slot < inventory.equipment.Length; slot++)
+            {
+                GUILayout.BeginHorizontal();
+                var item = inventory.equipment[slot];
+                string name = slot < 2 ? "Weapon " + (slot == 0 ? "A" : "B") : "Item " + (slot == 2 ? "A" : "B");
+                GUILayout.Label(name + ": " + ItemText(item));
+                var selected = inventory.backpack[selectedBackpack];
+                if (selected.id != 0 && GUILayout.Button("Equip selected", GUILayout.Width(120))) Command("equip", selected.id, selectedBackpack, slot);
+                if (item.id != 0 && GUILayout.Button("Unequip", GUILayout.Width(85))) Command("unequip", item.id, slot);
+                GUILayout.EndHorizontal();
+            }
+            if (State.overlay == "chest")
+            {
+                GUILayout.Space(10);
+                GUILayout.Label("Chest");
+                foreach (var item in inventory.chest)
+                {
+                    GUILayout.BeginHorizontal(); GUILayout.Label(ItemText(item));
+                    if (GUILayout.Button(inventory.backpack[selectedBackpack].id == 0 ? "Take" : "Swap", GUILayout.Width(100)))
+                        Command("take", item.id, selectedBackpack);
+                    GUILayout.EndHorizontal();
+                }
+            }
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
+        }
+
         private void OnGUI()
         {
             GUILayout.BeginArea(new Rect(20, 12, Screen.width - 40, 125));
@@ -152,11 +221,18 @@ namespace UnityOnlyArena
             {
                 if (State.phase == 0 || State.phase == 5) { if (GUILayout.Button("Start run", GUILayout.Width(140))) Command("start"); }
                 else if (GUILayout.Button(State.overlay == "pause" ? "Resume" : "Pause", GUILayout.Width(140))) Command(State.overlay == "pause" ? "resume" : "pause");
+                if (State.overlay == "none" && (State.phase == 1 || State.phase == 4))
+                {
+                    if (GUILayout.Button("Inventory (I)", GUILayout.Width(140))) Command("inventory");
+                    if (State.chestAvailable && GUILayout.Button("Open chest (E)", GUILayout.Width(140))) Command("chest");
+                }
                 if (GUILayout.Button("Main menu", GUILayout.Width(140))) Command("menu");
             }
             GUILayout.EndHorizontal();
-            GUILayout.Label("WASD: move · Mouse: aim · Escape: pause/resume");
+            GUILayout.Label("WASD: move · Mouse: aim · I: inventory · E: chest · Escape: close/pause");
+            if (State.inventory != null) GUILayout.Label($"HP {State.inventory.health}/{State.inventory.maxHealth} · Attack ×{State.inventory.attackMultiplier:F2}");
             GUILayout.EndArea();
+            if ((State.overlay == "inventory" || State.overlay == "chest") && State.inventory != null) DrawInventory();
         }
     }
 }
