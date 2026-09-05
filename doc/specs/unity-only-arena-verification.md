@@ -139,3 +139,12 @@ PlayModeを非バッチで実行すると、実シーンの5画像を `Logs/aren
 最初の入力テストは2成功/7失敗だったが、本体Updateを迂回せずテスト用の入力タイミング・フォーカス設定を直して解消した。
 実シーン検証では、箱への自動移動がポータルを横切る検証用経路を修正し、0/5/10Fの箱利用を追加検査した。意図的なチェックポイントログを未処理ログと誤判定していたテスト側の検査も修正した。最終結果を得るためにHP・攻撃力・フロア番号を書き換える対応は行っていない。
 Kituによる改善は今後比較する仮説であり、この実装で実測した効果とは扱わない。
+
+## Oblique camera follow-up (2026-09-06 JST)
+
+The camera now looks down at the arena center at 55 degrees to the floor.
+Unity 6000.6.0f1 passed all 10 existing PlayMode tests, including mouse aim,
+with this camera. A separate interactive run of the saved-scene scenario
+also passed and produced a [combat capture](../verification/unity-only-arena/oblique-camera.png).
+The capture was inspected for the angled view and full arena framing.
+Earlier captures linked above retain the original overhead camera as historical evidence.

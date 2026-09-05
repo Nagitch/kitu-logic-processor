@@ -38,7 +38,8 @@ namespace UnityOnlyArena
             cameraObject.transform.SetParent(transform);
             GameCamera = cameraObject.GetComponent<Camera>();
             GameCamera.tag = "MainCamera";
-            GameCamera.transform.SetPositionAndRotation(new Vector3(0, 25, 0), Quaternion.Euler(90, 0, 0));
+            var cameraRotation = Quaternion.Euler(55, 0, 0);
+            GameCamera.transform.SetPositionAndRotation(cameraRotation * Vector3.back * 30f, cameraRotation);
             GameCamera.orthographic = true;
             GameCamera.clearFlags = CameraClearFlags.SolidColor;
             GameCamera.backgroundColor = new Color(.035f, .055f, .085f);
