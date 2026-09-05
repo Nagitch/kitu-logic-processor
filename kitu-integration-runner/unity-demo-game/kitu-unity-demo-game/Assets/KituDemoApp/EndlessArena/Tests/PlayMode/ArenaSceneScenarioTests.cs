@@ -346,6 +346,9 @@ namespace UnityOnlyArena.Tests
             Assert.That(game.GetComponent<ArenaHud>().isActiveAndEnabled, Is.True);
             Assert.That(game.GetComponent<ArenaWorldView>().isActiveAndEnabled, Is.True);
             Assert.That(game.GameCamera.isActiveAndEnabled, Is.True);
+            Vector3 playerViewport = game.GameCamera.WorldToViewportPoint(ArenaWorldView.Point(game.Model.PlayerPosition, .8f));
+            Assert.That(playerViewport.x, Is.EqualTo(.5f).Within(1f / game.GameCamera.pixelWidth));
+            Assert.That(playerViewport.y, Is.EqualTo(.5f).Within(1f / game.GameCamera.pixelHeight));
             Transform stage = game.transform.Find("Arena presentation");
             Assert.That(stage, Is.Not.Null);
             bool running = game.Model.Phase != ArenaPhase.Opening;

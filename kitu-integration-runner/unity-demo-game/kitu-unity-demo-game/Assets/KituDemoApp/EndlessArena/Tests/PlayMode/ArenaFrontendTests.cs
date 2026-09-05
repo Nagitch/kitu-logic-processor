@@ -106,7 +106,7 @@ namespace UnityOnlyArena.Tests
             Assert.That(game.Model.Elapsed, Is.Zero);
             Assert.That(game.Model.Enemies, Is.Empty);
             Assert.That(game.GameCamera, Is.Not.Null);
-            Assert.That(game.GameCamera.orthographic, Is.True);
+            Assert.That(game.GameCamera.orthographic, Is.False);
             Assert.That(root.GetComponent<ArenaHud>(), Is.Not.Null);
 
             game.StartRun();
@@ -312,21 +312,89 @@ namespace UnityOnlyArena.Tests
             EquipFromChest(ItemKind.HeavyShooter, EquipmentSlot.WeaponB);
             yield return InputFrame(NoKeys);
             Vector2 initial = game.Model.PlayerPosition;
-            yield return InputUntil(() => game.Model.PlayerPosition.x > initial.x && game.Model.PlayerPosition.y > initial.y &&
+            yield return InputUntil(() => Vector2.Distance(game.Model.PlayerPosition, initial) > .02f &&
                 game.Model.WeaponCooldowns[0] > 0f && game.Model.WeaponCooldowns[1] > 0f,
                 new[] { Key.W, Key.D }, true, true);
             Vector2 moved = game.Model.PlayerPosition - initial;
-            Assert.That(moved.x, Is.EqualTo(moved.y).Within(.001f));
+            Vector3 screenMovement = ProjectMovement(initial);
+            Assert.That(screenMovement.x, Is.GreaterThan(0f));
+            Assert.That(screenMovement.y, Is.GreaterThan(0f));
             Assert.That(Vector2.Dot(game.Model.AimDirection, (AimTarget - game.Model.PlayerPosition).normalized), Is.GreaterThan(.999f));
             Assert.That(game.Model.Projectiles.Any(shot => shot.Damage == 12 && !shot.EnemyOwned), Is.True);
             Assert.That(game.Model.Projectiles.Any(shot => shot.Damage == 50 && !shot.EnemyOwned), Is.True);
 
             yield return InputFrame(NoKeys);
             Vector2 beforeReturn = game.Model.PlayerPosition;
-            yield return InputUntil(() => game.Model.PlayerPosition.x < beforeReturn.x && game.Model.PlayerPosition.y < beforeReturn.y,
+            yield return InputUntil(() => Vector2.Distance(game.Model.PlayerPosition, beforeReturn) > .02f,
                 new[] { Key.A, Key.S });
-            Assert.That(game.Model.PlayerPosition.x, Is.LessThan(beforeReturn.x));
-            Assert.That(game.Model.PlayerPosition.y, Is.LessThan(beforeReturn.y));
+            Assert.That(Vector2.Dot(game.Model.PlayerPosition - beforeReturn, moved), Is.LessThan(0f));
+            screenMovement = ProjectMovement(beforeReturn);
+            Assert.That(screenMovement.x, Is.LessThan(0f));
+            Assert.That(screenMovement.y, Is.LessThan(0f));
+        }
+
+        [UnityTest]
+        public IEnumerator CardinalKeysMoveAlongScreenAxesWithTheRotatedCamera()
+        {
+            game.StartRun();
+            game.Model.PlayerPosition = Vector2.zero;
+            yield return InputFrame(NoKeys);
+            Key[] keys = { Key.W, Key.A, Key.S, Key.D };
+            Vector2[] directions = { Vector2.up, Vector2.left, Vector2.down, Vector2.right };
+            for (int i = 0; i < keys.Length; i++)
+            {
+                Vector2 initial = game.Model.PlayerPosition;
+                yield return InputUntil(() => Vector2.Distance(game.Model.PlayerPosition, initial) > .05f, new[] { keys[i] });
+                Vector2 screenMovement = ProjectMovement(initial);
+                Assert.That(Vector2.Dot(screenMovement.normalized, directions[i]), Is.GreaterThan(.999f), keys[i].ToString());
+                yield return InputFrame(NoKeys);
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator CameraTracksArenaCornersWithoutZoomOrClampingAndSnapsOnRestart()
+        {
+            game.StartRun();
+            yield return InputFrame(NoKeys);
+            Camera camera = game.GameCamera;
+            Vector3 offset = camera.transform.position - ArenaWorldView.Point(game.Model.PlayerPosition, .8f);
+            Quaternion rotation = camera.transform.rotation;
+            float fieldOfView = camera.fieldOfView;
+            Vector2[] positions = { new Vector2(-9, -9), new Vector2(9, -9), new Vector2(9, 9), new Vector2(-9, 9) };
+            foreach (Vector2 position in positions)
+            {
+                game.Model.PlayerPosition = position;
+                yield return InputFrame(NoKeys);
+                AssertPlayerCentered();
+                Assert.That(Vector3.Distance(camera.transform.position - ArenaWorldView.Point(position, .8f), offset), Is.LessThan(.0001f));
+                Assert.That(Quaternion.Angle(camera.transform.rotation, rotation), Is.LessThan(.001f));
+                Assert.That(camera.fieldOfView, Is.EqualTo(fieldOfView));
+                Vector3 farCorner = camera.WorldToViewportPoint(ArenaWorldView.Point(-position, 0f));
+                Assert.That(farCorner.x < 0f || farCorner.x > 1f || farCorner.y < 0f || farCorner.y > 1f, Is.True,
+                    "The camera must allow the far side of the arena to leave the view.");
+            }
+            game.SetPaused(true);
+            Vector3 pausedCamera = camera.transform.position;
+            yield return InputFrame(new[] { Key.W });
+            Assert.That(camera.transform.position, Is.EqualTo(pausedCamera));
+            game.ReturnToMenu();
+            game.StartRun();
+            yield return InputFrame(NoKeys);
+            Assert.That(game.Model.PlayerPosition, Is.EqualTo(ArenaSimulation.EntrancePosition));
+            AssertPlayerCentered();
+        }
+
+        private Vector3 ProjectMovement(Vector2 initial) =>
+            game.GameCamera.WorldToScreenPoint(ArenaWorldView.Point(game.Model.PlayerPosition, 0f)) -
+            game.GameCamera.WorldToScreenPoint(ArenaWorldView.Point(initial, 0f));
+
+        private void AssertPlayerCentered()
+        {
+            Vector3 point = game.GameCamera.WorldToViewportPoint(ArenaWorldView.Point(game.Model.PlayerPosition, .8f));
+            Assert.That(point.z, Is.GreaterThan(0f));
+            // Unity rounds the fractional HUD viewport to physical pixels.
+            Assert.That(point.x, Is.EqualTo(.5f).Within(1f / game.GameCamera.pixelWidth));
+            Assert.That(point.y, Is.EqualTo(.5f).Within(1f / game.GameCamera.pixelHeight));
         }
 
         [UnityTest]

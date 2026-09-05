@@ -5,6 +5,10 @@ namespace UnityOnlyArena
 {
     public sealed class ArenaWorldView : MonoBehaviour
     {
+        [SerializeField, Range(15f, 85f)] private float cameraPitch = 56f;
+        [SerializeField, Range(-180f, 180f)] private float cameraYaw = -72f;
+        [SerializeField, Min(2f)] private float cameraDistance = 55f;
+        [SerializeField, Range(5f, 90f)] private float cameraFieldOfView = 13.1f;
         private readonly Dictionary<string, GameObject> objects = new Dictionary<string, GameObject>();
         private readonly Dictionary<Color, Material> materials = new Dictionary<Color, Material>();
         private readonly HashSet<string> live = new HashSet<string>();
@@ -38,13 +42,10 @@ namespace UnityOnlyArena
             cameraObject.transform.SetParent(transform);
             GameCamera = cameraObject.GetComponent<Camera>();
             GameCamera.tag = "MainCamera";
-            var cameraRotation = Quaternion.Euler(55, 0, 0);
-            GameCamera.transform.SetPositionAndRotation(cameraRotation * Vector3.back * 30f, cameraRotation);
-            GameCamera.orthographic = true;
+            GameCamera.orthographic = false;
             GameCamera.clearFlags = CameraClearFlags.SolidColor;
             GameCamera.backgroundColor = new Color(.035f, .055f, .085f);
             GameCamera.nearClipPlane = .1f;
-            GameCamera.farClipPlane = 50;
             var sun = new GameObject("Arena Light", typeof(Light));
             sun.transform.SetParent(transform);
             sun.transform.rotation = Quaternion.Euler(65, -25, 0);
@@ -58,7 +59,13 @@ namespace UnityOnlyArena
         {
             if (GameCamera == null) return;
             GameCamera.rect = new Rect(0, .19f, 1, .65f);
-            GameCamera.orthographicSize = 11.5f * Mathf.Max(1f, 1f / GameCamera.aspect);
+            var cameraRotation = Quaternion.Euler(cameraPitch, cameraYaw, 0f);
+            // Follow without arena-edge clamping or whole-floor zoom. This also snaps
+            // directly to the entrance on a floor change or retry, before rendering.
+            GameCamera.transform.SetPositionAndRotation(Point(model.PlayerPosition, .8f) +
+                cameraRotation * Vector3.back * cameraDistance, cameraRotation);
+            GameCamera.fieldOfView = cameraFieldOfView;
+            GameCamera.farClipPlane = Mathf.Max(100f, cameraDistance + 40f);
             bool inRun = model.Phase != ArenaPhase.Opening;
             stage.gameObject.SetActive(inRun);
             player.position = Point(model.PlayerPosition, .8f);

@@ -176,6 +176,12 @@ namespace UnityOnlyArena
             {
                 input.Move = new Vector2((keyboard.dKey.isPressed ? 1 : 0) - (keyboard.aKey.isPressed ? 1 : 0),
                     (keyboard.wKey.isPressed ? 1 : 0) - (keyboard.sKey.isPressed ? 1 : 0));
+                if (GameCamera != null)
+                {
+                    Vector3 right = GameCamera.transform.right, forward = GameCamera.transform.forward;
+                    input.Move = new Vector2(right.x, right.z).normalized * input.Move.x +
+                        new Vector2(forward.x, forward.z).normalized * input.Move.y;
+                }
                 input.UseA = !requireRelease[2] && keyboard.zKey.wasPressedThisFrame;
                 input.UseB = !requireRelease[3] && keyboard.xKey.wasPressedThisFrame;
             }

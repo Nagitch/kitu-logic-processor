@@ -148,3 +148,22 @@ with this camera. A separate interactive run of the saved-scene scenario
 also passed and produced a [combat capture](../verification/unity-only-arena/oblique-camera.png).
 The capture was inspected for the angled view and full arena framing.
 Earlier captures linked above retain the original overhead camera as historical evidence.
+
+## Player-follow camera follow-up (2026-09-06 JST)
+
+Following the supplied reference image, the current camera uses perspective
+projection with a 56-degree pitch and -72-degree yaw. It tracks the player's
+body center at a fixed distance of 55 with a 13.1-degree vertical field of view.
+Arena edges may leave the viewport. Movement input is mapped onto the camera's
+ground-plane axes, and world labels are clipped to the gameplay viewport.
+This supersedes the fixed orthographic framing documented in the earlier captures.
+
+Unity 6000.6.0f1 passed **12/12 PlayMode tests** in an interactive Editor run
+(2026-09-05 16:29:58–16:29:59 UTC). The tests cover all four movement directions,
+mouse aiming and both weapons, unchanged camera offset/zoom at all four arena
+corners, pause and restart, and player centering through the existing 11-floor
+scene scenario. Centering allows one pixel for viewport rounding.
+The [boss capture](../verification/unity-only-arena/follow-camera-boss.png) was
+inspected for the diagonal view, larger actors, player centering and viewport
+label clipping. Local runner details are in `Logs/arena-follow-playmode.xml`
+and `Logs/arena-follow-playmode.log` (not committed).

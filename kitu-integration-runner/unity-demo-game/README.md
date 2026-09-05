@@ -154,9 +154,12 @@ Open `kitu-unity-demo-game/` with Unity `6000.6.0f1`, then open
 Choose **Start game** in the opening menu. No Kitu, Rust runtime, network
 connection, or backend process is required for gameplay.
 
-The fixed orthographic camera looks down at the arena center at a 55-degree
-angle to the floor. Its horizontal orientation keeps WASD aligned with the
-screen, and mouse aiming projects onto the floor from this camera.
+The perspective camera follows the player from above and to the side (56-degree
+pitch, -72-degree yaw). It keeps the player centered without clamping to arena
+edges or zooming out to fit the whole floor. Its initial vertical field of view
+is 13.1 degrees at a distance of 55; these values can be tuned on ArenaWorldView.
+WASD follows the camera's ground-plane directions, while mouse aiming projects
+onto the floor. World labels are clipped to the gameplay viewport.
 
 The opening menu and pause menu offer **Settings** for master volume and
 windowed/borderless display. Changes are saved only with **Apply and return**.

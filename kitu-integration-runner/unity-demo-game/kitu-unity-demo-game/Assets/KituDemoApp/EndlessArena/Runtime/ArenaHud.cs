@@ -189,25 +189,40 @@ namespace UnityOnlyArena
         private void DrawEnemyLabels()
         {
             if (game.Model.Phase == ArenaPhase.Opening || game.GameCamera == null) return;
+            Rect viewport = CameraGuiRect();
+            GUI.BeginGroup(viewport);
             foreach (var enemy in game.Model.Enemies)
             {
-                Vector3 screen = game.GameCamera.WorldToScreenPoint(ArenaWorldView.Point(enemy.Position + Vector2.up * (enemy.Radius + .5f), 0));
-                Rect rect = new Rect(screen.x - 37, Screen.height - screen.y - 12, 74, 17);
+                Vector3 screen = game.GameCamera.WorldToScreenPoint(ArenaWorldView.Point(enemy.Position,
+                    enemy.Kind == ArenaEnemyKind.Boss ? 1.9f : 1.5f));
+                if (screen.z <= 0f) continue;
+                Rect rect = new Rect(screen.x - viewport.x - 37, Screen.height - screen.y - viewport.y - 17, 74, 17);
                 Bar(rect, (float)enemy.Health / enemy.MaxHealth, new Color(.8f, .18f, .23f));
                 GUI.Label(rect, $"{enemy.Health}/{enemy.MaxHealth}", small);
             }
+            GUI.EndGroup();
+        }
+
+        private Rect CameraGuiRect()
+        {
+            Rect pixels = game.GameCamera.pixelRect;
+            return new Rect(pixels.x, Screen.height - pixels.yMax, pixels.width, pixels.height);
         }
 
         private void WorldLabel(Vector2 point, string value, Color color)
         {
             if (game.GameCamera == null) return;
             Vector3 screen = game.GameCamera.WorldToScreenPoint(ArenaWorldView.Point(point, 0));
+            if (screen.z <= 0f) return;
             Matrix4x4 matrix = GUI.matrix;
             GUI.matrix = Matrix4x4.identity;
+            Rect viewport = CameraGuiRect();
+            GUI.BeginGroup(viewport);
             Color previous = GUI.color;
             GUI.color = color;
-            GUI.Label(new Rect(screen.x - 95, Screen.height - screen.y + 15, 205, 25), value, small);
+            GUI.Label(new Rect(screen.x - viewport.x - 95, Screen.height - screen.y - viewport.y + 15, 205, 25), value, small);
             GUI.color = previous;
+            GUI.EndGroup();
             GUI.matrix = matrix;
         }
 
