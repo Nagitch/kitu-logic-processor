@@ -1,7 +1,7 @@
 //! Authoritative Arena application, incrementally ported against the C# oracle.
 //!
-//! Lifecycle, movement, aim, pause and inventory use the reference contract.
-//! Combat and progression follow in their respective migration stages.
+//! Lifecycle, movement, inventory and combat use the reference contract.
+//! The first floor is playable; endless progression follows in stage 5.
 
 use std::collections::HashMap;
 
@@ -45,51 +45,62 @@ impl Vec2 {
     }
 }
 
-/// Detached state shared by the host, Unity and command-line inspectors.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ArenaState {
-    /// Last completed source tick; -1 before the first update.
-    pub tick: i64,
-    /// Number of gameplay steps, excluding paused/opening/results ticks.
-    pub simulation_steps: u64,
-    /// Reference ArenaPhase discriminant (opening=0, preparation=1).
-    pub phase: i32,
-    /// Runtime-owned pause/interaction overlay.
-    pub overlay: String,
-    /// Current floor; preparation is zero.
-    pub floor: i32,
-    /// Gameplay elapsed seconds, accumulated using reference f32 arithmetic.
-    pub elapsed: f32,
-    /// Authoritative player ground-plane position.
-    pub player_position: Vec2,
-    /// Last valid normalized aim direction.
-    pub aim_direction: Vec2,
-    /// Complete item ownership and health/shield clock projection.
-    pub inventory: Inventory,
-    /// Whether the current safe phase offers a chest.
-    pub chest_available: bool,
-    /// Whether the current phase offers a portal (progression migrates in stage 5).
-    pub portal_available: bool,
-}
-
-impl Default for ArenaState {
-    fn default() -> Self {
+impl std::ops::Add for Vec2 {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self {
         Self {
-            tick: -1,
-            simulation_steps: 0,
-            phase: 0,
-            overlay: "none".into(),
-            floor: 0,
-            elapsed: 0.0,
-            player_position: Vec2::default(),
-            aim_direction: Vec2 { x: 0.0, y: 1.0 },
-            inventory: Inventory::default(),
-            chest_available: false,
-            portal_available: false,
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
         }
     }
 }
+impl std::ops::Sub for Vec2 {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+impl std::ops::Mul<f32> for Vec2 {
+    type Output = Self;
+    fn mul(self, rhs: f32) -> Self {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+        }
+    }
+}
+impl Vec2 {
+    fn squared(self) -> f32 {
+        self.x * self.x + self.y * self.y
+    }
+    fn dot(self, rhs: Self) -> f32 {
+        self.x * rhs.x + self.y * rhs.y
+    }
+    fn clamp_length(self, max: f32) -> Self {
+        if self.squared() > max * max {
+            self.normalized() * max
+        } else {
+            self
+        }
+    }
+    fn clamp_arena(self, radius: f32) -> Self {
+        let edge = 10.0 - radius;
+        Self {
+            x: self.x.clamp(-edge, edge),
+            y: self.y.clamp(-edge, edge),
+        }
+    }
+    fn lerp(self, end: Self, fraction: f32) -> Self {
+        self + (end - self) * fraction.clamp(0.0, 1.0)
+    }
+}
+
+mod combat;
+mod state;
+pub use state::{ArenaState, Effect, Enemy, Grenade, Projectile, RunResult};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
 struct Controls {
@@ -117,7 +128,7 @@ enum Command {
         index: i32,
         slot: i32,
     },
-    Unsupported,
+    Use(i32),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -148,6 +159,7 @@ struct ArenaSession {
     controls: Controls,
     seen: HashMap<(String, u64), (OscMessage, Outcome)>,
     high_water: HashMap<String, u64>,
+    queued_use: [bool; 2],
 }
 
 struct ArenaApplication;
@@ -251,7 +263,7 @@ fn parse(message: &OscMessage) -> Result<Command> {
         }
         "/input/arena/use" => {
             return match message.args.as_slice() {
-                [OscArg::Int(_)] => Ok(Command::Unsupported),
+                [OscArg::Int(slot)] => Ok(Command::Use(*slot)),
                 _ => Err(KituError::InvalidInput(
                     "Arena use expects an i32 equipment slot",
                 )),
@@ -389,30 +401,17 @@ impl RuntimeApplication for ArenaApplication {
                 output.push(json_message("/ui/arena/command", &outcome));
             }
         }
-        if session.state.phase == 1 && session.state.overlay == "none" {
-            let mut movement = session.controls.movement;
-            if movement.x * movement.x + movement.y * movement.y > 1.0 {
-                movement = movement.normalized();
-            }
-            session.state.player_position.x = (session.state.player_position.x
-                + movement.x * (5.0 * context.dt))
-                .clamp(-9.5, 9.5);
-            session.state.player_position.y = (session.state.player_position.y
-                + movement.y * (5.0 * context.dt))
-                .clamp(-9.5, 9.5);
-            if session.controls.has_aim {
-                let direction = Vec2 {
-                    x: session.controls.aim.x - session.state.player_position.x,
-                    y: session.controls.aim.y - session.state.player_position.y,
-                };
-                if direction.x * direction.x + direction.y * direction.y > 0.000001 {
-                    session.state.aim_direction = direction.normalized();
-                }
-            }
-            session.state.inventory.advance_time(context.dt);
-            session.state.elapsed += context.dt;
+        if session.state.phase != 0 && session.state.phase != 5 && session.state.overlay == "none" {
+            session.state.step(
+                session.controls,
+                session.queued_use,
+                context.dt,
+                context.tick.get() as i64,
+                &mut output,
+            );
             session.state.simulation_steps += 1;
         }
+        session.queued_use = [false; 2];
         session.state.tick = context.tick.get() as i64;
         output.push(json_message("/ui/arena/state", &session.state));
         vec![output]
@@ -436,6 +435,8 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
             inventory.create_chest(0);
             session.state = ArenaState {
                 inventory,
+                portal_armed: true,
+                transition_remaining: session.state.transition_remaining,
                 chest_available: true,
                 portal_available: true,
                 phase: 1,
@@ -452,6 +453,8 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
             };
             session.state = ArenaState {
                 inventory,
+                next_entity_id: session.state.next_entity_id,
+                transition_remaining: session.state.transition_remaining,
                 player_position: Vec2 { x: 0.0, y: -7.0 },
                 simulation_steps,
                 ..ArenaState::default()
@@ -493,10 +496,23 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
             index,
             slot,
         } => return inventory_command(session, operation, item_id, index, slot),
-        Command::Unsupported => return "not_yet_implemented",
+        Command::Use(slot) => {
+            if session.state.phase == 0
+                || session.state.phase == 5
+                || session.state.overlay != "none"
+            {
+                return "invalid_state";
+            }
+            if !(2..=3).contains(&slot) {
+                return "invalid_target";
+            }
+            session.queued_use[(slot - 2) as usize] = true;
+            return "ok";
+        }
         _ => return "invalid_state",
     }
     session.controls = Controls::default();
+    session.queued_use = [false; 2];
     "ok"
 }
 

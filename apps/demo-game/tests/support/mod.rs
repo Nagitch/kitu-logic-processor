@@ -31,6 +31,11 @@ pub fn projection(runtime: &DemoRuntime) -> Value {
 pub fn compare(expected: &Value, actual: &Value, path: &str) {
     match (expected, actual) {
         (Value::Object(expected), Value::Object(actual)) => {
+            assert_eq!(
+                expected.keys().collect::<Vec<_>>(),
+                actual.keys().collect::<Vec<_>>(),
+                "{path}: fields"
+            );
             for (key, actual) in actual {
                 compare(
                     expected
@@ -119,10 +124,17 @@ pub fn replay_reference(name: &str, limit: usize) -> (usize, usize) {
                 OscArg::Bool(f["FireB"].as_bool().unwrap()),
             ],
         );
-        assert!(
-            !f["UseA"].as_bool().unwrap() && !f["UseB"].as_bool().unwrap(),
-            "consumable trace needs the combat migration"
-        );
+        for (index, key) in ["UseA", "UseB"].iter().enumerate() {
+            if f[key].as_bool().unwrap() {
+                send(
+                    &mut runtime,
+                    "reference:uses",
+                    tick * 2 + index as u64 + 1,
+                    "/input/arena/use",
+                    vec![OscArg::Int(index as i32 + 2)],
+                );
+            }
+        }
         runtime.tick_once().unwrap();
         for bundle in runtime.drain_output_buffer() {
             for message in bundle.messages {
@@ -131,6 +143,9 @@ pub fn replay_reference(name: &str, limit: usize) -> (usize, usize) {
                         panic!("JSON outcome");
                     };
                     let mut outcome: Value = serde_json::from_str(json).unwrap();
+                    if outcome["source"] != "reference:commands" {
+                        continue;
+                    }
                     outcome.as_object_mut().unwrap().remove("source");
                     outcome.as_object_mut().unwrap().remove("sequence");
                     observed.push(outcome);

@@ -53,3 +53,22 @@ The app scenarios are ordinary Rust tests and run in the workspace CI:
 ```sh
 cargo test -p kitu-demo-game
 ```
+
+## Endless Arena migration
+
+The same host also runs the Arena application at 60 Hz independently of messages.
+Open `Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity` in the Unity demo
+project and connect to `ws://localhost:8787/ws/runtime`. This migration scene
+currently plays preparation, inventory/equipment and the first combat floor.
+Full endless progression and the default-scene switch are the next stage. The
+original `EndlessArena.unity` and frozen C# fixtures remain the comparison oracle.
+
+WASD moves, mouse buttons fire the two weapons, Z/X use consumables, E opens a
+nearby chest, I/Tab opens inventory, and Escape closes an overlay or pauses.
+The client only submits input and renders server state. See the
+[Arena contract](../../doc/specs/arena-runtime-contract.md) and
+[stage 4 evidence](../../doc/verification/arena-combat/results.json).
+
+To include the live migration scene in PlayMode validation, run the host and set
+`KITU_ARENA_WS_URL=ws://localhost:8787/ws/runtime` when launching Unity tests.
+Without that variable, the external-host connection test is explicitly skipped.
