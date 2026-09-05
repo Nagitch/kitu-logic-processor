@@ -63,6 +63,14 @@ pub fn compare(expected: &Value, actual: &Value, path: &str) {
 }
 
 pub fn replay_reference(name: &str, limit: usize) -> (usize, usize) {
+    replay_reference_observing(name, limit, |_| {})
+}
+
+pub fn replay_reference_observing(
+    name: &str,
+    limit: usize,
+    mut observe: impl FnMut(&OscMessage),
+) -> (usize, usize) {
     let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../kitu-integration-runner/scenarios/arena/reference")
         .join(name);
@@ -138,6 +146,7 @@ pub fn replay_reference(name: &str, limit: usize) -> (usize, usize) {
         runtime.tick_once().unwrap();
         for bundle in runtime.drain_output_buffer() {
             for message in bundle.messages {
+                observe(&message);
                 if message.address == "/ui/arena/command" {
                     let OscArg::Str(json) = &message.args[0] else {
                         panic!("JSON outcome");

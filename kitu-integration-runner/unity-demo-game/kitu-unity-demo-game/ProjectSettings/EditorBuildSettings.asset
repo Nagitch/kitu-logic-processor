@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity
+    guid: 2be5516c0fc194119bed769a5a837db0
+  - enabled: 1
     path: Assets/KituDemoApp/EndlessArena/EndlessArena.unity
     guid: 8b1c0f14c3af04b288ec80ecd832e17e
   - enabled: 1

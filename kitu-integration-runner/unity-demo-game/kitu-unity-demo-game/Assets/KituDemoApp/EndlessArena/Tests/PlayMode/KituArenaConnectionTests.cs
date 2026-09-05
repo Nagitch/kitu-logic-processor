@@ -160,6 +160,20 @@ namespace UnityOnlyArena.Tests
             Assert.That(client.State.enemies.Length, Is.EqualTo(3));
             foreach (var enemy in client.State.enemies)
                 Assert.That(root.transform.Find("Arena presentation/enemy-" + enemy.Id), Is.Not.Null);
+            // A rejected inventory/chest request must not release a held weapon.
+            // Gate buttons when an authoritative UI/phase change arrives, not on send.
+            driver.enabled = true; client.DeviceInput = true;
+            var away = client.GameCamera.WorldToScreenPoint(new Vector3(9, 0, -7));
+            yield return DeviceFrame(driver, default, new MouseState { position = away });
+            yield return DeviceFrame(driver, default, new MouseState { position = away, buttons = 1 });
+            yield return Until(() => client.State.weaponCooldowns[0] > .1f, "held fire begins");
+            yield return DeviceFrame(driver, new KeyboardState(Key.Tab, Key.E), new MouseState { position = away, buttons = 1 });
+            yield return DeviceFrame(driver, default, new MouseState { position = away, buttons = 1 });
+            long firingTick = client.State.tick;
+            yield return Until(() => client.State.tick > firingTick + 45, "held fire survives rejected UI requests");
+            Assert.That(client.State.overlay, Is.EqualTo("none"));
+            Assert.That(client.State.weaponCooldowns[0], Is.GreaterThan(0));
+            driver.enabled = false; client.DeviceInput = false;
             deadline = Time.realtimeSinceStartup + 12f;
             while (client.State.phase == 3 && Time.realtimeSinceStartup < deadline)
             {
@@ -175,6 +189,143 @@ namespace UnityOnlyArena.Tests
             Assert.That(client.State.grenades, Is.Empty);
             Assert.That(client.State.effects, Is.Empty);
             yield return null;
+        }
+
+        [UnityTest, Category("ArenaNetwork")]
+        public IEnumerator LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings()
+        {
+            string endpoint = Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
+            if (string.IsNullOrEmpty(endpoint)) Assert.Ignore("Set KITU_ARENA_WS_URL to an isolated running admin host.");
+#if UNITY_EDITOR
+            Assert.That(UnityEditor.EditorBuildSettings.scenes.First(s => s.enabled).path,
+                Is.EqualTo("Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity"));
+            yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
+                "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity", new LoadSceneParameters(LoadSceneMode.Single));
+#else
+            yield return SceneManager.LoadSceneAsync("KituEndlessArena", LoadSceneMode.Single);
+#endif
+            var client = UnityEngine.Object.FindFirstObjectByType<KituArenaClient>();
+            root = client.gameObject;
+            client.DeviceInput = false; client.Endpoint = endpoint; client.Connect();
+            yield return Until(() => client.Connected, "stock synchronization");
+            client.Command("menu");
+            yield return Until(() => client.State.phase == 0, "stock opening");
+            client.OpenSettings();
+            Assert.That(client.SettingsOpen, Is.True);
+            float volume = client.Settings.Volume;
+            client.DraftSettings.Volume = .25f;
+            client.CancelSettings();
+            Assert.That(client.Settings.Volume, Is.EqualTo(volume));
+            client.Command("start");
+            yield return Until(() => client.State.phase == 1, "stock start");
+            client.Command("pause");
+            yield return Until(() => client.State.overlay == "pause", "settings pause");
+            float elapsed = client.State.elapsed;
+            long tick = client.State.tick;
+            client.OpenSettings(); client.ResetSettingsDraft();
+            Assert.That(client.SettingsOpen, Is.True);
+            Assert.That(client.Command("resume"), Is.False, "settings cannot resume the game");
+            yield return Until(() => client.State.tick > tick + 8, "settings keep management alive");
+            Assert.That(client.State.elapsed, Is.EqualTo(elapsed));
+            client.CancelSettings();
+            Assert.That(client.State.overlay, Is.EqualTo("pause"));
+            client.Command("resume");
+            yield return Until(() => client.State.overlay == "none", "settings return stays paused until resume");
+            int prepared = -1, clears = 0, usedItem = 0;
+            bool exitPortal = false;
+            float deadline = Time.realtimeSinceStartup + 210f;
+            while (client.State.phase != 5 && Time.realtimeSinceStartup < deadline)
+            {
+                var state = client.State;
+                if (state.floorsCleared != clears)
+                {
+                    clears = state.floorsCleared;
+                    exitPortal = Vector2.Distance(state.playerPosition, ArenaSimulation.PortalPosition) <= ArenaSimulation.PortalRadius;
+                    Debug.Log($"Kitu live stock: cleared {clears}F at runtime tick {state.tick}, HP {state.inventory.health}");
+                }
+                Vector2 move = Vector2.zero, aim = Vector2.zero;
+                bool fire = false;
+                if (state.floor >= 11 && state.phase == 3) { /* Natural death through incoming attacks. */ }
+                else if (state.phase == 1 || state.phase == 4)
+                {
+                    if (exitPortal)
+                    {
+                        move = Vector2.down;
+                        if (Vector2.Distance(state.playerPosition, ArenaSimulation.PortalPosition) > ArenaSimulation.PortalRadius + .25f) exitPortal = false;
+                    }
+                    else if (state.chestAvailable && prepared != state.floor)
+                    {
+                        var toChest = ArenaSimulation.ChestPosition - state.playerPosition;
+                        if (toChest.magnitude > 1.3f) move = toChest.normalized;
+                        else { client.Frame(Vector2.zero, Vector2.zero); yield return StockLoadout(client); prepared = state.floor; }
+                    }
+                    else move = (ArenaSimulation.PortalPosition - state.playerPosition).normalized;
+                }
+                else if (state.phase == 3 && state.enemies.Length > 0)
+                {
+                    float radius = state.playerPosition.magnitude;
+                    Vector2 radial = radius > .01f ? state.playerPosition / radius : Vector2.down;
+                    move = (new Vector2(-radial.y, radial.x) + radial * ((7.7f - radius) * 1.5f)).normalized;
+                    aim = state.enemies.OrderBy(e => (e.Position - state.playerPosition).sqrMagnitude).First().Position;
+                    fire = true;
+                    int item = state.inventory.equipment[3].id;
+                    if (item != 0 && usedItem != item && state.inventory.health <= state.inventory.maxHealth / 2)
+                    { client.Command("use", 3); usedItem = item; }
+                }
+                client.Frame(move, aim, fire, fire, fire);
+                yield return null;
+            }
+            Assert.That(client.State.phase, Is.EqualTo(5), "stock run must naturally reach results");
+            Assert.That(client.State.floor, Is.EqualTo(11), "stock loadout must survive ten floors");
+            Assert.That(client.State.floorsCleared, Is.EqualTo(10));
+            Assert.That(client.State.bossesDefeated, Is.EqualTo(2));
+            Assert.That(client.State.inventory.maxHealth, Is.EqualTo(130));
+            var result = client.State.result;
+            Assert.That(result.present, Is.True);
+            Assert.That(result.equipmentNames.Length, Is.EqualTo(4));
+            Assert.That(result.enemiesDefeated, Is.EqualTo(client.State.enemiesDefeated));
+            string frozen = JsonUtility.ToJson(result);
+            tick = client.State.tick;
+            yield return Until(() => client.State.tick > tick + 8, "results freeze gameplay");
+            Assert.That(JsonUtility.ToJson(client.State.result), Is.EqualTo(frozen));
+            client.Command("start");
+            yield return Until(() => client.State.phase == 1 && client.State.floor == 0, "retry after natural death");
+            Assert.That(client.State.inventory.health, Is.EqualTo(100));
+            Assert.That(client.State.inventory.maxHealth, Is.EqualTo(100));
+            Assert.That(client.State.inventory.chest.Length, Is.EqualTo(11));
+            Assert.That(client.State.result.present, Is.False);
+            Assert.That(JsonUtility.ToJson(result), Is.EqualTo(frozen));
+            Assert.That(UnityEngine.Object.FindFirstObjectByType<ArenaGame>(), Is.Null);
+        }
+
+        private static IEnumerator StockLoadout(KituArenaClient client)
+        {
+            client.Command("chest");
+            yield return Until(() => client.State.overlay == "chest", "stock chest");
+            string[] names = { "Power Shooter", "Quick Shooter", "Shield", "Medkit" };
+            for (int slot = 0; slot < names.Length; slot++)
+            {
+                int bag = Array.FindIndex(client.State.inventory.backpack, item => item.id == 0);
+                Assert.That(bag, Is.GreaterThanOrEqualTo(0));
+                yield return EquipFromChest(client, names[slot], bag, slot);
+                int outgoing = client.State.inventory.backpack[bag].id;
+                if (outgoing != 0)
+                {
+                    client.Command("discard", outgoing, bag);
+                    yield return Until(() => client.State.inventory.backpack[bag].id == 0, "stock discard");
+                }
+            }
+            foreach (var kind in new[] { ItemKind.HealthUpgrade, ItemKind.AttackUpgrade })
+            {
+                int id = Array.Find(client.State.inventory.chest, item => item.kind == (int)kind).id;
+                int bag = Array.FindIndex(client.State.inventory.backpack, item => item.id == 0);
+                client.Command("take", id, bag);
+                yield return Until(() => client.State.inventory.backpack[bag].id == id, "stock upgrade take");
+                client.Command("upgrade", id, bag);
+                yield return Until(() => client.State.inventory.backpack[bag].id == 0, "stock upgrade consume");
+            }
+            client.Command("close");
+            yield return Until(() => client.State.overlay == "none", "stock chest close");
         }
 
         private static IEnumerator EquipFromChest(KituArenaClient client, string name, int bag, int slot)
@@ -205,6 +356,12 @@ namespace UnityOnlyArena.Tests
             driver.MouseState = new MouseState { position = client.GameCamera.WorldToScreenPoint(ArenaWorldView.Point(client.State.playerPosition + Vector2.up * 3f, 0)) };
             client.DeviceInput = true;
             return driver;
+        }
+
+        private static IEnumerator DeviceFrame(ArenaFrontendInputDriver driver, KeyboardState keys, MouseState pointer)
+        {
+            driver.KeyboardState = keys; driver.MouseState = pointer;
+            yield return null; yield return null;
         }
 
         private static IEnumerator Until(Func<bool> condition, string operation)

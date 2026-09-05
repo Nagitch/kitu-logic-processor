@@ -20,6 +20,9 @@ namespace UnityOnlyArena
         private bool synchronized;
         private int selectedBackpack;
         private Vector2 inventoryScroll;
+        public ArenaSettings Settings { get; private set; }
+        public ArenaSettings DraftSettings { get; private set; }
+        public bool SettingsOpen => DraftSettings != null;
         public string SessionId { get; private set; }
         public ArenaReferenceState State { get; private set; }
         public string Message { get; private set; } = "";
@@ -28,6 +31,8 @@ namespace UnityOnlyArena
 
         private void Awake()
         {
+            Settings = ArenaSettings.Load();
+            Settings.Apply(false);
             State = new ArenaReferenceState { tick = -1, aimDirection = Vector2.up, overlay = "none" };
             world = gameObject.AddComponent<ArenaWorldView>();
             world.Initialize(State);
@@ -48,9 +53,9 @@ namespace UnityOnlyArena
 
         public bool Command(string suffix, params int[] values)
         {
+            if (SettingsOpen) return false;
             var args = new JArray();
             foreach (int value in values) args.Add(Arg("int", value));
-            if (suffix != "use") BlockGameplayButtons();
             return Send("/input/arena/" + suffix, args);
         }
 
@@ -91,6 +96,7 @@ namespace UnityOnlyArena
                                 if (state.overlay != State.overlay ||
                                     (state.phase != State.phase && (state.phase == 0 || state.phase == 5 || State.phase == 0 || State.phase == 5)))
                                     BlockGameplayButtons();
+                                if (SettingsOpen && state.phase != 0 && state.overlay != "pause") DraftSettings = null;
                                 State = state;
                                 synchronized = true;
                                 world.Sync(State);
@@ -118,6 +124,11 @@ namespace UnityOnlyArena
         private void ReadInput()
         {
             var keyboard = Keyboard.current;
+            if (SettingsOpen)
+            {
+                if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame) CancelSettings();
+                return;
+            }
             if (keyboard != null)
             {
                 if (keyboard.escapeKey.wasPressedThisFrame)
@@ -179,7 +190,7 @@ namespace UnityOnlyArena
         private void DrawInventory()
         {
             var inventory = State.inventory;
-            var area = new Rect(Screen.width * .12f, 135, Screen.width * .76f, Mathf.Max(100, Screen.height - 150));
+            var area = new Rect(Screen.width * .12f, 170, Screen.width * .76f, Mathf.Max(100, Screen.height - 185));
             GUI.Box(area, "");
             GUILayout.BeginArea(new Rect(area.x + 15, area.y + 10, area.width - 30, area.height - 20));
             GUILayout.BeginHorizontal();
@@ -230,14 +241,70 @@ namespace UnityOnlyArena
             GUILayout.EndArea();
         }
 
+        public void OpenSettings()
+        {
+            if (State.phase != 0 && State.overlay != "pause") return;
+            DraftSettings = Settings.Copy();
+            BlockGameplayButtons();
+        }
+
+        public void ApplySettings()
+        {
+            if (!SettingsOpen) return;
+            Settings = DraftSettings.Copy();
+            Settings.Apply();
+            DraftSettings = null;
+            BlockGameplayButtons();
+        }
+
+        public void CancelSettings() { DraftSettings = null; BlockGameplayButtons(); }
+        public void ResetSettingsDraft() { if (SettingsOpen) DraftSettings = new ArenaSettings(); }
+
+        private void DrawSettings()
+        {
+            var area = new Rect((Screen.width - 550) / 2f, 175, 550, 335);
+            GUI.Box(area, "");
+            GUILayout.BeginArea(new Rect(area.x + 20, area.y + 15, area.width - 40, area.height - 30));
+            GUILayout.Label("SETTINGS");
+            GUILayout.Space(15);
+            GUILayout.Label($"Master volume: {Mathf.RoundToInt(DraftSettings.Volume * 100)}%");
+            DraftSettings.Volume = GUILayout.HorizontalSlider(DraftSettings.Volume, 0, 1);
+            DraftSettings.Fullscreen = GUILayout.Toggle(DraftSettings.Fullscreen, "Borderless fullscreen (standalone)");
+            GUILayout.Label("Changes are saved only when applied.");
+            GUILayout.Space(15);
+            if (GUILayout.Button("Restore defaults")) ResetSettingsDraft();
+            if (GUILayout.Button("Apply and return")) ApplySettings();
+            if (GUILayout.Button("Cancel")) CancelSettings();
+            GUILayout.EndArea();
+        }
+
+        private void DrawResults()
+        {
+            var result = State.result;
+            if (result == null || !result.present) return;
+            var area = new Rect((Screen.width - 660) / 2f, 175, 660, 370);
+            GUI.Box(area, "");
+            GUILayout.BeginArea(new Rect(area.x + 20, area.y + 15, area.width - 40, area.height - 30));
+            GUILayout.Label("GAME OVER");
+            GUILayout.Label($"Reached {result.floor}F · Cleared {result.floorsCleared} floors");
+            GUILayout.Label($"Defeated {result.enemiesDefeated} enemies, including {result.bossesDefeated} bosses");
+            GUILayout.Label($"Run time {result.elapsed:F2}s · Maximum HP {result.maxHealth} · Attack ×{result.attackMultiplier:F2}");
+            string[] names = { "Weapon A", "Weapon B", "Item A", "Item B" };
+            for (int i = 0; i < result.equipmentNames.Length; i++) GUILayout.Label(names[i] + ": " + result.equipmentNames[i]);
+            GUILayout.Space(15);
+            if (GUILayout.Button("Try again (R)")) Command("start");
+            if (GUILayout.Button("Return to menu")) Command("menu");
+            GUILayout.EndArea();
+        }
+
         private void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(20, 12, Screen.width - 40, 125));
+            GUILayout.BeginArea(new Rect(20, 12, Screen.width - 40, 150));
             GUILayout.Label($"ENDLESS ARENA · {State.floor}F · {(ArenaPhase)State.phase} · Enemies {State.enemies?.Length ?? 0}");
             GUILayout.Label($"{(Connected ? "Connected" : connection?.Status ?? "Disconnected")}  |  Tick {State.tick}  |  Time {State.elapsed:F2}  |  {State.overlay}  {Message}");
             GUILayout.BeginHorizontal();
             if (!Connected) { if (GUILayout.Button("Connect", GUILayout.Width(140))) Connect(); }
-            else
+            else if (!SettingsOpen)
             {
                 if (State.phase == 0 || State.phase == 5) { if (GUILayout.Button("Start run", GUILayout.Width(140))) Command("start"); }
                 else if (GUILayout.Button(State.overlay == "pause" ? "Resume" : "Pause", GUILayout.Width(140))) Command(State.overlay == "pause" ? "resume" : "pause");
@@ -246,12 +313,27 @@ namespace UnityOnlyArena
                     if (GUILayout.Button("Inventory (I)", GUILayout.Width(140))) Command("inventory");
                     if (State.chestAvailable && GUILayout.Button("Open chest (E)", GUILayout.Width(140))) Command("chest");
                 }
+                if ((State.phase == 0 || State.overlay == "pause") && GUILayout.Button("Settings", GUILayout.Width(100))) OpenSettings();
                 if (GUILayout.Button("Main menu", GUILayout.Width(140))) Command("menu");
+                if (State.phase == 0 && GUILayout.Button("Quit", GUILayout.Width(80))) Application.Quit();
             }
             GUILayout.EndHorizontal();
             GUILayout.Label("WASD: move · Mouse: aim/fire A/B · Z/X: items · Tab/I: inventory · E: chest · Escape: close/pause");
             if (State.inventory != null) GUILayout.Label($"HP {State.inventory.health}/{State.inventory.maxHealth} · Attack ×{State.inventory.attackMultiplier:F2}");
+            string objective = State.phase == 1 ? "Prepare at the chest, then enter the portal" :
+                State.phase == 3 ? (State.floor % 5 == 0 ? "Defeat the boss" : "Defeat every enemy") :
+                State.phase == 4 ? (State.chestAvailable ? "Boss defeated · HP restored · Choose a reward, then enter the portal" : "Floor cleared · Enter the portal to continue") : "";
+            GUILayout.Label(objective);
             GUILayout.EndArea();
+            if (SettingsOpen) { DrawSettings(); return; }
+            if (State.phase == 5) DrawResults();
+            if (State.overlay == "none" && State.phase != 0 && State.phase != 5 && State.inventory != null)
+            {
+                GUILayout.BeginArea(new Rect(20, Screen.height - 115, Screen.width - 40, 105));
+                for (int i = 0; i < State.inventory.equipment.Length; i++)
+                    GUILayout.Label((i < 2 ? "Weapon " + (i == 0 ? "A" : "B") : "Item " + (i == 2 ? "A" : "B")) + ": " + ItemText(State.inventory.equipment[i]));
+                GUILayout.EndArea();
+            }
             if ((State.overlay == "inventory" || State.overlay == "chest") && State.inventory != null) DrawInventory();
         }
     }

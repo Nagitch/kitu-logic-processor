@@ -48,7 +48,7 @@ impl ArenaState {
         if self.phase == 2 {
             self.transition_remaining -= dt;
             if self.transition_remaining <= 0.00001 {
-                self.enter_first_floor(tick, output);
+                self.enter_next_floor(tick, output);
             }
             return;
         }
@@ -136,6 +136,20 @@ impl ArenaState {
             self.floors_cleared += 1;
             self.phase_to(4, tick, output);
             self.clear_transient(tick, output);
+            if self.floor > 0 && self.floor % 5 == 0 {
+                self.inventory.heal_fully();
+                self.inventory.create_chest(self.floor);
+                emit(
+                    output,
+                    tick,
+                    "/game/arena/reward",
+                    json!({
+                        "floor":self.floor,"health":self.inventory.health,
+                        "itemIds":self.inventory.chest.iter().map(|item| item.id).collect::<Vec<_>>(),
+                        "inventory":self.inventory,
+                    }),
+                );
+            }
             self.portal_armed = (self.player_position - Vec2 { x: 0.0, y: 7.5 }).length() > 1.25;
         }
         if self.portal_available {
@@ -143,13 +157,10 @@ impl ArenaState {
             if !overlaps {
                 self.portal_armed = true;
             } else if self.portal_armed
-                && self.floor == 0
                 && self.inventory.equipment[..2]
                     .iter()
                     .any(|item| item.is_weapon())
             {
-                // Stage 4 opens the first combat floor. Endless progression and
-                // repeating boss rewards are enabled by the following migration.
                 self.transition_remaining = 0.3;
                 self.portal_armed = false;
                 self.inventory.chest.clear();
@@ -178,14 +189,36 @@ impl ArenaState {
         );
     }
 
-    fn enter_first_floor(&mut self, tick: i64, output: &mut OscBundle) {
+    fn enter_next_floor(&mut self, tick: i64, output: &mut OscBundle) {
         self.floor += 1;
         self.player_position = Vec2 { x: 0.0, y: -7.0 };
         self.aim_direction = Vec2 { x: 0.0, y: 1.0 };
         self.weapon_cooldowns = [0.0; 2];
         self.enemies.clear();
-        for x in [-7.5, -4.5, -1.5] {
-            let enemy = self.create_enemy(0, Vec2 { x, y: 6.0 });
+        let boss = self.floor % 5 == 0;
+        let count = if boss { 1 } else { (self.floor + 2).min(12) };
+        let shooters = if self.floor == 1 { 0 } else { count / 3 };
+        let heavy = if self.floor <= 2 { 0 } else { count / 4 };
+        let pursuers = count - shooters - heavy;
+        for i in 0..count {
+            let kind = if boss {
+                3
+            } else if i < pursuers {
+                0
+            } else if i < pursuers + shooters {
+                1
+            } else {
+                2
+            };
+            let position = if boss {
+                Vec2 { x: 0.0, y: 5.5 }
+            } else {
+                Vec2 {
+                    x: -7.5 + (i % 6) as f32 * 3.0,
+                    y: if i < 6 { 6.0 } else { 2.5 },
+                }
+            };
+            let enemy = self.create_enemy(kind, position);
             emit(
                 output,
                 tick,
@@ -767,6 +800,214 @@ mod tests {
         }
         state
     }
+    #[test]
+    fn twenty_one_floors_preserve_rosters_scaling_rewards_and_clear_once() {
+        let mut state = ArenaState {
+            phase: 1,
+            portal_available: true,
+            portal_armed: true,
+            ..ArenaState::default()
+        };
+        state.inventory.create_chest(0);
+        let mut kills = 0;
+        for floor in 1..=21 {
+            state.player_position = Vec2 { x: 0.0, y: 7.5 };
+            step(&mut state, DT, Controls::default(), [false; 2]);
+            assert_eq!(state.phase, 2);
+            assert!(state.inventory.chest.is_empty());
+            let elapsed = state.elapsed;
+            step(
+                &mut state,
+                0.3,
+                Controls {
+                    fire_a: true,
+                    ..Controls::default()
+                },
+                [true; 2],
+            );
+            assert_eq!((state.floor, state.phase), (floor, 3));
+            assert_eq!(state.elapsed, elapsed);
+            assert_eq!(state.weapon_cooldowns, [0.0; 2]);
+            assert!(!state.portal_available && !state.chest_available);
+            let boss = floor % 5 == 0;
+            let count = if boss { 1 } else { (floor + 2).min(12) };
+            assert_eq!(state.enemies.len(), count as usize);
+            if boss {
+                assert_eq!(state.enemies[0].kind, 3);
+                assert_eq!(
+                    state.enemies[0].max_health,
+                    (300.0 * (1.0 + 0.12 * (floor - 1) as f32)).ceil() as i32
+                );
+            } else {
+                assert_eq!(
+                    state.enemies.iter().filter(|e| e.kind == 1).count(),
+                    if floor == 1 { 0 } else { count as usize / 3 }
+                );
+                assert_eq!(
+                    state.enemies.iter().filter(|e| e.kind == 2).count(),
+                    if floor <= 2 { 0 } else { count as usize / 4 }
+                );
+                assert_eq!(
+                    state.enemies[0].max_health,
+                    (40.0 * (1.0 + 0.12 * (floor - 1) as f32)).ceil() as i32
+                );
+                assert_eq!(
+                    state.enemies[0].damage,
+                    (10.0 * (1.0 + 0.08 * (floor - 1) as f32)).floor() as i32
+                );
+                for (i, enemy) in state.enemies.iter().enumerate() {
+                    assert_eq!(
+                        enemy.position,
+                        Vec2 {
+                            x: [-7.5, -4.5, -1.5, 1.5, 4.5, 7.5][i % 6],
+                            y: if i < 6 { 6.0 } else { 2.5 }
+                        }
+                    );
+                }
+            }
+            state.inventory.apply_damage(10);
+            // Same isolated arrangement as the C# 21F rule test: put the roster
+            // in a blade cone, then let normal attack/damage/clear code execute.
+            state.inventory.equipment[0] = item(9000, 0, 10000, 0.5);
+            for enemy in &mut state.enemies {
+                enemy.position = state.player_position + Vec2 { x: 0.0, y: 1.0 };
+                enemy.speed = 0.0;
+                enemy.attack_cooldown = 100.0;
+            }
+            let aim = state.player_position + Vec2 { x: 0.0, y: 1.0 };
+            let output = step(
+                &mut state,
+                DT,
+                Controls {
+                    has_aim: true,
+                    aim,
+                    fire_a: true,
+                    ..Controls::default()
+                },
+                [false; 2],
+            );
+            kills += count;
+            assert_eq!(
+                (
+                    state.phase,
+                    state.floors_cleared,
+                    state.enemies_defeated,
+                    state.bosses_defeated
+                ),
+                (4, floor, kills, floor / 5)
+            );
+            assert_eq!(state.chest_available, boss);
+            assert_eq!(state.inventory.chest.len(), if boss { 11 } else { 0 });
+            assert_eq!(
+                output
+                    .messages
+                    .iter()
+                    .filter(|m| m.address == "/game/arena/reward")
+                    .count(),
+                usize::from(boss)
+            );
+            if boss {
+                assert_eq!(state.inventory.health, 100);
+            }
+            assert!(
+                state.effects.is_empty()
+                    && state.projectiles.is_empty()
+                    && state.grenades.is_empty()
+            );
+            let inventory = state.inventory.clone();
+            let output = step(&mut state, DT, Controls::default(), [false; 2]);
+            assert!(!output
+                .messages
+                .iter()
+                .any(|m| m.address == "/game/arena/reward" || m.address == "/game/arena/phase"));
+            assert_eq!(state.inventory.health, inventory.health);
+            assert_eq!(state.inventory.next_item_id, inventory.next_item_id);
+            assert_eq!(state.inventory.chest, inventory.chest);
+            assert_eq!(state.inventory.equipment, inventory.equipment);
+            assert_eq!(state.inventory.backpack, inventory.backpack);
+        }
+        assert!(!state.result.present);
+    }
+
+    #[test]
+    fn boss_reward_heals_hp_once_and_preserves_charge_and_taken_items() {
+        let mut state = state(5);
+        state.enemies.truncate(1);
+        state.enemies[0].kind = 3;
+        freeze(&mut state.enemies[0], Vec2 { x: 0.0, y: 1.0 }, 20);
+        state.inventory.apply_damage(60);
+        state.inventory.equipment[2] = Item {
+            id: 9000,
+            kind: 5,
+            shield: 12,
+            ..Item::default()
+        };
+        state.inventory.equipment[0] = item(9001, 0, 20, 0.5);
+        step(
+            &mut state,
+            DT,
+            Controls {
+                has_aim: true,
+                aim: Vec2 { x: 0.0, y: 1.0 },
+                fire_a: true,
+                ..Controls::default()
+            },
+            [false; 2],
+        );
+        assert_eq!(
+            (state.inventory.health, state.inventory.equipment[2].shield),
+            (100, 12)
+        );
+        let reward = state.inventory.chest[0].clone();
+        state.inventory.take(0, 0);
+        state.inventory.apply_damage(20);
+        step(&mut state, DT, Controls::default(), [false; 2]);
+        assert_eq!(state.inventory.health, 92);
+        assert_eq!(state.inventory.chest.len(), 10);
+        assert_eq!(state.inventory.backpack[0], reward);
+    }
+
+    #[test]
+    fn portal_under_clear_requires_exit_reentry_and_cannot_skip_a_floor() {
+        let mut state = state(1);
+        state.enemies.clear();
+        state.player_position = Vec2 { x: 0.0, y: 7.5 };
+        step(&mut state, DT, Controls::default(), [false; 2]);
+        assert_eq!(state.phase, 4);
+        step(&mut state, DT, Controls::default(), [false; 2]);
+        assert_eq!(state.phase, 4);
+        step(
+            &mut state,
+            0.4,
+            Controls {
+                movement: Vec2 { x: 0.0, y: -1.0 },
+                ..Controls::default()
+            },
+            [false; 2],
+        );
+        step(
+            &mut state,
+            0.4,
+            Controls {
+                movement: Vec2 { x: 0.0, y: 1.0 },
+                ..Controls::default()
+            },
+            [false; 2],
+        );
+        assert_eq!(state.phase, 2);
+        step(
+            &mut state,
+            0.3,
+            Controls {
+                fire_a: true,
+                ..Controls::default()
+            },
+            [true; 2],
+        );
+        assert_eq!((state.floor, state.phase, state.enemies.len()), (2, 3, 4));
+        assert_eq!(state.player_position, Vec2 { x: 0.0, y: -7.0 });
+    }
+
     fn freeze(enemy: &mut Enemy, position: Vec2, hp: i32) {
         enemy.position = position;
         enemy.health = hp;
