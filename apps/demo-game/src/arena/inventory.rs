@@ -92,6 +92,16 @@ impl Default for Inventory {
 }
 
 impl Inventory {
+    /// Creates fresh ownership from a validated configuration; the starter keeps ID 1.
+    pub(super) fn from_config(config: &super::config::ArenaConfig) -> Self {
+        let mut inventory = Self::default();
+        let starter = config.item("starter");
+        inventory.equipment[0].name = starter.name.clone();
+        inventory.equipment[0].kind = starter.kind;
+        inventory.equipment[0].damage = starter.damage;
+        inventory.equipment[0].interval = starter.interval;
+        inventory
+    }
     fn new_item(&mut self, name: &str, kind: i32, damage: i32, interval: f32, shield: i32) -> Item {
         self.next_item_id += 1;
         Item {
@@ -107,26 +117,33 @@ impl Inventory {
 
     /// Replaces the chest with the reference preparation/repeating boss reward table.
     pub fn create_chest(&mut self, floor: i32) {
+        self.create_chest_with_config(floor, &super::config::ArenaConfig::default());
+    }
+
+    /// Generates ordered, individually identified items from validated content.
+    pub(super) fn create_chest_with_config(
+        &mut self,
+        floor: i32,
+        config: &super::config::ArenaConfig,
+    ) {
         self.chest.clear();
-        for (name, kind, initial, boss, interval) in [
-            ("Quick Blade", 0, 20, 24, 0.5),
-            ("Power Blade", 0, 30, 36, 0.8),
-            ("Quick Shooter", 1, 12, 15, 0.25),
-            ("Power Shooter", 1, 20, 24, 0.45),
-            ("Quick Heavy Shooter", 2, 50, 60, 1.0),
-            ("Power Heavy Shooter", 2, 75, 90, 1.5),
-            ("Medkit", 3, 0, 0, 0.0),
-            ("Grenade", 4, 100, 100, 0.0),
-            ("Shield", 5, 0, 0, 0.0),
-            ("Health Upgrade (+10 HP)", 6, 0, 0, 0.0),
-            ("Attack Upgrade (+5%)", 7, 0, 0, 0.0),
-        ] {
+        let phase = if floor >= 5 {
+            super::config::ChestPhase::Boss
+        } else {
+            super::config::ChestPhase::Preparing
+        };
+        for entry in config.chests.iter().filter(|entry| entry.phase == phase) {
+            let rule = config.item(&entry.item_id);
             let item = self.new_item(
-                name,
-                kind,
-                if floor >= 5 { boss } else { initial },
-                interval,
-                if kind == 5 { self.max_health } else { 0 },
+                &rule.name,
+                rule.kind,
+                if floor >= 5 {
+                    rule.boss_damage
+                } else {
+                    rule.damage
+                },
+                rule.interval,
+                if rule.kind == 5 { self.max_health } else { 0 },
             );
             self.chest.push(item);
         }

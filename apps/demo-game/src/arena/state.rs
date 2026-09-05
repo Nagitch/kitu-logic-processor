@@ -135,6 +135,10 @@ pub struct RunResult {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ArenaState {
+    // Run content is emitted separately with its full values and hash; this
+    // projection keeps the frozen C# gameplay field contract unchanged.
+    #[serde(skip)]
+    pub(super) rules: std::sync::Arc<super::config::ArenaConfig>,
     /// Last completed source tick; -1 before the first update.
     pub tick: i64,
     /// Number of gameplay steps, excluding paused/opening/results ticks.
@@ -186,6 +190,7 @@ pub struct ArenaState {
 impl Default for ArenaState {
     fn default() -> Self {
         Self {
+            rules: Default::default(),
             tick: -1,
             simulation_steps: 0,
             phase: 0,

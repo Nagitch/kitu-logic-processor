@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-05 23:33:07Z" end-time="2026-09-05 23:33:08Z" duration="0.4917097">
+  <test-suite type="TestSuite" id="1025" name="kitu-unity-demo-game" fullname="kitu-unity-demo-game" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-09-05 23:33:07Z" end-time="2026-09-05 23:33:08Z" duration="0.491710" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1022" name="UnityOnlyArena.PlayModeTests.dll" fullname="/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Library/ScriptAssemblies/UnityOnlyArena.PlayModeTests.dll" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-09-05 23:33:07Z" end-time="2026-09-05 23:33:08Z" duration="0.481947" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="79013" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1023" name="UnityOnlyArena" fullname="UnityOnlyArena" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-09-05 23:33:07Z" end-time="2026-09-05 23:33:08Z" duration="0.481245" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1024" name="Tests" fullname="UnityOnlyArena.Tests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-09-05 23:33:07Z" end-time="2026-09-05 23:33:08Z" duration="0.480770" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1018" name="KituArenaConnectionTests" fullname="UnityOnlyArena.Tests.KituArenaConnectionTests" classname="UnityOnlyArena.Tests.KituArenaConnectionTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-05 23:33:07Z" end-time="2026-09-05 23:33:08Z" duration="0.479879" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1019" name="LiveTanuConfigurationIsProjectedInNewRuns" fullname="UnityOnlyArena.Tests.KituArenaConnectionTests.LiveTanuConfigurationIsProjectedInNewRuns" methodname="LiveTanuConfigurationIsProjectedInNewRuns" classname="UnityOnlyArena.Tests.KituArenaConnectionTests" runstate="Runnable" seed="1461629057" result="Passed" start-time="2026-09-05 23:33:07Z" end-time="2026-09-05 23:33:08Z" duration="0.472676" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ArenaNetwork" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Live Tanu content: starter damage=37, two new runs projected through Kitu.
+<b><color=#2EA3FF>MCP-FOR-UNITY</color></b>: [TestRunnerNoThrottle] Restored Interaction Mode after test run.
+Saving results to: /Users/mujina/Library/Application Support/DefaultCompany/kitu-unity-demo-game/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

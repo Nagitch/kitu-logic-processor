@@ -4,6 +4,7 @@
 //! C# reference contract. Presentation and transport remain separate adapters.
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use kitu_core::{KituError, Result};
 use kitu_ecs::EcsWorld;
@@ -13,6 +14,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::DemoRuntime;
 
+pub mod config;
 pub mod inventory;
 use inventory::Inventory;
 
@@ -129,6 +131,7 @@ enum Command {
         slot: i32,
     },
     Use(i32),
+    StageConfig(Arc<config::ContentVersion>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -160,15 +163,77 @@ struct ArenaSession {
     seen: HashMap<(String, u64), (OscMessage, Outcome)>,
     high_water: HashMap<String, u64>,
     queued_use: [bool; 2],
+    pending_content: Option<Arc<config::ContentVersion>>,
+    active_content: Option<Arc<config::ContentVersion>>,
+    run_number: u64,
 }
 
 struct ArenaApplication;
 
 /// Installs Arena state and behavior in an unstarted demo runtime.
 pub fn install(runtime: &mut DemoRuntime) -> Result<()> {
+    let content = config::ContentVersion::from_tmd(include_bytes!("../content/arena.tmd"))
+        .map_err(|_| KituError::InvalidInput("invalid bundled Arena TMD"))?;
     runtime.install_application(ArenaApplication)?;
-    runtime.world_mut().insert_resource(ArenaSession::default());
+    runtime.world_mut().insert_resource(ArenaSession {
+        pending_content: Some(Arc::new(content)),
+        ..ArenaSession::default()
+    });
     Ok(())
+}
+
+/// Queues a pre-evaluated candidate for next-run activation. This management
+/// producer is reserved from network controllers; staging never alters active rules.
+///
+/// # Errors
+/// Rejects invalid content, identity or input admission without advancing time.
+pub fn stage_content(
+    runtime: &mut DemoRuntime,
+    content: config::ContentVersion,
+    id: u64,
+) -> Result<u64> {
+    content
+        .validate()
+        .map_err(|_| KituError::InvalidInput("invalid evaluated Arena content"))?;
+    let mut bundle = OscBundle::new();
+    bundle.push(json_message("/input/arena/config", &content));
+    runtime.try_enqueue_input(
+        bundle,
+        Some(InputMetadata {
+            source: "host:arena-content".into(),
+            message_id: id,
+            schema_version: SCHEMA_VERSION,
+        }),
+    )
+}
+
+/// Inspects detached active/pending content, including the values saved with a run.
+///
+/// # Errors
+/// Rejects a runtime without the Arena application installed.
+pub fn inspect_content(runtime: &DemoRuntime) -> Result<config::ContentSnapshot> {
+    runtime
+        .world()
+        .resource::<ArenaSession>()
+        .map(content_snapshot)
+        .ok_or(KituError::InvalidInput(
+            "Arena application is not installed",
+        ))
+}
+
+fn content_snapshot(session: &ArenaSession) -> config::ContentSnapshot {
+    config::ContentSnapshot {
+        run: session.run_number,
+        active: session
+            .active_content
+            .as_ref()
+            .map(|content| (**content).clone()),
+        pending: (**session
+            .pending_content
+            .as_ref()
+            .expect("content installed with Arena"))
+        .clone(),
+    }
 }
 
 /// Validates one Arena envelope before a network adapter admits it to the runtime.
@@ -176,6 +241,11 @@ pub fn install(runtime: &mut DemoRuntime) -> Result<()> {
 /// # Errors
 /// Rejects missing identity/version, malformed payloads and non-finite coordinates.
 pub fn validate_input(message: &OscMessage, metadata: &InputMetadata) -> Result<()> {
+    if message.address == "/input/arena/config" && metadata.source != "host:arena-content" {
+        return Err(KituError::InvalidInput(
+            "Arena configuration requires the content management producer",
+        ));
+    }
     if metadata.schema_version != SCHEMA_VERSION
         || metadata.message_id == 0
         || metadata.source.is_empty()
@@ -190,6 +260,18 @@ pub fn validate_input(message: &OscMessage, metadata: &InputMetadata) -> Result<
 
 fn parse(message: &OscMessage) -> Result<Command> {
     let command = match message.address.as_str() {
+        "/input/arena/config" => {
+            if let [OscArg::Str(json)] = message.args.as_slice() {
+                if json.len() <= 128 * 1024 {
+                    if let Ok(content) = serde_json::from_str::<config::ContentVersion>(json) {
+                        if content.validate().is_ok() {
+                            return Ok(Command::StageConfig(Arc::new(content)));
+                        }
+                    }
+                }
+            }
+            return Err(KituError::InvalidInput("invalid evaluated Arena content"));
+        }
         "/input/arena/start" => Command::Start,
         "/input/arena/menu" => Command::Menu,
         "/input/arena/pause" => Command::Pause,
@@ -373,8 +455,17 @@ impl RuntimeApplication for ArenaApplication {
                         _ => None,
                     };
                     let lifecycle = matches!(command, Command::Start | Command::Menu);
+                    let starting = matches!(command, Command::Start);
+                    let staging = matches!(command, Command::StageConfig(_));
                     let previous_phase = session.state.phase;
                     let code = execute(session, command);
+                    if code == "ok" && (starting || staging) {
+                        let content = content_snapshot(session);
+                        if starting {
+                            output.push(json_message("/game/arena/run",&serde_json::json!({"tick":tick,"order":output.messages.len(),"run":content.run,"content":content.active})));
+                        }
+                        output.push(json_message("/ui/arena/content", &content));
+                    }
                     if lifecycle && code == "ok" && previous_phase != session.state.phase {
                         session.state.emit_phase(previous_phase, tick, &mut output);
                     }
@@ -428,6 +519,10 @@ impl RuntimeApplication for ArenaApplication {
             .expect("Arena resource installed with application");
         let mut output = OscBundle::new();
         output.push(json_message("/ui/arena/state", &session.state));
+        output.push(json_message(
+            "/ui/arena/content",
+            &content_snapshot(session),
+        ));
         vec![output]
     }
 }
@@ -436,9 +531,18 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
     match command {
         Command::Start if session.state.phase == 0 || session.state.phase == 5 => {
             let simulation_steps = session.state.simulation_steps;
-            let mut inventory = Inventory::default();
-            inventory.create_chest(0);
+            let content = session
+                .pending_content
+                .as_ref()
+                .expect("content installed")
+                .clone();
+            let rules = Arc::new(content.values.clone());
+            let mut inventory = Inventory::from_config(&rules);
+            inventory.create_chest_with_config(0, &rules);
+            session.active_content = Some(content);
+            session.run_number += 1;
             session.state = ArenaState {
+                rules,
                 inventory,
                 portal_armed: true,
                 transition_remaining: session.state.transition_remaining,
@@ -457,6 +561,7 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
                 ..Inventory::default()
             };
             session.state = ArenaState {
+                rules: session.state.rules.clone(),
                 inventory,
                 next_entity_id: session.state.next_entity_id,
                 transition_remaining: session.state.transition_remaining,
@@ -512,6 +617,10 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
                 return "invalid_target";
             }
             session.queued_use[(slot - 2) as usize] = true;
+            return "ok";
+        }
+        Command::StageConfig(content) => {
+            session.pending_content = Some(content);
             return "ok";
         }
         _ => return "invalid_state",

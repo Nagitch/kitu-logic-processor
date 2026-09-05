@@ -200,6 +200,20 @@ impl<T: Transport> Runtime<T> {
         &mut self.world
     }
 
+    /// Borrows world resources for inspection without granting mutation access.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_runtime::build_runtime;
+    /// use kitu_transport::LocalChannel;
+    /// let mut runtime = build_runtime(LocalChannel::connected());
+    /// runtime.world_mut().insert_resource(String::from("active content"));
+    /// assert_eq!(runtime.world().resource::<String>().unwrap(), "active content");
+    /// ```
+    pub fn world(&self) -> &EcsWorld {
+        &self.world
+    }
+
     /// Spawns an object into the authoritative runtime/ECS world state.
     pub fn spawn_world_object(
         &mut self,

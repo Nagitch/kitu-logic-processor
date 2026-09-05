@@ -62,9 +62,15 @@ camera, device input, presentation and local settings. The generic `/input/move`
 slice remains compatible. See the [Arena contract](specs/arena-runtime-contract.md)
 and [validation evidence](verification/arena-progression/results.json).
 
-Tanu authoring, TSQ1 recording/inspection, live command tooling and the full-game
-FFI/native player path remain the subsequent stages, not implied by the existing
-movement-only FFI or placeholder data adapters described below.
+Arena also uses Tanu's public document/table/Formula API for next-run parameters
+(stage 6). Admin validates an editable `.tmd`, queues its detached typed values,
+and shows active/pending hashes. Runs retain and save their evaluated configuration;
+invalid edits preserve the last valid version. See the
+[authoring workflow](../apps/demo-game/README.md#tanu-parameters).
+
+TSQ1 recording/inspection, live command tooling and the full-game FFI/native player
+path remain subsequent stages, not implied by the movement-only FFI or the other
+placeholder data adapters described below.
 
 ### P0 — Execution Semantics
 

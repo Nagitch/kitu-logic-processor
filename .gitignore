@@ -1,4 +1,5 @@
 /target
+/apps/demo-game/.arena/
 **/*.rs.bk
 /.vscode/
 /.idea/
