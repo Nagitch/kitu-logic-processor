@@ -49,6 +49,23 @@ Status terms in this section are used as follows:
 - `partial`: repository support exists, but explicit missing work remains listed below.
 - `staged work`: planned or future work that must not be read as implemented.
 
+### Endless Arena reference application
+
+status: implemented for the server-connected full game (stages 1–5 of #129)
+
+`apps/demo-game` owns all Arena rules in a persistent Runtime application resource.
+The host advances at 60 Hz independently of input requests, and the default Unity
+scene sends versioned OSC-IR inputs and renders full state. Inventory, combat,
+endless progression, boss rewards, results and retry match the preserved C# oracle
+through the recorded 11F/death/retry run; separate rules cover 21F. Unity owns
+camera, device input, presentation and local settings. The generic `/input/move`
+slice remains compatible. See the [Arena contract](specs/arena-runtime-contract.md)
+and [validation evidence](verification/arena-progression/results.json).
+
+Tanu authoring, TSQ1 recording/inspection, live command tooling and the full-game
+FFI/native player path remain the subsequent stages, not implied by the existing
+movement-only FFI or placeholder data adapters described below.
+
 ### P0 — Execution Semantics
 
 status: implemented

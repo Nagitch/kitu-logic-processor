@@ -1,7 +1,7 @@
 //! Authoritative Arena application, incrementally ported against the C# oracle.
 //!
-//! Lifecycle, movement, inventory and combat use the reference contract.
-//! The first floor is playable; endless progression follows in stage 5.
+//! Lifecycle, movement, inventory, combat and endless progression use the frozen
+//! C# reference contract. Presentation and transport remain separate adapters.
 
 use std::collections::HashMap;
 

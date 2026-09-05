@@ -147,41 +147,45 @@ reload policy is a separate behavior change.
 References: [Unity 6.6 upgrade guide](https://docs.unity3d.com/6000.6/Documentation/Manual/UpgradeGuideUnity66.html)
 and [Unity CLI and Pipeline overview](https://unity.com/blog/meet-the-unity-cli).
 
-## Kitu Arena migration scene
+## Endless Arena with Kitu (default)
 
 Run `cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host` in the Dev
 Container, forwarding port 8787. Open
 `Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity` and enter Play Mode.
-The client inspector `Endpoint` defaults to `ws://127.0.0.1:8787/ws/runtime`.
-Start a run, move with WASD, aim with the mouse and pause/resume with Escape.
-The application supports lifecycle, inventory and complete first-floor combat;
-the complete Unity-only comparison scene below remains the default full game
-until stage 5. Move near the supply chest and press **E**, or open inventory with
-**I**. Select one of three backpack slots to take/swap a chest item, equip or
-unequip, discard, or consume an upgrade. The server validates each operation
-against the displayed item ID and pauses the game while either panel is open.
-HP, attack multiplier and shield charge reflect the authoritative inventory.
-**Escape** or **Close** returns to gameplay. Mouse buttons fire weapons A/B;
-**Z/X** use equipped consumables. UI changes require a fresh press, and throwing
-a grenade requires a valid ground aim. Enter the portal to fight the first roster;
-endless progression and boss rewards follow in stage 5.
+This is the first enabled build scene. Its inspector `Endpoint` defaults to
+`ws://127.0.0.1:8787/ws/runtime`. The complete game runs in the server: preparation,
+inventory/equipment, combat, endless floors, bosses/rewards, results and retry.
 
-The server owns the 60 Hz game clock. Unity samples device inputs and renders
-received snapshots. Disconnecting the controlling client pauses the game;
-**Connect** synchronizes, and **Resume** explicitly restarts gameplay with fresh
-controls. Focus loss also requests pause. Invalid sessions/contract versions and
-competing controllers are rejected. No server state is recreated locally.
+WASD moves, the mouse aims, mouse buttons fire weapons A/B, Z/X use consumables,
+E opens a nearby supply chest, I/Tab opens inventory and Escape closes/pauses.
+Choose a backpack destination to take/swap, equip/unequip, discard or upgrade.
+Operations use expected item IDs and retain individual shield charge/ownership.
+UI changes require release and a fresh press; grenades need a valid ground aim.
+Enter the portal after clearing a floor, and collect the optional boss reward
+on every fifth floor. Results show the completed run and support retry with R.
+Volume/fullscreen settings reuse the original local preferences. Settings opened
+from pause leave the run paused after Apply or Cancel.
 
-For the real scene/transport test, start an isolated host and run the PlayMode
-`UnityOnlyArena.Tests.KituArenaConnectionTests` test with `KITU_ARENA_WS_URL`
-pointing at its websocket endpoint. The test is explicitly skipped if the variable
-is absent; the normal offline reference suites do not require a running server.
-It checks authoritative movement, paused management ticks and reconnect/resume,
-then takes/equips a shield, consumes an HP upgrade, verifies an atomic rejected
-destination, and swaps the same shield back through the chest. It also checks
-real Input System consumable release/repress, paused grenade flight, projected
-enemies and first-floor clear through the live host.
-The shared view is still covered by the original camera and scene regressions.
+The server owns the 60 Hz game clock, while Unity samples inputs and renders
+complete state projections. Disconnect pauses the game; Connect resynchronizes,
+and Resume explicitly restarts it with fresh controls. Focus loss requests pause.
+Invalid sessions/versions and competing controllers are rejected. The client
+never constructs ArenaSimulation. Legacy `/input/move` keeps its original meaning.
+
+Run PlayMode `UnityOnlyArena.Tests.KituArenaConnectionTests` with
+`KITU_ARENA_WS_URL` pointing at an isolated running host to include real scene
+validation. It checks movement, pause/settings, reconnect, inventory atomicity,
+consumable press gating and first-floor combat, then plays a live stock run to
+11F, natural death and retry. These external-host tests are explicitly skipped
+when that variable is absent; the offline reference suite remains available.
+The Rust frozen-input comparison covers all 5,528 stock ticks, 550 complete state
+checkpoints and 53 receipts. See [evidence](../../doc/verification/arena-progression/results.json).
+
+**Kitu > Prepare Endless Arena (Kitu)** restores the default build entry without
+replacing an existing scene. **Kitu > Build Endless Arena (Kitu, macOS)** builds
+the server-connected scene to `Builds/KituEndlessArena.app`. Native-library
+embedding and a verified standalone build are subsequent stages of #129.
+The original build menu below remains an explicit reference-only choice.
 
 ## Unity-only endless arena
 

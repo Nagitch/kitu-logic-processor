@@ -1,9 +1,8 @@
 # Endless Arena runtime contract, version 1
 
-Status: stages 1–3 are merged; stage 4 implements complete combat and the first
-playable Kitu floor. Full endless progression/rewards and the default scene switch
-are stage 5. Delivery is tracked in #129, with frozen reference evidence in #130
-and the Unity-first value investigation in #111.
+Status: stages 1–4 are merged; stage 5 completes the original game's Kitu path
+and makes its Unity scene the default. Delivery is tracked in #129, with frozen
+reference evidence in #130 and the Unity-first value investigation in #111.
 
 ## Authority and baseline
 
@@ -291,3 +290,32 @@ ordering and boss telegraph/recovery. Explicit event-order assertions supplement
 the checkpoint oracle; the baseline does not contain a raw C# domain-event log.
 The PlayMode connection test covers real Input System press gating, grenade
 consumption/pause, projected enemies and a first-floor clear over WebSocket.
+
+## Stage 5 full-game implementation
+
+The default enabled scene is `KituEndlessArena.unity`. `EndlessArena.unity` remains
+checked in as an explicitly selected Unity-only reference. The client displays
+objectives, all equipment/shield values, terminal results and retry, and reuses
+Unity-local volume/fullscreen preferences. Settings can open from the opening
+screen or an already-paused run. Editing/canceling a draft never resumes the run;
+management ticks continue while the authoritative gameplay clock stays paused.
+
+Normal floors contain min(floor+2, 12) enemies, with the reference pursuer/shooter/
+heavy split and ordered spawn positions. Every fifth floor contains one boss.
+After a living boss clear, the existing inventory restores HP (not shield charge)
+and creates the repeating reward chest once. `/game/arena/reward` reports `tick`,
+`order`, `floor`, restored `health`, ordered `itemIds` and the complete resulting
+`inventory`. Continuing in the cleared phase cannot regenerate rewards or heal
+again. Clearing with the player overlapping the portal requires exit/re-entry.
+The next floor retains HP, item identities and shield recovery time, clears
+transient attacks and resets entry position/weapon cooldowns. There is no victory
+endpoint at 10F, 15F or 20F.
+
+The full frozen stock recording (5,528 input ticks) matches all 550 checkpoints
+and 53 command receipts, including 11F entry, natural death at tick 5526 and retry
+at tick 5527. Reward events occur exactly on the C# boss-clear checkpoint ticks;
+there are two rewards and one terminal result. Retry emits one Results→Preparing
+transition. Separate reference-derived rule regressions cover all 21 floor
+rosters, scaling, boss reward one-time behavior and portal re-entry. The full
+Unity scene test additionally plays a live, feedback-driven stock run over the
+network; it is distinct from the deterministic recorded-input oracle.

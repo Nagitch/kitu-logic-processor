@@ -1,0 +1,130 @@
+{
+  "stage": 5,
+  "issue": 138,
+  "baselineRevision": "38f2b4be4b7b2b604f1b21dfe9ce407846e0fc43",
+  "unityVersion": "6000.6.0f1",
+  "rust": {
+    "environment": "Dedicated Dev Container, Rust 1.96.0",
+    "fmt": "passed",
+    "clippyAllTargetsAllFeatures": "passed",
+    "testsAndDoctestsPassed": 147,
+    "docAllNoDeps": "passed",
+    "publication": "Internal demo app (publish=false); no publication attempted"
+  },
+  "unity": {
+    "editmode": {
+      "result": "Passed",
+      "total": "47",
+      "passed": "47",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "0.3846647"
+    },
+    "playmode": {
+      "result": "Passed",
+      "total": "14",
+      "passed": "14",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "100.4921229"
+    },
+    "inputGateFollowup": {
+      "result": "Passed",
+      "total": "1",
+      "passed": "1",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "7.8707421"
+    }
+  },
+  "comparison": {
+    "scenario": "stock-eleven-death-retry",
+    "inputTicks": 5528,
+    "completeStateCheckpoints": 550,
+    "commandOutcomes": 53,
+    "rewardTicks": [
+      1736,
+      4997
+    ],
+    "resultTick": 5526,
+    "retryTick": 5527,
+    "finalDeathFloor": 11,
+    "enemiesDefeated": 58,
+    "bossesDefeated": 2,
+    "maxHealth": 130,
+    "floatAbsoluteTolerance": 0.0001,
+    "discreteTolerance": 0,
+    "extra": "All object key sets/array order, private timers and IDs included. Two rewards and one result; event ticks tied to frozen C# checkpoints. Preparation remains 28 ticks / 12 checkpoints / 12 receipts."
+  },
+  "rules": "21F roster composition/ordered positions/scaling, no victory endpoint, one-time clear/boss rewards/heal, shield and taken-item preservation, portal exit/re-entry, simultaneous death priority and transition clocks. Isolated setup follows the original C# rule tests; full stock run uses only recorded normal inputs.",
+  "liveScene": {
+    "clears": [
+      {
+        "floor": 1,
+        "runtimeTick": 13700,
+        "health": 110
+      },
+      {
+        "floor": 2,
+        "runtimeTick": 14021,
+        "health": 110
+      },
+      {
+        "floor": 3,
+        "runtimeTick": 14402,
+        "health": 110
+      },
+      {
+        "floor": 4,
+        "runtimeTick": 14752,
+        "health": 110
+      },
+      {
+        "floor": 5,
+        "runtimeTick": 15062,
+        "health": 110
+      },
+      {
+        "floor": 6,
+        "runtimeTick": 15678,
+        "health": 120
+      },
+      {
+        "floor": 7,
+        "runtimeTick": 16277,
+        "health": 120
+      },
+      {
+        "floor": 8,
+        "runtimeTick": 16997,
+        "health": 120
+      },
+      {
+        "floor": 9,
+        "runtimeTick": 17834,
+        "health": 120
+      },
+      {
+        "floor": 10,
+        "runtimeTick": 18326,
+        "health": 120
+      }
+    ],
+    "result": "Reached 11F with max HP130 and two bosses; natural death, frozen results and retry passed through ordinary WebSocket controls, with no ArenaGame instance. Settings drafts preserve paused gameplay while management ticks advance. This feedback-driven scene run is separate from exact recorded-input comparison."
+  },
+  "fixes": [
+    "Keep the original reference scene enabled after the new default scene so baseline scene tests still load it.",
+    "Gate held attack buttons on actual UI/phase transitions; rejected inventory/chest commands during combat do not stop held fire. Targeted Input System test also rechecks required release after a real UI close."
+  ],
+  "limits": "Batch scene assertions; no screenshot or standalone native build claimed. Full-game native embedding is stages 10\u201311.",
+  "sourceSha256": {
+    "apps/demo-game/src/arena.rs": "91ec8e3fbeef96ff2db316add20aeb843face721005ec354591f69125d5f4b49",
+    "apps/demo-game/src/arena/combat.rs": "d4f16af6ed8551de2c25eef7eb85f11c97e4cf13fe4a2e0f8362be777f2941a8",
+    "apps/demo-game/tests/support/mod.rs": "3e4aecc614d1589756d447cc5b0768114e5226447317b56167187312d42c4b06",
+    "apps/demo-game/tests/arena_progression.rs": "f6126ad8eef8be229409a5d6e9221b592bd29dc7740df40478d5644a998dfee1",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/KituArenaClient.cs": "5d03209ee52c91d54002d7874f0447c791a19cdaa755b83c1ab2a19575de5e78",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Editor/KituArenaSceneBuilder.cs": "f9b2145ad8e1b9c83e47245cf0563ce76ccedf61f5f00da20d8b2315d651184a",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/KituArenaConnectionTests.cs": "af44402bc5071bd3733de79abd77977df2035734fbe5d06f0811afe4fee19abe",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/ProjectSettings/EditorBuildSettings.asset": "631652d74cda5410a9879a5d3e57974394fa6da1ebb910f83b6169b284591d47"
+  }
+}
