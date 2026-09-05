@@ -154,8 +154,15 @@ Container, forwarding port 8787. Open
 `Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity` and enter Play Mode.
 The client inspector `Endpoint` defaults to `ws://127.0.0.1:8787/ws/runtime`.
 Start a run, move with WASD, aim with the mouse and pause/resume with Escape.
-The application is currently the stage-2 movement/lifecycle slice; the complete
-Unity-only comparison scene below remains the default full game until stage 5.
+The application currently supports the movement/lifecycle and inventory slices;
+the complete Unity-only comparison scene below remains the default full game
+until stage 5. Move near the supply chest and press **E**, or open inventory with
+**I**. Select one of three backpack slots to take/swap a chest item, equip or
+unequip, discard, or consume an upgrade. The server validates each operation
+against the displayed item ID and pauses the game while either panel is open.
+HP, attack multiplier and shield charge reflect the authoritative inventory.
+**Escape** or **Close** returns to gameplay. Combat and floor advancement are
+subsequent slices; consumable aiming/attacks do not run yet.
 
 The server owns the 60 Hz game clock. Unity samples device inputs and renders
 received snapshots. Disconnecting the controlling client pauses the game;
@@ -167,7 +174,9 @@ For the real scene/transport test, start an isolated host and run the PlayMode
 `UnityOnlyArena.Tests.KituArenaConnectionTests` test with `KITU_ARENA_WS_URL`
 pointing at its websocket endpoint. The test is explicitly skipped if the variable
 is absent; the normal offline reference suites do not require a running server.
-It checks authoritative movement, paused management ticks and reconnect/resume.
+It checks authoritative movement, paused management ticks and reconnect/resume,
+then takes/equips a shield, consumes an HP upgrade, verifies an atomic rejected
+destination, and swaps the same shield back through the chest.
 The shared view is still covered by the original camera and scene regressions.
 
 ## Unity-only endless arena

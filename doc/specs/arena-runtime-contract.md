@@ -221,3 +221,37 @@ path remains supported for legacy OSC; versioned Arena MessagePack admission is
 stage 15. Per-entity render/domain events and complete inventory state will be
 added at their migration slices. The current state projection is the rendering
 source for the initial player view, and does not claim full-game parity.
+
+## Stage 3 inventory implementation
+
+The Arena application now owns the complete `inventory` projection: backpack,
+equipment, chest, item IDs, HP/capacity, attack upgrades, shield charge/fractions
+and shared recovery timers. Inventory/chest overlays pause gameplay; start resets
+items and creates the preparation chest, while menu clears ownership. Safe-phase
+commands use expected item IDs and the declared typed payloads. Out-of-range
+backpack destinations for `take` return `invalid_target` before any transfer,
+consistent with other invalid target indices (late review of #131, fixed in #134).
+The pinned C# rule files and both previously frozen traces remain unchanged.
+
+Successful inventory mutations emit `/game/arena/inventory` once, before the
+corresponding command receipt in the same ordered output bundle. Its single JSON
+string contains `tick`, admission `sequence`, producer `source`, `messageId`,
+`operation` (full OSC address), requested `itemId`/`index`/`slot`, and the complete
+post-operation inventory. Rejected commands and duplicate deliveries do not emit
+another inventory event. This preserves the identity of consumed as well as
+transferred items; the full projection also identifies any outgoing swapped item.
+
+The inventory rule API includes medkit/grenade consumption eligibility and shield
+damage/recovery for direct rule comparison. Combat-driven damage and the `use`
+input's attack/target resolution are stage 4. There is no public network command
+that sets HP, invents damage or restores a mutable inventory snapshot. The shared
+shield clock advances exactly once on each unpaused gameplay step; only equipped
+shields recover. Stored fractions survive backpack/chest transfers and upgrades.
+
+The differential test covers every migrated state field, the complete inventory
+object, and every command outcome in `preparation` (28 ticks) and the stock
+loadout/approach before its first floor transition (185 ticks). It replays the
+recorded effective frames, with a separate generated frame producer to preserve
+the original recorded discrete IDs. Floats use 1e-4 absolute tolerance; item IDs,
+HP, shield integers, slots, flags, order and result codes are exact. Full combat
+state and progression parity are later gates, not claimed by this slice.

@@ -162,6 +162,7 @@ namespace UnityOnlyArena
             if (c.address == "/input/arena/take")
             {
                 if (Overlay != "chest") return "invalid_state";
+                if (c.index < 0 || c.index >= inventory.Backpack.Length) return "invalid_target";
                 int chestIndex = inventory.Chest.FindIndex(item => item.Id == c.itemId);
                 if (c.itemId <= 0 || chestIndex < 0) return "stale_item";
                 accepted = inventory.TakeChest(chestIndex, c.index);

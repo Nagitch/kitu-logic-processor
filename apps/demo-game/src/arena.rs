@@ -1,7 +1,7 @@
 //! Authoritative Arena application, incrementally ported against the C# oracle.
 //!
-//! This stage implements lifecycle, movement, aim and pause. Inventory/combat
-//! commands are explicitly rejected until their migration stages are complete.
+//! Lifecycle, movement, aim, pause and inventory use the reference contract.
+//! Combat and progression follow in their respective migration stages.
 
 use std::collections::HashMap;
 
@@ -12,6 +12,9 @@ use kitu_runtime::{ApplicationTick, InputMetadata, RuntimeApplication, RuntimeIn
 use serde::{Deserialize, Serialize};
 
 use crate::DemoRuntime;
+
+pub mod inventory;
+use inventory::Inventory;
 
 /// Stage-independent Arena OSC contract version.
 pub const SCHEMA_VERSION: u32 = 1;
@@ -62,6 +65,12 @@ pub struct ArenaState {
     pub player_position: Vec2,
     /// Last valid normalized aim direction.
     pub aim_direction: Vec2,
+    /// Complete item ownership and health/shield clock projection.
+    pub inventory: Inventory,
+    /// Whether the current safe phase offers a chest.
+    pub chest_available: bool,
+    /// Whether the current phase offers a portal (progression migrates in stage 5).
+    pub portal_available: bool,
 }
 
 impl Default for ArenaState {
@@ -75,6 +84,9 @@ impl Default for ArenaState {
             elapsed: 0.0,
             player_position: Vec2::default(),
             aim_direction: Vec2 { x: 0.0, y: 1.0 },
+            inventory: Inventory::default(),
+            chest_available: false,
+            portal_available: false,
         }
     }
 }
@@ -96,7 +108,25 @@ enum Command {
     Resume,
     Disconnect,
     Frame(Controls),
+    InventoryOpen,
+    ChestOpen,
+    Close,
+    Inventory {
+        operation: InventoryOperation,
+        item_id: i32,
+        index: i32,
+        slot: i32,
+    },
     Unsupported,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum InventoryOperation {
+    Take,
+    Equip,
+    Unequip,
+    Discard,
+    Upgrade,
 }
 
 #[derive(Clone, Serialize)]
@@ -171,15 +201,34 @@ fn parse(message: &OscMessage) -> Result<Command> {
                 "Arena frame expects finite move/aim coordinates and boolean controls",
             ));
         }
-        "/input/arena/inventory" | "/input/arena/chest" | "/input/arena/close" => {
-            Command::Unsupported
-        }
+        "/input/arena/inventory" => Command::InventoryOpen,
+        "/input/arena/chest" => Command::ChestOpen,
+        "/input/arena/close" => Command::Close,
         "/input/arena/take"
         | "/input/arena/discard"
         | "/input/arena/upgrade"
         | "/input/arena/unequip" => {
+            let operation = match message.address.as_str() {
+                "/input/arena/take" => InventoryOperation::Take,
+                "/input/arena/discard" => InventoryOperation::Discard,
+                "/input/arena/upgrade" => InventoryOperation::Upgrade,
+                _ => InventoryOperation::Unequip,
+            };
             return match message.args.as_slice() {
-                [OscArg::Int(_), OscArg::Int(_)] => Ok(Command::Unsupported),
+                [OscArg::Int(item_id), OscArg::Int(target)] => Ok(Command::Inventory {
+                    operation,
+                    item_id: *item_id,
+                    index: if operation == InventoryOperation::Unequip {
+                        0
+                    } else {
+                        *target
+                    },
+                    slot: if operation == InventoryOperation::Unequip {
+                        *target
+                    } else {
+                        0
+                    },
+                }),
                 _ => Err(KituError::InvalidInput(
                     "Arena operation expects two ordered i32 arguments",
                 )),
@@ -187,7 +236,14 @@ fn parse(message: &OscMessage) -> Result<Command> {
         }
         "/input/arena/equip" => {
             return match message.args.as_slice() {
-                [OscArg::Int(_), OscArg::Int(_), OscArg::Int(_)] => Ok(Command::Unsupported),
+                [OscArg::Int(item_id), OscArg::Int(index), OscArg::Int(slot)] => {
+                    Ok(Command::Inventory {
+                        operation: InventoryOperation::Equip,
+                        item_id: *item_id,
+                        index: *index,
+                        slot: *slot,
+                    })
+                }
                 _ => Err(KituError::InvalidInput(
                     "Arena equip expects three ordered i32 arguments",
                 )),
@@ -295,7 +351,28 @@ impl RuntimeApplication for ArenaApplication {
                     session
                         .high_water
                         .insert(meta.source.clone(), meta.message_id);
+                    let inventory_request = match &command {
+                        Command::Inventory {
+                            item_id,
+                            index,
+                            slot,
+                            ..
+                        } => Some((*item_id, *index, *slot)),
+                        _ => None,
+                    };
                     let code = execute(session, command);
+                    if let Some((item_id, index, slot)) = inventory_request.filter(|_| code == "ok")
+                    {
+                        output.push(json_message(
+                            "/game/arena/inventory",
+                            &serde_json::json!({
+                                "tick": tick, "sequence": input.sequence, "source": meta.source,
+                                "messageId": meta.message_id, "operation": message.address,
+                                "itemId": item_id, "index": index, "slot": slot,
+                                "inventory": session.state.inventory,
+                            }),
+                        ));
+                    }
                     let outcome = Outcome {
                         sequence: input.sequence,
                         source: meta.source.clone(),
@@ -332,6 +409,7 @@ impl RuntimeApplication for ArenaApplication {
                     session.state.aim_direction = direction.normalized();
                 }
             }
+            session.state.inventory.advance_time(context.dt);
             session.state.elapsed += context.dt;
             session.state.simulation_steps += 1;
         }
@@ -354,7 +432,12 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
     match command {
         Command::Start if session.state.phase == 0 || session.state.phase == 5 => {
             let simulation_steps = session.state.simulation_steps;
+            let mut inventory = Inventory::default();
+            inventory.create_chest(0);
             session.state = ArenaState {
+                inventory,
+                chest_available: true,
+                portal_available: true,
                 phase: 1,
                 player_position: Vec2 { x: 0.0, y: -7.0 },
                 simulation_steps,
@@ -363,7 +446,12 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
         }
         Command::Menu => {
             let simulation_steps = session.state.simulation_steps;
+            let inventory = Inventory {
+                equipment: std::array::from_fn(|_| inventory::Item::default()),
+                ..Inventory::default()
+            };
             session.state = ArenaState {
+                inventory,
                 player_position: Vec2 { x: 0.0, y: -7.0 },
                 simulation_steps,
                 ..ArenaState::default()
@@ -381,11 +469,99 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
         {
             session.state.overlay = "none".into()
         }
+        Command::InventoryOpen if is_safe(session) && session.state.overlay == "none" => {
+            session.state.overlay = "inventory".into()
+        }
+        Command::ChestOpen if is_safe(session) && session.state.overlay == "none" => {
+            let delta = Vec2 {
+                x: session.state.player_position.x + 3.0,
+                y: session.state.player_position.y,
+            };
+            if !session.state.chest_available || delta.length() > 2.0 {
+                return "out_of_range";
+            }
+            session.state.overlay = "chest".into();
+        }
+        Command::Close
+            if session.state.overlay == "inventory" || session.state.overlay == "chest" =>
+        {
+            session.state.overlay = "none".into()
+        }
+        Command::Inventory {
+            operation,
+            item_id,
+            index,
+            slot,
+        } => return inventory_command(session, operation, item_id, index, slot),
         Command::Unsupported => return "not_yet_implemented",
         _ => return "invalid_state",
     }
     session.controls = Controls::default();
     "ok"
+}
+
+fn is_safe(session: &ArenaSession) -> bool {
+    session.state.phase == 1 || session.state.phase == 4
+}
+
+fn inventory_command(
+    session: &mut ArenaSession,
+    operation: InventoryOperation,
+    item_id: i32,
+    index: i32,
+    slot: i32,
+) -> &'static str {
+    if !is_safe(session)
+        || (session.state.overlay != "inventory" && session.state.overlay != "chest")
+    {
+        return "invalid_state";
+    }
+    let inventory = &mut session.state.inventory;
+    let accepted = match operation {
+        InventoryOperation::Take => {
+            if session.state.overlay != "chest" {
+                return "invalid_state";
+            }
+            if !(0..3).contains(&index) {
+                return "invalid_target";
+            }
+            let Some(chest_index) = inventory
+                .chest
+                .iter()
+                .position(|item| item.id == item_id && item_id > 0)
+            else {
+                return "stale_item";
+            };
+            inventory.take(chest_index as i32, index)
+        }
+        InventoryOperation::Unequip => {
+            if !(0..4).contains(&slot) {
+                return "invalid_target";
+            }
+            if item_id <= 0 || inventory.equipment[slot as usize].id != item_id {
+                return "stale_item";
+            }
+            inventory.unequip(slot)
+        }
+        _ => {
+            if !(0..3).contains(&index) {
+                return "invalid_target";
+            }
+            if item_id <= 0 || inventory.backpack[index as usize].id != item_id {
+                return "stale_item";
+            }
+            match operation {
+                InventoryOperation::Equip => inventory.equip(index, slot),
+                InventoryOperation::Discard => inventory.discard(index),
+                _ => inventory.use_upgrade(index),
+            }
+        }
+    };
+    if accepted {
+        "ok"
+    } else {
+        "rule_rejected"
+    }
 }
 
 fn json_message(address: &str, value: &impl Serialize) -> OscMessage {

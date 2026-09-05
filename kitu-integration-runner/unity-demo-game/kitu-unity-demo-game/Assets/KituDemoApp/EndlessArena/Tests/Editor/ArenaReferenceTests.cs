@@ -88,6 +88,23 @@ namespace UnityOnlyArena.Tests
         }
 
         [Test]
+        public void InvalidChestDestinationsUseTheStableTargetCodeWithoutMovingItems()
+        {
+            var session = new ArenaReferenceSession();
+            session.Tick(default, Command(1, "start"));
+            while (Vector2.Distance(session.Model.PlayerPosition, ArenaSimulation.ChestPosition) > 1.5f)
+                session.Tick(new ArenaInput { Move = (ArenaSimulation.ChestPosition - session.Model.PlayerPosition).normalized });
+            session.Tick(default, Command(2, "chest"));
+            string before = JsonUtility.ToJson(session.Model.Inventory.CaptureReferenceState());
+            int item = session.Model.Inventory.Chest[0].Id;
+            session.Tick(default, Command(3, "take", item, index: 3));
+            Assert.That(session.Outcomes.Single().code, Is.EqualTo("invalid_target"));
+            session.Tick(default, Command(4, "take", item, index: -1));
+            Assert.That(session.Outcomes.Single().code, Is.EqualTo("invalid_target"));
+            Assert.That(JsonUtility.ToJson(session.Model.Inventory.CaptureReferenceState()), Is.EqualTo(before));
+        }
+
+        [Test]
         public void InvalidBatchesAndNonContiguousTicksFailBeforeStateMutation()
         {
             var session = new ArenaReferenceSession("invalid");
