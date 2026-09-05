@@ -34,16 +34,20 @@ For tick `N`, execution order is fixed as follows:
 2. **Collect runtime-boundary inputs for tick `N`**
    - Validate and snapshot committed messages that the current runtime owns directly.
    - Current MVP behavior collects `/input/move` before ECS dispatch so invalid movement input fails the tick before state mutation.
+   - A persistent `RuntimeApplication` validates the frozen metadata-bearing batch before any mutation.
 3. **Dispatch ECS systems for tick `N`**
    - Run scheduled ECS systems in deterministic order.
 4. **Apply runtime-owned MVP slice updates**
    - Current MVP behavior applies collected `/input/move` intents after ECS dispatch and stages `/render/player/transform`.
-5. **Emit outputs for tick `N`**
+5. **Update the installed application**
+   - Invoke its persistent tick hook using the fixed timestep and committed inputs.
+   - Application state lives in typed `EcsWorld` resources. State-dependent rejections are outputs, not failed ticks.
+6. **Emit outputs for tick `N`**
    - Move staged outputs into externally visible `output_buffer`.
-6. **Poll transport for next tick input**
+7. **Poll transport for next tick input**
    - Drain `poll_event()` until empty.
    - Any received `TransportEvent::Message` is enqueued into `pending_inputs`.
-7. **Advance tick**
+8. **Advance tick**
    - `tick = tick.next()`.
 
 ## Input timing rule (normative)
@@ -71,3 +75,26 @@ Hosts should poll outputs after `update()`/`tick_once()` returns.
 
 - `doc/architecture.md` defines architecture-level invariants.
 - `doc/detailed-flows.md` uses this tick contract when describing UC-02 and runtime boundaries.
+
+## Persistent applications and host scheduling
+
+`install_application` installs one `RuntimeApplication` before tick zero. Its
+`validate_inputs` hook must be read-only, while `tick` must be infallible after
+validation. The `snapshot` hook returns detached logical OSC projections without
+advancing time. `EcsWorld::{insert_resource, resource, resource_mut}` stores typed,
+world-owned application state independently from the one-shot system scheduler.
+
+`RuntimeInput` preserves `InputMetadata` (producer, message ID, schema) and a
+runtime-assigned monotonically increasing enqueue `sequence`. Hosts should call
+`try_enqueue_input`: it validates structural payloads before admission and returns
+the sequence. This prevents a malformed network packet from discarding other
+accepted inputs. Unchecked enqueue methods remain available for legacy callers;
+the tick still rejects a malformed committed batch atomically before dispatch.
+
+The demo admin host owns a Tokio interval at 60 Hz, independent of websocket and
+HTTP handlers. Those handlers enqueue inputs without invoking `tick_once`. The
+clock drains and broadcasts outputs after each barrier. No-input ticks continue
+running; paused applications still process control input and inspection while
+freezing their own game clocks. Generic legacy app actions retain their existing
+immediate world-object operations; they cannot mutate Arena resources. Runtime
+restart creates a new session and is not a resume-from-disk operation.

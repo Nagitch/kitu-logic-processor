@@ -391,6 +391,8 @@ dependencies = [
  "anyhow",
  "axum",
  "kitu-app-actions",
+ "kitu-core",
+ "kitu-ecs",
  "kitu-osc-ir",
  "kitu-runtime",
  "kitu-transport",

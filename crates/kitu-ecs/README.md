@@ -5,6 +5,7 @@ Lightweight ECS world and scheduler powering the Kitu runtime loop.
 ## Responsibilities
 - Track registered component types without locking the runtime into a heavyweight backend.
 - Provide system scheduling hooks that keep ticking deterministic and testable.
+- Own typed application resources with immutable/mutable access scoped to this world.
 - Serve as the glue between runtime orchestration and domain-specific systems.
 
 ## Publish readiness

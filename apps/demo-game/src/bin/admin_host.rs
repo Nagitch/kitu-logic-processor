@@ -17,8 +17,9 @@ use axum::{
     Json, Router,
 };
 use kitu_app_actions::{ActionValue, AppActionCatalog, AppActionDefinition};
-use kitu_demo_game::{build_demo_runtime, DemoRuntime};
+use kitu_demo_game::{arena, build_arena_runtime, DemoRuntime};
 use kitu_osc_ir::{OscArg, OscMessage};
+use kitu_runtime::InputMetadata;
 use kitu_transport::{
     decode_kep_envelope, decode_osc_packet, encode_kep_envelope, KepEnvelope, KEP_PAYLOAD_OSC,
 };
@@ -40,14 +41,26 @@ struct GameState {
     runtime: DemoRuntime,
     next_log_id: u64,
     logs: Vec<DebugLogEntry>,
+    runtime_id: String,
+    next_connection_id: u64,
+    controller: Option<(u64, String)>,
 }
 
 impl GameState {
     fn new() -> Result<Self> {
         Ok(Self {
-            runtime: build_demo_runtime()?,
+            runtime: build_arena_runtime()?,
             next_log_id: 1,
             logs: Vec::new(),
+            runtime_id: format!(
+                "{}-{}",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)?
+                    .as_nanos()
+            ),
+            next_connection_id: 1,
+            controller: None,
         })
     }
 
@@ -129,6 +142,17 @@ struct ClientOscMessage {
     args: Vec<JsonOscArg>,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ArenaClientEnvelope {
+    schema_version: u32,
+    session_id: String,
+    client_id: String,
+    message_id: u64,
+    #[serde(flatten)]
+    message: ClientOscMessage,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", content = "value", rename_all = "lowercase")]
 enum JsonOscArg {
@@ -157,6 +181,11 @@ struct ActionRunResponse {
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 enum ServerEvent {
+    ArenaSession {
+        id: String,
+        #[serde(rename = "schemaVersion")]
+        schema_version: u32,
+    },
     Connected {
         protocol: &'static str,
         tick: u64,
@@ -193,6 +222,26 @@ async fn main() -> Result<()> {
         inner: Arc::new(Mutex::new(GameState::new()?)),
         events,
     };
+
+    let clock_state = state.clone();
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(std::time::Duration::from_secs_f64(1.0 / 60.0));
+        // Fixed-step catch-up is independent of websocket message count.
+        interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Burst);
+        loop {
+            interval.tick().await;
+            match advance_runtime_tick(&clock_state) {
+                Ok(events) => {
+                    for event in events {
+                        let _ = clock_state.events.send(event);
+                    }
+                }
+                Err(error) => {
+                    broadcast_error(&clock_state, format!("runtime tick failed: {error:#}"))
+                }
+            }
+        }
+    });
 
     let app = Router::new()
         .route("/health", get(health))
@@ -343,65 +392,129 @@ async fn ws_loop(mut socket: WebSocket, state: AppState) {
 }
 
 async fn runtime_ws_loop(mut socket: WebSocket, state: AppState) {
-    if let Err(err) = send_initial_runtime_state(&mut socket, &state).await {
+    let connection_id = {
+        let Ok(mut guard) = state.inner.lock() else {
+            return;
+        };
+        let id = guard.next_connection_id;
+        guard.next_connection_id += 1;
+        id
+    };
+    if let Err(err) = send_initial_runtime_state(&mut socket, &state, WsOutputMode::Json).await {
         error!("failed to send initial runtime state: {err}");
         return;
     }
-
     let mut receiver = state.events.subscribe();
     let mut output_mode = WsOutputMode::Json;
-
     loop {
         tokio::select! {
-            maybe_message = socket.recv() => {
-                match maybe_message {
+            incoming = socket.recv() => {
+                match incoming {
                     Some(Ok(Message::Text(text))) => {
-                        match serde_json::from_str::<ClientOscMessage>(&text) {
-                            Ok(message) => {
-                                if let Err(err) = handle_runtime_osc(&state, message) {
-                                    broadcast_error(&state, err.to_string());
+                        let result = match serde_json::from_str::<ClientOscMessage>(&text) {
+                            Ok(message) if message.address.starts_with("/input/arena/") => {
+                                match serde_json::from_str::<ArenaClientEnvelope>(&text) {
+                                    Ok(envelope) => enqueue_arena_request(&state, connection_id, envelope),
+                                    Err(error) => Err(error.into()),
                                 }
                             }
-                            Err(err) => broadcast_error(&state, format!("invalid runtime client message: {err}")),
+                            Ok(message) => handle_runtime_osc(&state, message),
+                            Err(error) => Err(error.into()),
+                        };
+                        if let Err(error) = result {
+                            let _ = send_event(&mut socket, &ServerEvent::Error { message: error.to_string() }).await;
                         }
                     }
                     Some(Ok(Message::Binary(bytes))) => {
                         output_mode = WsOutputMode::Kep;
-                        match decode_kep_osc_message(&bytes) {
-                            Ok(message) => {
-                                if let Err(err) = handle_runtime_osc_message(&state, message) {
-                                    broadcast_error(&state, err.to_string());
-                                }
-                            }
-                            Err(err) => broadcast_error(&state, format!("invalid runtime KEP message: {err:#}")),
-                        }
+                        let result = decode_kep_osc_message(&bytes).and_then(|message| {
+                            anyhow::ensure!(!message.address.starts_with("/input/arena/"), "Arena requires its versioned JSON envelope in this stage");
+                            handle_runtime_osc_message(&state, message)
+                        });
+                        if let Err(error) = result { broadcast_error(&state, error.to_string()); }
                     }
                     Some(Ok(Message::Close(_))) | None => break,
+                    Some(Err(error)) => { error!("runtime websocket receive error: {error}"); break; }
                     Some(Ok(_)) => {}
-                    Some(Err(err)) => {
-                        error!("runtime websocket receive error: {err}");
-                        break;
-                    }
                 }
             }
             event = receiver.recv() => {
                 match event {
                     Ok(event) => {
-                        if let Err(err) = send_event_with_mode(&mut socket, &event, output_mode).await {
-                            error!("runtime websocket send error: {err}");
-                            break;
-                        }
+                        if send_event_with_mode(&mut socket, &event, output_mode).await.is_err() { break; }
                     }
                     Err(broadcast::error::RecvError::Lagged(_)) => {
-                        if let Ok(snapshot) = snapshot(&state) {
-                            let _ = send_event_with_mode(&mut socket, &ServerEvent::State { snapshot }, output_mode).await;
-                        }
+                        // A complete projection replaces dropped transient presentation updates.
+                        if send_initial_runtime_state(&mut socket, &state, output_mode).await.is_err() { break; }
                     }
                     Err(broadcast::error::RecvError::Closed) => break,
                 }
             }
         }
     }
+    release_arena_controller(&state, connection_id);
+}
+
+fn enqueue_arena_request(
+    state: &AppState,
+    connection_id: u64,
+    envelope: ArenaClientEnvelope,
+) -> Result<()> {
+    let message = envelope.message.to_osc_message();
+    anyhow::ensure!(
+        message.address != "/input/arena/disconnect",
+        "disconnect is a host-originated control"
+    );
+    anyhow::ensure!(
+        !envelope.client_id.starts_with("host:"),
+        "reserved producer identity"
+    );
+    let metadata = InputMetadata {
+        source: envelope.client_id.clone(),
+        message_id: envelope.message_id,
+        schema_version: envelope.schema_version,
+    };
+    arena::validate_input(&message, &metadata)?;
+    let mut guard = state
+        .inner
+        .lock()
+        .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+    anyhow::ensure!(
+        envelope.session_id == guard.runtime_id,
+        "Arena runtime session changed; synchronize before sending input"
+    );
+    if let Some((owner, source)) = &guard.controller {
+        anyhow::ensure!(
+            *owner == connection_id && source == &envelope.client_id,
+            "Arena already has an active controller"
+        );
+    } else {
+        guard.controller = Some((connection_id, envelope.client_id));
+    }
+    let mut bundle = kitu_osc_ir::OscBundle::new();
+    bundle.push(message);
+    guard.runtime.try_enqueue_input(bundle, Some(metadata))?;
+    Ok(())
+}
+
+fn release_arena_controller(state: &AppState, connection_id: u64) {
+    let Ok(mut guard) = state.inner.lock() else {
+        return;
+    };
+    if guard.controller.as_ref().map(|(id, _)| *id) != Some(connection_id) {
+        return;
+    }
+    guard.controller = None;
+    let mut bundle = kitu_osc_ir::OscBundle::new();
+    bundle.push(OscMessage::new("/input/arena/disconnect"));
+    guard.runtime.enqueue_tagged_input(
+        bundle,
+        InputMetadata {
+            source: "host:controller".into(),
+            message_id: connection_id,
+            schema_version: arena::SCHEMA_VERSION,
+        },
+    );
 }
 
 async fn send_initial_state(socket: &mut WebSocket, state: &AppState) -> Result<()> {
@@ -436,7 +549,11 @@ async fn send_initial_state(socket: &mut WebSocket, state: &AppState) -> Result<
     Ok(())
 }
 
-async fn send_initial_runtime_state(socket: &mut WebSocket, state: &AppState) -> Result<()> {
+async fn send_initial_runtime_state(
+    socket: &mut WebSocket,
+    state: &AppState,
+    mode: WsOutputMode,
+) -> Result<()> {
     let tick = {
         let guard = state
             .inner
@@ -445,22 +562,56 @@ async fn send_initial_runtime_state(socket: &mut WebSocket, state: &AppState) ->
         guard.runtime.current_tick().get()
     };
 
-    send_event(
+    send_event_with_mode(
         socket,
         &ServerEvent::Connected {
             protocol: "kitu-runtime-osc-ir-json-v1",
             tick,
         },
+        mode,
     )
     .await?;
-    send_event(
+    send_event_with_mode(
         socket,
         &ServerEvent::State {
             snapshot: snapshot(state)?,
         },
+        mode,
     )
     .await?;
 
+    let (session_id, projection) = {
+        let guard = state
+            .inner
+            .lock()
+            .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+        (
+            guard.runtime_id.clone(),
+            guard.runtime.inspect_application(),
+        )
+    };
+    send_event_with_mode(
+        socket,
+        &ServerEvent::ArenaSession {
+            id: session_id,
+            schema_version: arena::SCHEMA_VERSION,
+        },
+        mode,
+    )
+    .await?;
+    for bundle in projection {
+        for message in bundle.messages {
+            send_event_with_mode(
+                socket,
+                &ServerEvent::Osc {
+                    address: message.address,
+                    args: message.args.into_iter().map(JsonOscArg::from).collect(),
+                },
+                mode,
+            )
+            .await?;
+        }
+    }
     Ok(())
 }
 
@@ -518,6 +669,10 @@ fn handle_runtime_osc_message(state: &AppState, osc_message: OscMessage) -> Resu
 }
 
 fn run_runtime_osc_request(state: &AppState, osc_message: OscMessage) -> Result<Vec<ServerEvent>> {
+    anyhow::ensure!(
+        !osc_message.address.starts_with("/input/arena/"),
+        "Arena input requires the versioned /ws/runtime connection"
+    );
     let mut bundle = kitu_osc_ir::OscBundle::new();
     bundle.push(osc_message.clone());
 
@@ -527,7 +682,7 @@ fn run_runtime_osc_request(state: &AppState, osc_message: OscMessage) -> Result<
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
     let mut outgoing_events = Vec::new();
 
-    guard.runtime.enqueue_input(bundle);
+    guard.runtime.try_enqueue_input(bundle, None)?;
     outgoing_events.push(ServerEvent::Log {
         entry: guard.push_log(
             LogLevel::Info,
@@ -536,21 +691,28 @@ fn run_runtime_osc_request(state: &AppState, osc_message: OscMessage) -> Result<
         ),
     });
 
+    Ok(outgoing_events)
+}
+
+fn advance_runtime_tick(state: &AppState) -> Result<Vec<ServerEvent>> {
+    let mut guard = state
+        .inner
+        .lock()
+        .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
     guard.runtime.tick_once().context("tick Kitu runtime")?;
+    let mut events = Vec::new();
     for bundle in guard.runtime.drain_output_buffer() {
         for message in bundle.messages {
-            outgoing_events.push(ServerEvent::Osc {
-                address: message.address.clone(),
+            events.push(ServerEvent::Osc {
+                address: message.address,
                 args: message.args.into_iter().map(JsonOscArg::from).collect(),
             });
         }
     }
-
-    outgoing_events.push(ServerEvent::State {
+    events.push(ServerEvent::State {
         snapshot: guard.snapshot(),
     });
-
-    Ok(outgoing_events)
+    Ok(events)
 }
 
 fn decode_kep_osc_message(bytes: &[u8]) -> Result<OscMessage> {
@@ -605,7 +767,6 @@ fn run_app_action_request(
         Some(osc_message.address.clone()),
     );
 
-    guard.runtime.tick_once().context("tick Kitu runtime")?;
     for bundle in guard.runtime.drain_output_buffer() {
         for message in bundle.messages {
             outgoing_events.push(ServerEvent::Osc {
@@ -819,6 +980,77 @@ mod tests {
         }
     }
 
+    fn arena_request(state: &AppState, id: u64, address: &str) -> ArenaClientEnvelope {
+        ArenaClientEnvelope {
+            schema_version: arena::SCHEMA_VERSION,
+            session_id: state.inner.lock().unwrap().runtime_id.clone(),
+            client_id: "test-controller".into(),
+            message_id: id,
+            message: ClientOscMessage {
+                address: address.into(),
+                args: vec![],
+            },
+        }
+    }
+
+    fn arena_projection(state: &AppState) -> arena::ArenaState {
+        let guard = state.inner.lock().unwrap();
+        let projection = guard.runtime.inspect_application();
+        let OscArg::Str(json) = &projection[0].messages[0].args[0] else {
+            panic!("state JSON");
+        };
+        serde_json::from_str(json).unwrap()
+    }
+
+    #[test]
+    fn arena_admission_never_advances_time_and_disconnect_requires_resume() {
+        let state = test_state();
+        for _ in 0..20 {
+            enqueue_arena_request(&state, 1, arena_request(&state, 1, "/input/arena/start"))
+                .unwrap();
+        }
+        assert_eq!(arena_projection(&state).simulation_steps, 0);
+        for _ in 0..60 {
+            advance_runtime_tick(&state).unwrap();
+        }
+        assert_eq!(arena_projection(&state).simulation_steps, 60);
+        let before = arena_projection(&state).elapsed;
+        release_arena_controller(&state, 99); // An observer cannot pause the controller.
+        assert!(state.inner.lock().unwrap().controller.is_some());
+        release_arena_controller(&state, 1);
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(arena_projection(&state).overlay, "pause");
+        assert_eq!(arena_projection(&state).elapsed, before);
+        // Reconnect can synchronize and issue commands, but only resume runs time.
+        enqueue_arena_request(&state, 2, arena_request(&state, 2, "/input/arena/pause")).unwrap();
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(arena_projection(&state).elapsed, before);
+        enqueue_arena_request(&state, 2, arena_request(&state, 3, "/input/arena/resume")).unwrap();
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(arena_projection(&state).simulation_steps, 61);
+    }
+
+    #[test]
+    fn invalid_or_competing_arena_envelopes_do_not_claim_or_poison_the_queue() {
+        let state = test_state();
+        let mut request = arena_request(&state, 1, "/input/arena/start");
+        request.session_id = "stale runtime".into();
+        assert!(enqueue_arena_request(&state, 1, request).is_err());
+        assert!(state.inner.lock().unwrap().controller.is_none());
+        enqueue_arena_request(&state, 1, arena_request(&state, 1, "/input/arena/start")).unwrap();
+        assert!(
+            enqueue_arena_request(&state, 2, arena_request(&state, 2, "/input/arena/menu"))
+                .is_err()
+        );
+        let mut malformed = arena_request(&state, 3, "/input/arena/frame");
+        malformed.message.args.push(JsonOscArg::Float(f32::NAN));
+        assert!(enqueue_arena_request(&state, 1, malformed).is_err());
+        assert!(handle_client_osc_message(&state, OscMessage::new("/input/arena/menu")).is_err());
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(arena_projection(&state).phase, 1);
+        assert_eq!(arena_projection(&state).simulation_steps, 1);
+    }
+
     #[test]
     fn runtime_osc_request_executes_player_move_slice() {
         let state = test_state();
@@ -831,7 +1063,12 @@ mod tests {
             ],
         };
 
-        let events = run_runtime_osc_request(&state, request.to_osc_message()).unwrap();
+        let admitted = run_runtime_osc_request(&state, request.to_osc_message()).unwrap();
+        assert!(admitted
+            .iter()
+            .all(|event| matches!(event, ServerEvent::Log { .. })));
+        assert_eq!(state.inner.lock().unwrap().runtime.current_tick().get(), 0);
+        let events = advance_runtime_tick(&state).unwrap();
         let render = events
             .iter()
             .find_map(|event| match event {
@@ -927,6 +1164,9 @@ mod tests {
         message.push_arg(OscArg::Float(2.0));
 
         handle_client_osc_message(&state, message).unwrap();
+        for event in advance_runtime_tick(&state).unwrap() {
+            let _ = state.events.send(event);
+        }
 
         let mut saw_state = false;
         while let Ok(event) = receiver.try_recv() {

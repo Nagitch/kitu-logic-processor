@@ -18,6 +18,8 @@ axum = { version = "0.8", features = ["ws"] }
 kitu-app-actions = { path = "../../crates/kitu-app-actions" }
 kitu-osc-ir = { path = "../../crates/kitu-osc-ir" }
 kitu-runtime = { path = "../../crates/kitu-runtime" }
+kitu-core = { path = "../../crates/kitu-core" }
+kitu-ecs = { path = "../../crates/kitu-ecs" }
 kitu-transport = { path = "../../crates/kitu-transport" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

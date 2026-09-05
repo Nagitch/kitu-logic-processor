@@ -9,7 +9,10 @@
 //! The runtime (`kitu-runtime`) drives this crate each tick, and transports surface events that
 //! systems can consume. See `doc/crates-overview.md` for the ECS' place in the overall loop.
 
-use std::collections::{HashMap, VecDeque};
+use std::{
+    any::{Any, TypeId},
+    collections::{HashMap, VecDeque},
+};
 
 use kitu_core::{KituError, Result, Tick};
 
@@ -57,6 +60,7 @@ pub struct WorldSnapshot {
 
 /// Minimal world representation for registering components and systems.
 pub struct EcsWorld {
+    resources: HashMap<TypeId, Box<dyn Any + Send + Sync>>,
     components: Vec<String>,
     scheduled: VecDeque<Box<dyn System>>,
     next_world_object_id: u64,
@@ -73,11 +77,37 @@ impl EcsWorld {
     /// Creates an empty ECS world.
     pub fn new() -> Self {
         Self {
+            resources: HashMap::new(),
             components: Vec::new(),
             scheduled: VecDeque::new(),
             next_world_object_id: 1,
             world_objects: Vec::new(),
         }
+    }
+
+    /// Installs or replaces a typed application resource owned by this world.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_ecs::EcsWorld;
+    /// let mut world = EcsWorld::new();
+    /// world.insert_resource(12_u32);
+    /// assert_eq!(world.resource::<u32>(), Some(&12));
+    /// *world.resource_mut::<u32>().unwrap() = 13;
+    /// assert_eq!(world.resource::<u32>(), Some(&13));
+    /// ```
+    pub fn insert_resource<R: Any + Send + Sync>(&mut self, resource: R) {
+        self.resources.insert(TypeId::of::<R>(), Box::new(resource));
+    }
+
+    /// Borrows a typed resource without granting mutation access.
+    pub fn resource<R: Any + Send + Sync>(&self) -> Option<&R> {
+        self.resources.get(&TypeId::of::<R>())?.downcast_ref()
+    }
+
+    /// Borrows a typed resource for a runtime-owned update.
+    pub fn resource_mut<R: Any + Send + Sync>(&mut self) -> Option<&mut R> {
+        self.resources.get_mut(&TypeId::of::<R>())?.downcast_mut()
     }
 
     /// Registers a component type by name. The concrete storage will be wired later.

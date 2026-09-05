@@ -1,0 +1,78 @@
+{
+  "stage": 2,
+  "issue": 132,
+  "baselineRevision": "38f2b4be4b7b2b604f1b21dfe9ce407846e0fc43",
+  "unityVersion": "6000.6.0f1",
+  "unity": {
+    "editmode": {
+      "result": "Passed",
+      "total": "46",
+      "passed": "46",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "0.4037874"
+    },
+    "playmode": {
+      "result": "Passed",
+      "total": "13",
+      "passed": "13",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "1.1741911"
+    },
+    "network": {
+      "result": "Passed",
+      "total": "1",
+      "passed": "1",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "0.704192"
+    }
+  },
+  "rust": {
+    "environment": "Dedicated Dev Container using the repository development image and Rust 1.96.0",
+    "fmt": "passed",
+    "clippyAllTargetsAllFeatures": "passed",
+    "testsAndDoctestsPassed": 118,
+    "docAllNoDeps": "passed",
+    "packageLists": [
+      "kitu-ecs",
+      "kitu-runtime"
+    ],
+    "publishDryRun": "Deferred while publish=false per doc/publish-readiness.md; no publication attempted"
+  },
+  "comparison": {
+    "frozenScenario": "stock-eleven-death-retry",
+    "inputTicks": 75,
+    "checkpointTicks": [
+      0,
+      60
+    ],
+    "comparedFields": [
+      "tick",
+      "simulationSteps",
+      "phase",
+      "floor",
+      "overlay",
+      "elapsed",
+      "playerPosition",
+      "aimDirection"
+    ],
+    "floatAbsoluteTolerance": 0.0001
+  },
+  "sceneEvidence": "Actual PlayMode scene/transform and network assertions passed. Batch mode produced no screenshot; this is not visual QA or native-build evidence.",
+  "sourceSha256": {
+    "apps/demo-game/src/arena.rs": "d69965e9a62d8c63922484eac24c62547bdbbf1fc4b7f78273a2b8756a5fa496",
+    "apps/demo-game/src/bin/admin_host.rs": "942feffdeca7bfd38759568d9462d04dc2843c26119c211a4ad6e61a65ce7cd3",
+    "apps/demo-game/tests/arena_lifecycle.rs": "9b024a4874400238e257d82aa5dbc31987d2bb6f6ee1743e502aa7fd05600d21",
+    "crates/kitu-runtime/src/lib.rs": "2b111aec525a3f1960fca1954adaed0fd2b912a68cc3999930f22b89c2c9e7f1",
+    "crates/kitu-runtime/src/application.rs": "5c37e0e600c7f70fe59dfaee644814e2d9a0a28e1483621acd9683618b38958c",
+    "crates/kitu-runtime/tests/application.rs": "948f9cbdece3561087732a4ec0e51e2c065718f64ff5a0c271ed593d40629a2c",
+    "crates/kitu-ecs/src/lib.rs": "e486a3509e6a5672442a8cd131bce652df2ff0a1b44deb0305a53e7d0cf22d17",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaConnection.cs": "a674eb08ba92b1385a69c5c54f8be7371edba88eb5a91b499151b450e9a6208d",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/KituArenaClient.cs": "d0ce4f547987083da11e48666762da35cda75c16c66bedd21a1450aa4f09a1b1",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaWorldView.cs": "9bc428dd737518814d250e496219fc2cde77b41971f7d7734b14483c648ada7a",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/KituArenaConnectionTests.cs": "b484645aa2d1d22c0f6393c7c4da88bba44b3ca44948f36e9951bd759da24ad6",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity": "e58a0fd63cedfad0b5a66f352486f328660b104700af54b3fbeaffbb4ccb5877"
+  }
+}
