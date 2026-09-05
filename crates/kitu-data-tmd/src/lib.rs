@@ -1,4 +1,7 @@
-//! Data ingestion helpers for the TMD format.
+//! Data ingestion helpers for Tanu containers and legacy fixtures.
+//!
+//! Use [`tables::TanuDocument`] for actual `.tmd` containers and Formula tables.
+//! The top-level [`TmdDocument`] is the early key/value fixture helper only.
 //!
 //! # Responsibilities
 //! - Parse authored TMD content into strongly typed structures ready for validation.
@@ -13,7 +16,9 @@ use std::collections::HashMap;
 
 use kitu_core::{KituError, Result};
 
-/// Minimal representation of a TMD entry.
+pub mod tables;
+
+/// Minimal entry in the legacy key/value fixture format.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TmdEntry {
     /// Key portion from the `key: value` line.
@@ -22,7 +27,7 @@ pub struct TmdEntry {
     pub value: String,
 }
 
-/// Parsed TMD document as a key-value map.
+/// Legacy key/value fixture document; use [`tables::TanuDocument`] for real TMD.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct TmdDocument {
     entries: HashMap<String, String>,

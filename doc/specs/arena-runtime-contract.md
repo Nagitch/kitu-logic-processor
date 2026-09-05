@@ -1,7 +1,7 @@
 # Endless Arena runtime contract, version 1
 
-Status: stages 1–4 are merged; stage 5 completes the original game's Kitu path
-and makes its Unity scene the default. Delivery is tracked in #129, with frozen
+Status: stages 1–5 are merged; stage 6 adds Tanu authoring and next-run settings.
+The Kitu Unity scene is the default. Delivery is tracked in #129, with frozen
 reference evidence in #130 and the Unity-first value investigation in #111.
 
 ## Authority and baseline
@@ -319,3 +319,53 @@ transition. Separate reference-derived rule regressions cover all 21 floor
 rosters, scaling, boss reward one-time behavior and portal re-entry. The full
 Unity scene test additionally plays a live, feedback-driven stock run over the
 network; it is distinct from the deterministic recorded-input oracle.
+
+## Stage 6 Tanu content contract
+
+The game configuration schema is independently versioned (`schemaVersion: 1`).
+`kitu-data-tmd::tables::TanuDocument` uses public Tanu read/validate/evaluate/write
+APIs, pinned to `194358e8791f1391492abcb60d8cfcc37bbb383a`. The document requires
+exactly four named sources and the column sets below; column order is editable.
+Tanu manages document representation/Formula semantics, the generic Kitu adapter
+returns typed tables, and Arena owns game-specific validation and interpretation.
+
+| Source | Columns and meaning |
+|---|---|
+| `items` | `id` unique template key; `name` unique display name; `kind` existing 0–7 discriminant; `damage` preparing/starter damage; `bossDamage` boss chest damage; `interval` weapon seconds |
+| `enemies` | Exactly one row per `kind` 0–3; base `health`, `damage`, world-unit `speed` per second, attack `range`, `interval` seconds, collision `radius` |
+| `difficulty` | One row: `healthGrowth`, `damageGrowth` added per floor beyond the first; reference defaults 0.12 and 0.08 |
+| `chests` | Ordered `phase` (`preparing` or `boss`) and `itemId` template reference; repeats create separate item instances |
+
+Whole finite Formula numbers are accepted for integer fields; numeric text is
+not coerced. IDs, names, complete column sets, references and finite bounded
+values are validated together (`ArenaConfig::validate` defines limits). A document
+error produces no applicable candidate. The last valid pending version and the
+active run remain intact. Fixed clock/collision algorithms and non-table rules
+remain application code in this stage.
+
+An evaluated `ContentVersion` contains `hash` (SHA-256 of canonical typed values),
+`sourceSha256` (exact TMD bytes), `tanuRevision`, and complete `values`. TMD timestamps
+and UUIDs do not affect the semantic hash. Ordered rows are significant.
+
+- `/input/arena/config`: one JSON string containing a valid `ContentVersion`;
+  only producer `host:arena-content` is admitted. The public `stage_content` API
+  queues it with monotonic IDs, normal sequence ordering, deduplication and command
+  receipts. It updates pending content without clearing held inputs or advancing
+  gameplay while paused. Network clients cannot claim the reserved producer.
+- `/ui/arena/content`: JSON `run`, `active` (nullable), `pending`; emitted for
+  synchronization and successful stage/start operations, not every tick.
+- `/game/arena/run`: JSON `tick`, `order`, `run`, and frozen `content`; emitted once
+  for each successful start/retry. It precedes that start's phase event and receipt.
+
+A start freezes the pending values before creating inventory/chests/enemies.
+Later staging cannot mutate the run's shared rule values. A same-tick stage/start
+uses the normal committed input order. Returning to opening retains the prior
+run metadata; the next successful start increments `run` and freezes pending data.
+The reference-compatible `/ui/arena/state` shape is unchanged.
+
+Admin's validate/apply HTTP flow evaluates files off the Runtime lock and requires
+both hashes of the reviewed candidate when applying. The host persists the run's
+full start/configuration event with contract version, package version and 60 Hz
+rate outside the tick lock. Atomic manifest replacement and visible persistence
+errors are implemented; execution fingerprints, recorded inputs and replay
+compatibility are extended in stage 7. No local edit is automatically activated.

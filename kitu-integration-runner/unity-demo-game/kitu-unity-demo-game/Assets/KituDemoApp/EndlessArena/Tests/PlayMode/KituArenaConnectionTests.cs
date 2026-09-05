@@ -40,6 +40,43 @@ namespace UnityOnlyArena.Tests
         }
 
         [UnityTest, Category("ArenaNetwork")]
+        public IEnumerator LiveTanuConfigurationIsProjectedInNewRuns()
+        {
+            string endpoint = Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
+            if (string.IsNullOrEmpty(endpoint)) Assert.Ignore("Set KITU_ARENA_WS_URL to an isolated running admin host.");
+            string configured = Environment.GetEnvironmentVariable("KITU_ARENA_EXPECTED_STARTER_DAMAGE");
+            int expected = string.IsNullOrEmpty(configured) ? 20 : int.Parse(configured);
+#if UNITY_EDITOR
+            yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
+                "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity", new LoadSceneParameters(LoadSceneMode.Single));
+#else
+            yield return SceneManager.LoadSceneAsync("KituEndlessArena", LoadSceneMode.Single);
+#endif
+            var client = UnityEngine.Object.FindFirstObjectByType<KituArenaClient>();
+            root = client.gameObject;
+            client.DeviceInput = false; client.Endpoint = endpoint; client.Connect();
+            yield return Until(() => client.Connected, "Tanu synchronization");
+            Assert.That(UnityEngine.Object.FindFirstObjectByType<ArenaGame>(), Is.Null);
+            for (int run = 0; run < 2; run++)
+            {
+                client.Command("menu");
+                yield return Until(() => client.State.phase == 0, "Tanu opening");
+                client.Command("start");
+                yield return Until(() => client.State.phase == 1, "Tanu new run");
+                Assert.That(client.State.inventory.equipment[0].name, Is.EqualTo("Blade"));
+                Assert.That(client.State.inventory.equipment[0].damage, Is.EqualTo(expected));
+                client.Command("pause");
+                yield return Until(() => client.State.overlay == "pause", "Tanu pause");
+                long tick = client.State.tick;
+                float elapsed = client.State.elapsed;
+                yield return Until(() => client.State.tick > tick + 8, "Tanu paused management");
+                Assert.That(client.State.elapsed, Is.EqualTo(elapsed));
+                Assert.That(client.State.inventory.equipment[0].damage, Is.EqualTo(expected));
+            }
+            Debug.Log("Live Tanu content: starter damage=" + expected + ", two new runs projected through Kitu.");
+        }
+
+        [UnityTest, Category("ArenaNetwork")]
         public IEnumerator RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules()
         {
             string endpoint = Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");

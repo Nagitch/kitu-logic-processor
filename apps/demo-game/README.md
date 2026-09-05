@@ -71,3 +71,66 @@ The client only submits input and renders server state. See the
 To include the live migration scene in PlayMode validation, run the host and set
 `KITU_ARENA_WS_URL=ws://localhost:8787/ws/runtime` when launching Unity tests.
 Without that variable, the external-host connection test is explicitly skipped.
+
+## Tanu parameters
+
+`content/arena.tmd` is a real Tanu container with four managed Formula tables:
+`items`, `enemies`, `difficulty`, and `chests`. It is read and evaluated through
+Tanu's public `tmd-core` API, pinned at
+`194358e8791f1391492abcb60d8cfcc37bbb383a` (the parent workspace's Tanu revision).
+The default values match the preserved Unity-only reference. For example,
+Quick Blade's boss damage is the Formula `D2 * 1.2`, evaluated as 24.
+
+1. Open `content/arena.tmd` with **Tanu Markdown Editor** in VS Code. If VS Code
+   initially chooses its binary/text viewer, use **View: Reopen Editor With...**
+   and select Tanu Markdown Editor. The parent workspace's Dev Container includes
+   the CLI/editor preparation tasks. This workflow needs that same compatible Tanu version.
+2. In **Table**, select a source, select a cell, edit its value or Formula, then
+   save the document. Numeric Formula input in the editor begins with `=`.
+3. Open Admin's **Game Parameters** page and choose **Validate TMD**. Inspect the
+   evaluated tables and candidate hash. Formula errors, wrong types, duplicate
+   identifiers, out-of-range values, or dangling chest item references reject
+   the whole candidate. Tanu itself also refuses to publish invalid Formula documents.
+4. Choose **Apply to next run**. The host queues the exact reviewed values through
+   the Runtime's reserved management input. The current run keeps its values,
+   including while paused. Return to the opening screen and start, or retry after
+   death, to activate the pending version without restarting Unity.
+
+The host reads `apps/demo-game/content/arena.tmd` relative to its working directory;
+set `KITU_ARENA_TMD` to another file if needed. Validation does not automatically
+apply a file. The initial pending version is bundled into the application; after
+a host restart, validate and apply any local edits again.
+
+Each start emits `/game/arena/run` with the complete evaluated configuration and
+hash. The host writes an atomic JSON manifest under
+`apps/demo-game/.arena/runs/<runtime-session>/<run>.json`; use
+`KITU_ARENA_RUN_DIRECTORY` to choose the directory. Admin reports save failures.
+Keep these manifests with future recordings; input recording/playback is stage 7.
+
+HTTP interfaces use the same host as Unity:
+
+| Endpoint | Behavior |
+|---|---|
+| `GET /arena/content` | Current and next-run values, last candidate, diagnostics, saved-run status |
+| `POST /arena/content/validate` | Read the configured file and evaluate outside the simulation lock |
+| `POST /arena/content/stage` | Queue a reviewed candidate; JSON body contains `hash` and `sourceSha256` |
+
+An outdated candidate identity returns HTTP 409. An invalid document returns
+diagnostics with no applicable candidate; active and pending versions are retained.
+The legacy key/value parser in `kitu-data-tmd` remains available for old tests but
+is not used by Arena.
+
+Run validation in the Dev Container:
+
+```sh
+cargo run -p kitu-demo-game --bin arena-content -- validate apps/demo-game/content/arena.tmd
+cargo test -p kitu-demo-game -p kitu-data-tmd -p kitu-runtime
+cd tools/kitu-web-admin/frontend
+pnpm check && pnpm lint && pnpm build
+```
+
+`arena-content create-reference <path>` generates a new reference-valued TMD for
+development; it is not the live Runtime CLI planned in stage 9. The macOS PlayMode
+test `LiveTanuConfigurationIsProjectedInNewRuns` accepts
+`KITU_ARENA_EXPECTED_STARTER_DAMAGE` (default 20) to verify a value applied through
+Admin. See [stage 6 evidence](../../doc/verification/arena-tanu/results.json).

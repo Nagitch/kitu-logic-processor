@@ -138,7 +138,8 @@ impl ArenaState {
             self.clear_transient(tick, output);
             if self.floor > 0 && self.floor % 5 == 0 {
                 self.inventory.heal_fully();
-                self.inventory.create_chest(self.floor);
+                self.inventory
+                    .create_chest_with_config(self.floor, &self.rules);
                 emit(
                     output,
                     tick,
@@ -233,13 +234,18 @@ impl ArenaState {
     fn create_enemy(&mut self, kind: i32, position: Vec2) -> Enemy {
         let id = self.next_entity_id;
         self.next_entity_id += 1;
-        let (hp, damage, speed, range, interval, radius) = match kind {
-            1 => (30, 8, 2.0, 6.0, 1.5, 0.5),
-            2 => (100, 20, 1.2, 1.8, 1.5, 0.7),
-            3 => (300, 20, 1.5, 2.0, 1.5, 1.0),
-            _ => (40, 10, 2.5, 1.5, 1.0, 0.5),
-        };
-        let max_health = (hp as f32 * (1.0 + 0.12 * (self.floor - 1) as f32)).ceil() as i32;
+        let rule = self.rules.enemy(kind);
+        let (hp, damage, speed, range, interval, radius) = (
+            rule.health,
+            rule.damage,
+            rule.speed,
+            rule.range,
+            rule.interval,
+            rule.radius,
+        );
+        let max_health = (hp as f32
+            * (1.0 + self.rules.difficulty.health_growth * (self.floor - 1) as f32))
+            .ceil() as i32;
         Enemy {
             id,
             kind,
@@ -258,7 +264,9 @@ impl ArenaState {
     }
 
     fn enemy_damage(&self, damage: i32) -> i32 {
-        ((damage as f32 * (1.0 + 0.08 * (self.floor - 1) as f32)).floor() as i32).max(1)
+        ((damage as f32 * (1.0 + self.rules.difficulty.damage_growth * (self.floor - 1) as f32))
+            .floor() as i32)
+            .max(1)
     }
     fn player_damage(&self, damage: i32) -> i32 {
         ((damage as f32 * self.inventory.attack_multiplier).floor() as i32).max(1)
@@ -372,7 +380,9 @@ impl ArenaState {
                 position: self.player_position,
                 target,
                 remaining: 0.5,
-                damage: self.player_damage(100),
+                // Old manually-created reference items may omit grenade damage.
+                // Validated Tanu grenade templates always carry a positive value.
+                damage: self.player_damage(if used.damage > 0 { used.damage } else { 100 }),
             };
             self.next_entity_id += 1;
             emit(

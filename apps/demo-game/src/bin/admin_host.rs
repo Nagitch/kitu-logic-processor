@@ -31,10 +31,14 @@ use tracing::{error, info};
 const DEFAULT_BIND: &str = "127.0.0.1:8787";
 const KEP_ROUTE_SERVER_EVENT: &str = "/server/event";
 
+#[path = "admin_host/content.rs"]
+mod content;
+
 #[derive(Clone)]
 struct AppState {
     inner: Arc<Mutex<GameState>>,
     events: broadcast::Sender<ServerEvent>,
+    content: Arc<content::Service>,
 }
 
 struct GameState {
@@ -221,6 +225,7 @@ async fn main() -> Result<()> {
     let state = AppState {
         inner: Arc::new(Mutex::new(GameState::new()?)),
         events,
+        content: Arc::new(content::Service::from_environment()),
     };
 
     let clock_state = state.clone();
@@ -233,6 +238,7 @@ async fn main() -> Result<()> {
             match advance_runtime_tick(&clock_state) {
                 Ok(events) => {
                     for event in events {
+                        content::save_run_event(&clock_state, &event);
                         let _ = clock_state.events.send(event);
                     }
                 }
@@ -247,6 +253,9 @@ async fn main() -> Result<()> {
         .route("/health", get(health))
         .route("/state", get(state_snapshot))
         .route("/logs", get(logs_snapshot))
+        .route("/arena/content", get(content::inspect))
+        .route("/arena/content/validate", post(content::validate))
+        .route("/arena/content/stage", post(content::stage))
         .route("/app-actions", get(app_action_catalog))
         .route("/app-actions/{id}", get(app_action_definition))
         .route("/app-actions/{id}/run", post(run_app_action))
@@ -972,15 +981,16 @@ impl From<anyhow::Error> for ApiError {
 mod tests {
     use super::*;
 
-    fn test_state() -> AppState {
+    pub(super) fn test_state() -> AppState {
         let (events, _) = broadcast::channel(16);
         AppState {
             inner: Arc::new(Mutex::new(GameState::new().unwrap())),
             events,
+            content: Arc::new(content::Service::from_environment()),
         }
     }
 
-    fn arena_request(state: &AppState, id: u64, address: &str) -> ArenaClientEnvelope {
+    pub(super) fn arena_request(state: &AppState, id: u64, address: &str) -> ArenaClientEnvelope {
         ArenaClientEnvelope {
             schema_version: arena::SCHEMA_VERSION,
             session_id: state.inner.lock().unwrap().runtime_id.clone(),

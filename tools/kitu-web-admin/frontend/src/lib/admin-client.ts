@@ -422,7 +422,7 @@ function actionValueToOscArg(value: ActionValue): JsonOscArg {
   }
 }
 
-function apiBaseUrl() {
+export function apiBaseUrl() {
   return env.PUBLIC_KITU_ADMIN_API_URL ?? "http://localhost:8787";
 }
 

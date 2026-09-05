@@ -1,0 +1,89 @@
+{
+  "stage": 6,
+  "issue": 140,
+  "baseRevision": "c7bb832e147dfeea3d4d54737de1aa6283397bd1",
+  "tanuRevision": "194358e8791f1391492abcb60d8cfcc37bbb383a",
+  "defaultConfigurationHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+  "sourceSha256": {
+    "apps/demo-game/src/arena.rs": "42157e265a20e9a25ac710dec832e80d4526b374a89a649b3e832432d0ab04d1",
+    "apps/demo-game/src/arena/config.rs": "55ae84ef8fc870df45cb70cbadadd290b63ce8bce49b3d5f73d6bdf14ce54b65",
+    "apps/demo-game/src/arena/combat.rs": "f97040d3af5886efeae461d6a7cd7353f744627df4b6a096a252064af8ae2c56",
+    "apps/demo-game/src/arena/inventory.rs": "095825e43b08a1a85d42a418c540640da6f91e37e3540f21973c6764a3c01af2",
+    "apps/demo-game/src/bin/admin_host/content.rs": "9cf56088a3063d7bf28215e88136d7e30715ab1cda862dc117b5129639b79504",
+    "crates/kitu-data-tmd/src/tables.rs": "8f029021e7912c3f2562c44370c67956abfc17839686343e08a273a5013967b5",
+    "apps/demo-game/content/arena.tmd": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa"
+  },
+  "validation": {
+    "devContainer": {
+      "rust": "1.96.0",
+      "node": "24.20",
+      "fullWorkspaceTestsAndDoctests": 156,
+      "fmt": "passed",
+      "clippyAllTargetsAllFeatures": "passed",
+      "rustdocWarningsDenied": "passed",
+      "modifiedPackageLists": "passed",
+      "afterDecimalAuthoringChange": "Arena/data-TMD/runtime tests and workspace Clippy passed"
+    },
+    "admin": {
+      "check": "0 errors, 0 warnings",
+      "lint": "passed",
+      "build": "passed",
+      "browser": "agent-browser 0.27.0; page, validation/apply/rejection, Overview navigation passed; no page errors"
+    },
+    "tanu": "Pinned tmd-cli build --locked and tmd-vscode npm ci/compile/check passed in a dedicated Dev Container; no Tanu source changes",
+    "unity": {
+      "editmode": {
+        "result": "Passed",
+        "total": "47",
+        "passed": "47",
+        "failed": "0",
+        "skipped": "0",
+        "duration": "0.373304"
+      },
+      "playmode": {
+        "result": "Passed",
+        "total": "15",
+        "passed": "15",
+        "failed": "0",
+        "skipped": "0",
+        "duration": "101.3846077"
+      },
+      "editedTanuLiveScene": {
+        "result": "Passed",
+        "total": "1",
+        "passed": "1",
+        "failed": "0",
+        "skipped": "0",
+        "duration": "0.4917097"
+      }
+    },
+    "frozenReference": {
+      "preparation": {
+        "ticks": 28,
+        "checkpoints": 12,
+        "outcomes": 12
+      },
+      "stockElevenDeathRetry": {
+        "ticks": 5528,
+        "checkpoints": 550,
+        "outcomes": 53
+      },
+      "floatAbsoluteTolerance": 0.0001,
+      "discreteMismatchCount": 0,
+      "sourceAndFixtureHashes": "verified unchanged"
+    }
+  },
+  "liveWorkflow": [
+    "Opened the real arena.tmd with the pinned Tanu VS Code custom editor. Managed Formula table items, cell D1 (starter damage) changed from 20 to =30 + 7 and saved through the real Tanu CLI.",
+    "Admin Validate TMD evaluated damage 37; Apply to next run queued the reviewed hashes. Edited semantic hash: 02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262.",
+    "Unity 6000.6.0f1 PlayMode loaded KituEndlessArena, started two runs and received damage 37 through real websocket projections; paused gameplay stayed frozen while management ticks advanced. No local ArenaGame rules ran.",
+    "Both run manifests persisted full damage-37 values and hash. An example is retained in edited-run-manifest.json.",
+    "Tanu refused to publish =1 / 0. Replacing it with =-1 saved a valid numeric TMD; Admin rejected it with items/starter: damage out of range, disabled application, and retained damage-37 active/pending versions.",
+    "Restored the reference configuration. Applying it to pending preserved the damage-37 active run. Saved manifests retained their original values. Then restarted the isolated host and passed all 47 EditMode and 15 PlayMode tests with defaults."
+  ],
+  "limits": [
+    "Authoring, evaluation and next-run configuration are complete. TSQ1 input recording, execution fingerprints and playback belong to stage 7.",
+    "Rust/frontend/Tanu builds ran in Dev Containers; actual VS Code and Unity scene checks ran on macOS. The CLI wrapper for the isolated editor invoked the container-built Tanu CLI, with the same file paths mounted.",
+    "Images show actual VS Code/Admin UI. Unity evidence is real-scene assertions and test reports, not a native-player build or a claim of Unity screenshots."
+  ]
+}
