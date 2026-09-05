@@ -9,6 +9,7 @@ namespace UnityOnlyArena
     public enum ArenaBossState { Pursuit, Telegraph, Recovery }
     public enum ArenaEffectKind { Slash, Explosion, Hit }
 
+    [Serializable]
     public struct ArenaInput
     {
         public Vector2 Move;
@@ -20,6 +21,7 @@ namespace UnityOnlyArena
         public bool UseB;
     }
 
+    [Serializable]
     public sealed class ArenaEnemy
     {
         public int Id;
@@ -37,6 +39,7 @@ namespace UnityOnlyArena
         public float PhaseRemaining;
     }
 
+    [Serializable]
     public sealed class ArenaProjectile
     {
         public int Id;
@@ -49,6 +52,7 @@ namespace UnityOnlyArena
         public float Radius = 0.14f;
     }
 
+    [Serializable]
     public sealed class ArenaGrenade
     {
         public int Id;
@@ -59,6 +63,7 @@ namespace UnityOnlyArena
         public int Damage;
     }
 
+    [Serializable]
     public sealed class ArenaEffect
     {
         public int Id;
@@ -102,7 +107,7 @@ namespace UnityOnlyArena
     /// is active; pausing the view therefore freezes every timer and input in the same place.
     /// Vector2.y maps to world Z. No scene object, physics callback or animation owns a rule.
     /// </summary>
-    public sealed class ArenaSimulation
+    public sealed partial class ArenaSimulation
     {
         public const float ArenaHalfExtent = 10f;
         public const float PlayerSpeed = 5f;

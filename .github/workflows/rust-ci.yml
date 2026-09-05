@@ -11,6 +11,15 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
+  arena-reference:
+    name: Arena Reference Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Verify frozen rule source and fixtures
+        run: python3 tools/verify-arena-reference.py
+
   format:
     name: Format Check
     runs-on: ubuntu-latest

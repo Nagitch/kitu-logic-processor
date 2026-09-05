@@ -149,6 +149,14 @@ and [Unity CLI and Pipeline overview](https://unity.com/blog/meet-the-unity-cli)
 
 ## Unity-only endless arena
 
+The [Arena runtime contract](../../doc/specs/arena-runtime-contract.md) defines
+the staged Kitu migration and its executable reference traces. The opt-in
+`ArenaReferenceSession` records normalized tick commands against the original
+C# rules; it does not replace this scene's input or gameplay path. Frozen
+preparation and stock-run fixtures live in
+`kitu-integration-runner/scenarios/arena/reference/`. Run the
+`UnityOnlyArena.Tests.ArenaReferenceTests` EditMode tests to replay them.
+
 Open `kitu-unity-demo-game/` with Unity `6000.6.0f1`, then open
 `Assets/KituDemoApp/EndlessArena/EndlessArena.unity` and enter Play Mode.
 Choose **Start game** in the opening menu. No Kitu, Rust runtime, network

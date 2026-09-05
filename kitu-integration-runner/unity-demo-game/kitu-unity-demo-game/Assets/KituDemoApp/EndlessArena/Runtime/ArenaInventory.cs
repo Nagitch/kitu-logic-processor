@@ -41,7 +41,7 @@ namespace UnityOnlyArena
     /// Unity-only run inventory and health rules. The simulation owns phase checks and
     /// advances this clock once, after all damage in a running update is resolved.
     /// </summary>
-    public sealed class ArenaInventory
+    public sealed partial class ArenaInventory
     {
         public const int BackpackCapacity = 3;
         public const float ShieldRecoveryDelay = 3f;

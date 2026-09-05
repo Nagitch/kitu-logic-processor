@@ -1,0 +1,12 @@
+{"id":1,"tick":0,"appliedTick":0,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":2,"tick":1,"appliedTick":1,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":3,"tick":2,"appliedTick":2,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":4,"tick":3,"appliedTick":3,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":5,"tick":4,"appliedTick":4,"accepted":false,"duplicate":false,"code":"stale_item"}
+{"id":6,"tick":5,"appliedTick":5,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":6,"tick":6,"appliedTick":5,"accepted":true,"duplicate":true,"code":"ok"}
+{"id":7,"tick":7,"appliedTick":7,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":8,"tick":12,"appliedTick":12,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":9,"tick":25,"appliedTick":25,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":10,"tick":26,"appliedTick":26,"accepted":true,"duplicate":false,"code":"ok"}
+{"id":11,"tick":27,"appliedTick":27,"accepted":true,"duplicate":false,"code":"ok"}
