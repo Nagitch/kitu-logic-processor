@@ -1,10 +1,9 @@
 # Endless Arena runtime contract, version 1
 
-Status: accepted migration contract. Stage 1 implements the C# reference recorder,
-detached state projection and fixtures. Arena Rust handlers, network adapters,
-domain-event emission and a live Unity recording UI are subsequent stages; this
-document does not claim those features already exist. Delivery is tracked in #129,
-with the executable reference boundary in #130 and before/after evidence in #111.
+Status: stages 1–3 are merged; stage 4 implements complete combat and the first
+playable Kitu floor. Full endless progression/rewards and the default scene switch
+are stage 5. Delivery is tracked in #129, with frozen reference evidence in #130
+and the Unity-first value investigation in #111.
 
 ## Authority and baseline
 
@@ -255,3 +254,40 @@ recorded effective frames, with a separate generated frame producer to preserve
 the original recorded discrete IDs. Floats use 1e-4 absolute tolerance; item IDs,
 HP, shield integers, slots, flags, order and result codes are exact. Full combat
 state and progression parity are later gates, not claimed by this slice.
+
+## Stage 4 combat implementation
+
+The authoritative projection now has every C# checkpoint field, including enemies,
+projectiles, grenades, effects, shared entity allocation, both weapon cooldowns,
+HP/shield timers and the terminal result. The first floor is playable over the
+existing connection; the portal after that floor is enabled in stage 5. The
+Unity client renders projected actors without constructing an ArenaSimulation.
+
+`use` acknowledges a queued intent, not guaranteed consumption. At the gameplay
+step, repeated intents for one slot coalesce into one attempt. `/ui/arena/use`
+reports `slot`, `itemId`, `consumed` and `code`: `ok`, `empty_slot`,
+`automatic_shield`, `full_health` or `invalid_aim`. Pause/menu/start/overlay
+operations clear queued intents; transition steps discard them as in C#.
+Successful consumption emits one inventory event with operation `/input/arena/use`, item/slot
+and the post-consumption inventory. This event belongs to the coalesced gameplay
+step, so it has tick/order instead of an individual command admission identity.
+A duplicate intent receipt does not enqueue another use. Unity sends the sampled
+frame before a Z/X press and requires release after UI changes/reconnection.
+
+Combat emits attack, damage, death and phase/result events at their rule execution
+points, plus spawn/despawn records for projected actors. Each combat event has
+`tick` and `order` within the emitted OSC bundle. Enemy damage aggregates per
+target in first-hit order and records its attack IDs; enemy deaths traverse the
+enemy list in reverse, followed by incoming player damage. Player death precedes
+floor clear, and prevents rewards. The runtime transport envelope identifies the
+session. A run is currently delimited by successful start commands; durable run
+identity and versioned recording metadata are part of the recording stage.
+
+The frozen stock input prefix (470 ticks) compares **all** state fields, checking
+both object key sets and array order, through the first clear. Edge regressions
+follow the original C# arrangements for simultaneous death, cone/cooldown,
+swept nearest hits/initial overlap/range/walls, grenade targeting/delay, medkit
+ordering and boss telegraph/recovery. Explicit event-order assertions supplement
+the checkpoint oracle; the baseline does not contain a raw C# domain-event log.
+The PlayMode connection test covers real Input System press gating, grenade
+consumption/pause, projected enemies and a first-floor clear over WebSocket.

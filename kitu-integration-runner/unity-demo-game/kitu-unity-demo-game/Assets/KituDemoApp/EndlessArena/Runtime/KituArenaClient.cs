@@ -16,7 +16,7 @@ namespace UnityOnlyArena
         private ArenaConnection connection;
         private ArenaWorldView world;
         private float nextFrame;
-        private bool requireMouseRelease = true;
+        private readonly bool[] requireRelease = { true, true, true, true };
         private bool synchronized;
         private int selectedBackpack;
         private Vector2 inventoryScroll;
@@ -40,7 +40,7 @@ namespace UnityOnlyArena
             connection?.Dispose();
             SessionId = null;
             synchronized = false;
-            requireMouseRelease = true;
+            BlockGameplayButtons();
             connection = new ArenaConnection(Endpoint);
         }
 
@@ -50,7 +50,7 @@ namespace UnityOnlyArena
         {
             var args = new JArray();
             foreach (int value in values) args.Add(Arg("int", value));
-            requireMouseRelease = true;
+            if (suffix != "use") BlockGameplayButtons();
             return Send("/input/arena/" + suffix, args);
         }
 
@@ -88,10 +88,17 @@ namespace UnityOnlyArena
                             if ((string)message["address"] == "/ui/arena/state" && SessionId != null)
                             {
                                 var state = JsonUtility.FromJson<ArenaReferenceState>((string)message["args"][0]["value"]);
-                                if (state.overlay != State.overlay || state.phase != State.phase) requireMouseRelease = true;
+                                if (state.overlay != State.overlay ||
+                                    (state.phase != State.phase && (state.phase == 0 || state.phase == 5 || State.phase == 0 || State.phase == 5)))
+                                    BlockGameplayButtons();
                                 State = state;
                                 synchronized = true;
                                 world.Sync(State);
+                            }
+                            else if ((string)message["address"] == "/ui/arena/use")
+                            {
+                                var result = JObject.Parse((string)message["args"][0]["value"]);
+                                Message = (string)result["code"];
                             }
                             else if ((string)message["address"] == "/ui/arena/command")
                             {
@@ -104,7 +111,7 @@ namespace UnityOnlyArena
                 }
                 catch (Exception error) { Message = error.Message; Disconnect(); break; }
             }
-            if (!Connected) { requireMouseRelease = true; return; }
+            if (!Connected) { BlockGameplayButtons(); return; }
             if (DeviceInput) ReadInput();
         }
 
@@ -115,13 +122,20 @@ namespace UnityOnlyArena
             {
                 if (keyboard.escapeKey.wasPressedThisFrame)
                     Command(State.overlay == "inventory" || State.overlay == "chest" ? "close" : State.overlay == "pause" ? "resume" : "pause");
-                if (keyboard.iKey.wasPressedThisFrame) Command(State.overlay == "inventory" || State.overlay == "chest" ? "close" : "inventory");
-                if (keyboard.eKey.wasPressedThisFrame) Command("chest");
+                if (keyboard.tabKey.wasPressedThisFrame || keyboard.iKey.wasPressedThisFrame) Command(State.overlay == "inventory" || State.overlay == "chest" ? "close" : "inventory");
+                if (keyboard.eKey.wasPressedThisFrame && State.overlay == "none") Command("chest");
+                if (keyboard.rKey.wasPressedThisFrame && State.phase == 5) Command("start");
             }
             var mouse = Mouse.current;
-            if (mouse == null || (!mouse.leftButton.isPressed && !mouse.rightButton.isPressed)) requireMouseRelease = false;
+            bool[] down = { mouse != null && mouse.leftButton.isPressed, mouse != null && mouse.rightButton.isPressed,
+                keyboard != null && keyboard.zKey.isPressed, keyboard != null && keyboard.xKey.isPressed };
+            for (int i = 0; i < down.Length; i++) if (!down[i]) requireRelease[i] = false;
+            bool running = State.overlay == "none" && State.phase != 0 && State.phase != 5;
+            bool useA = running && keyboard != null && !requireRelease[2] && keyboard.zKey.wasPressedThisFrame;
+            bool useB = running && keyboard != null && !requireRelease[3] && keyboard.xKey.wasPressedThisFrame;
+            // A press forces a fresh aim frame before the discrete use request.
             // This timer samples devices; only the server owns the game clock.
-            if (Time.unscaledTime < nextFrame) return;
+            if (Time.unscaledTime < nextFrame && !useA && !useB) return;
             nextFrame = Time.unscaledTime + 1f / 60f;
             var move = Vector2.zero;
             if (keyboard != null && State.overlay == "none")
@@ -141,11 +155,17 @@ namespace UnityOnlyArena
                 if (new Plane(Vector3.up, Vector3.zero).Raycast(ray, out float distance))
                 { var point = ray.GetPoint(distance); aim = new Vector2(point.x, point.z); hasAim = true; }
             }
-            Frame(move, aim, hasAim, !requireMouseRelease && mouse != null && mouse.leftButton.isPressed,
-                !requireMouseRelease && mouse != null && mouse.rightButton.isPressed);
+            Frame(move, aim, hasAim, running && !requireRelease[0] && down[0], running && !requireRelease[1] && down[1]);
+            if (useA) Command("use", 2);
+            if (useB) Command("use", 3);
         }
 
-        private void OnApplicationFocus(bool focused) { if (!focused) { Command("pause"); requireMouseRelease = true; } }
+        private void BlockGameplayButtons()
+        {
+            for (int i = 0; i < requireRelease.Length; i++) requireRelease[i] = true;
+        }
+
+        private void OnApplicationFocus(bool focused) { if (!focused) { Command("pause"); BlockGameplayButtons(); } }
         private void OnDestroy() { connection?.Dispose(); }
 
         private static string ItemText(ArenaItemState item)
@@ -213,7 +233,7 @@ namespace UnityOnlyArena
         private void OnGUI()
         {
             GUILayout.BeginArea(new Rect(20, 12, Screen.width - 40, 125));
-            GUILayout.Label("ENDLESS ARENA · Kitu Runtime");
+            GUILayout.Label($"ENDLESS ARENA · {State.floor}F · {(ArenaPhase)State.phase} · Enemies {State.enemies?.Length ?? 0}");
             GUILayout.Label($"{(Connected ? "Connected" : connection?.Status ?? "Disconnected")}  |  Tick {State.tick}  |  Time {State.elapsed:F2}  |  {State.overlay}  {Message}");
             GUILayout.BeginHorizontal();
             if (!Connected) { if (GUILayout.Button("Connect", GUILayout.Width(140))) Connect(); }
@@ -229,7 +249,7 @@ namespace UnityOnlyArena
                 if (GUILayout.Button("Main menu", GUILayout.Width(140))) Command("menu");
             }
             GUILayout.EndHorizontal();
-            GUILayout.Label("WASD: move · Mouse: aim · I: inventory · E: chest · Escape: close/pause");
+            GUILayout.Label("WASD: move · Mouse: aim/fire A/B · Z/X: items · Tab/I: inventory · E: chest · Escape: close/pause");
             if (State.inventory != null) GUILayout.Label($"HP {State.inventory.health}/{State.inventory.maxHealth} · Attack ×{State.inventory.attackMultiplier:F2}");
             GUILayout.EndArea();
             if ((State.overlay == "inventory" || State.overlay == "chest") && State.inventory != null) DrawInventory();
