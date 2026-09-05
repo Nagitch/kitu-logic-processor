@@ -15,10 +15,10 @@ process is required.
 
 Export the `Assets/KituDemoApp` directory from Unity to keep the scene, runtime
 scripts, materials, and their metadata together. Import the resulting package
-into a Unity 6000.5 project that provides:
+into a Unity 6000.6 project that provides:
 
-- Input System 1.19.0
-- Universal Render Pipeline 17.5.0
+- Input System 1.20.0
+- Universal Render Pipeline 17.6.0
 
 Assets-window Unity packages do not include Package Manager dependencies or
 project settings.
