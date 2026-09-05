@@ -18,7 +18,12 @@ namespace UnityOnlyArena
         private LineRenderer shield;
         public Camera GameCamera { get; private set; }
 
-        public void Initialize(ArenaSimulation model)
+        public void Initialize(ArenaSimulation model) => Initialize(new ReferenceView(model));
+        public void Initialize(ArenaReferenceState state) => Initialize(new ProjectionView(state));
+        public void Sync(ArenaSimulation model) => Sync(new ReferenceView(model));
+        public void Sync(ArenaReferenceState state) => Sync(new ProjectionView(state));
+
+        private void Initialize(IView model)
         {
             baseMaterial = Resources.Load<Material>("ArenaBase");
             stage = new GameObject("Arena presentation").transform;
@@ -55,7 +60,7 @@ namespace UnityOnlyArena
             Sync(model);
         }
 
-        public void Sync(ArenaSimulation model)
+        private void Sync(IView model)
         {
             if (GameCamera == null) return;
             GameCamera.rect = new Rect(0, .19f, 1, .65f);
@@ -72,7 +77,7 @@ namespace UnityOnlyArena
             player.rotation = Quaternion.LookRotation(Point(model.AimDirection, 0));
             chest.gameObject.SetActive(inRun && model.ChestAvailable);
             portal.gameObject.SetActive(inRun && model.PortalAvailable);
-            shield.gameObject.SetActive(inRun && HasShield(model.Inventory));
+            shield.gameObject.SetActive(inRun && model.HasShield);
             shield.transform.position = Point(model.PlayerPosition, .12f);
             SetRing(shield, .85f);
             live.Clear();
@@ -127,11 +132,64 @@ namespace UnityOnlyArena
             foreach (string key in obsolete) { Destroy(objects[key]); objects.Remove(key); }
         }
 
-        private static bool HasShield(ArenaInventory inventory)
+        // Read-only adapters keep rendering shared without running reference rules in the Kitu client.
+        private interface IView
         {
-            for (int i = 2; i < 4; i++)
-                if (inventory.Equipment[i] != null && inventory.Equipment[i].Kind == ItemKind.Shield && inventory.Equipment[i].Shield > 0) return true;
-            return false;
+            ArenaPhase Phase { get; }
+            Vector2 PlayerPosition { get; }
+            Vector2 AimDirection { get; }
+            bool ChestAvailable { get; }
+            bool PortalAvailable { get; }
+            bool HasShield { get; }
+            IEnumerable<ArenaEnemy> Enemies { get; }
+            IEnumerable<ArenaProjectile> Projectiles { get; }
+            IEnumerable<ArenaGrenade> Grenades { get; }
+            IEnumerable<ArenaEffect> Effects { get; }
+        }
+
+        private sealed class ReferenceView : IView
+        {
+            private readonly ArenaSimulation value;
+            public ReferenceView(ArenaSimulation value) { this.value = value; }
+            public ArenaPhase Phase => value.Phase;
+            public Vector2 PlayerPosition => value.PlayerPosition;
+            public Vector2 AimDirection => value.AimDirection;
+            public bool ChestAvailable => value.ChestAvailable;
+            public bool PortalAvailable => value.PortalAvailable;
+            public IEnumerable<ArenaEnemy> Enemies => value.Enemies;
+            public IEnumerable<ArenaProjectile> Projectiles => value.Projectiles;
+            public IEnumerable<ArenaGrenade> Grenades => value.Grenades;
+            public IEnumerable<ArenaEffect> Effects => value.Effects;
+            public bool HasShield {
+                get {
+                    for (int i = 2; i < 4; i++)
+                        if (value.Inventory.Equipment[i] != null && value.Inventory.Equipment[i].Kind == ItemKind.Shield && value.Inventory.Equipment[i].Shield > 0) return true;
+                    return false;
+                }
+            }
+        }
+
+        private sealed class ProjectionView : IView
+        {
+            private readonly ArenaReferenceState value;
+            public ProjectionView(ArenaReferenceState value) { this.value = value; }
+            public ArenaPhase Phase => (ArenaPhase)value.phase;
+            public Vector2 PlayerPosition => value.playerPosition;
+            public Vector2 AimDirection => value.aimDirection;
+            public bool ChestAvailable => value.chestAvailable;
+            public bool PortalAvailable => value.portalAvailable;
+            public IEnumerable<ArenaEnemy> Enemies => value.enemies ?? System.Array.Empty<ArenaEnemy>();
+            public IEnumerable<ArenaProjectile> Projectiles => value.projectiles ?? System.Array.Empty<ArenaProjectile>();
+            public IEnumerable<ArenaGrenade> Grenades => value.grenades ?? System.Array.Empty<ArenaGrenade>();
+            public IEnumerable<ArenaEffect> Effects => value.effects ?? System.Array.Empty<ArenaEffect>();
+            public bool HasShield {
+                get {
+                    if (value.inventory?.equipment == null) return false;
+                    for (int i = 2; i < value.inventory.equipment.Length; i++)
+                        if (value.inventory.equipment[i].kind == (int)ItemKind.Shield && value.inventory.equipment[i].shield > 0) return true;
+                    return false;
+                }
+            }
         }
 
         private GameObject Dynamic(string id, PrimitiveType shape, Color color)

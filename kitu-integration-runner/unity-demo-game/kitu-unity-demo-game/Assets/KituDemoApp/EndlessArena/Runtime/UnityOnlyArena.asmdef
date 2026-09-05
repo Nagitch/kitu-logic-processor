@@ -1,6 +1,7 @@
 {
-  "name": "UnityOnlyArena",
-  "references": [
-    "Unity.InputSystem"
-  ]
+    "name": "UnityOnlyArena",
+    "references": [
+        "Unity.InputSystem",
+        "Unity.Newtonsoft.Json"
+    ]
 }

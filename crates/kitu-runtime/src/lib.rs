@@ -25,15 +25,29 @@ pub use kitu_ecs::{WorldObject, WorldSnapshot, WorldTransform};
 use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
 use kitu_transport::{Transport, TransportEvent};
 
+mod application;
+pub use application::{ApplicationTick, InputMetadata, RuntimeApplication, RuntimeInput};
+
 #[derive(Default)]
 struct AuthoritativeInputQueue {
-    committed_batch: VecDeque<OscBundle>,
-    pending_queue: VecDeque<OscBundle>,
+    committed_batch: VecDeque<RuntimeInput>,
+    pending_queue: VecDeque<RuntimeInput>,
+    next_sequence: u64,
 }
 
 impl AuthoritativeInputQueue {
     fn enqueue_pending(&mut self, input: OscBundle) {
-        self.pending_queue.push_back(input);
+        self.enqueue_with_metadata(input, None);
+    }
+
+    fn enqueue_with_metadata(&mut self, bundle: OscBundle, metadata: Option<InputMetadata>) {
+        let sequence = self.next_sequence;
+        self.next_sequence += 1;
+        self.pending_queue.push_back(RuntimeInput {
+            sequence,
+            bundle,
+            metadata,
+        });
     }
 
     fn commit_next_tick_batch(&mut self) {
@@ -42,11 +56,17 @@ impl AuthoritativeInputQueue {
     }
 
     fn drain_committed(&mut self) -> Vec<OscBundle> {
-        self.committed_batch.drain(..).collect()
+        self.committed_batch
+            .drain(..)
+            .map(|input| input.bundle)
+            .collect()
     }
 
     fn committed_snapshot(&self) -> Vec<OscBundle> {
-        self.committed_batch.iter().cloned().collect()
+        self.committed_batch
+            .iter()
+            .map(|input| input.bundle.clone())
+            .collect()
     }
 
     fn clear(&mut self) {
@@ -134,6 +154,7 @@ pub struct Runtime<T: Transport> {
     outputs: OutputBuffer,
     player_transforms: HashMap<String, PlayerTransform>,
     app_actions: AppActionCatalog,
+    application: Option<Box<dyn RuntimeApplication>>,
 }
 
 /// Result of executing an app action through the runtime.
@@ -170,6 +191,7 @@ impl<T: Transport> Runtime<T> {
             outputs: OutputBuffer::default(),
             player_transforms: HashMap::new(),
             app_actions: kitu_general_catalog(),
+            application: None,
         }
     }
 
@@ -211,9 +233,20 @@ impl<T: Transport> Runtime<T> {
     pub fn reset_world_objects(&mut self) {
         self.world.reset_world_objects();
         self.player_transforms.clear();
-        self.inputs.clear();
-        self.committed_input_tick = None;
-        self.outputs.clear();
+        if self.application.is_some() {
+            // Resetting the legacy object sandbox cannot discard an admitted
+            // application operation (in particular a controller-loss pause).
+            self.inputs
+                .pending_queue
+                .retain(|input| input.metadata.is_some());
+            self.inputs
+                .committed_batch
+                .retain(|input| input.metadata.is_some());
+        } else {
+            self.inputs.clear();
+            self.committed_input_tick = None;
+            self.outputs.clear();
+        }
     }
 
     /// Returns the authoritative runtime/ECS world snapshot.
@@ -271,6 +304,76 @@ impl<T: Transport> Runtime<T> {
     /// Enqueues an input bundle for the next tick.
     pub fn enqueue_input(&mut self, input: OscBundle) {
         self.inputs.enqueue_pending(input);
+    }
+
+    /// Queues a logical application input while retaining envelope identity.
+    pub fn enqueue_tagged_input(&mut self, input: OscBundle, metadata: InputMetadata) {
+        self.inputs.enqueue_with_metadata(input, Some(metadata));
+    }
+
+    /// Validates a host envelope before queuing it, returning its runtime-assigned order.
+    ///
+    /// Unlike unchecked legacy enqueue methods, malformed requests cannot discard
+    /// an already-admitted batch. Validation is structural and read-only; command
+    /// eligibility is still decided at the authoritative application tick.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_runtime::build_runtime;
+    /// use kitu_transport::LocalChannel;
+    /// use kitu_osc_ir::OscBundle;
+    /// let mut runtime = build_runtime(LocalChannel::connected());
+    /// assert_eq!(runtime.try_enqueue_input(OscBundle::new(), None).unwrap(), 0);
+    /// ```
+    pub fn try_enqueue_input(
+        &mut self,
+        bundle: OscBundle,
+        metadata: Option<InputMetadata>,
+    ) -> Result<u64> {
+        for message in &bundle.messages {
+            if message.address == "/input/move" {
+                parse_move_input(message)?;
+            }
+        }
+        let input = RuntimeInput {
+            sequence: self.inputs.next_sequence,
+            bundle,
+            metadata,
+        };
+        if let Some(application) = &self.application {
+            application.validate_inputs(std::slice::from_ref(&input))?;
+        }
+        let sequence = input.sequence;
+        self.inputs
+            .enqueue_with_metadata(input.bundle, input.metadata);
+        Ok(sequence)
+    }
+
+    /// Installs persistent application behavior before the first authoritative tick.
+    ///
+    /// Returns an error if an application is already installed or execution started.
+    /// Initialize the application's typed world resources before calling this method.
+    pub fn install_application<A: RuntimeApplication>(&mut self, application: A) -> Result<()> {
+        if self.tick.get() != 0 || self.application.is_some() {
+            return Err(KituError::InvalidInput(
+                "application must be installed once before execution",
+            ));
+        }
+        if self.config.tick_rate_hz == 0 || self.config.frame_time().is_zero() {
+            return Err(KituError::InvalidInput(
+                "application requires a positive fixed timestep",
+            ));
+        }
+        self.application = Some(Box::new(application));
+        Ok(())
+    }
+
+    /// Returns the application's detached current projection without ticking.
+    pub fn inspect_application(&self) -> Vec<OscBundle> {
+        self.application
+            .as_ref()
+            .map(|app| app.snapshot(&self.world))
+            .unwrap_or_default()
     }
 
     /// Stages an output bundle that becomes visible after the current tick.
@@ -427,8 +530,30 @@ impl<T: Transport> Runtime<T> {
                 return Err(error);
             }
         };
+        let application_inputs: Vec<_> = self.inputs.committed_batch.iter().cloned().collect();
+        if let Some(application) = self.application.as_ref() {
+            if let Err(error) = application.validate_inputs(&application_inputs) {
+                self.inputs.drain_committed();
+                self.committed_input_tick = None;
+                return Err(error);
+            }
+        }
         self.world.dispatch(self.tick)?;
         self.apply_player_move_slice(parsed_moves)?;
+
+        if let Some(application) = self.application.as_mut() {
+            let outputs = application.tick(
+                &mut self.world,
+                ApplicationTick {
+                    tick: self.tick,
+                    dt: self.config.frame_time().as_secs_f32(),
+                    inputs: &application_inputs,
+                },
+            );
+            for output in outputs {
+                self.outputs.stage(output);
+            }
+        }
 
         self.outputs.emit_staged();
 

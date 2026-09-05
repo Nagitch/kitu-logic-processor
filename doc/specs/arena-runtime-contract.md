@@ -177,3 +177,47 @@ Normal tests only read the checked-in fixtures. Inspect generated differences
 before replacing a fixture. Run the `UnityOnlyArena.Tests` EditMode assembly and
 the existing PlayMode tests; use `tools/verify-arena-reference.py` from the
 repository root to verify pinned source provenance and fixture structure.
+
+## Stage 2 concrete connection
+
+`apps/demo-game` installs the persistent Arena application; the admin host clocks
+it independently at 60 Hz. `KituEndlessArena.unity` is the separate migration
+scene. This slice supports start/menu, movement/aim, pause/resume and host-originated
+disconnect. Inventory, combat and progression are later slices. Structurally
+valid unmigrated commands currently return `not_yet_implemented`.
+
+Connect to `/ws/runtime`. Initial text events include `arenaSession` with `id` and
+`schemaVersion`, followed by `/ui/arena/state`. A controlling client sends:
+
+```json
+{"schemaVersion":1,"sessionId":"<arenaSession.id>","clientId":"<stable-client-id>","messageId":1,"address":"/input/arena/start","args":[]}
+```
+
+`args` is an ordered array of `{ "type": "float", "value": 1.0 }` (or `int`,
+`int64`, `bool`, `str`). Version/session mismatches and malformed envelopes are
+rejected before queue admission. One websocket/client identity owns controls;
+other connected clients can observe. The host reserves producer IDs beginning
+with `host:` and generates disconnect when the owning websocket closes. Losing
+an observer does not pause the game. Restarting the process changes its session
+ID. A reconnect sends a complete projection and requires explicit resume; clients
+must not automatically resend unacknowledged commands or held controls.
+
+State and command output bodies are encoded as one OSC string argument containing
+JSON. State uses the reference field names, including Vector2 `x`/`y`. A command
+outcome also includes producer `source` and original runtime admission `sequence`;
+retries preserve the original applied tick, sequence and outcome. Continuously
+sampled frames share a per-producer high-water ID with discrete commands. Stale
+frames are ignored; a frame reusing a cached command ID returns `id_conflict`.
+A first-seen discrete ID at or below that mark also returns `id_conflict`, so a
+previous frame ID cannot become a consuming operation. Exact cached command
+retries still return the original result. This keeps continuous input memory
+bounded without permitting cross-kind reuse. IDs must be monotonically allocated
+across all kinds; an out-of-order, previously unseen discrete command is rejected.
+Deferred commands still validate their full declared argument shape before queue
+admission; genuinely unknown addresses fail admission.
+
+JSON is the Arena network encoding for this stage. The pre-existing legacy KEP
+path remains supported for legacy OSC; versioned Arena MessagePack admission is
+stage 15. Per-entity render/domain events and complete inventory state will be
+added at their migration slices. The current state projection is the rendering
+source for the initial player view, and does not claim full-game parity.

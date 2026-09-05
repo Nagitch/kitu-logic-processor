@@ -7,6 +7,8 @@ use anyhow::{Context, Result};
 use kitu_runtime::{build_runtime, Runtime};
 use kitu_transport::LocalChannel;
 
+pub mod arena;
+
 /// Stable app identifier used in project-scoped app actions.
 pub const APP_ID: &str = "demo-game";
 
@@ -22,6 +24,20 @@ pub fn build_demo_runtime() -> Result<DemoRuntime> {
     runtime
         .load_project_app_actions_from_toml(APP_ID, APP_ACTIONS_TOML)
         .context("load demo-game app actions")?;
+    Ok(runtime)
+}
+
+/// Builds the same demo runtime with the authoritative Arena application installed.
+///
+/// # Examples
+/// ```
+/// let mut runtime = kitu_demo_game::build_arena_runtime().unwrap();
+/// assert!(!runtime.inspect_application().is_empty());
+/// runtime.tick_once().unwrap();
+/// ```
+pub fn build_arena_runtime() -> Result<DemoRuntime> {
+    let mut runtime = build_demo_runtime()?;
+    arena::install(&mut runtime)?;
     Ok(runtime)
 }
 

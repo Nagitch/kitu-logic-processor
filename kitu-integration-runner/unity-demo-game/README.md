@@ -147,6 +147,29 @@ reload policy is a separate behavior change.
 References: [Unity 6.6 upgrade guide](https://docs.unity3d.com/6000.6/Documentation/Manual/UpgradeGuideUnity66.html)
 and [Unity CLI and Pipeline overview](https://unity.com/blog/meet-the-unity-cli).
 
+## Kitu Arena migration scene
+
+Run `cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host` in the Dev
+Container, forwarding port 8787. Open
+`Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity` and enter Play Mode.
+The client inspector `Endpoint` defaults to `ws://127.0.0.1:8787/ws/runtime`.
+Start a run, move with WASD, aim with the mouse and pause/resume with Escape.
+The application is currently the stage-2 movement/lifecycle slice; the complete
+Unity-only comparison scene below remains the default full game until stage 5.
+
+The server owns the 60 Hz game clock. Unity samples device inputs and renders
+received snapshots. Disconnecting the controlling client pauses the game;
+**Connect** synchronizes, and **Resume** explicitly restarts gameplay with fresh
+controls. Focus loss also requests pause. Invalid sessions/contract versions and
+competing controllers are rejected. No server state is recreated locally.
+
+For the real scene/transport test, start an isolated host and run the PlayMode
+`UnityOnlyArena.Tests.KituArenaConnectionTests` test with `KITU_ARENA_WS_URL`
+pointing at its websocket endpoint. The test is explicitly skipped if the variable
+is absent; the normal offline reference suites do not require a running server.
+It checks authoritative movement, paused management ticks and reconnect/resume.
+The shared view is still covered by the original camera and scene regressions.
+
 ## Unity-only endless arena
 
 The [Arena runtime contract](../../doc/specs/arena-runtime-contract.md) defines
