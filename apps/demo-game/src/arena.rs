@@ -117,7 +117,7 @@ struct ArenaSession {
     state: ArenaState,
     controls: Controls,
     seen: HashMap<(String, u64), (OscMessage, Outcome)>,
-    frames: HashMap<String, u64>,
+    high_water: HashMap<String, u64>,
 }
 
 struct ArenaApplication;
@@ -171,7 +171,37 @@ fn parse(message: &OscMessage) -> Result<Command> {
                 "Arena frame expects finite move/aim coordinates and boolean controls",
             ));
         }
-        _ => return Ok(Command::Unsupported),
+        "/input/arena/inventory" | "/input/arena/chest" | "/input/arena/close" => {
+            Command::Unsupported
+        }
+        "/input/arena/take"
+        | "/input/arena/discard"
+        | "/input/arena/upgrade"
+        | "/input/arena/unequip" => {
+            return match message.args.as_slice() {
+                [OscArg::Int(_), OscArg::Int(_)] => Ok(Command::Unsupported),
+                _ => Err(KituError::InvalidInput(
+                    "Arena operation expects two ordered i32 arguments",
+                )),
+            };
+        }
+        "/input/arena/equip" => {
+            return match message.args.as_slice() {
+                [OscArg::Int(_), OscArg::Int(_), OscArg::Int(_)] => Ok(Command::Unsupported),
+                _ => Err(KituError::InvalidInput(
+                    "Arena equip expects three ordered i32 arguments",
+                )),
+            };
+        }
+        "/input/arena/use" => {
+            return match message.args.as_slice() {
+                [OscArg::Int(_)] => Ok(Command::Unsupported),
+                _ => Err(KituError::InvalidInput(
+                    "Arena use expects an i32 equipment slot",
+                )),
+            };
+        }
+        _ => return Err(KituError::InvalidInput("unknown Arena command")),
     };
     if !message.args.is_empty() {
         return Err(KituError::InvalidInput(
@@ -214,18 +244,28 @@ impl RuntimeApplication for ArenaApplication {
                 }
                 let meta = input.metadata.as_ref().expect("validated metadata");
                 let command = parse(message).expect("validated command");
+                let key = (meta.source.clone(), meta.message_id);
+                let tick = context.tick.get() as i64;
                 if let Command::Frame(controls) = command {
-                    let previous = session.frames.entry(meta.source.clone()).or_default();
-                    if meta.message_id > *previous {
-                        *previous = meta.message_id;
-                        if session.state.overlay == "none" {
-                            session.controls = controls;
+                    if let Some((_, original)) = session.seen.get(&key) {
+                        let mut conflict = original.clone();
+                        conflict.tick = tick;
+                        conflict.applied_tick = -1;
+                        conflict.accepted = false;
+                        conflict.duplicate = true;
+                        conflict.code = "id_conflict".into();
+                        output.push(json_message("/ui/arena/command", &conflict));
+                    } else {
+                        let previous = session.high_water.entry(meta.source.clone()).or_default();
+                        if meta.message_id > *previous {
+                            *previous = meta.message_id;
+                            if session.state.overlay == "none" {
+                                session.controls = controls;
+                            }
                         }
                     }
                     continue;
                 }
-                let key = (meta.source.clone(), meta.message_id);
-                let tick = context.tick.get() as i64;
                 let outcome = if let Some((original, previous)) = session.seen.get(&key) {
                     let mut outcome = previous.clone();
                     outcome.tick = tick;
@@ -236,7 +276,25 @@ impl RuntimeApplication for ArenaApplication {
                         outcome.applied_tick = -1;
                     }
                     outcome
+                } else if meta.message_id
+                    <= session.high_water.get(&meta.source).copied().unwrap_or(0)
+                {
+                    // A first-seen discrete ID below the producer high-water mark
+                    // may belong to a frame. Never reuse it for a state mutation.
+                    Outcome {
+                        sequence: input.sequence,
+                        source: meta.source.clone(),
+                        id: meta.message_id,
+                        tick,
+                        applied_tick: -1,
+                        accepted: false,
+                        duplicate: true,
+                        code: "id_conflict".into(),
+                    }
                 } else {
+                    session
+                        .high_water
+                        .insert(meta.source.clone(), meta.message_id);
                     let code = execute(session, command);
                     let outcome = Outcome {
                         sequence: input.sequence,

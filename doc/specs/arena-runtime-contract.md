@@ -206,9 +206,15 @@ State and command output bodies are encoded as one OSC string argument containin
 JSON. State uses the reference field names, including Vector2 `x`/`y`. A command
 outcome also includes producer `source` and original runtime admission `sequence`;
 retries preserve the original applied tick, sequence and outcome. Continuously
-sampled frames use a per-producer high-water ID: stale/duplicate frames are ignored
-and do not grow the discrete-command cache. Message IDs must be monotonically
-allocated across all command kinds; do not reuse a frame ID as a discrete command.
+sampled frames share a per-producer high-water ID with discrete commands. Stale
+frames are ignored; a frame reusing a cached command ID returns `id_conflict`.
+A first-seen discrete ID at or below that mark also returns `id_conflict`, so a
+previous frame ID cannot become a consuming operation. Exact cached command
+retries still return the original result. This keeps continuous input memory
+bounded without permitting cross-kind reuse. IDs must be monotonically allocated
+across all kinds; an out-of-order, previously unseen discrete command is rejected.
+Deferred commands still validate their full declared argument shape before queue
+admission; genuinely unknown addresses fail admission.
 
 JSON is the Arena network encoding for this stage. The pre-existing legacy KEP
 path remains supported for legacy OSC; versioned Arena MessagePack admission is

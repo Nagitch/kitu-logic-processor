@@ -197,3 +197,74 @@ fn stock_reference_approach_matches_frozen_csharp_checkpoints() {
     }
     assert_eq!(compared, 2);
 }
+
+#[test]
+fn message_identity_is_shared_across_frames_and_discrete_commands() {
+    let mut runtime = build_arena_runtime().unwrap();
+    input(&mut runtime, 1, "start", vec![]);
+    input(&mut runtime, 2, "frame", frame(1.0, 0.0));
+    runtime.tick_once().unwrap();
+    let before = state(&runtime).player_position.x;
+    runtime.drain_output_buffer();
+    input(&mut runtime, 2, "menu", vec![]); // Frame ID cannot become an operation.
+    input(&mut runtime, 1, "frame", frame(-1.0, 0.0)); // Operation ID cannot replace controls.
+    runtime.tick_once().unwrap();
+    assert_eq!(state(&runtime).phase, 1);
+    assert!(state(&runtime).player_position.x > before);
+    let conflicts = runtime
+        .drain_output_buffer()
+        .into_iter()
+        .flat_map(|b| b.messages)
+        .filter(|m| m.address == "/ui/arena/command")
+        .count();
+    assert_eq!(conflicts, 2);
+    input(&mut runtime, 1, "start", vec![]); // A real command retry is still recognized.
+    runtime.tick_once().unwrap();
+    assert_eq!(state(&runtime).simulation_steps, 3);
+}
+
+#[test]
+fn deferred_commands_validate_the_complete_declared_payload_before_admission() {
+    let mut runtime = build_arena_runtime().unwrap();
+    let meta = InputMetadata {
+        source: "test".into(),
+        message_id: 1,
+        schema_version: 1,
+    };
+    for (suffix, count) in [
+        ("inventory", 0),
+        ("chest", 0),
+        ("close", 0),
+        ("use", 1),
+        ("take", 2),
+        ("discard", 2),
+        ("upgrade", 2),
+        ("unequip", 2),
+        ("equip", 3),
+    ] {
+        let mut message = OscMessage::new(format!("/input/arena/{suffix}"));
+        message.args = vec![OscArg::Int(1); count];
+        kitu_demo_game::arena::validate_input(&message, &meta).unwrap();
+        message.args.push(OscArg::Int(1));
+        assert!(
+            kitu_demo_game::arena::validate_input(&message, &meta).is_err(),
+            "{suffix} extra argument"
+        );
+        message.args = vec![OscArg::Float(1.0); count.max(1)];
+        let mut bundle = OscBundle::new();
+        bundle.push(message);
+        assert!(
+            runtime
+                .try_enqueue_input(bundle, Some(meta.clone()))
+                .is_err(),
+            "{suffix} wrong types"
+        );
+    }
+    assert!(
+        kitu_demo_game::arena::validate_input(&OscMessage::new("/input/arena/unknown"), &meta)
+            .is_err()
+    );
+    input(&mut runtime, 1, "start", vec![]);
+    runtime.tick_once().unwrap();
+    assert_eq!(state(&runtime).phase, 1);
+}

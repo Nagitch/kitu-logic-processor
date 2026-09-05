@@ -1037,6 +1037,15 @@ mod tests {
         request.session_id = "stale runtime".into();
         assert!(enqueue_arena_request(&state, 1, request).is_err());
         assert!(state.inner.lock().unwrap().controller.is_none());
+        assert!(
+            enqueue_arena_request(&state, 1, arena_request(&state, 1, "/input/arena/take"))
+                .is_err()
+        );
+        assert!(
+            enqueue_arena_request(&state, 1, arena_request(&state, 1, "/input/arena/unknown"))
+                .is_err()
+        );
+        assert!(state.inner.lock().unwrap().controller.is_none());
         enqueue_arena_request(&state, 1, arena_request(&state, 1, "/input/arena/start")).unwrap();
         assert!(
             enqueue_arena_request(&state, 2, arena_request(&state, 2, "/input/arena/menu"))

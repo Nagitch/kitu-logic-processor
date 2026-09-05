@@ -26,14 +26,14 @@
       "passed": "1",
       "failed": "0",
       "skipped": "0",
-      "duration": "0.704192"
+      "duration": "0.6828604"
     }
   },
   "rust": {
     "environment": "Dedicated Dev Container using the repository development image and Rust 1.96.0",
     "fmt": "passed",
     "clippyAllTargetsAllFeatures": "passed",
-    "testsAndDoctestsPassed": 118,
+    "testsAndDoctestsPassed": 120,
     "docAllNoDeps": "passed",
     "packageLists": [
       "kitu-ecs",
@@ -62,9 +62,9 @@
   },
   "sceneEvidence": "Actual PlayMode scene/transform and network assertions passed. Batch mode produced no screenshot; this is not visual QA or native-build evidence.",
   "sourceSha256": {
-    "apps/demo-game/src/arena.rs": "d69965e9a62d8c63922484eac24c62547bdbbf1fc4b7f78273a2b8756a5fa496",
-    "apps/demo-game/src/bin/admin_host.rs": "942feffdeca7bfd38759568d9462d04dc2843c26119c211a4ad6e61a65ce7cd3",
-    "apps/demo-game/tests/arena_lifecycle.rs": "9b024a4874400238e257d82aa5dbc31987d2bb6f6ee1743e502aa7fd05600d21",
+    "apps/demo-game/src/arena.rs": "8c96704dc44189e5c56759ea45da2152e019953995c9e2a04c449f6ef60f2cd3",
+    "apps/demo-game/src/bin/admin_host.rs": "5d0dae52f0a17af911dea4773f15222ca1e35c610bb7b1a3b16a2e7b386ffb18",
+    "apps/demo-game/tests/arena_lifecycle.rs": "a06d0c14da043290a7b2cd920e6924d6cf557e25195d9ddcc37c34bd6e080a25",
     "crates/kitu-runtime/src/lib.rs": "2b111aec525a3f1960fca1954adaed0fd2b912a68cc3999930f22b89c2c9e7f1",
     "crates/kitu-runtime/src/application.rs": "5c37e0e600c7f70fe59dfaee644814e2d9a0a28e1483621acd9683618b38958c",
     "crates/kitu-runtime/tests/application.rs": "948f9cbdece3561087732a4ec0e51e2c065718f64ff5a0c271ed593d40629a2c",
@@ -74,5 +74,9 @@
     "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaWorldView.cs": "9bc428dd737518814d250e496219fc2cde77b41971f7d7734b14483c648ada7a",
     "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/KituArenaConnectionTests.cs": "b484645aa2d1d22c0f6393c7c4da88bba44b3ca44948f36e9951bd759da24ad6",
     "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity": "e58a0fd63cedfad0b5a66f352486f328660b104700af54b3fbeaffbb4ccb5877"
-  }
+  },
+  "reviewFixes": [
+    "Validate payload types for all deferred commands before admission; reject unknown addresses",
+    "Use one producer high-water mark across frames and discrete commands; retain cached retry outcomes"
+  ]
 }
