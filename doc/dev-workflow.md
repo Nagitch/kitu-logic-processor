@@ -33,6 +33,13 @@ contributors and AI assistants.
   - `rustfmt` (formatting)
   - `just` or `Makefile` (common commands)
 
+The Unity demo is validated with the licensed Unity `6000.6.0f1` Editor on a
+supported host. Use Unity CLI `1.0.0-beta.8` with the project's pinned Pipeline
+`0.6.0-exp.1` package for Editor automation. See the
+[Unity demo instructions](../kitu-integration-runner/unity-demo-game/README.md#unity-cli)
+for opening the project, Play Mode checks, and batch import/compilation. Rust
+and frontend validation continue to use the Dev Container.
+
 Recommended commands (to be provided via `justfile` or equivalent):
 
 - `just fmt` → `cargo fmt --all`
