@@ -36,7 +36,12 @@ curl -fsSL https://public-cdn.cloud.unity3d.com/hub/prod/cli/install.sh -o /tmp/
 UNITY_CLI_CHANNEL=beta UNITY_CLI_VERSION=1.0.0-beta.8 bash /tmp/unity-cli-install.sh
 ```
 
-Restart the terminal after installation, then run from this directory:
+The official installer installs a persistent CLI and configures the interactive
+shell's PATH. On macOS the default executable is `~/.unity/bin/unity`. Restart
+the terminal after installation, or load `~/.unity/env` in an existing macOS
+shell. Non-interactive shells do not necessarily read `.zshrc`.
+
+Then run from this directory:
 
 ```sh
 cd kitu-unity-demo-game
@@ -44,12 +49,44 @@ unity --version
 unity open .
 ```
 
+### Select the intended checkout
+
+Use `scripts/unity-cli.sh` when invoking the CLI from automation or elsewhere
+in the repository. It discovers the installed CLI from PATH, the default
+macOS location, or the default Linux location, and selects the Unity project
+next to the script. From the repository root:
+
+```sh
+./kitu-integration-runner/unity-demo-game/scripts/unity-cli.sh --version
+./kitu-integration-runner/unity-demo-game/scripts/unity-cli.sh command editor_status --json
+```
+
+`KITU_UNITY_CLI` can specify an absolute executable path for a custom CLI
+installation. `KITU_UNITY_PROJECT` can select a different checkout explicitly:
+
+```sh
+KITU_UNITY_PROJECT=/absolute/path/to/kitu-unity-demo-game \
+  ./kitu-integration-runner/unity-demo-game/scripts/unity-cli.sh command editor_status --json
+```
+
+Check the returned `projectPath` and `unityVersion` (`6000.6.0f1`) before
+performing scene operations. Git worktrees have separate project directories
+and Unity caches. The Hub entry for a regular checkout does not automatically
+switch to a worktree or receive its commits when a PR is created. Update the
+checkout registered in Hub to the merged commit, or explicitly add/open the
+worktree you want to use. Re-registering an old checkout in Hub does not update
+its files. The helper does not change Hub registration or Git branches.
+
+### Verify the Editor connection
+
 Install Editor `6000.6.0f1` through Unity Hub if it is missing, and activate a
 Unity license on the machine. Let the initial package import and script
 compilation finish. From a second terminal in the same project directory:
 
 ```sh
 unity command editor_status --json
+unity command eval --code 'return UnityEngine.Application.unityVersion;' --json
+unity command list_open_scenes --json
 unity command open_scene --path Assets/KituDemoApp/KituDemoAppMain.unity
 unity command editor_play
 unity command editor_status --json
@@ -61,6 +98,12 @@ The play/stop commands initiate transitions; wait until `editor_status` reports
 the requested state before the next scene operation. `unity command` lists the
 available commands. Pass `--project-path /absolute/path/to/kitu-unity-demo-game`
 before the command name when running outside the project directory.
+The same commands can be passed to `scripts/unity-cli.sh`. A successful
+connection reports the intended project, the expected Editor version, and no
+compilation/domain reload in progress. A missing Pipeline instance during the
+first import is not a successful connection: wait for compilation to finish
+and check again. `get_console_logs --severity error` should return an empty log
+list after the demo smoke check.
 
 The Pipeline dependency is already committed, so a fresh checkout does not
 need `unity pipeline install`. Its Editor connection metadata lives under the
