@@ -1,6 +1,7 @@
-# Unity Demo Game Verification App
+# Unity Demo Game
 
-This directory is reserved for the minimal Unity client project used by CI/CD and integration tests.
+This Unity project contains the offline endless arena, its original gameplay
+smoke baseline, and the separate Kitu integration verification scene.
 
 It pairs with `apps/demo-game` while staying focused on the Unity presentation/input boundary.
 
@@ -18,7 +19,7 @@ Purpose:
 - Support regression checks for representative runtime flows.
 
 Non-goal:
-- Hosting full game-specific implementation.
+- Production-quality content and presentation.
 
 ## Unity CLI
 
@@ -146,7 +147,82 @@ reload policy is a separate behavior change.
 References: [Unity 6.6 upgrade guide](https://docs.unity3d.com/6000.6/Documentation/Manual/UpgradeGuideUnity66.html)
 and [Unity CLI and Pipeline overview](https://unity.com/blog/meet-the-unity-cli).
 
-## Unity-only action RPG demo
+## Unity-only endless arena
+
+Open `kitu-unity-demo-game/` with Unity `6000.6.0f1`, then open
+`Assets/KituDemoApp/EndlessArena/EndlessArena.unity` and enter Play Mode.
+Choose **Start game** in the opening menu. No Kitu, Rust runtime, network
+connection, or backend process is required for gameplay.
+
+The perspective camera follows the player from above and to the side (56-degree
+pitch, -72-degree yaw). It keeps the player centered without clamping to arena
+edges or zooming out to fit the whole floor. Its initial vertical field of view
+is 13.1 degrees at a distance of 55; these values can be tuned on ArenaWorldView.
+WASD follows the camera's ground-plane directions, while mouse aiming projects
+onto the floor. World labels are clipped to the gameplay viewport.
+
+The opening menu and pause menu offer **Settings** for master volume and
+windowed/borderless display. Changes are saved only with **Apply and return**.
+Display mode and Quit affect the standalone player, not the Unity Editor.
+Sound assets are intentionally absent; the saved master volume is applied to
+the shared AudioListener for future audio.
+
+- Move with `WASD`; aim at the floor with the mouse.
+- Hold left/right mouse for weapon A/B. Both weapons may fire together.
+- Press `Z`/`X` to use item A/B. Medkits restore all HP; grenades explode on
+  landing. Both are consumed. Equipped shields absorb damage and recharge
+  automatically; they do not need an activation key.
+- Walk near the supply chest and press `E`. Select a backpack slot, then
+  take/swap a chest item. Equip from the selected slot or use an upgrade.
+- `Tab` opens inventory on safe floors. Equipment changes are unavailable
+  during combat. Inventory, settings and pause freeze all gameplay clocks.
+- Walk into the green portal to advance. Every enemy must be defeated before
+  the next portal appears; every fifth floor has a boss and reward chest.
+- `Esc` pauses. Death shows results; `R` or **Try again** starts a fresh run.
+
+The 0F chest includes six weapon candidates, a medkit, grenade, shield, and
+two upgrades. Three backpack slots and four equipment slots require choices.
+There are no enemy item drops, XP, victory endpoint, or run saves. Normal
+floors preserve HP; boss clears restore HP once. Shields keep their own charge
+between floors, and settings persist independently of runs.
+
+[Game specification](../../doc/specs/unity-only-arena-game.md) and
+[verification evidence](../../doc/specs/unity-only-arena-verification.md)
+describe the rules and validation scope. Placeholder geometry is generated
+by `EndlessArena/Runtime/ArenaWorldView.cs`; meshes and colors can be replaced
+without changing the simulation or inventory rules. The original smoke
+scene below remains available as comparison evidence.
+
+[Implementation pain log](../../doc/unity-only-arena-pain-log.md) records
+observed work around damage/death ordering, item and shield state lifetimes,
+and Input System test timing. Kitu improvements are hypotheses to compare
+against this working Unity-only baseline.
+
+### Tests and standalone build
+
+From `kitu-unity-demo-game/`, with this checkout's Editor closed:
+
+```sh
+arena_editor='/Applications/Unity/Hub/Editor/6000.6.0f1/Unity.app/Contents/MacOS/Unity'
+mkdir -p Logs
+"$arena_editor" -batchmode -nographics -projectPath "$PWD" \
+  -runTests -testPlatform EditMode -testFilter UnityOnlyArena.Tests \
+  -testResults Logs/arena-editmode.xml -logFile Logs/arena-editmode.log
+"$arena_editor" -batchmode -projectPath "$PWD" \
+  -runTests -testPlatform PlayMode -testFilter UnityOnlyArena.Tests \
+  -testResults Logs/arena-playmode.xml -logFile Logs/arena-playmode.log
+"$arena_editor" -batchmode -quit -projectPath "$PWD" \
+  -executeMethod UnityOnlyArena.Editor.ArenaBuild.BuildMac \
+  -logFile Logs/arena-build.log
+```
+
+The build writes `Builds/EndlessArena.app` and includes only the endless arena
+scene. **Kitu > Prepare Unity-only Endless Arena** can recreate a missing arena
+scene and place it first in Build Settings while preserving the original
+smoke entry. The Hub's regular checkout is a different path from a Git
+worktree; open the checkout containing these files to play this version.
+
+## Original Unity-only action RPG smoke baseline
 
 `Assets/KituDemoApp/KituDemoAppMain.unity` is a self-contained gameplay smoke test.
 It does not use Kitu, the Rust runtime, networking, or generated content. Open

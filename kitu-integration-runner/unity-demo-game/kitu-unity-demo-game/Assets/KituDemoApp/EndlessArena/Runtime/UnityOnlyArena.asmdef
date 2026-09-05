@@ -1,0 +1,6 @@
+{
+  "name": "UnityOnlyArena",
+  "references": [
+    "Unity.InputSystem"
+  ]
+}

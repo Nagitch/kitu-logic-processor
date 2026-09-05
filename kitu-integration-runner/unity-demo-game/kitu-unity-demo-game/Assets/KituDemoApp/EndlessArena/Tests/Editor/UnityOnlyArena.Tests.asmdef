@@ -1,0 +1,13 @@
+{
+  "name": "UnityOnlyArena.Tests",
+  "references": [
+    "UnityOnlyArena",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

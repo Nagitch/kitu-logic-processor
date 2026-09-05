@@ -1,0 +1,9 @@
+{
+  "name": "UnityOnlyArena.Editor",
+  "references": [
+    "UnityOnlyArena"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}
