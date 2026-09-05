@@ -18,9 +18,9 @@ if [ -n "${KITU_UNITY_CLI:-}" ]; then
     esac
 elif command -v unity >/dev/null 2>&1; then
     cli=$(command -v unity)
-elif [ -x "$HOME/.unity/bin/unity" ]; then
+elif [ -n "${HOME:-}" ] && [ -x "$HOME/.unity/bin/unity" ]; then
     cli=$HOME/.unity/bin/unity
-elif [ -x "$HOME/.local/bin/unity" ]; then
+elif [ -n "${HOME:-}" ] && [ -x "$HOME/.local/bin/unity" ]; then
     cli=$HOME/.local/bin/unity
 else
     printf 'Unity CLI is not installed. See unity-demo-game/README.md#unity-cli.\n' >&2
