@@ -3,8 +3,16 @@
 確認日: 2026-09-05
 
 対象: [企画・仕様書](unity-only-arena-game.md)を実装した `Assets/KituDemoApp/EndlessArena/EndlessArena.unity`。
-Unity `6000.5.0f1` で **EditMode 39件、PlayMode 10件が成功**し、macOS版のビルド・起動・終了・設定保存を確認した。
+初回検証ではUnity `6000.5.0f1` で **EditMode 39件、PlayMode 10件が成功**し、macOS版のビルド・起動・終了・設定保存を確認した。
 テスト名、結果、実行日時、対象ソースのSHA-256、実シーンの進行記録は [results.json](../verification/unity-only-arena/results.json) に保存した。対象は同ファイルに記録した作業ツリーの差分であり、マージ済みのリビジョンを意味しない。
+
+## PR作成時の再検証（Unity 6.6）
+
+最新の `develop` を取り込み、現行プロジェクトのUnity `6000.6.0f1` でEditMode **39/39**、PlayMode **10/10** の成功を確認した。詳細は [Unity 6.6の結果](../verification/unity-only-arena/unity-66-results.json)、[ボス画面](../verification/unity-only-arena/unity-66/boss.png)、[リザルト](../verification/unity-only-arena/unity-66/result.png)を参照する。以下の6.5の記録は初回の比較証拠として保持する。
+
+初回インポート中の撮影でUnityの非同期シェーダーコンパイル用の水色表示を取得したため、実シーンのテスト中だけ `EditorSettings.asyncShaderCompilation` を無効にし、終了時に元へ戻すようにした。ゲーム本体・通常Editor設定の変更ではない。[UnityのAPI説明](https://docs.unity3d.com/cn/6000.0/ScriptReference/EditorSettings-asyncShaderCompilation.html)
+
+**6.6のmacOSビルドには環境上の制約が残る。** Burstの `llvm-lipo` はインストール先で実行権限がない状態（0644）だったため、universal binaryの生成が `Access denied` で停止した。所有者への実行権限付与もOSに拒否され、インストール済みツールは変更していない。6.6でのスタンドアロンビルド成功は主張しない。6.5でのビルド・ネイティブ操作成功とは分けて扱う。
 
 ## 証拠と確認範囲
 
@@ -108,7 +116,7 @@ A01〜A26は仕様書のチェックボックスの順番。以下は自動実�
 Unityプロジェクト `kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/` を作業ディレクトリにし、そのパスを開いたEditorを終了して順に実行する。通常チェックアウトを開いている別Editorとは作業パスを混同しない。
 
 ```sh
-arena_editor='/Applications/Unity/Hub/Editor/6000.5.0f1/Unity.app/Contents/MacOS/Unity'
+arena_editor='/Applications/Unity/Hub/Editor/6000.6.0f1/Unity.app/Contents/MacOS/Unity'
 mkdir -p Logs
 "$arena_editor" -batchmode -nographics -projectPath "$PWD" \
   -runTests -testPlatform EditMode -testFilter UnityOnlyArena.Tests \

@@ -30,10 +30,18 @@ namespace UnityOnlyArena.Tests
         private float audioVolume;
         private Color ambient;
         private string visualDirectory;
+#if UNITY_EDITOR
+        private bool asyncShaderCompilation;
+#endif
 
         [UnitySetUp]
         public IEnumerator LoadActualScene()
         {
+#if UNITY_EDITOR
+            asyncShaderCompilation = UnityEditor.EditorSettings.asyncShaderCompilation;
+            // Cold imports otherwise capture Unity's cyan compiling shader.
+            UnityEditor.EditorSettings.asyncShaderCompilation = false;
+#endif
             previousScene = SceneManager.GetActiveScene();
             audioVolume = AudioListener.volume;
             ambient = RenderSettings.ambientLight;
@@ -73,6 +81,9 @@ namespace UnityOnlyArena.Tests
         [UnityTearDown]
         public IEnumerator RestoreSceneAndDeviceState()
         {
+#if UNITY_EDITOR
+            UnityEditor.EditorSettings.asyncShaderCompilation = asyncShaderCompilation;
+#endif
             if (previousScene.IsValid() && previousScene.isLoaded) SceneManager.SetActiveScene(previousScene);
             if (loadedScene.IsValid() && loadedScene.isLoaded) yield return SceneManager.UnloadSceneAsync(loadedScene);
             if (keyboard != null && keyboard.added) InputSystem.RemoveDevice(keyboard);
