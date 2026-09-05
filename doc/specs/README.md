@@ -2,6 +2,8 @@
 
 Protocol and behavior specifications live here.
 
+- [Unity-only arena game design](unity-only-arena-game.md): Japanese gameplay specification separating user requirements from adopted implementation defaults; covers opening/settings menus, endless floor progression, combat, equipment, Z/X items, shields, rewards, and acceptance criteria.
+- [Unity-only arena verification](unity-only-arena-verification.md): Unity test results, rendered scene captures, standalone checks, and requirement coverage for the endless arena.
 - `runtime-execution.md`: runtime execution boundary, authority rules, and extension constraints for the MVP.
 - `runtime-execution-contract.md`: authoritative runtime tick order, input timing, transport polling timing, and output emission timing.
 - `kitu-envelope-protocol.md`: KEP MessagePack envelope shape for transport-independent payload metadata.

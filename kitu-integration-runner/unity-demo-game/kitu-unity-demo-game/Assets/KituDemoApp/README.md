@@ -1,10 +1,21 @@
 # Kitu Demo App assets
 
-This directory contains the complete asset set for the Unity-only action RPG
-demo. Open `KituDemoAppMain.unity` and enter Play Mode; no Kitu runtime or backend
-process is required.
+Open `EndlessArena/EndlessArena.unity` and enter Play Mode for the Unity-only
+endless arena. The opening menu, settings, floor progression, equipment,
+medkits, grenades, shields and results run without a Kitu runtime or backend.
+See the [project README](../../../README.md) for rules, tests and builds.
 
-## Controls
+`KituDemoAppMain.unity` remains the original XP/potion/objective smoke baseline.
+
+## Endless arena controls
+
+- WASD: move; mouse: aim.
+- Left/right mouse: weapon A/B (hold to repeat).
+- Z/X: item A/B (single press). Shields defend automatically.
+- E: nearby chest. Tab: safe-floor inventory.
+- Esc: pause/back. R: retry after death.
+
+## Original smoke controls
 
 - Move: WASD, arrow keys, or gamepad left stick
 - Attack: Space, J, left mouse button, or gamepad south/A

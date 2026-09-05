@@ -1,0 +1,10 @@
+{
+  "name": "UnityOnlyArena.PlayModeTests",
+  "references": [
+    "UnityOnlyArena",
+    "Unity.InputSystem"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
