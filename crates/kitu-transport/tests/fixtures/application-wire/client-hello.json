@@ -1,0 +1,1 @@
+{"type":"hello","payload":{"compatibility":{"appId":"endless-arena","wireVersion":1,"schemaVersion":1,"presentationVersion":1,"tickRate":60,"features":["output-batches","presentation","replay","typed-osc"]},"clientId":"unity-fixture","role":"controller","expectedSessionId":null}}

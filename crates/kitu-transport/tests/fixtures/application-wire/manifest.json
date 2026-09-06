@@ -1,0 +1,285 @@
+{
+  "cases": [
+    {
+      "json": "client-hello.json",
+      "kind": "client",
+      "msgpack": "client-hello.msgpack",
+      "name": "client-hello",
+      "valid": true
+    },
+    {
+      "json": "client-widths.json",
+      "kind": "client",
+      "msgpack": "client-widths.msgpack",
+      "name": "client-widths",
+      "valid": true
+    },
+    {
+      "json": "client-omitted-metadata.json",
+      "kind": "client",
+      "msgpack": "client-omitted-metadata.msgpack",
+      "name": "client-omitted-metadata",
+      "valid": true
+    },
+    {
+      "json": "client-long-finite-float.json",
+      "kind": "client",
+      "msgpack": "client-long-finite-float.msgpack",
+      "name": "client-long-finite-float",
+      "valid": true
+    },
+    {
+      "json": "input-empty.json",
+      "kind": "input",
+      "msgpack": "input-empty.msgpack",
+      "name": "input-empty",
+      "valid": true
+    },
+    {
+      "json": "server-hello.json",
+      "kind": "server",
+      "msgpack": "server-hello.msgpack",
+      "name": "server-hello",
+      "valid": true
+    },
+    {
+      "json": "server-bundles.json",
+      "kind": "server",
+      "msgpack": "server-bundles.msgpack",
+      "name": "server-bundles",
+      "valid": true
+    },
+    {
+      "json": "server-initial.json",
+      "kind": "server",
+      "msgpack": "server-initial.msgpack",
+      "name": "server-initial",
+      "valid": true
+    },
+    {
+      "json": "server-seek.json",
+      "kind": "server",
+      "msgpack": "server-seek.msgpack",
+      "name": "server-seek",
+      "valid": true
+    },
+    {
+      "json": "server-replay.json",
+      "kind": "server",
+      "msgpack": "server-replay.msgpack",
+      "name": "server-replay",
+      "valid": true
+    },
+    {
+      "json": "server-error.json",
+      "kind": "server",
+      "msgpack": "server-error.msgpack",
+      "name": "server-error",
+      "valid": true
+    },
+    {
+      "json": "json-duplicate.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-duplicate",
+      "valid": false
+    },
+    {
+      "json": "json-unknown.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-unknown",
+      "valid": false
+    },
+    {
+      "json": "json-unknown-variant.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-unknown-variant",
+      "valid": false
+    },
+    {
+      "json": "json-array-struct.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-array-struct",
+      "valid": false
+    },
+    {
+      "json": "json-trailing.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-trailing",
+      "valid": false
+    },
+    {
+      "json": "json-comment.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-comment",
+      "valid": false
+    },
+    {
+      "json": "json-trailing-comma.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-trailing-comma",
+      "valid": false
+    },
+    {
+      "json": "json-u64-overflow.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-u64-overflow",
+      "valid": false
+    },
+    {
+      "json": "json-int-negative-zero.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-int-negative-zero",
+      "valid": false
+    },
+    {
+      "json": "json-int64-negative-zero.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-int64-negative-zero",
+      "valid": false
+    },
+    {
+      "json": "json-u64-negative-zero.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-u64-negative-zero",
+      "valid": false
+    },
+    {
+      "json": "json-missing-nullable.json",
+      "kind": "server",
+      "msgpack": null,
+      "name": "json-missing-nullable",
+      "valid": false
+    },
+    {
+      "json": "json-invalid-utf8.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "json-invalid-utf8",
+      "valid": false
+    },
+    {
+      "json": "i32-overflow.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "i32-overflow",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "i32-overflow.msgpack",
+      "name": "i32-overflow",
+      "valid": false
+    },
+    {
+      "json": "i64-overflow.json",
+      "kind": "client",
+      "msgpack": null,
+      "name": "i64-overflow",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "i64-overflow.msgpack",
+      "name": "i64-overflow",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-float64.msgpack",
+      "name": "mp-float64",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-float-integer.msgpack",
+      "name": "mp-float-integer",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-nonfinite.msgpack",
+      "name": "mp-nonfinite",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-bin.msgpack",
+      "name": "mp-bin",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-extension.msgpack",
+      "name": "mp-extension",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-trailing.msgpack",
+      "name": "mp-trailing",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-truncated.msgpack",
+      "name": "mp-truncated",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-duplicate.msgpack",
+      "name": "mp-duplicate",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-huge-map.msgpack",
+      "name": "mp-huge-map",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-nonstring-key.msgpack",
+      "name": "mp-nonstring-key",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "client",
+      "msgpack": "mp-invalid-utf8.msgpack",
+      "name": "mp-invalid-utf8",
+      "valid": false
+    },
+    {
+      "json": null,
+      "kind": "input",
+      "msgpack": "mp-array-struct.msgpack",
+      "name": "mp-array-struct",
+      "valid": false
+    }
+  ],
+  "schemaVersion": 1
+}

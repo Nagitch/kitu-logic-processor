@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d53ab826a12154ecf947b79baef60c25, type: 3}
   m_Name:
   m_EditorClassIdentifier: UnityOnlyArena::UnityOnlyArena.KituArenaClient
-  Endpoint: ws://127.0.0.1:8787/ws/runtime
+  Endpoint: ws://127.0.0.1:8787/ws/arena
   ConnectOnStart: 1
   DeviceInput: 1
 --- !u!4 &676917686

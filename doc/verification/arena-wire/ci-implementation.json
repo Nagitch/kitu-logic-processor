@@ -1,0 +1,62 @@
+{
+  "headRefOid": "75abe012cf396bc023f3f13e62bed63d48675654",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-06T14:23:44Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34039017253/job/101502245631",
+      "name": "Arena Reference Integrity",
+      "startedAt": "2026-09-06T14:23:38Z",
+      "status": "COMPLETED",
+      "workflowName": "Rust CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-06T14:23:51Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34039017253/job/101502245596",
+      "name": "Format Check",
+      "startedAt": "2026-09-06T14:23:37Z",
+      "status": "COMPLETED",
+      "workflowName": "Rust CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-06T14:24:35Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34039017253/job/101502245493",
+      "name": "Clippy Lint",
+      "startedAt": "2026-09-06T14:23:37Z",
+      "status": "COMPLETED",
+      "workflowName": "Rust CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-06T14:34:01Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34039017253/job/101502245592",
+      "name": "Test Suite",
+      "startedAt": "2026-09-06T14:23:37Z",
+      "status": "COMPLETED",
+      "workflowName": "Rust CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-09-06T14:24:36Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34039017253/job/101502245586",
+      "name": "Documentation Build",
+      "startedAt": "2026-09-06T14:23:37Z",
+      "status": "COMPLETED",
+      "workflowName": "Rust CI"
+    }
+  ],
+  "testCounts": {
+    "passed": 331,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 57
+  },
+  "testLogSha256": "9c6055403383700c0b16f3a519695bc06c72daeb2868306c23ec505aa709562c"
+}

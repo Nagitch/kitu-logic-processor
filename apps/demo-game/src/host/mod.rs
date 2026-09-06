@@ -37,6 +37,7 @@ use tracing::{error, info};
 const DEFAULT_BIND: &str = "127.0.0.1:8787";
 const KEP_ROUTE_SERVER_EVENT: &str = "/server/event";
 
+pub mod arena_wire;
 mod content;
 mod playback;
 mod recording;
@@ -106,10 +107,12 @@ impl ArenaHost {
             "run persistence requires an explicit I/O runtime handle"
         );
         let (events, _) = broadcast::channel(256);
+        let (arena_events, _) = broadcast::channel(arena_wire::BATCH_CAPACITY);
         Ok(Self {
             state: AppState {
                 inner: Arc::new(Mutex::new(GameState::from_runtime(runtime)?)),
                 events,
+                arena_events,
                 content: Arc::new(content::Service::new(
                     options.content_path.clone(),
                     options.run_directory.clone(),
@@ -195,6 +198,7 @@ impl ArenaHost {
             "playbackMode": playback::mode(&game), "readOnly": game.ensure_live_input().is_err(),
             "bridgeEndpoint": self.state.options.bridge_endpoint,
             "closing": self.state.work.is_closing(),
+            "compatibility": arena_wire::compatibility(), "execution": arena_wire::execution(),
         });
         let mut message = OscMessage::new("/host/arena/status");
         message.push_arg(OscArg::Str(serde_json::to_string(&value)?));
@@ -268,6 +272,7 @@ pub async fn serve_from_environment() -> Result<()> {
 struct AppState {
     inner: Arc<Mutex<GameState>>,
     events: broadcast::Sender<ServerEvent>,
+    arena_events: broadcast::Sender<Arc<arena_wire::Publication>>,
     content: Arc<content::Service>,
     script: Arc<script::Service>,
     timeline: Arc<timeline::Service>,
@@ -293,6 +298,10 @@ struct GameState {
     next_connection_id: u64,
     controller: Option<(u64, String)>,
     controls: std::collections::VecDeque<playback::Control>,
+    publication_id: u64,
+    wire_snapshot_pending: bool,
+    wire_pending_inputs: usize,
+    wire_pending_bytes: usize,
 }
 
 impl GameState {
@@ -323,6 +332,10 @@ impl GameState {
             next_connection_id: 1,
             controller: None,
             controls: std::collections::VecDeque::new(),
+            publication_id: 0,
+            wire_snapshot_pending: false,
+            wire_pending_inputs: 0,
+            wire_pending_bytes: 0,
         })
     }
 
@@ -536,6 +549,7 @@ fn router(state: AppState) -> Router {
         .route("/app-actions/{id}/run", post(run_app_action))
         .route("/ws", get(ws_upgrade))
         .route("/ws/runtime", get(runtime_ws_upgrade))
+        .route("/ws/arena", get(arena_wire::upgrade))
         .layer(CorsLayer::permissive())
         .with_state(state)
 }
@@ -839,6 +853,7 @@ fn release_arena_controller(state: &AppState, connection_id: u64) {
         return;
     }
     guard.controller = None;
+    guard.wire_pending_inputs = guard.wire_pending_inputs.saturating_add(1);
     let mut bundle = kitu_osc_ir::OscBundle::new();
     bundle.push(OscMessage::new("/input/arena/disconnect"));
     guard.runtime.enqueue_tagged_input(
@@ -1016,12 +1031,18 @@ fn advance_tick(state: &AppState) -> Result<TickResult> {
         .inner
         .lock()
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+    // Reserve a checked publication watermark before advancing the game.
+    let publication_id = guard
+        .publication_id
+        .checked_add(1)
+        .context("Arena publication sequence exhausted")?;
     let control = playback::apply_controls(&mut guard);
     let output = if let Some(ready) = guard.pending_playback.take() {
         if guard.playback.is_none() {
             advance_live_tick(&mut guard)?;
         }
         guard.playback = Some(ready);
+        guard.wire_snapshot_pending = true;
         guard.playback.as_mut().unwrap().take_outputs()
     } else if let Some(playback) = guard.playback.as_mut() {
         playback.advance();
@@ -1032,6 +1053,8 @@ fn advance_tick(state: &AppState) -> Result<TickResult> {
     playback::complete_control(&guard, control);
     let events = playback::events(&guard, output.clone());
     let run_events = std::mem::take(&mut guard.run_events);
+    guard.publication_id = publication_id;
+    arena_wire::publish(state, &mut guard, &output);
     Ok(TickResult {
         output,
         events,
@@ -1055,6 +1078,8 @@ fn advance_runtime_tick(state: &AppState) -> Result<Vec<ServerEvent>> {
 fn advance_live_tick(guard: &mut GameState) -> Result<Vec<kitu_osc_ir::OscBundle>> {
     guard.runtime.tick_once().context("tick Kitu runtime")?;
     let outputs = guard.runtime.drain_output_buffer();
+    guard.wire_pending_inputs = 0;
+    guard.wire_pending_bytes = 0;
     if guard.recording_error.is_none() {
         let GameState {
             runtime, recorder, ..

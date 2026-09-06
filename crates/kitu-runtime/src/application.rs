@@ -4,17 +4,7 @@ use kitu_core::{Result, Tick};
 use kitu_ecs::EcsWorld;
 use kitu_osc_ir::OscBundle;
 
-/// Identity and schema information retained alongside a logical input bundle.
-#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct InputMetadata {
-    /// Stable producer identity, retained across reconnects to the same runtime.
-    pub source: String,
-    /// Producer-scoped monotonically allocated operation identifier.
-    pub message_id: u64,
-    /// Application contract version, independent of wire encoding.
-    pub schema_version: u32,
-}
+pub use kitu_transport::application::InputMetadata;
 
 /// A logical bundle with optional application envelope metadata.
 #[derive(Debug, Clone)]

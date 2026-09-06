@@ -9,7 +9,8 @@ namespace UnityOnlyArena
     // An input/presentation client. ArenaSimulation is never constructed here.
     public sealed class KituArenaClient : MonoBehaviour
     {
-        public string Endpoint = "ws://127.0.0.1:8787/ws/runtime";
+        public string Endpoint = "ws://127.0.0.1:8787/ws/arena";
+        public ArenaWireEncoding ServerEncoding = ArenaWireEncoding.MessagePack;
         public ArenaBackend Backend = ArenaBackend.Automatic;
         public bool NativeBridgeEnabled = true;
         public string NativeBridgeAddress = "127.0.0.1:8789";
@@ -19,7 +20,9 @@ namespace UnityOnlyArena
         public bool DeviceInput = true;
         public bool PauseOnFocusLoss = true;
         private readonly string clientId = Guid.NewGuid().ToString("N");
-        private long nextMessageId = 1;
+        private ulong nextMessageId = 1;
+        private bool messageIdsExhausted;
+        private string knownServerSession;
         private IArenaConnection connection;
         private ArenaWorldView world;
         private readonly ArenaProjectionBuffer projection = new ArenaProjectionBuffer();
@@ -38,6 +41,8 @@ namespace UnityOnlyArena
         public bool ReplayActive { get; private set; }
         public bool ReplayPlaying { get; private set; }
         public string SessionId { get; private set; }
+        public JArray LastOutputBundles { get; private set; } = new JArray();
+        public JObject Execution { get; private set; }
         public ArenaReferenceState State { get; private set; }
         public ArenaPresentationState Presentation { get; private set; }
         public string Message { get; private set; } = "";
@@ -58,8 +63,10 @@ namespace UnityOnlyArena
         private void Start() { started = true; if (ConnectOnStart) Connect(); }
         private void OnEnable() { if (started && ConnectOnStart) Connect(); }
 
-        public void Connect()
+        public void Connect(bool acceptNewSession = false)
         {
+            if (acceptNewSession) knownServerSession = null;
+            string expectedSession = knownServerSession;
             SessionId = null;
             projection.Reset();
             synchronized = false;
@@ -98,8 +105,14 @@ namespace UnityOnlyArena
                 }
                 else
                 {
-                    connection?.Dispose();
-                    connection = new ArenaConnection(string.IsNullOrEmpty(serverOverride) ? Endpoint : serverOverride);
+                    System.Threading.Tasks.Task previousClose = null;
+                    if (connection is ArenaConnection previousSocket)
+                    { previousSocket.Disconnect(); previousClose = previousSocket.Completion; }
+                    else connection?.Dispose();
+                    string codec = ArenaLaunchArguments.Value("--arena-encoding") ?? Environment.GetEnvironmentVariable("KITU_ARENA_ENCODING");
+                    var encoding = codec == null ? ServerEncoding : codec == "json" ? ArenaWireEncoding.Json : codec == "msgpack" ? ArenaWireEncoding.MessagePack
+                        : throw new ArgumentException("Arena encoding must be json or msgpack");
+                    connection = new ArenaConnection(string.IsNullOrEmpty(serverOverride) ? Endpoint : serverOverride, clientId, encoding, expectedSession, previousClose);
                 }
                 previousClock = Time.realtimeSinceStartupAsDouble;
             }
@@ -125,10 +138,10 @@ namespace UnityOnlyArena
         private static JObject Arg(string type, object value) => new JObject { ["type"] = type, ["value"] = JToken.FromObject(value) };
         private bool Send(string address, JArray args)
         {
-            if (!Connected || ReplayActive) return false;
-            var envelope = new JObject { ["schemaVersion"] = 1, ["sessionId"] = SessionId,
-                ["clientId"] = clientId, ["messageId"] = nextMessageId++, ["address"] = address, ["args"] = args };
-            return connection.Send(envelope.ToString(Newtonsoft.Json.Formatting.None));
+            if (!Connected || ReplayActive || messageIdsExhausted) return false;
+            ulong id = nextMessageId;
+            if (id == ulong.MaxValue) messageIdsExhausted = true; else nextMessageId++;
+            return connection.Send(ArenaWireCodec.InputFrame(clientId, id, address, args));
         }
 
         private void Update()
@@ -138,57 +151,74 @@ namespace UnityOnlyArena
             if (NativeConnection != null) NativeConnection.AutomaticTicks = NativeAutomaticTicks;
             connection.Pump(Math.Max(0, now - previousClock));
             previousClock = now;
-            while (connection.TryReceive(out string json))
+            while (connection.TryReceive(out JObject message))
             {
-                try
-                {
-                    var message = JObject.Parse(json);
-                    switch ((string)message["type"])
-                    {
-                        case "replay":
-                            bool active = (bool)message["mode"]["active"];
-                            if (active != ReplayActive) { BlockGameplayButtons(); DraftSettings = null; }
-                            ReplayActive = active;
-                            ReplayPlaying = (bool)message["mode"]["playing"];
-                            break;
-                        case "arenaSession":
-                            if ((int)message["schemaVersion"] != 1) throw new InvalidOperationException("Incompatible Arena contract");
-                            SessionId = (string)message["id"];
-                            projection.Reset();
-                            synchronized = false;
-                            break;
-                        case "osc":
-                            if ((string)message["address"] == "/ui/arena/state" && SessionId != null)
-                            {
-                                var state = JsonUtility.FromJson<ArenaReferenceState>((string)message["args"][0]["value"]);
-                                projection.PushState(state);
-                                CommitProjection();
-                            }
-                            else if ((string)message["address"] == "/render/arena/presentation" && SessionId != null)
-                            {
-                                var presentation = ArenaPresentationState.FromJson((string)message["args"][0]["value"]);
-                                if (presentation.contractVersion != 1) throw new InvalidOperationException("Incompatible Arena presentation contract");
-                                projection.PushPresentation(presentation);
-                                CommitProjection();
-                            }
-                            else if ((string)message["address"] == "/ui/arena/use")
-                            {
-                                var result = JObject.Parse((string)message["args"][0]["value"]);
-                                Message = (string)result["code"];
-                            }
-                            else if ((string)message["address"] == "/ui/arena/command")
-                            {
-                                var outcome = JObject.Parse((string)message["args"][0]["value"]);
-                                Message = (string)outcome["code"];
-                            }
-                            break;
-                        case "error": Message = (string)message["message"]; break;
-                    }
-                }
+                try { ApplyMessage(message); }
                 catch (Exception error) { Message = error.Message; Disconnect(); break; }
             }
             if (!Connected) { BlockGameplayButtons(); return; }
             if (DeviceInput && !ReplayActive) ReadInput();
+        }
+
+        private void ApplyMessage(JObject message)
+        {
+            if (message["frame"] != null)
+            {
+                var frame = message["frame"]; var payload = frame["payload"];
+                switch ((string)frame["type"])
+                {
+                    case "hello":
+                        ArenaWireCodec.CheckCompatibility(payload["compatibility"]);
+                        SessionId = (string)payload["sessionId"]; knownServerSession = SessionId; Execution = (JObject)payload["execution"];
+                        projection.Reset(); synchronized = false; ApplyReplay(payload["status"]["playbackMode"]); break;
+                    case "snapshot":
+                        projection.Reset(); ApplyReplay(payload["status"]["playbackMode"]);
+                        ApplyBatch((JArray)payload["batch"]["bundles"]); break;
+                    case "output":
+                        ApplyReplay(payload["status"]["playbackMode"]); ApplyBatch((JArray)payload["batch"]["bundles"]); break;
+                    case "replay": ApplyReplay(payload["playbackMode"]); break;
+                    case "error": Message = (string)payload["message"]; if ((bool)payload["fatal"]) Disconnect(); break;
+                }
+                return;
+            }
+            // Embedded delivery uses the same typed input and full-batch projection, without socket framing.
+            switch ((string)message["type"])
+            {
+                case "replay": ApplyReplay(message["mode"]); break;
+                case "arenaSession":
+                    if ((int)message["schemaVersion"] != 1) throw new InvalidOperationException("Incompatible Arena contract");
+                    SessionId = (string)message["id"]; projection.Reset(); synchronized = false; break;
+                case "batch": ApplyBatch((JArray)message["bundles"]); break;
+                case "error": Message = (string)message["message"]; break;
+            }
+        }
+
+        private void ApplyReplay(JToken mode)
+        {
+            bool active = (bool)mode["active"];
+            if (active != ReplayActive) { BlockGameplayButtons(); DraftSettings = null; }
+            ReplayActive = active; ReplayPlaying = (bool)mode["playing"];
+        }
+
+        private void ApplyBatch(JArray bundles)
+        {
+            foreach (JObject bundle in bundles)
+                foreach (JObject message in (JArray)bundle["messages"])
+                {
+                    string address = (string)message["address"];
+                    if (address == "/ui/arena/state" && SessionId != null)
+                        projection.PushState(JsonUtility.FromJson<ArenaReferenceState>((string)message["args"][0]["value"]));
+                    else if (address == "/render/arena/presentation" && SessionId != null)
+                    {
+                        var presentation = ArenaPresentationState.FromJson((string)message["args"][0]["value"]);
+                        if (presentation.contractVersion != 1) throw new InvalidOperationException("Incompatible Arena presentation contract");
+                        projection.PushPresentation(presentation);
+                    }
+                    else if (address == "/ui/arena/use" || address == "/ui/arena/command")
+                        Message = (string)JObject.Parse((string)message["args"][0]["value"])["code"];
+                }
+            LastOutputBundles = bundles;
+            CommitProjection();
         }
 
         private void CommitProjection()
@@ -408,7 +438,11 @@ namespace UnityOnlyArena
             GUILayout.Label($"ENDLESS ARENA · {State.floor}F · {(ArenaPhase)State.phase} · Enemies {State.enemies?.Length ?? 0}");
             GUILayout.Label($"{(Connected ? "Connected" : connection?.Status ?? "Disconnected")}  |  Tick {State.tick}  |  Time {State.elapsed:F2}  |  {State.overlay}  {Message}");
             GUILayout.BeginHorizontal();
-            if (!Connected) { if (GUILayout.Button("Connect", GUILayout.Width(140))) Connect(); }
+            if (!Connected)
+            {
+                if (GUILayout.Button("Connect", GUILayout.Width(140))) Connect();
+                if (knownServerSession != null && GUILayout.Button("Connect to new Runtime", GUILayout.Width(190))) Connect(true);
+            }
             else if (!SettingsOpen && !ReplayActive)
             {
                 if (State.phase == 0 || State.phase == 5) { if (GUILayout.Button("Start run", GUILayout.Width(140))) Command("start"); }

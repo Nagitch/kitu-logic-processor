@@ -155,11 +155,15 @@ native library. Build the plugin with the command below before entering Play
 Mode. Preparation, inventory/equipment, combat, endless floors, bosses/rewards,
 results and retry all run through the same Kitu application as the server.
 
-Set `Backend = Server`, supply `--arena-server ws://127.0.0.1:8787/ws/runtime`,
-or set `KITU_ARENA_WS_URL` to select the external server explicitly. Run
-`cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host` in the Dev Container
-and forward its port for that mode. The inspector `Endpoint` retains its existing
-`ws://127.0.0.1:8787/ws/runtime` default.
+Set `Backend = Server`, supply `--arena-server ws://127.0.0.1:8787/ws/arena`,
+or set `KITU_ARENA_WS_URL` to that address to select the external server explicitly.
+Run `cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host` in the Dev Container
+and forward its port. The inspector `Endpoint` defaults to `/ws/arena`; the server
+backend uses MessagePack. Select `--arena-encoding json` / `msgpack`, the inspector
+`ServerEncoding`, or `KITU_ARENA_ENCODING` to exercise either encoding. Both require
+the same compatible Hello, typed inputs and complete output batches. See the
+[wire contract](../../doc/specs/arena-application-wire.md). The older Network Runtime
+Demo below continues to use `/ws/runtime`.
 
 WASD moves, the mouse aims, mouse buttons fire weapons A/B, Z/X use consumables,
 E opens a nearby supply chest, I/Tab opens inventory and Escape closes/pauses.

@@ -89,6 +89,40 @@ namespace UnityOnlyArena.Tests
             Debug.Log("Live CLI and shared browser Shell verified in Unity: start, refusal, pause, resume, scenario, typed OSC movement.");
         }
 
+        [UnityTest, Category("ArenaNetwork")]
+        public IEnumerator ImmediateReconnectWithQueuedInputsRetainsSessionAndRequiresResume()
+        {
+            string endpoint = Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
+            if (string.IsNullOrEmpty(endpoint)) Assert.Ignore("Set KITU_ARENA_WS_URL to an isolated Arena host.");
+#if UNITY_EDITOR
+            yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
+                "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity", new LoadSceneParameters(LoadSceneMode.Single));
+#else
+            yield return SceneManager.LoadSceneAsync("KituEndlessArena", LoadSceneMode.Single);
+#endif
+            var client = UnityEngine.Object.FindFirstObjectByType<KituArenaClient>();
+            root = client.gameObject; client.DeviceInput = false; client.PauseOnFocusLoss = false; client.Endpoint = endpoint; client.Connect();
+            yield return Until(() => client.Connected, "initial wire connection");
+            client.Command("menu"); yield return Until(() => client.State.phase == 0, "reconnect opening");
+            client.Command("start"); yield return Until(() => client.State.phase == 1, "reconnect preparation");
+            string session = client.SessionId;
+            for (int attempt = 0; attempt < 4; attempt++)
+            {
+                for (int input = 0; input < 16; input++) Assert.That(client.Frame(Vector2.up, Vector2.up), Is.True);
+                client.Disconnect(); client.Connect();
+                yield return Until(() => client.Connected && client.State.overlay == "pause", "immediate controller handoff " + attempt);
+                Assert.That(client.SessionId, Is.EqualTo(session));
+                Assert.That(client.Presentation.tick, Is.EqualTo(client.State.tick));
+                Assert.That(client.Presentation.simulationStep, Is.EqualTo(client.State.simulationSteps));
+                Assert.That(client.LastOutputBundles.Count, Is.GreaterThan(0));
+                long tick = client.State.tick; float elapsed = client.State.elapsed; Vector2 position = client.State.playerPosition;
+                yield return Until(() => client.State.tick > tick + 4, "reconnect management clock");
+                Assert.That(client.State.elapsed, Is.EqualTo(elapsed)); Assert.That(client.State.playerPosition, Is.EqualTo(position));
+                Assert.That(client.Command("resume"), Is.True);
+                yield return Until(() => client.State.overlay == "none" && client.State.elapsed > elapsed, "explicit reconnect resume");
+            }
+        }
+
         private static IEnumerator RunCli(string command, int expectedExit = 0)
         {
             var options = new System.Diagnostics.ProcessStartInfo {
@@ -301,8 +335,7 @@ namespace UnityOnlyArena.Tests
             Assert.That(client.State.playerPosition, Is.EqualTo(paused).Using(Vector2ComparerWithEqualsOperator.Instance));
             string session = client.SessionId;
             client.Disconnect();
-            yield return new WaitForSecondsRealtime(.15f);
-            client.Connect();
+            client.Connect(); // Close acknowledgment hands off ownership without an arbitrary delay.
             yield return Until(() => client.Connected, "reconnection");
             Assert.That(client.SessionId, Is.EqualTo(session));
             Assert.That(client.State.overlay, Is.EqualTo("pause"));

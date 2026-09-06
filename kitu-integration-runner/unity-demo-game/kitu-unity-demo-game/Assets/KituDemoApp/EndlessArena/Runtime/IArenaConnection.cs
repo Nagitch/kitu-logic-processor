@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json.Linq;
 
 namespace UnityOnlyArena
 {
@@ -7,8 +8,8 @@ namespace UnityOnlyArena
     {
         bool Connected { get; }
         string Status { get; }
-        bool Send(string message);
-        bool TryReceive(out string message);
+        bool Send(JObject input);
+        bool TryReceive(out JObject message);
         void Pump(double elapsedSeconds);
         void Disconnect();
     }
