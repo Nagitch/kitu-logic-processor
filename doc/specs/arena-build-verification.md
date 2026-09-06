@@ -11,6 +11,22 @@ checkout must initialize its pinned child repositories before development; keep
 their commits and the parent pointer update separate. These checks do not edit
 sibling repositories or deploy a service.
 
+Fresh checkouts require Git LFS for the Unity project's tracked binary assets.
+Install Git LFS in the environment that reads the checkout, then run these
+commands inside `kitu-logic-processor` before opening or building Unity:
+
+```sh
+git lfs install --local
+git lfs pull
+```
+
+The Dev Container includes Git LFS; its setup configures repository-local filters
+and checks the installed version. CI checkout requests LFS files explicitly.
+An existing container must be rebuilt or provisioned with the same prerequisite.
+Missing filters can make an already hydrated asset appear modified, while missing
+LFS downloads leave pointer text where Unity expects an image. Resolve the LFS
+setup and fetch the files before treating either condition as an asset change.
+
 ## Repository checks in the Dev Container
 
 Open this repository in its [Dev Container](../../.devcontainer/devcontainer.json).

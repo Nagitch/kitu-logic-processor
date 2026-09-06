@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+git lfs install --local
+git lfs version
 
 # Node 24 is supplied by the Dev Container feature. Corepack uses the same pnpm
 # version as the frontend packageManager field and its frozen lockfile.
