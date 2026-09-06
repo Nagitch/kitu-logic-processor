@@ -109,5 +109,6 @@
       "finalReport": "players.json#player-bundled-edited-final",
       "result": "1800 ticks and 1816 inputs match complete state/output; all three required rendered checkpoints exist."
     }
-  ]
+  ],
+  "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/161"
 }

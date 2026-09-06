@@ -1,6 +1,7 @@
 # Stage 16: packaged content and Addressables
 
-[Issue 160](https://github.com/Nagitch/kitu-logic-processor/issues/160).
+[Issue 160](https://github.com/Nagitch/kitu-logic-processor/issues/160) /
+[PR 161](https://github.com/Nagitch/kitu-logic-processor/pull/161).
 The [package contract](../../specs/arena-packaged-content.md) defines source
 validation, initial versions, Addressables loading and authoring behavior.
 [results.json](results.json) records the current evidence and pending work;
