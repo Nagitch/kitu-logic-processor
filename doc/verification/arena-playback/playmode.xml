@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="16" result="Passed" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:13:30Z" duration="114.8349162">
+  <test-suite type="TestSuite" id="1026" name="kitu-unity-demo-game" fullname="kitu-unity-demo-game" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:13:30Z" duration="114.834916" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1023" name="UnityOnlyArena.PlayModeTests.dll" fullname="/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Library/ScriptAssemblies/UnityOnlyArena.PlayModeTests.dll" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:13:30Z" duration="114.827272" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="1889" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1024" name="UnityOnlyArena" fullname="UnityOnlyArena" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:13:30Z" duration="114.826766" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1025" name="Tests" fullname="UnityOnlyArena.Tests" runstate="Runnable" testcasecount="16" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:13:30Z" duration="114.826439" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1004" name="ArenaFrontendTests" fullname="UnityOnlyArena.Tests.ArenaFrontendTests" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.411552" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1013" name="CameraTracksArenaCornersWithoutZoomOrClampingAndSnapsOnRestart" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.CameraTracksArenaCornersWithoutZoomOrClampingAndSnapsOnRestart" methodname="CameraTracksArenaCornersWithoutZoomOrClampingAndSnapsOnRestart" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="547439758" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.047049" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1012" name="CardinalKeysMoveAlongScreenAxesWithTheRotatedCamera" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.CardinalKeysMoveAlongScreenAxesWithTheRotatedCamera" methodname="CardinalKeysMoveAlongScreenAxesWithTheRotatedCamera" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="1857732920" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.070622" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1014" name="ChestDistanceAndCombatInventoryGatesUseEAndTab" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.ChestDistanceAndCombatInventoryGatesUseEAndTab" methodname="ChestDistanceAndCombatInventoryGatesUseEAndTab" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="1786840520" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.008662" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1009" name="FullHealthMedkitAndSimultaneousMedkitsDoNotConsumeAnExtraItem" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.FullHealthMedkitAndSimultaneousMedkitsDoNotConsumeAnExtraItem" methodname="FullHealthMedkitAndSimultaneousMedkitsDoNotConsumeAnExtraItem" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="990332037" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.070188" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1010" name="HeldButtonsAcrossInventoryCloseRequireReleaseBeforeWeaponsOrItems" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.HeldButtonsAcrossInventoryCloseRequireReleaseBeforeWeaponsOrItems" methodname="HeldButtonsAcrossInventoryCloseRequireReleaseBeforeWeaponsOrItems" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="1217845641" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.074605" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1005" name="OpeningStartAndReturnToMenuOwnTheSceneAndRunLifetime" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.OpeningStartAndReturnToMenuOwnTheSceneAndRunLifetime" methodname="OpeningStartAndReturnToMenuOwnTheSceneAndRunLifetime" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="2082669430" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.006868" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1007" name="PauseSettingsAndFocusLossFreezeCombatAndReturnToPause" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.PauseSettingsAndFocusLossFreezeCombatAndReturnToPause" methodname="PauseSettingsAndFocusLossFreezeCombatAndReturnToPause" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="1483750341" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.007910" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1006" name="SettingsDraftCancelResetAndApplyReturnToOpeningWithoutAdvancingRun" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.SettingsDraftCancelResetAndApplyReturnToOpeningWithoutAdvancingRun" methodname="SettingsDraftCancelResetAndApplyReturnToOpeningWithoutAdvancingRun" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="1165538767" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.004837" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1015" name="SettingsSaveLoadUsesAnIsolatedPrefixAndRejectsInvalidSavedValues" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.SettingsSaveLoadUsesAnIsolatedPrefixAndRejectsInvalidSavedValues" methodname="SettingsSaveLoadUsesAnIsolatedPrefixAndRejectsInvalidSavedValues" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="1416551102" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.004706" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1011" name="WasdAimAndBothMouseButtonsReachTheRunningSimulation" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.WasdAimAndBothMouseButtonsReachTheRunningSimulation" methodname="WasdAimAndBothMouseButtonsReachTheRunningSimulation" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="1199154026" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.036748" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1008" name="ZAndXUseTheirOwnSlotsThroughTheInputSystem" fullname="UnityOnlyArena.Tests.ArenaFrontendTests.ZAndXUseTheirOwnSlotsThroughTheInputSystem" methodname="ZAndXUseTheirOwnSlotsThroughTheInputSystem" classname="UnityOnlyArena.Tests.ArenaFrontendTests" runstate="Runnable" seed="92870149" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.070291" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1016" name="ArenaSceneScenarioTests" fullname="UnityOnlyArena.Tests.ArenaSceneScenarioTests" classname="UnityOnlyArena.Tests.ArenaSceneScenarioTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.104966" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1017" name="ActualSceneStockRunReachesElevenThenDiesAndRestarts" fullname="UnityOnlyArena.Tests.ArenaSceneScenarioTests.ActualSceneStockRunReachesElevenThenDiesAndRestarts" methodname="ActualSceneStockRunReachesElevenThenDiesAndRestarts" classname="UnityOnlyArena.Tests.ArenaSceneScenarioTests" runstate="Runnable" seed="1860208118" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:35Z" duration="0.104385" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[scene run] Actual saved scene; ArenaGame.AdvanceSimulation accelerates the stock input bot. ArenaGame.Update, WorldView.LateUpdate and HUD.OnGUI remain enabled. Physical input is covered separately.
+[scene visual] SKIPPED in batch mode: opening; native/interactive capture is required for screenshot evidence.
+[scene visual] SKIPPED in batch mode: chest; native/interactive capture is required for screenshot evidence.
+[scene run] selected stock chest 0F Preparing; t=1.23; HP=110/110; enemies=0; kills=0; cleared=0; bosses=0
+[scene run] entered 1F Combat; t=2.83; HP=110/110; enemies=3; kills=0; cleared=0; bosses=0
+[scene visual] SKIPPED in batch mode: combat; native/interactive capture is required for screenshot evidence.
+[scene run] cleared 1F Cleared; t=5.65; HP=110/110; enemies=0; kills=3; cleared=1; bosses=0
+[scene run] entered 2F Combat; t=7.28; HP=110/110; enemies=4; kills=3; cleared=1; bosses=0
+[scene run] cleared 2F Cleared; t=10.70; HP=110/110; enemies=0; kills=7; cleared=2; bosses=0
+[scene run] entered 3F Combat; t=11.83; HP=110/110; enemies=5; kills=7; cleared=2; bosses=0
+[scene run] cleared 3F Cleared; t=16.75; HP=110/110; enemies=0; kills=12; cleared=3; bosses=0
+[scene run] entered 4F Combat; t=17.20; HP=110/110; enemies=6; kills=12; cleared=3; bosses=0
+[scene run] cleared 4F Cleared; t=22.32; HP=110/110; enemies=0; kills=18; cleared=4; bosses=0
+[scene run] entered 5F Combat; t=22.33; HP=110/110; enemies=1; kills=18; cleared=4; bosses=0
+[scene visual] SKIPPED in batch mode: boss; native/interactive capture is required for screenshot evidence.
+[scene run] cleared 5F Cleared; t=27.18; HP=110/110; enemies=0; kills=19; cleared=5; bosses=1
+[scene run] selected stock chest 5F Cleared; t=29.23; HP=120/120; enemies=0; kills=19; cleared=5; bosses=1
+[scene run] entered 6F Combat; t=30.37; HP=120/120; enemies=8; kills=19; cleared=5; bosses=1
+[scene run] cleared 6F Cleared; t=37.48; HP=120/120; enemies=0; kills=27; cleared=6; bosses=1
+[scene run] entered 7F Combat; t=39.27; HP=120/120; enemies=9; kills=27; cleared=6; bosses=1
+[scene run] cleared 7F Cleared; t=47.17; HP=120/120; enemies=0; kills=36; cleared=7; bosses=1
+[scene run] entered 8F Combat; t=49.45; HP=120/120; enemies=10; kills=36; cleared=7; bosses=1
+[scene run] cleared 8F Cleared; t=58.85; HP=120/120; enemies=0; kills=46; cleared=8; bosses=1
+[scene run] entered 9F Combat; t=61.63; HP=120/120; enemies=11; kills=46; cleared=8; bosses=1
+[scene run] cleared 9F Cleared; t=72.50; HP=120/120; enemies=0; kills=57; cleared=9; bosses=1
+[scene run] entered 10F Combat; t=75.08; HP=120/120; enemies=1; kills=57; cleared=9; bosses=1
+[scene run] cleared 10F Cleared; t=80.40; HP=120/120; enemies=0; kills=58; cleared=10; bosses=2
+[scene run] selected stock chest 10F Cleared; t=81.62; HP=130/130; enemies=0; kills=58; cleared=10; bosses=2
+[scene run] entered 11F Combat; t=82.74; HP=130/130; enemies=12; kills=58; cleared=10; bosses=2
+[scene run] stock run reached 11F; cease movement, firing and item use for natural AI death.
+[scene run] natural death 11F Results; t=88.67; HP=0/130; enemies=12; kills=58; cleared=10; bosses=2
+[scene visual] SKIPPED in batch mode: result; native/interactive capture is required for screenshot evidence.
+[scene run] actual scene completed opening -> stock 1F..11F -> natural death -> clean retry.
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1018" name="KituArenaConnectionTests" fullname="UnityOnlyArena.Tests.KituArenaConnectionTests" classname="UnityOnlyArena.Tests.KituArenaConnectionTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:13:30Z" duration="114.308866" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1019" name="LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun" fullname="UnityOnlyArena.Tests.KituArenaConnectionTests.LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun" methodname="LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun" classname="UnityOnlyArena.Tests.KituArenaConnectionTests" runstate="Runnable" seed="550110501" result="Passed" start-time="2026-09-06 01:11:35Z" end-time="2026-09-06 01:11:49Z" duration="13.423155" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ArenaNetwork" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Replay verified in Unity: initial / step / play / pause / seek 5526 death / step 5527 retry / stop / reconnect / paused live return.
+]]></output>
+            </test-case>
+            <test-case id="1022" name="LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings" fullname="UnityOnlyArena.Tests.KituArenaConnectionTests.LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings" methodname="LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings" classname="UnityOnlyArena.Tests.KituArenaConnectionTests" runstate="Runnable" seed="585406591" result="Passed" start-time="2026-09-06 01:11:49Z" end-time="2026-09-06 01:13:21Z" duration="92.658206" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ArenaNetwork" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Kitu live stock: cleared 1F at runtime tick 33406, HP 110
+Kitu live stock: cleared 2F at runtime tick 33727, HP 110
+Kitu live stock: cleared 3F at runtime tick 34108, HP 110
+Kitu live stock: cleared 4F at runtime tick 34460, HP 110
+Kitu live stock: cleared 5F at runtime tick 34770, HP 110
+Kitu live stock: cleared 6F at runtime tick 35386, HP 120
+Kitu live stock: cleared 7F at runtime tick 35985, HP 120
+Kitu live stock: cleared 8F at runtime tick 36705, HP 120
+Kitu live stock: cleared 9F at runtime tick 37542, HP 120
+Kitu live stock: cleared 10F at runtime tick 38034, HP 120
+]]></output>
+            </test-case>
+            <test-case id="1020" name="LiveTanuConfigurationIsProjectedInNewRuns" fullname="UnityOnlyArena.Tests.KituArenaConnectionTests.LiveTanuConfigurationIsProjectedInNewRuns" methodname="LiveTanuConfigurationIsProjectedInNewRuns" classname="UnityOnlyArena.Tests.KituArenaConnectionTests" runstate="Runnable" seed="1153622822" result="Passed" start-time="2026-09-06 01:13:21Z" end-time="2026-09-06 01:13:22Z" duration="0.441518" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ArenaNetwork" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Live Tanu content: starter damage=20, two new runs projected through Kitu.
+]]></output>
+            </test-case>
+            <test-case id="1021" name="RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules" fullname="UnityOnlyArena.Tests.KituArenaConnectionTests.RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules" methodname="RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules" classname="UnityOnlyArena.Tests.KituArenaConnectionTests" runstate="Runnable" seed="871420511" result="Passed" start-time="2026-09-06 01:13:22Z" end-time="2026-09-06 01:13:30Z" duration="7.784815" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ArenaNetwork" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[<b><color=#2EA3FF>MCP-FOR-UNITY</color></b>: [TestRunnerNoThrottle] Restored Interaction Mode after test run.
+Saving results to: /Users/mujina/Library/Application Support/DefaultCompany/kitu-unity-demo-game/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

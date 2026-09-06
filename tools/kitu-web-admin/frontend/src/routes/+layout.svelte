@@ -10,6 +10,7 @@
     Map,
     ScrollText,
     SlidersHorizontal,
+    Play,
   } from "@lucide/svelte";
   import {
     connectAdminSocket,
@@ -35,6 +36,7 @@
       label: "Project",
       items: [
         { href: "/app-actions", label: "App Actions", icon: Bolt },
+        { href: "/arena-replay", label: "Arena Replay", icon: Play },
         { href: "/level-designer", label: "Level Designer", icon: Map },
         {
           href: "/story-sequencing",

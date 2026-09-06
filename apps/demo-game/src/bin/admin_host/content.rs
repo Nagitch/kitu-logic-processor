@@ -26,6 +26,7 @@ struct Catalog {
 #[serde(rename_all = "camelCase")]
 pub(super) struct ContentStatus {
     path: String,
+    read_only: bool,
     runtime: ContentSnapshot,
     candidate: Option<ContentVersion>,
     diagnostics: Vec<String>,
@@ -62,12 +63,15 @@ pub(super) async fn inspect(
 }
 
 fn status(state: &AppState) -> Result<ContentStatus> {
-    let runtime = {
+    let (runtime, read_only) = {
         let game = state
             .inner
             .lock()
             .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
-        arena::inspect_content(&game.runtime)?
+        (
+            arena::inspect_content(game.observed_runtime())?,
+            game.ensure_live_input().is_err(),
+        )
     };
     let catalog = state
         .content
@@ -76,6 +80,7 @@ fn status(state: &AppState) -> Result<ContentStatus> {
         .map_err(|_| anyhow::anyhow!("content lock poisoned"))?;
     Ok(ContentStatus {
         path: state.content.path.display().to_string(),
+        read_only,
         runtime,
         candidate: catalog.candidate.clone(),
         diagnostics: catalog.diagnostics.clone(),
@@ -165,6 +170,7 @@ fn stage_candidate(state: &AppState, request: StageRequest) -> Result<StageRespo
         .inner
         .lock()
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+    game.ensure_live_input()?;
     let id = catalog
         .next_id
         .checked_add(1)
