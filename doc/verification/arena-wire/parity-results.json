@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "matched": true,
+  "executor": "Dev Container kitu-e19c-development, /workspaces/kitu-logic-processor",
+  "execution": {
+    "package": "0.1.0",
+    "sourceHash": "51ea00d093fd07888e2d06752dd47817e73907c0233c41188b12e369b43302aa",
+    "target": "aarch64-unknown-linux-gnu"
+  },
+  "validation": [
+    {
+      "command": "KITU_WIRE_EVIDENCE_DIR=\"$PWD/.tmp/stage15/wire-parity\" cargo test --locked -p kitu-demo-game-native --test wire_parity -- --nocapture",
+      "log": "wire-parity-final.log",
+      "logSha256": "0479fcac0a6ece07c4f489940f07049fc5b28c126cdb81f95d5484f5786dea62",
+      "passed": 4,
+      "seconds": 320.99,
+      "result": "passed"
+    },
+    {
+      "command": "cargo clippy --locked -p kitu-demo-game-native --test wire_parity -- -D warnings",
+      "log": "wire-parity-clippy.log",
+      "logSha256": "17d8010dc56affe2eaf093dcb43489e99ffb2f6a13917a339b1d4f5b0f761891",
+      "passed": null,
+      "seconds": 3.06,
+      "result": "passed"
+    },
+    {
+      "command": "KITU_WIRE_EVIDENCE_DIR=\"$PWD/.tmp/stage15/wire-parity\" cargo test --locked -p kitu-demo-game-native --test wire_parity preparation_has_identical_json_msgpack_and_c_abi_outputs_with_real_reconnect -- --exact --nocapture",
+      "log": "wire-parity-export-hook.log",
+      "logSha256": "e4c5bcb3267290dc7012192953bd3f066ae3367e704837ab82d4aa66308e759e",
+      "passed": 1,
+      "seconds": 1.85,
+      "result": "passed"
+    }
+  ],
+  "totalLogicalTicks": 7390,
+  "totalInputs": 7445,
+  "totalReceipts": 88,
+  "paths": [
+    "actual-json-websocket",
+    "actual-msgpack-websocket",
+    "exported-c-abi"
+  ],
+  "scope": "Complete logical output bundles, application inspections, command results, and recorded input bits/identity/tick/order are exact between all three paths. A single controller identity preserves original duplicate reuse; frozen expectations are compared separately.",
+  "scenarios": [
+    {
+      "name": "preparation",
+      "report": "preparation.json",
+      "reportSha256": "97783d3a3835b4cda8e38ee675bdfd9d38e7a4b22211c477fd237ff0847a403e",
+      "ticks": 28,
+      "inputs": 40,
+      "receipts": 12
+    },
+    {
+      "name": "stock-eleven-death-retry",
+      "report": "stock-eleven-death-retry.json",
+      "reportSha256": "be6cf87b59e4c3f0a0e3fb2b7d07d15d68f34548bae7f3528e36b400a7795be5",
+      "ticks": 5528,
+      "inputs": 5581,
+      "receipts": 53
+    },
+    {
+      "name": "edited-rhai-timeline",
+      "report": "edited-rhai-timeline.json",
+      "reportSha256": "e07fff0392a1e98e556ecbe0f66ef5b585ea46a2e4de9ae6fec2b0f181b7f0f0",
+      "ticks": 1830,
+      "inputs": 1818,
+      "receipts": 18
+    },
+    {
+      "name": "wide-identities",
+      "report": "wide-identities.json",
+      "reportSha256": "0dd6a00c5d955f3cee45ae8f7463af4b8b5fe43b09bf8015f55d0813dbebdffb",
+      "ticks": 4,
+      "inputs": 6,
+      "receipts": 5
+    }
+  ],
+  "recordingArtifact": {
+    "path": "preparation.tsq",
+    "sha256": "2bd2da8d71a3e86efbd99df89e88162b7809c6688aa0ef70a12407d68c876f36",
+    "bytes": 34796
+  },
+  "testImplementation": "apps/demo-game/native/tests/wire_parity.rs",
+  "testImplementationSha256": "977784bc9459f13b1d2fc593164372651099f7657772c7cf4c865309fe1a6be6",
+  "note": "The full four-test suite ran against final product source. The subsequent test-only artifact export hook was checked with the preparation case and scoped Clippy; it does not change logical comparisons."
+}

@@ -1,0 +1,723 @@
+{
+  "editmode": {
+    "counts": {
+      "id": "2",
+      "testcasecount": "119",
+      "result": "Passed",
+      "total": "119",
+      "passed": "119",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 14:07:46Z",
+      "end-time": "2026-09-06 14:07:47Z",
+      "duration": "0.4704985"
+    },
+    "artifact": {
+      "path": ".tmp/stage15/unity-tests/editmode.xml",
+      "bytes": 87621,
+      "sha256": "d3155cb4e7bdbcd9d2ef3cc5a08dc8da348d635664de6576fe655a4a6fdec39f"
+    },
+    "cases": [
+      {
+        "name": "ArenaInventoryTests.ChestHasSixDistinctWeaponCandidatesAndFiveItemUpgradeCandidates",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.DamageUpdateCannotRegenerateAndRecoveryStartsAfterThreeSeconds",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.DamageWithoutAShieldStillStartsSharedDelayAndChangingEquipmentKeepsIt",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.DeathPreventsRevivalConsumptionAndFurtherInventoryChanges",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.FractionalRecoveryAccumulatesAcrossSmallUpdatesAndUsesNewCapacity",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.FullHealthMedkitIsKeptAndUsedMedkitOnlyRefillsHp",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.GrenadeIsConsumedImmediatelyAndBackpackDoesNotAutoRefillEquipment",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.HealingDoesNotTouchShieldOrDelayAndNonPositiveDamageDoesNothing",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.InvalidOperationsAreAtomicAndUnequipNeedsAnEmptyBackpackSlot",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.ResetRemovesAllRunStateAndRestoresOnlyTheStarterBlade",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.ShieldChargeAndFractionSurviveSwapsButOnlyEquipmentRegenerates",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.ShieldsAbsorbInSlotOrderAndRemainEquippedWhenEmpty",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.TakingSwappingAndEquippingConserveItemInstancesEvenWhenBackpackIsFull",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.UpgradesConsumeOnceAndHealthUpgradeDoesNotRefillAnExistingShield",
+        "result": "Passed"
+      },
+      {
+        "name": "ArenaInventoryTests.UsingMedkitAThenBConsumesOnlyAWhenAHealsToFull",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaProjectionBufferTests.AbsentCueRemainsNullAfterWireDeserialization",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaProjectionBufferTests.BackwardSeekAcceptsTheMatchingPairInEitherDeliveryOrder",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaProjectionBufferTests.ReconnectDiscardsAnIncompletePriorSession",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaProjectionBufferTests.SegmentedDeliveryPublishesOnlyTheCompletePair",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaProjectionBufferTests.StaleTickAndDifferentSimulationStepCannotMix",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaReferenceTests.CaptureDetachesEntitiesItemsAndRecordedCommands",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaReferenceTests.DuplicatesKeepTheirOriginalResultAndStaleItemsCannotMove",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaReferenceTests.FrozenTraceReplaysThroughOriginalRules(\"preparation\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaReferenceTests.FrozenTraceReplaysThroughOriginalRules(\"stock-eleven-death-retry\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaReferenceTests.InvalidBatchesAndNonContiguousTicksFailBeforeStateMutation",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaReferenceTests.InvalidChestDestinationsUseTheStableTargetCodeWithoutMovingItems",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaReferenceTests.PauseConsumesCommandsWithoutAdvancingAnyGameplayClock",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaReferenceTests.SuccessfulUpgradeIsNotConsumedTwiceAfterRetry",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaRunScenarioTests.StockChestLoadoutAndContinuousMovementCanClearElevenFloors",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ActualPursuerMovementAndMeleeEventuallyKillAnIdlePlayer",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BossClearHealsOnceAndKeepsRewardContentsAndShieldCharge",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BossTelegraphsThenFiresEightShotsAndDoesNotMeleeDuringTellOrRecovery",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BulletsExpireAtWallOrMaximumRange",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BulletSpawnOverlappingEnemyStillHitsInsteadOfSkippingCloseTarget",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ClearRemovesHostileShotsAndGrenadesBeforeSafeStateCanBeDamaged",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ContactAloneDoesNoDamageAndEnemyWaitsInitialAttackInterval",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.DeathSnapshotStaysFixedAndRetryResetsRunWhileMenuClearsIt",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.EndlessProgressionThroughTwentyOneFloorsUsesSpecifiedRosterAndRewards",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.EnemyBulletSweepDamagesPlayerAndIgnoresOtherEnemies",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.FloorTransitionCarriesHealthInventoryAndShieldTimersButResetsTransientState",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.GrenadeRequiresAimConsumesAtThrowAndDealsSnapshotAreaDamageAfterDelay",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.GrenadeTargetIsLimitedByThrowRangeAndArena",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.IndependentWeaponsHitConeOncePerEnemyAndHonorCooldowns",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.MedkitInputsAreOrderedBeforeIncomingDamageAndSecondFullHealthMedkitIsKept",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.MovementIsNormalizedWallBoundAndMaintainsLastValidAim",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.OpeningDoesNotRunAndStartingCreatesOnePreparationChest",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.PortalAppearingUnderPlayerRequiresExitAndReentryAndCannotTransitionTwice",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.PortalRejectsNoWeaponWithoutDiscardingChest",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ProjectileSweepHitsNearestTargetEvenWhenListOrderIsFarFirst",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ShooterApproachesAndFiresTowardPlayerAfterItsInitialDelay",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(1)",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(5)",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaTickClockTests.ClockRetainsCatchupDebtAndFractionalTime",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaTickClockTests.InvalidElapsedTimeDoesNotConsumePendingTicks",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaTickClockTests.SchedulingDependsOnElapsedTimeAndSurvivesRenderRateChanges",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ActualEncodedByteLimitIsInclusiveAndNoPartialFrameEscapes(Json)",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ActualEncodedByteLimitIsInclusiveAndNoPartialFrameEscapes(MessagePack)",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.EveryCompatibilityDimensionIsRequired(\"appId\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.EveryCompatibilityDimensionIsRequired(\"wireVersion\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.EveryCompatibilityDimensionIsRequired(\"schemaVersion\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.EveryCompatibilityDimensionIsRequired(\"presentationVersion\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.EveryCompatibilityDimensionIsRequired(\"tickRate\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.EveryCompatibilityDimensionIsRequired(\"features\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.JsonNegativeZeroRetainsFloat32Sign(\"-0\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.JsonNegativeZeroRetainsFloat32Sign(\"-0.0\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.JsonNegativeZeroRetainsFloat32Sign(\"-0e0\")",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_client-hello_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_client-hello_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_client-widths_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_client-widths_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_client-omitted-metadata_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_client-omitted-metadata_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_client-long-finite-float_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_client-long-finite-float_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_input-empty_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_input-empty_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-hello_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-hello_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-bundles_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-bundles_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-initial_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-initial_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-seek_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-seek_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-replay_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-replay_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-error_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_server-error_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-duplicate_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-unknown_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-unknown-variant_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-array-struct_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-trailing_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-comment_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-trailing-comma_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-u64-overflow_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-int-negative-zero_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-int64-negative-zero_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-u64-negative-zero_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-missing-nullable_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_json-invalid-utf8_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_i32-overflow_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_i32-overflow_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_i64-overflow_json",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_i64-overflow_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-float64_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-float-integer_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-nonfinite_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-bin_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-extension_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-trailing_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-truncated_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-duplicate_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-huge-map_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-nonstring-key_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-invalid-utf8_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.ArenaWireGolden_mp-array-struct_msgpack",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.StructuralBudgetsRejectBeforePublishingATree(Json)",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaWireCodecTests.StructuralBudgetsRejectBeforePublishingATree(MessagePack)",
+        "result": "Passed"
+      }
+    ]
+  },
+  "playmode-msgpack": {
+    "counts": {
+      "id": "2",
+      "testcasecount": "22",
+      "result": "Passed",
+      "total": "22",
+      "passed": "22",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 14:11:25Z",
+      "end-time": "2026-09-06 14:15:08Z",
+      "duration": "222.5231709"
+    },
+    "artifact": {
+      "path": ".tmp/stage15/unity-tests/playmode-msgpack.xml",
+      "bytes": 26929,
+      "sha256": "76a0249d7b62528ce5dcb632fc6f26a9d9311ef5c36d8e9495b128c2b026ae59"
+    },
+    "cases": [
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.CameraTracksArenaCornersWithoutZoomOrClampingAndSnapsOnRestart",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.CardinalKeysMoveAlongScreenAxesWithTheRotatedCamera",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.ChestDistanceAndCombatInventoryGatesUseEAndTab",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.FullHealthMedkitAndSimultaneousMedkitsDoNotConsumeAnExtraItem",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.HeldButtonsAcrossInventoryCloseRequireReleaseBeforeWeaponsOrItems",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.OpeningStartAndReturnToMenuOwnTheSceneAndRunLifetime",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.PauseSettingsAndFocusLossFreezeCombatAndReturnToPause",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.SettingsDraftCancelResetAndApplyReturnToOpeningWithoutAdvancingRun",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.SettingsSaveLoadUsesAnIsolatedPrefixAndRejectsInvalidSavedValues",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.WasdAimAndBothMouseButtonsReachTheRunningSimulation",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaFrontendTests.ZAndXUseTheirOwnSlotsThroughTheInputSystem",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.DisableAndReenableReleasesOwnershipAndWrongThreadCallsNeverEnterFfi",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.EmbeddedBridgeShellAndReplayControlTheSameProjectedRun",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.NativeClockContinuesDuringPauseAndDetachAndReconnectKeepsTheRun",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.ArenaSceneScenarioTests.ActualSceneStockRunReachesElevenThenDiesAndRestarts",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.EmbeddedStockRunReachesElevenDiesAndRetriesWithLocalSettings",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.ImmediateReconnectWithQueuedInputsRetainsSessionAndRequiresResume",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveCliAndBrowserShellControlTheProjectedUnityRun",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveTanuConfigurationIsProjectedInNewRuns",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules",
+        "result": "Passed"
+      }
+    ]
+  },
+  "playmode-json": {
+    "counts": {
+      "id": "2",
+      "testcasecount": "6",
+      "result": "Passed",
+      "total": "6",
+      "passed": "6",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 14:15:22Z",
+      "end-time": "2026-09-06 14:17:32Z",
+      "duration": "130.0249241"
+    },
+    "artifact": {
+      "path": ".tmp/stage15/unity-tests/playmode-json.xml",
+      "bytes": 9039,
+      "sha256": "bbc1968e258b2b7a89ed266e73ddf1cd8506257cd7912c8273b27b1f92739815"
+    },
+    "cases": [
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.ImmediateReconnectWithQueuedInputsRetainsSessionAndRequiresResume",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveCliAndBrowserShellControlTheProjectedUnityRun",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveTanuConfigurationIsProjectedInNewRuns",
+        "result": "Passed"
+      },
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules",
+        "result": "Passed"
+      }
+    ]
+  },
+  "final-reconnect-msgpack": {
+    "counts": {
+      "id": "2",
+      "testcasecount": "1",
+      "result": "Passed",
+      "total": "1",
+      "passed": "1",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 14:28:16Z",
+      "end-time": "2026-09-06 14:28:17Z",
+      "duration": "0.683286"
+    },
+    "artifact": {
+      "path": ".tmp/stage15/unity-tests/final-reconnect-msgpack.xml",
+      "bytes": 3807,
+      "sha256": "5429d25668a6bc2c9ff285990f599dfee0bc4752387f87bcf92de0a8e763045a"
+    },
+    "cases": [
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.ImmediateReconnectWithQueuedInputsRetainsSessionAndRequiresResume",
+        "result": "Passed"
+      }
+    ]
+  },
+  "final-reconnect-json": {
+    "counts": {
+      "id": "2",
+      "testcasecount": "1",
+      "result": "Passed",
+      "total": "1",
+      "passed": "1",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 14:28:31Z",
+      "end-time": "2026-09-06 14:28:32Z",
+      "duration": "0.6719525"
+    },
+    "artifact": {
+      "path": ".tmp/stage15/unity-tests/final-reconnect-json.xml",
+      "bytes": 3808,
+      "sha256": "366b9abea333a520595824f6b06fc998fe03e6d82509f9169f6608660b9aa574"
+    },
+    "cases": [
+      {
+        "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.ImmediateReconnectWithQueuedInputsRetainsSessionAndRequiresResume",
+        "result": "Passed"
+      }
+    ]
+  }
+}

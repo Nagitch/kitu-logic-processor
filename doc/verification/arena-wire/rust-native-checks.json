@@ -1,0 +1,75 @@
+{
+  "workspace": {
+    "artifact": {
+      "path": ".tmp/stage15/rust-tests.log",
+      "bytes": 37854,
+      "sha256": "7b3d5686ecda8ad77f1e61e7adc53f84d5ee6b590a2a4a6a60c7440c89ad1cff"
+    },
+    "passed": 329,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 56,
+    "note": "Full suite completed before the final close-acknowledgment ownership ordering regression was included; the final 30 host and 9 socket tests below cover that final change. CI runs the entire final PR head."
+  },
+  "finalHostRegression": {
+    "artifact": {
+      "path": ".tmp/stage15/host-final-regressions.log",
+      "bytes": 3183,
+      "sha256": "eb70c5a95dabbcf226ed067f0ab0c3ae250c7c0d54651ef45755a7156c39d0dd"
+    },
+    "passed": 30,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 1
+  },
+  "finalSockets": {
+    "artifact": {
+      "path": ".tmp/stage15/host-final-sockets.log",
+      "bytes": 1063,
+      "sha256": "af13116f38418a7600aa0612038576be7760bfcb493cebd957e32916d5c478e0"
+    },
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 1
+  },
+  "macosNative": {
+    "artifact": {
+      "path": ".tmp/stage15/native-tests.log",
+      "bytes": 3524,
+      "sha256": "044b96a3c97a6deb1198a781db9c3c8b5de10f755f4aba1e8fca57722700a813"
+    },
+    "passed": 23,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 5
+  },
+  "csharpReadback": {
+    "artifact": {
+      "path": ".tmp/stage15/codec-csharp-readback.log",
+      "bytes": 276,
+      "sha256": "b1c57703c90fa6e28e2c85ffbc3dcdc966820d5c9a561e4a708e4df9a77843b5"
+    },
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 1
+  },
+  "tools": {
+    "rust-fmt.log": {
+      "path": ".tmp/stage15/rust-fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "rust-clippy.log": {
+      "path": ".tmp/stage15/rust-clippy.log",
+      "bytes": 950,
+      "sha256": "28159305694a40a3777b61d945672a4f08fdfa1bba1fac56a97bf67a8dbf0a07"
+    },
+    "rust-doc.log": {
+      "path": ".tmp/stage15/rust-doc.log",
+      "bytes": 1088,
+      "sha256": "fefbb852e6eeb8e341b44a880d5231e40b62d1f47ea2fbda29dcc29cef591056"
+    }
+  }
+}

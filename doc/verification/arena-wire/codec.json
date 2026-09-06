@@ -1,0 +1,123 @@
+{
+  "cases": 40,
+  "validLogicalFrames": 11,
+  "invalidCases": 29,
+  "csharpEncodedFrames": [
+    {
+      "path": ".tmp/stage15/unity-wire/client-hello.json",
+      "bytes": 280,
+      "sha256": "65311fc5047758ff21786f4b4472cc54e406067a38cfd7712fa461e4adef2916"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/client-hello.msgpack",
+      "bytes": 228,
+      "sha256": "3eb088b804929a607ee0602dd66299206cb2c278bcfde702a45f1e8b7f122850"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/client-widths.json",
+      "bytes": 750,
+      "sha256": "0e0633532cf6b39c817138b1ef02f91cca7e72b2752a24a31707250859d17d17"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/client-widths.msgpack",
+      "bytes": 505,
+      "sha256": "aa0a7986247194b58cd4645fe9a85c54c84413706cc5caab6dc37f603e45d2f9"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/client-omitted-metadata.json",
+      "bytes": 69,
+      "sha256": "e55b6093526096339f684b0f7835f3451afdb11e4f72c78d0302d0225ae69cb5"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/client-omitted-metadata.msgpack",
+      "bytes": 49,
+      "sha256": "62acaab55b7b5953fe19aaffd0b2fe223a81f1c3e12456e158e4b2896f66b2bf"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/client-long-finite-float.json",
+      "bytes": 135,
+      "sha256": "38cc21c8f1121fce235faab901900b2b36cb33b9f7eeee654de638b084531aae"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/client-long-finite-float.msgpack",
+      "bytes": 102,
+      "sha256": "6546a74b6f41e600318c79597497171ac253198f6e4d15631e68cb2c5fab3aa6"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/input-empty.json",
+      "bytes": 42,
+      "sha256": "1b655fe169a7ae3c5cbf9992ef8226d6127fa53b1af2b2fddd74f69c25e2d7a3"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/input-empty.msgpack",
+      "bytes": 29,
+      "sha256": "18138ca0bfbca56005589098f14bc69519dee42e13fc249473132ceb64fe1017"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-hello.json",
+      "bytes": 654,
+      "sha256": "7a7294ea011bbf11c6c0391fabdbc2e7036bea87452fe9cb7ebb8b5e9ab1d4aa"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-hello.msgpack",
+      "bytes": 512,
+      "sha256": "7e429f41c2739371a0274a9b327e60b1e8ab5e433bf0662964e628575e515900"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-bundles.json",
+      "bytes": 977,
+      "sha256": "2b53890a30932e2ee3047b01fd1df3a3cedb0b22ca7612ce50d6256ed97dc092"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-bundles.msgpack",
+      "bytes": 649,
+      "sha256": "2b7ef82978d99302e477f41307ff4a3a1e96a5f764149264c4528979409f6236"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-initial.json",
+      "bytes": 282,
+      "sha256": "40688c94cdf3ec729c259487289589ea04e250ee1e40544d43ba338af9f47992"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-initial.msgpack",
+      "bytes": 190,
+      "sha256": "4e929152db7519d7e3f947865bfd82201da645668ad7d9beb6376bed9dba9cee"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-seek.json",
+      "bytes": 281,
+      "sha256": "9872975389c4d85048197d380eeee4a8d3bb15078405103bbde7a2327b5fdab7"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-seek.msgpack",
+      "bytes": 187,
+      "sha256": "5683dd2890629f750658a9b3c468cc9bbcff2b4cd9089f200d4a2a50bba2e3bc"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-replay.json",
+      "bytes": 237,
+      "sha256": "54eb770afb69ff129f90c5fa46f3de62b5885dbd6ec705cde04718ca2656ca82"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-replay.msgpack",
+      "bytes": 151,
+      "sha256": "65fa3ddfae3073a75026c06a7eaa0e2ceb06eaa1e5800c55e4edec9d55bc6cd1"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-error.json",
+      "bytes": 164,
+      "sha256": "2bdf8b7b1d57ed7941b603ad7086d48e2d937ff48893d9f52ffdf8a80b2e3ea0"
+    },
+    {
+      "path": ".tmp/stage15/unity-wire/server-error.msgpack",
+      "bytes": 120,
+      "sha256": "77f0cb45828fa54088e16eae524028df18994bc2934377c98f84363b2caaf35d"
+    }
+  ],
+  "rustReadback": {
+    "path": ".tmp/stage15/codec-csharp-readback.log",
+    "bytes": 276,
+    "sha256": "b1c57703c90fa6e28e2c85ffbc3dcdc966820d5c9a561e4a708e4df9a77843b5"
+  },
+  "result": "All valid C# JSON/MessagePack frames decode to identical canonical MessagePack in Rust, including exact f32 bits; Unity independently consumes Rust fixtures and compares canonical bytes."
+}

@@ -1,0 +1,51 @@
+{
+  "checks": {
+    "allTickStatesCompared": true,
+    "death11F": true,
+    "disconnectReconnect": false,
+    "frozenCheckpoints": 550,
+    "frozenCommandOutcomes": 53,
+    "retry": true
+  },
+  "clock": "explicit owner ticks; I/O runtime has no scheduler",
+  "committedInputSha256": "a015ea18b410ad58b6c3a707ace9df20877801301bb1c8313f053fc66e11a422",
+  "compatibility": {
+    "appId": "endless-arena",
+    "features": [
+      "output-batches",
+      "presentation",
+      "replay",
+      "typed-osc"
+    ],
+    "presentationVersion": 1,
+    "schemaVersion": 1,
+    "tickRate": 60,
+    "wireVersion": 1
+  },
+  "execution": {
+    "package": "0.1.0",
+    "sourceHash": "51ea00d093fd07888e2d06752dd47817e73907c0233c41188b12e369b43302aa",
+    "target": "aarch64-unknown-linux-gnu"
+  },
+  "hashFraming": "SHA256 of little-endian u64 length followed by canonical JSON per input/tick",
+  "identicalJsonMessagePackRecordingSha256": "01d2c4485ff54bf01e884cc18cbb99e2fc0ff8d54133c76308506b9d73afd1bc",
+  "initialContentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+  "initialScriptHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+  "initialTimelineHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+  "inputSha256": "4b9fa5139c0ef3819b4941e1080b3bab066b5df9724c920c3644f75bdf8b3be7",
+  "inputs": 5581,
+  "jsonConnections": 1,
+  "matched": true,
+  "msgpackConnections": 1,
+  "outputSha256": "28932477e335026c0bc9f4fee9539b64541e62a24ad33453d5cbb9425004efb7",
+  "paths": [
+    "actual-json-websocket",
+    "actual-msgpack-websocket",
+    "exported-c-abi"
+  ],
+  "projectionSha256": "98179e1b7e1c92f565d6ef886cd2ebfa651cca2ba3e7879253b6b69bc19eba4e",
+  "receipts": 53,
+  "scenario": "stock-eleven-death-retry",
+  "ticks": 5528,
+  "version": 1
+}
