@@ -229,20 +229,35 @@ fn read_transaction(
         bytes: 0,
     };
     let mut present = BTreeSet::new();
-    let mut query = transaction.prepare("SELECT name,type FROM pragma_table_list WHERE schema='main' AND name NOT LIKE 'sqlite_%' ORDER BY name LIMIT ?1")?;
-    let mut rows = query.query([options.max_tables as i64 + 1])?;
+    // The table-valued pragma_table_list name can be shadowed by an ordinary
+    // database table. Use the PRAGMA statement itself for trusted metadata.
+    let mut query = transaction.prepare("PRAGMA main.table_list")?;
+    let mut rows = query.query([])?;
     while let Some(row) = rows.next()? {
         control.check()?;
-        let name = row
+        let schema = row
             .get_ref(0)?
             .as_str()
+            .map_err(|_| SqliteError::InvalidSchema("invalid schema name".into()))?;
+        if schema != "main" {
+            continue;
+        }
+        let name = row
+            .get_ref(1)?
+            .as_str()
             .map_err(|_| SqliteError::InvalidSchema("non-UTF-8 table name".into()))?;
+        if name
+            .get(..7)
+            .is_some_and(|prefix| prefix.eq_ignore_ascii_case("sqlite_"))
+        {
+            continue;
+        }
         if present.len() == options.max_tables {
             return Err(SqliteError::LimitExceeded("tables"));
         }
         let requested = specs.iter().any(|spec| spec.name == name);
         let kind = row
-            .get_ref(1)?
+            .get_ref(2)?
             .as_str()
             .map_err(|_| SqliteError::InvalidSchema("invalid table kind".into()))?;
         if (options.deny_unknown_tables && !requested) || (requested && kind != "table") {
@@ -287,22 +302,21 @@ fn read_table(
     budget: &mut Budget<'_>,
 ) -> Result<TableSnapshot> {
     let mut present = BTreeSet::new();
-    let mut query = transaction
-        .prepare("SELECT name,hidden FROM pragma_table_xinfo(?1, 'main') ORDER BY cid LIMIT ?2")?;
-    let mut rows = query.query(rusqlite::params![
-        spec.name,
-        budget.options.max_columns as i64 + 1
-    ])?;
+    // As above, the direct statement cannot resolve to a source-owned table.
+    // validate() has restricted this identifier to bounded ASCII before SQL
+    // construction. Column order in the result is still specified by the app.
+    let mut query = transaction.prepare(&format!("PRAGMA main.table_xinfo(\"{}\")", spec.name))?;
+    let mut rows = query.query([])?;
     while let Some(row) = rows.next()? {
         control.check()?;
         if present.len() == budget.options.max_columns {
             return Err(SqliteError::LimitExceeded("columns"));
         }
         let name = row
-            .get_ref(0)?
+            .get_ref(1)?
             .as_str()
             .map_err(|_| SqliteError::InvalidSchema("non-UTF-8 column name".into()))?;
-        if row.get::<_, i32>(1)? != 0
+        if row.get::<_, i32>(6)? != 0
             || (!spec.columns.iter().any(|s| s == name) && !spec.order_by.iter().any(|s| s == name))
         {
             return Err(SqliteError::InvalidSchema(format!(

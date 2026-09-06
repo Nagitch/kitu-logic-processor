@@ -25,6 +25,8 @@ schema, authoring/migrations, domain validation and next-run activation.
 - Unknown columns and requested views/virtual/generated tables are rejected.
   Unknown user tables are rejected by default. Internal `sqlite_*` tables,
   indexes and triggers are not returned; no write SQL is executed.
+  Schema discovery uses direct PRAGMA statements so ordinary tables named
+  `pragma_table_list` or `pragma_table_xinfo` cannot replace the metadata source.
 - Identifiers are bounded ASCII names, validated before SQL construction. No raw
   SQL, connection or schema mutation interface is exposed to network clients.
 

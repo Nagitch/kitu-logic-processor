@@ -205,6 +205,66 @@ fn schema_contract_rejects_missing_unknown_generated_and_view_sources() {
 }
 
 #[test]
+fn table_discovery_cannot_be_shadowed_by_an_allowed_database_table() {
+    let (directory, connection) = database(
+        "CREATE TABLE items(ordinal INTEGER, value); INSERT INTO items VALUES(0, 42);
+        CREATE TABLE pragma_table_list(ordinal INTEGER, schema TEXT, name TEXT, type TEXT);
+        INSERT INTO pragma_table_list VALUES(0, 'main', 'items', 'table'),
+            (1, 'main', 'pragma_table_list', 'table');",
+    );
+    let tables = [
+        spec("items", &["value"]),
+        spec("pragma_table_list", &["schema", "name", "type"]),
+    ];
+    let snapshot = read(&directory, &tables, &ReadOptions::default()).unwrap();
+    assert_eq!(snapshot.tables.len(), 2);
+    assert_eq!(snapshot.tables[0].rows[0], [Scalar::Integer(42)]);
+    assert_eq!(snapshot.tables[1].rows.len(), 2);
+
+    // This table is deliberately absent from the ordinary pragma_table_list
+    // data. Schema validation must use SQLite's actual table inventory.
+    connection
+        .execute_batch("CREATE TABLE extra(ordinal INTEGER, value);")
+        .unwrap();
+    let error = read(&directory, &tables, &ReadOptions::default()).unwrap_err();
+    assert!(matches!(error, SqliteError::InvalidSchema(_)));
+    assert!(error.to_string().contains("unexpected table: extra"));
+    let relaxed = ReadOptions {
+        deny_unknown_tables: false,
+        ..ReadOptions::default()
+    };
+    assert_eq!(read(&directory, &tables, &relaxed).unwrap(), snapshot);
+}
+
+#[test]
+fn column_discovery_cannot_be_shadowed_by_an_allowed_database_table() {
+    let (directory, connection) = database(
+        "CREATE TABLE items(ordinal INTEGER, value); INSERT INTO items VALUES(0, 42);
+        CREATE TABLE pragma_table_xinfo(ordinal INTEGER, name TEXT, hidden INTEGER);
+        INSERT INTO pragma_table_xinfo VALUES(0, 'value', 0);",
+    );
+    let tables = [
+        spec("items", &["value"]),
+        spec("pragma_table_xinfo", &["name", "hidden"]),
+    ];
+    let snapshot = read(&directory, &tables, &ReadOptions::default()).unwrap();
+    assert_eq!(snapshot.tables[0].rows[0], [Scalar::Integer(42)]);
+    assert_eq!(
+        snapshot.tables[1].rows[0],
+        [Scalar::Text("value".into()), Scalar::Integer(0)]
+    );
+
+    connection
+        .execute_batch("ALTER TABLE items ADD COLUMN unexpected INTEGER;")
+        .unwrap();
+    let error = read(&directory, &tables, &ReadOptions::default()).unwrap_err();
+    assert!(matches!(error, SqliteError::InvalidSchema(_)));
+    assert!(error
+        .to_string()
+        .contains("unexpected/generated column: items/unexpected"));
+}
+
+#[test]
 fn missing_files_are_not_created_and_reads_do_not_mutate_database_bytes() {
     let (directory, connection) =
         database("CREATE TABLE items(ordinal INTEGER, value); INSERT INTO items VALUES(0, 42);");
@@ -335,7 +395,7 @@ fn schema_and_multiple_tables_share_one_snapshot_during_concurrent_wal_commit() 
         &ReadOptions::default(),
         move || {
             // The first two checks precede BEGIN; the next two occur while the
-            // two-row schema result is being consumed (well below one VM quantum).
+            // schema inventory is being consumed (well below one VM quantum).
             // Commit both schema and data before any application table is read.
             if calls.fetch_add(1, Ordering::Relaxed) == 3 {
                 writer
