@@ -2,7 +2,7 @@
   "stage": 11,
   "rust": {
     "environment": "repository Dev Container",
-    "testsAndDoctestsPassed": 221,
+    "testsAndDoctestsPassed": 225,
     "failed": 0,
     "ignored": 0,
     "clippy": "workspace all targets/all features, warnings denied: passed",
@@ -28,5 +28,6 @@
     "player-stock.json"
   ],
   "unity": "unity-tests.json",
-  "ordinaryPlayerCliAndAdmin": "live-bridge.json"
+  "ordinaryPlayerCliAndAdmin": "live-bridge.json",
+  "reviewRegression": "review-regression.json"
 }

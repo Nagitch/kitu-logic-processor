@@ -976,7 +976,7 @@ fn advance_tick(state: &AppState) -> Result<TickResult> {
         .inner
         .lock()
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
-    playback::apply_controls(&mut guard);
+    let control = playback::apply_controls(&mut guard);
     let output = if let Some(ready) = guard.pending_playback.take() {
         if guard.playback.is_none() {
             advance_live_tick(&mut guard)?;
@@ -989,6 +989,7 @@ fn advance_tick(state: &AppState) -> Result<TickResult> {
     } else {
         advance_live_tick(&mut guard)?
     };
+    playback::complete_control(&guard, control);
     let events = playback::events(&guard, output.clone());
     let run_events = std::mem::take(&mut guard.run_events);
     Ok(TickResult {

@@ -1,0 +1,37 @@
+{
+  "review": "https://github.com/Nagitch/kitu-logic-processor/pull/151#discussion_r3943463862",
+  "finding": "queued step could be acknowledged then erased by a later pause before replay advance",
+  "fix": "One control per owner tick; capture the response under the owner lock after verified advancement; proof/end failures reject step",
+  "tests": [
+    "concurrent_step_then_pause_advances_before_acknowledging_pause",
+    "concurrent_steps_each_return_their_own_verified_advanced_state",
+    "concurrent_steps_at_the_end_only_acknowledge_the_one_remaining_tick",
+    "step_proof_failure_returns_error_and_retains_last_verified_projection"
+  ],
+  "devContainer": {
+    "testsAndDoctests": 225,
+    "suites": 50,
+    "failed": 0,
+    "ignored": 0,
+    "clippy": "all targets and all features, warnings denied: passed",
+    "rustdoc": "workspace all features, warnings denied: passed"
+  },
+  "logs": {
+    "review-rust-tests.log": {
+      "path": ".tmp/stage11/review-rust-tests.log",
+      "sha256": "8d686d7adae03c5089fc065bb6a6516cbbd4c3eb1a115d3eefdada725b679ed7"
+    },
+    "review-clippy.log": {
+      "path": ".tmp/stage11/review-clippy.log",
+      "sha256": "3d4f3f92f895e6953cfe929b918fd77b932435820814aebefb453dfc85ab1d1e"
+    },
+    "review-rustdoc.log": {
+      "path": ".tmp/stage11/review-rustdoc.log",
+      "sha256": "fe133d8dda1752ba6a2a5c52b727c7c5cfacd771e50ae5925e00bb84e6f247f9"
+    },
+    "review-host-build.log": {
+      "path": ".tmp/stage11/review-host-build.log",
+      "sha256": "dcc314fd169ac84c75fc63fd87791440194f2f5147e1875b456826ad83eec756"
+    }
+  }
+}

@@ -3,11 +3,17 @@ use super::*;
 use crate::replay::{ExecutionVersion, Session};
 use kitu_osc_ir::OscBundle;
 
-type Completion = tokio::sync::oneshot::Sender<Result<()>>;
+type Completion = tokio::sync::oneshot::Sender<Result<Status>>;
 pub(super) enum Control {
     Action(String, Completion),
     BeginSeek(u64),
     Prepared(u64, Result<Box<Playback>>, Completion),
+}
+
+pub(super) struct AppliedControl {
+    complete: Completion,
+    result: Result<()>,
+    step_from: Option<u64>,
 }
 
 fn pending_seek(game: &GameState) -> bool {
@@ -16,49 +22,93 @@ fn pending_seek(game: &GameState) -> bool {
         .any(|control| matches!(control, Control::BeginSeek(_) | Control::Prepared(_, _, _)))
 }
 
-pub(super) fn apply_controls(game: &mut GameState) {
-    while let Some(control) = game.controls.pop_front() {
-        match control {
-            Control::Action(action, complete) => {
-                let _ = complete.send(operate(game, &action));
-            }
-            Control::BeginSeek(generation) => {
-                if game.playback_generation == generation {
-                    if let Some(playback) = game.playback.as_mut() {
-                        playback.playing = false;
-                        playback.steps = 0;
-                        playback.seeking = true;
-                    }
+pub(super) fn apply_controls(game: &mut GameState) -> Option<AppliedControl> {
+    // One control per owner tick: a later pause/seek must not erase an admitted
+    // step before the normal playback update has verified its result.
+    match game.controls.pop_front()? {
+        Control::Action(action, complete) => {
+            let step_from = if action == "step" {
+                game.playback.as_ref().map(|playback| playback.world.tick)
+            } else {
+                None
+            };
+            Some(AppliedControl {
+                complete,
+                result: operate(game, &action),
+                step_from,
+            })
+        }
+        Control::BeginSeek(generation) => {
+            if game.playback_generation == generation {
+                if let Some(playback) = game.playback.as_mut() {
+                    playback.playing = false;
+                    playback.steps = 0;
+                    playback.seeking = true;
                 }
             }
-            Control::Prepared(generation, prepared, complete) => {
-                let result = if game.playback_generation != generation {
-                    Err(anyhow::anyhow!("replay changed while seeking"))
-                } else {
-                    match prepared {
-                        Ok(playback) => {
-                            game.playback = Some(*playback);
-                            Ok(())
-                        }
-                        Err(error) => {
-                            if let Some(playback) = game.playback.as_mut() {
-                                playback.seeking = false;
-                                playback.error = Some(format!("{error:#}"));
-                            }
-                            Err(error)
-                        }
+            None
+        }
+        Control::Prepared(generation, prepared, complete) => {
+            let result = if game.playback_generation != generation {
+                Err(anyhow::anyhow!("replay changed while seeking"))
+            } else {
+                match prepared {
+                    Ok(playback) => {
+                        game.playback = Some(*playback);
+                        Ok(())
                     }
-                };
-                let _ = complete.send(result);
-            }
+                    Err(error) => {
+                        if let Some(playback) = game.playback.as_mut() {
+                            playback.seeking = false;
+                            playback.error = Some(format!("{error:#}"));
+                        }
+                        Err(error)
+                    }
+                }
+            };
+            Some(AppliedControl {
+                complete,
+                result,
+                step_from: None,
+            })
         }
     }
 }
 
+pub(super) fn complete_control(game: &GameState, applied: Option<AppliedControl>) {
+    let Some(AppliedControl {
+        complete,
+        result,
+        step_from,
+    }) = applied
+    else {
+        return;
+    };
+    let result = result.and_then(|()| {
+        if let Some(before) = step_from {
+            let playback = game
+                .playback
+                .as_ref()
+                .context("replay changed before step completed")?;
+            if let Some(error) = &playback.error {
+                anyhow::bail!("replay step failed: {error}");
+            }
+            anyhow::ensure!(
+                playback.world.tick == before + 1,
+                "replay step did not advance one verified tick"
+            );
+        }
+        // Capture this control's result under the owner lock. A delayed HTTP
+        // waiter must not observe a later command's state as its own result.
+        inspect_game(game)
+    });
+    let _ = complete.send(result);
+}
+
 async fn wait_control(
     state: &AppState,
-    receiver: tokio::sync::oneshot::Receiver<Result<()>>,
-) -> Result<()> {
+    receiver: tokio::sync::oneshot::Receiver<Result<Status>>,
+) -> Result<Status> {
     let mut shutdown = state.work.subscribe();
     state.work.check()?;
     tokio::select! {
@@ -226,13 +276,16 @@ fn inspect(state: &AppState) -> Result<Status> {
         .inner
         .lock()
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+    inspect_game(&game)
+}
+fn inspect_game(game: &GameState) -> Result<Status> {
     let projection = game.application_projection();
     let OscArg::Str(json) = &projection[0].messages[0].args[0] else {
         anyhow::bail!("missing Arena projection")
     };
     let content = arena::inspect_content(game.observed_runtime())?;
     Ok(Status {
-        mode: mode(&game),
+        mode: mode(game),
         state: serde_json::from_str(json)?,
         live_tick: game.runtime.current_tick().get(),
         execution: ExecutionVersion::current(),
@@ -363,9 +416,7 @@ pub(super) async fn command(
         game.controls
             .push_back(Control::Action(request.action, complete));
     }
-    wait_control(&state, receiver).await?;
-
-    Ok(Json(inspect(&state)?))
+    Ok(Json(wait_control(&state, receiver).await?))
 }
 
 #[derive(Deserialize)]
@@ -405,11 +456,10 @@ pub(super) async fn seek(
     })?
     .await
     .map_err(anyhow::Error::from)??;
-    wait_control(&state, receiver).await?;
-    Ok(Json(inspect(&state)?))
+    Ok(Json(wait_control(&state, receiver).await?))
 }
 
-type SeekReceiver = tokio::sync::oneshot::Receiver<Result<()>>;
+type SeekReceiver = tokio::sync::oneshot::Receiver<Result<Status>>;
 fn spawn_seek(
     state: AppState,
     generation: u64,
@@ -441,6 +491,156 @@ fn spawn_seek(
 mod tests {
     use super::*;
     use crate::replay::Recorder;
+
+    fn loaded_state(saved: Arc<Session>, tick: i64) -> AppState {
+        let state = super::super::tests::test_state();
+        {
+            let mut game = state.inner.lock().unwrap();
+            game.playback_generation = 1;
+            queue_loaded(&mut game, Playback::at("test".into(), saved, tick).unwrap()).unwrap();
+        }
+        advance_runtime_tick(&state).unwrap();
+        state
+    }
+
+    async fn assert_pending(mut future: std::pin::Pin<&mut impl std::future::Future>) {
+        std::future::poll_fn(|context| {
+            assert!(future.as_mut().poll(context).is_pending());
+            std::task::Poll::Ready(())
+        })
+        .await;
+    }
+
+    type CommandResult = Result<Json<Status>, ApiError>;
+
+    async fn queued_step_pair(state: &AppState, next: &str) -> (CommandResult, CommandResult) {
+        let first = command(
+            State(state.clone()),
+            Json(CommandRequest {
+                action: "step".into(),
+            }),
+        );
+        let second = command(
+            State(state.clone()),
+            Json(CommandRequest {
+                action: next.into(),
+            }),
+        );
+        tokio::pin!(first, second);
+        assert_pending(first.as_mut()).await;
+        assert_pending(second.as_mut()).await;
+        assert_eq!(state.inner.lock().unwrap().controls.len(), 2);
+        advance_runtime_tick(state).unwrap();
+        assert_eq!(state.inner.lock().unwrap().controls.len(), 1);
+        assert_pending(second.as_mut()).await;
+        advance_runtime_tick(state).unwrap();
+        assert!(state.inner.lock().unwrap().controls.is_empty());
+        // Deliberately defer polling both responses until both owner updates
+        // finish: each must retain its own verified state, not the latest one.
+        (first.await, second.await)
+    }
+
+    #[tokio::test]
+    async fn concurrent_step_then_pause_advances_before_acknowledging_pause() {
+        let state = loaded_state(session(), -1);
+        let (stepped, paused) = queued_step_pair(&state, "pause").await;
+        let (stepped, paused) = (stepped.unwrap().0, paused.unwrap().0);
+        assert_eq!((stepped.mode.tick, paused.mode.tick), (0, 0));
+        assert_eq!(stepped.state["tick"], 0);
+        assert_eq!(stepped.state, paused.state);
+        assert!(!stepped.mode.playing && !paused.mode.playing);
+        assert_eq!((stepped.live_tick, paused.live_tick), (1, 1));
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(inspect(&state).unwrap().mode.tick, 0);
+    }
+
+    #[tokio::test]
+    async fn concurrent_steps_each_return_their_own_verified_advanced_state() {
+        let state = loaded_state(session(), -1);
+        let (first, second) = queued_step_pair(&state, "step").await;
+        let (first, second) = (first.unwrap().0, second.unwrap().0);
+        assert_eq!((first.mode.tick, second.mode.tick), (0, 1));
+        assert_eq!(first.state["tick"], 0);
+        assert_eq!(second.state["tick"], 1);
+        assert!(!first.mode.playing && !second.mode.playing);
+        assert_eq!((first.live_tick, second.live_tick), (1, 1));
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(inspect(&state).unwrap().mode.tick, 1);
+    }
+
+    #[tokio::test]
+    async fn concurrent_steps_at_the_end_only_acknowledge_the_one_remaining_tick() {
+        let state = loaded_state(session(), 28);
+        let (first, second) = queued_step_pair(&state, "step").await;
+        let first = first.unwrap().0;
+        assert_eq!(first.mode.tick, 29);
+        assert_eq!(first.state["tick"], 29);
+        assert!(second
+            .err()
+            .unwrap()
+            .0
+            .to_string()
+            .contains("replay reached the end"));
+        let final_state = inspect(&state).unwrap();
+        assert_eq!(final_state.mode.tick, 29);
+        assert_eq!(final_state.state, first.state);
+        assert!(!final_state.mode.playing);
+    }
+
+    #[tokio::test]
+    async fn step_proof_failure_returns_error_and_retains_last_verified_projection() {
+        let mut runtime = build_arena_runtime().unwrap();
+        let mut recorder = Recorder::new(&runtime).unwrap();
+        runtime.tick_once().unwrap();
+        let output = runtime.drain_output_buffer();
+        recorder.capture(&runtime, &output).unwrap();
+        let mut record =
+            kitu_tsq1::recording::Recording::decode(&recorder.encode().unwrap()).unwrap();
+        record.manifest["proofs"][0]["state"] = serde_json::Value::String("0".repeat(64));
+        let saved = Arc::new(Session::decode(&record.encode().unwrap()).unwrap());
+        // Fault injection after the normal load verification boundary: exercise
+        // a proof failure inside the exact tick that would complete a step.
+        let state = loaded_state(saved, -1);
+        let before = inspect(&state).unwrap();
+        let response = with_owner_ticks(
+            &state,
+            command(
+                State(state.clone()),
+                Json(CommandRequest {
+                    action: "step".into(),
+                }),
+            ),
+        )
+        .await;
+        assert!(response
+            .err()
+            .unwrap()
+            .0
+            .to_string()
+            .contains("replay state diverged at tick 0"));
+        let after = inspect(&state).unwrap();
+        assert_eq!(after.mode.tick, -1);
+        assert_eq!(after.state, before.state);
+        assert!(after
+            .mode
+            .error
+            .unwrap()
+            .contains("replay state diverged at tick 0"));
+        assert_eq!(
+            state
+                .inner
+                .lock()
+                .unwrap()
+                .playback
+                .as_ref()
+                .unwrap()
+                .runtime
+                .current_tick()
+                .get(),
+            1,
+            "the failed proof follows execution, but cannot be acknowledged as a verified step"
+        );
+    }
 
     async fn with_owner_ticks<T>(
         state: &AppState,

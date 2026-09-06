@@ -14,6 +14,12 @@ starts no scheduler. The server supplies a 60 Hz timer; an embedded caller suppl
 the ticks through the existing C ABI. HTTP/WS handlers admit work or inspect
 state. Owner ticks commit playback transitions and prepared seek results.
 
+Playback controls are committed in queue order, at most one per owner tick. A
+successful step response corresponds to one verified replay advancement, with
+the response state captured at that boundary. A later pause, step or seek cannot
+erase an acknowledged step or replace its response snapshot. Proof failure or an
+end-of-recording step returns an error instead of acknowledging advancement.
+
 Original OSC bundle boundaries and complete output order pass through the host
 unchanged. Recording captures live outputs and inputs before output presentation;
 historical playback cannot overwrite a live run manifest. The native adapter
