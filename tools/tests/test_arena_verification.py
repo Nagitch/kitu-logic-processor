@@ -15,7 +15,7 @@ TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
 from arena_macos import OwnedProcess, clone_tree
 from arena_verification import (cargo_test_binaries, completed_scope, libtest_result,
-                                nunit_result, trace_counts, whitespace_only)
+                                nunit_result, report_environment, trace_counts, whitespace_only)
 spec = importlib.util.spec_from_file_location("arena_coordinator", TOOLS / "verify-arena-macos.py")
 coordinator = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(coordinator)
@@ -38,6 +38,22 @@ class VerificationContracts(unittest.TestCase):
         path = self.directory / "tests.xml"
         ElementTree(root).write(path)
         return path
+
+    def test_command_environment_reports_only_exact_documented_names(self):
+        selected = {"CARGO_TARGET_DIR": "/tmp/build", "CARGO_PROFILE_TEST_DEBUG": "0",
+                    "KITU_ARENA_WS_URL": "ws://127.0.0.1:8788/ws/arena",
+                    "KITU_NATIVE_EVIDENCE_DIR": "/tmp/evidence",
+                    "KITU_UNRELATED_VALUE": "must-not-be-recorded",
+                    "KITU_ARENA_WS_URL_EXTRA": "must-not-be-recorded",
+                    "CARGO_PROFILE_CUSTOM_VALUE": "must-not-be-recorded",
+                    "UNRELATED_VALUE": "must-not-be-recorded"}
+        before = selected.copy()
+        self.assertEqual(report_environment(selected), {
+            "CARGO_TARGET_DIR": "/tmp/build", "CARGO_PROFILE_TEST_DEBUG": "0",
+            "KITU_ARENA_WS_URL": "ws://127.0.0.1:8788/ws/arena",
+            "KITU_NATIVE_EVIDENCE_DIR": "/tmp/evidence"})
+        self.assertEqual(selected, before, "Reporting must not alter the actual child environment")
+        self.assertEqual(report_environment({}), {})
 
     def test_nunit_counts_do_not_replace_exact_names_and_success(self):
         self.assertEqual(nunit_result(self.xml([("a", "Passed")]), ["a"])["passed"], 1)
@@ -164,6 +180,48 @@ class VerificationContracts(unittest.TestCase):
         with self.assertRaises(ValueError):
             coordinator.Verification(args)
         self.assertFalse((self.directory / "absent-target").exists())
+
+    def test_edited_player_forwards_and_retains_its_tick_minus_one_oracle(self):
+        args = argparse.Namespace(evidence=self.directory / "attempt", scope="full", cargo="cargo", profile="dev", editor=None, port=None)
+        verification = coordinator.Verification(args)
+        initial = args.evidence / "packaged-oracle/bundled-edited.initial.json"
+        initial.parent.mkdir()
+        initial.write_text('{"state":[],"package":{}}')
+        with patch.object(verification, "validate_trace"), patch.object(verification, "tool") as tool, patch.object(verification, "retain") as retain:
+            verification.player_traces(True)
+        self.assertEqual(tool.call_count, 1)
+        self.assertEqual(tool.call_args.args[-3:], ("--", "--arena-initial-expected", initial))
+        self.assertIn(unittest.mock.call(initial), retain.call_args_list)
+
+    def test_missing_edited_initial_oracle_fails_before_launching_player(self):
+        args = argparse.Namespace(evidence=self.directory / "attempt", scope="full", cargo="cargo", profile="dev", editor=None, port=None)
+        verification = coordinator.Verification(args)
+        with patch.object(verification, "validate_trace"), patch.object(verification, "tool") as tool, patch.object(verification, "retain"):
+            with self.assertRaisesRegex(RuntimeError, "initial oracle"):
+                verification.player_traces(True)
+            tool.assert_not_called()
+
+    def test_build_generated_link_files_restore_original_bytes_or_absence(self):
+        names = ("Assets/AddressableAssetsData/link.xml", "Assets/AddressableAssetsData/link.xml.meta")
+        for existing in (False, True):
+            with self.subTest(existing=existing):
+                project = self.directory / str(existing)
+                originals = {}
+                for name in names:
+                    path = project / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    originals[name] = ("preexisting " + name).encode() if existing else None
+                    if existing:
+                        path.write_bytes(originals[name])
+                guard = coordinator.ProjectGuard(project, [])
+                for name in names:
+                    (project / name).write_bytes(("generated " + name).encode())
+                guard.capture_editor()
+                result = guard.restore()
+                self.assertFalse(result["unexpectedChanges"])
+                for name in names:
+                    self.assertEqual(coordinator.bytes_or_none(project / name), originals[name])
+                    self.assertIn(name, result["restoredFiles"])
 
     def test_owned_clone_preserves_symlinks_and_refuses_existing_destination(self):
         source = self.directory / "source"

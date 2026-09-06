@@ -26,7 +26,7 @@ from arena_macos import (LIBRARY, PLUGIN, PROJECT, ROOT, OwnedProcess, artifact,
                          require_closed_editor, require_macos, run, sha256,
                          termination_guard, verify_plugin, write_json)
 from arena_verification import (cargo_test_binaries, completed_scope, libtest_result,
-                                nunit_result, trace_counts, utc, whitespace_only)
+                                nunit_result, report_environment, trace_counts, utc, whitespace_only)
 
 TARGET = "aarch64-apple-darwin"
 TOOLS = ROOT / "tools"
@@ -44,6 +44,8 @@ SETTINGS = ["ProjectSettings/" + name for name in (
     "EditorBuildSettings.asset", "GraphicsSettings.asset", "QualitySettings.asset",
     "ProjectSettings.asset", "ProjectAuditorSettings.asset", "UnityConnectSettings.asset")]
 ADDRESSABLE_SETTINGS = "Assets/AddressableAssetsData/AddressableAssetSettings.asset"
+GENERATED_LINK_FILES = ["Assets/AddressableAssetsData/link.xml",
+                        "Assets/AddressableAssetsData/link.xml.meta"]
 
 
 def json_output(text):
@@ -78,7 +80,7 @@ class ProjectGuard:
             files = run(["git", "ls-files", "-z", "--", prefix], cwd=ROOT).split("\0")
             tracked = [Path(file).relative_to(project.relative_to(ROOT)).as_posix()
                        for file in files if file]
-        self.owned = set(SETTINGS + [ADDRESSABLE_SETTINGS])
+        self.owned = set(SETTINGS + [ADDRESSABLE_SETTINGS] + GENERATED_LINK_FILES)
         self.paths = sorted(set(tracked) | self.owned)
         self.initial = {name: bytes_or_none(project / name) for name in self.paths}
         self.last = self.initial.copy()
@@ -176,7 +178,7 @@ class Verification:
         selected = env or self.env
         item = {"argv": [str(a) for a in arguments], "cwd": str(cwd), "startedAtUtc": utc(),
                 "finishedAtUtc": None, "exit": None, "timeoutSeconds": timeout, "log": str(log),
-                "environment": {k: v for k, v in selected.items() if k.startswith(("KITU_", "CARGO_PROFILE_")) or k in ("CARGO_TARGET_DIR", "CARGO_INCREMENTAL")}}
+                "environment": report_environment(selected)}
         self.step["commands"].append(item)
         self.write()
         try:
@@ -506,9 +508,16 @@ class Verification:
         for name, counts in scenarios.items():
             self.validate_trace(name, source, counts, edited)
             evidence = self.evidence / ("player-" + name)
+            extras = []
+            if edited:
+                initial = source / (name + ".initial.json")
+                if not initial.is_file() or not initial.stat().st_size:
+                    raise RuntimeError(f"Edited package proof requires its initial oracle: {initial}")
+                self.retain(initial)
+                extras = ["--", "--arena-initial-expected", initial]
             self.tool("run-arena-player-verification.py", "--player", self.evidence / "build" / ("edited.app" if edited else "default.app"),
                       "--trace", source / (name + ".trace"), "--expected", source / (name + ".expected.ndjson"),
-                      "--evidence", evidence, timeout=660)
+                      "--evidence", evidence, *extras, timeout=660)
             result[name] = self.retain(evidence / "player-verification.json")
         return result
 

@@ -8,6 +8,29 @@ import re
 import xml.etree.ElementTree as ET
 
 
+# Exact coordinator-owned paths/options only; unrelated inherited variables are
+# never included merely because they share a KITU_ or CARGO_PROFILE_ prefix.
+REPORTED_ENVIRONMENT = frozenset({
+    "CARGO_TARGET_DIR", "CARGO_INCREMENTAL", "CARGO_PROFILE_DEV_DEBUG",
+    "CARGO_PROFILE_TEST_DEBUG", "KITU_NATIVE_EVIDENCE_DIR",
+    "KITU_PACKAGED_PLAYER_EVIDENCE_DIR", "KITU_WIRE_EVIDENCE_DIR",
+    "KITU_PACKAGE_INTEROP_DIR", "KITU_REPLAY_EVIDENCE_DIR",
+    "KITU_DEMO_GAME_BIND", "KITU_ARENA_CONTENT", "KITU_ARENA_SCRIPT",
+    "KITU_ARENA_TIMELINE_DIRECTORY", "KITU_ARENA_RUN_DIRECTORY",
+    "KITU_ARENA_RECORDING_DIRECTORY", "KITU_ARENA_WS_URL",
+    "KITU_ARENA_REPLAY_ID", "KITU_ARENA_CLI_EXECUTABLE",
+    "KITU_ARENA_CLI_ARGUMENTS", "KITU_ARENA_EXPECTED_STARTER_DAMAGE",
+    "KITU_ARENA_ENCODING", "KITU_ARENA_INSPECTION_EVIDENCE_DIR",
+    "KITU_ARENA_WIRE_EVIDENCE_DIR", "KITU_APPLICATION_WIRE_CSHARP_FIXTURES",
+})
+
+
+def report_environment(environment):
+    """Select documented nonsecret command options without changing child env."""
+    return {key: environment[key] for key in sorted(REPORTED_ENVIRONMENT)
+            if key in environment}
+
+
 def utc():
     return datetime.now(timezone.utc).isoformat()
 
