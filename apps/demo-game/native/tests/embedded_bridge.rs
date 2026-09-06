@@ -152,6 +152,122 @@ fn shell(endpoint: &str, session: &Value, id: u64, args: &[&str]) -> thread::Joi
 }
 
 #[test]
+fn script_reload_uses_the_native_clock_and_replays_after_source_removal() {
+    use kitu_demo_game::arena::script::{default_script, ScriptVersion};
+    let storage = Storage::new();
+    let initial = default_script().unwrap();
+    let detached =
+        ScriptVersion::from_source(&initial.source.replace("duration: 0.8", "duration: 1.2"))
+            .unwrap();
+    let native = Native::create(json!({
+        "bridge": {"enabled": true, "address": "127.0.0.1:0"},
+        "storageDirectory": storage.0, "script": detached,
+    }));
+    let metadata = native.metadata();
+    let endpoint = metadata["bridgeEndpoint"].as_str().unwrap();
+    let path = storage.0.join("boss.rhai");
+    assert_eq!(std::fs::read_to_string(&path).unwrap(), initial.source);
+    assert_eq!(
+        get(endpoint, "/arena/script")["runtime"]["pending"]["hash"],
+        detached.hash,
+        "seeding the authoring source must not replace detached factory rules"
+    );
+    assert_eq!(native.command("/input/arena/start", 1), OK);
+    native.tick();
+    std::fs::write(
+        &path,
+        initial.source.replace("duration: 0.8", "duration: 1.6"),
+    )
+    .unwrap();
+    let validated = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        1,
+        &["script", "validate"],
+    ));
+    assert_eq!(validated["ok"], true, "{validated}");
+    let candidate = validated["data"]["candidate"].clone();
+    let staged = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        2,
+        &["script", "stage", candidate["hash"].as_str().unwrap()],
+    ));
+    assert_eq!(staged["ok"], true, "{staged}");
+    assert_eq!(
+        get(endpoint, "/arena/script")["runtime"]["active"]["hash"],
+        detached.hash
+    );
+    assert_eq!(
+        get(endpoint, "/arena/script")["runtime"]["pending"],
+        candidate
+    );
+    assert_eq!(native.command("/input/arena/menu", 2), OK);
+    native.tick();
+    assert_eq!(native.command("/input/arena/start", 3), OK);
+    native.tick();
+    assert_eq!(
+        get(endpoint, "/arena/script")["runtime"]["active"],
+        candidate
+    );
+    let saved = native.complete(post(endpoint, "/arena/recording/save", json!({})));
+    std::fs::remove_file(&path).unwrap();
+    let invalid = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        3,
+        &["script", "validate"],
+    ));
+    assert_eq!(invalid["ok"], false);
+    assert!(invalid["data"]["candidate"].is_null());
+    assert_eq!(invalid["data"]["runtime"]["active"], candidate);
+    let id = saved["id"].as_str().unwrap();
+    let verified = native.complete(post(
+        endpoint,
+        &format!("/arena/recordings/{id}/verify"),
+        json!({}),
+    ));
+    assert_eq!(verified["runs"], 2);
+    native.complete(post(endpoint, "/arena/playback/load", json!({"id":id})));
+    native.tick();
+    let initial_replay = get(endpoint, "/arena/script");
+    assert_eq!(initial_replay["readOnly"], true);
+    assert_eq!(initial_replay["runtime"]["pending"]["hash"], detached.hash);
+    let last_tick = verified["ticks"].as_u64().unwrap() as i64 - 1;
+    native.complete(post(
+        endpoint,
+        "/arena/playback/seek",
+        json!({"tick":last_tick}),
+    ));
+    assert_eq!(
+        get(endpoint, "/arena/script")["runtime"]["active"],
+        candidate
+    );
+    // Keep a valid candidate while replay is observed, so refusal specifically
+    // exercises read-only admission rather than the earlier missing source.
+    std::fs::write(&path, candidate["source"].as_str().unwrap()).unwrap();
+    let revalidated = native.complete(post(endpoint, "/arena/script/validate", json!({})));
+    assert_eq!(revalidated["candidate"], candidate);
+    let refused = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        4,
+        &["script", "stage", candidate["hash"].as_str().unwrap()],
+    ));
+    assert_eq!(refused["ok"], false);
+    assert!(
+        refused["error"].as_str().unwrap().contains("replay"),
+        "{refused}"
+    );
+    native.complete(post(
+        endpoint,
+        "/arena/playback/command",
+        json!({"action":"live"}),
+    ));
+    assert_eq!(native.state()["overlay"], "pause");
+}
+
+#[test]
 fn layered_sqlite_content_survives_source_removal_and_replays_in_the_native_host() {
     use kitu_demo_game::arena::config::{write_sqlite, ArenaConfig};
 
@@ -417,6 +533,7 @@ fn bridge_configuration_rejects_remote_addresses_and_occupied_ports_without_a_ha
         json!({"bridge":{"enabled":true,"address":"0.0.0.0:8789"}}),
         json!({"bridge":{"enabled":true,"address":listener.local_addr().unwrap().to_string()}}),
         json!({"storageDirectory":"relative-path"}),
+        json!({"scriptPath":"relative-script.rhai"}),
     ] {
         let bytes = serde_json::to_vec(&config).unwrap();
         let (mut handle, mut needed) = (ptr::null_mut(), 0);

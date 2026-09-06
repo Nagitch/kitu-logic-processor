@@ -52,6 +52,9 @@ Use `help` for the authoritative catalog. The initial command families are:
 | `app action list/describe/run` | Runtime catalog and application-owned actions |
 | `content validate` | Actual Tanu/SQLite/source-plan evaluation; invalid diagnostics produce a refusal |
 | `content stage <hash> <source-sha256>` | Reviewed next-run candidate, with its applied receipt |
+| `inspect script` | Observed active/pending source versions, candidate and structured diagnostics |
+| `script validate` | Bounded compilation and boss-action probes; invalid diagnostics produce a refusal |
+| `script stage <hash>` | Reviewed source/policy for the next run, with its applied receipt |
 | `replay list/save/verify/load/play/pause/step/stop/seek/live` | Existing TSQ1 and playback operations; step returns after advancement |
 | `scenario list/run` | Application-owned bounded action sequences on the live Runtime |
 

@@ -54,6 +54,15 @@ The app scenarios are ordinary Rust tests and run in the workspace CI:
 cargo test -p kitu-demo-game
 ```
 
+## Boss scripts
+
+`content/boss.rhai` supplies the default boss decisions through the real bounded
+Rhai host. Set `KITU_ARENA_SCRIPT` to an editable absolute source path, then use
+Admin **Game Scripts** or `kitu-cli script validate` / `script stage <hash>`.
+The active run keeps its current source; start/retry adopts the staged version.
+Recordings preserve source and policy independently of authoring files. See the
+[boss contract, diagnostics and native options](../../doc/specs/arena-boss-scripts.md).
+
 ## Endless Arena migration
 
 The same host also runs the Arena application at 60 Hz independently of messages.

@@ -20,6 +20,8 @@ fn main() {
         root.join("Cargo.lock"),
         root.join("apps/demo-game/Cargo.toml"),
         root.join("apps/demo-game/content/arena-default.json"),
+        root.join("apps/demo-game/content/boss.rhai"),
+        root.join("crates/kitu-scripting-rhai/Cargo.toml"),
         root.join("apps/demo-game/src/arena.rs"),
     ];
     files(&root.join("apps/demo-game/src/arena"), &mut paths);
@@ -29,6 +31,7 @@ fn main() {
         "kitu-ecs",
         "kitu-osc-ir",
         "kitu-transport",
+        "kitu-scripting-rhai",
     ] {
         files(&root.join("crates").join(name).join("src"), &mut paths);
     }

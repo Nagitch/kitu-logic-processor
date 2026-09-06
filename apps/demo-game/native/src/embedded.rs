@@ -38,6 +38,7 @@ impl EmbeddedDriver {
         bridge: BridgeConfig,
         storage_directory: Option<PathBuf>,
         content_path: Option<PathBuf>,
+        script_path: Option<PathBuf>,
     ) -> Result<Self, String> {
         // Parse and bind before creating files. Only literal loopback addresses
         // are allowed; this development surface does not offer remote auth.
@@ -53,6 +54,7 @@ impl EmbeddedDriver {
         for (name, path) in [
             ("storageDirectory", &storage_directory),
             ("contentPath", &content_path),
+            ("scriptPath", &script_path),
         ] {
             if path.as_ref().is_some_and(|path| !path.is_absolute()) {
                 return Err(format!("{name} must be an absolute path"));
@@ -80,6 +82,8 @@ impl EmbeddedDriver {
             .map_err(|error| error.to_string())?;
         let source =
             content_path.or_else(|| storage_directory.as_ref().map(|dir| dir.join("arena.tmd")));
+        let script_source =
+            script_path.or_else(|| storage_directory.as_ref().map(|dir| dir.join("boss.rhai")));
         if let Some(directory) = &storage_directory {
             std::fs::create_dir_all(directory)
                 .map_err(|error| format!("create Arena storage: {error}"))?;
@@ -101,6 +105,21 @@ impl EmbeddedDriver {
                 }
             }
         }
+        if let (Some(directory), Some(source)) = (&storage_directory, &script_source) {
+            if source == &directory.join("boss.rhai") {
+                match std::fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(source)
+                {
+                    Ok(mut file) => file
+                        .write_all(include_bytes!("../../content/boss.rhai"))
+                        .map_err(|error| format!("seed Arena script: {error}"))?,
+                    Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+                    Err(error) => return Err(format!("create Arena script: {error}")),
+                }
+            }
+        }
         let io_runtime = tokio::runtime::Builder::new_multi_thread()
             .worker_threads(2)
             .thread_name("arena-native-io")
@@ -110,6 +129,7 @@ impl EmbeddedDriver {
         let options = HostOptions {
             external_controller: true,
             content_path: source.unwrap_or_default(),
+            script_path: script_source,
             run_directory: storage_directory
                 .as_ref()
                 .map(|dir| dir.join("runs"))

@@ -369,3 +369,11 @@ full start/configuration event with contract version, package version and 60 Hz
 rate outside the tick lock. Atomic manifest replacement and visible persistence
 errors are implemented; execution fingerprints, recorded inputs and replay
 compatibility are extended in stage 7. No local edit is automatically activated.
+
+Stage 13 adds `/input/arena/script` with a single detached `ScriptVersion` JSON
+string, restricted to producer `host:arena-script`. It follows the same normal
+queue and next-run activation rules. `/ui/arena/script` exposes run, active,
+pending and any late fault; `/game/arena/run` additionally saves its active
+`script`. The main state projection and numeric/gameplay order stay unchanged.
+See the [boss script contract](arena-boss-scripts.md) for allowed requests,
+execution limits, diagnostics and replay versioning.

@@ -23,11 +23,15 @@ struct NativeConfig {
     #[serde(default)]
     content: Option<arena::config::ContentVersion>,
     #[serde(default)]
+    script: Option<arena::script::ScriptVersion>,
+    #[serde(default)]
     bridge: embedded::BridgeConfig,
     #[serde(default)]
     storage_directory: Option<PathBuf>,
     #[serde(default)]
     content_path: Option<PathBuf>,
+    #[serde(default)]
+    script_path: Option<PathBuf>,
 }
 fn contract_version() -> u32 {
     arena::SCHEMA_VERSION
@@ -42,10 +46,22 @@ fn factory(bytes: &[u8]) -> Result<Box<dyn ApplicationDriver>, String> {
             arena::SCHEMA_VERSION
         ));
     }
-    let runtime = if let Some(content) = config.content {
+    let runtime = if config.content.is_some() || config.script.is_some() {
+        let content = match config.content {
+            Some(content) => content,
+            None => {
+                arena::config::ContentVersion::from_tmd(include_bytes!("../../content/arena.tmd"))
+                    .map_err(|error| error.to_string())?
+            }
+        };
+        let script = match config.script {
+            Some(script) => script,
+            None => arena::script::default_script().map_err(|error| error.to_string())?,
+        };
         content.validate().map_err(|error| error.to_string())?;
         let mut runtime = build_demo_runtime().map_err(|error| error.to_string())?;
-        arena::install_with_content(&mut runtime, content).map_err(|error| error.to_string())?;
+        arena::install_with_versions(&mut runtime, content, script)
+            .map_err(|error| error.to_string())?;
         runtime
     } else {
         build_arena_runtime().map_err(|error| error.to_string())?
@@ -55,6 +71,7 @@ fn factory(bytes: &[u8]) -> Result<Box<dyn ApplicationDriver>, String> {
         config.bridge,
         config.storage_directory,
         config.content_path,
+        config.script_path,
     )?))
 }
 

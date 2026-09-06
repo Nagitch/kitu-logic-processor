@@ -86,6 +86,14 @@ Runtime input stages detached values for the next run. Replays retain their save
 values/provenance independently of authoring paths. See the
 [content source contract](specs/arena-content-sources.md).
 
+Stage 13 replaces the Rhai placeholder with a restricted execution host. Arena
+passes copied boss phase/health/timer context, validates requested actions, and
+retains numeric operations and effects in Rust. CLI/Admin validation runs outside
+the simulation lock; ordinary inputs stage source for the next run. Late faults
+pause with diagnostics before gameplay mutation. Replay saves exact script source
+and policy, independently of authoring files. See the
+[boss script contract](specs/arena-boss-scripts.md).
+
 ### P0 — Execution Semantics
 
 status: implemented

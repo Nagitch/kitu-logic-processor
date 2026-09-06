@@ -115,14 +115,20 @@ async fn handle(state: AppState, request: CommandRequest) -> Result<CommandRespo
                             .get("receipt")
                             .filter(|r| r["accepted"] == false)
                             .map(|r| r["code"].as_str().unwrap_or("command rejected").to_owned());
-                        if request.args == ["content", "validate"] {
+                        if request.args == ["content", "validate"]
+                            || request.args == ["script", "validate"]
+                        {
                             if let Some(diagnostics) =
                                 data["diagnostics"].as_array().filter(|d| !d.is_empty())
                             {
                                 refusal = Some(
                                     diagnostics
                                         .iter()
-                                        .filter_map(Value::as_str)
+                                        .filter_map(|diagnostic| {
+                                            diagnostic
+                                                .as_str()
+                                                .or_else(|| diagnostic["message"].as_str())
+                                        })
                                         .collect::<Vec<_>>()
                                         .join("; "),
                                 );
@@ -193,6 +199,11 @@ async fn run(state: &AppState, args: &[String], source: &str) -> Result<Value> {
                         .await
                         .map_err(|e| e.0)?,
                 ),
+                "script" => value(
+                    script::inspect(State(state.clone()))
+                        .await
+                        .map_err(|e| e.0)?,
+                ),
                 "recording" => value(
                     recording::status(State(state.clone()))
                         .await
@@ -247,6 +258,28 @@ async fn run(state: &AppState, args: &[String], source: &str) -> Result<Value> {
                 content::StageRequest {
                     hash: rest[0].clone(),
                     source_sha256: rest[1].clone(),
+                },
+            )?;
+            let result = serde_json::to_value(response)?;
+            let sequence = result["sequence"]
+                .as_u64()
+                .context("missing input sequence")?;
+            wait_receipt(state, sequence, true).await
+        }
+        "script validate" => {
+            exactly(rest, 0, &spec.usage)?;
+            value(
+                script::validate(State(state.clone()))
+                    .await
+                    .map_err(|e| e.0)?,
+            )
+        }
+        "script stage" => {
+            exactly(rest, 1, &spec.usage)?;
+            let response = script::stage_candidate(
+                state,
+                script::StageRequest {
+                    hash: rest[0].clone(),
                 },
             )?;
             let result = serde_json::to_value(response)?;
@@ -749,6 +782,60 @@ mod tests {
             state.inner.lock().unwrap().runtime.inspect_world_state()
         );
     }
+    #[tokio::test]
+    async fn script_commands_share_catalog_identity_and_structured_validation_refusals() {
+        let mut state = super::super::tests::test_state();
+        let path = std::env::temp_dir().join(format!(
+            "arena-script-shell-{}.rhai",
+            state.inner.lock().unwrap().runtime_id
+        ));
+        state.script = Arc::new(script::Service::new(Some(path.clone())));
+        let ticker = clock(state.clone());
+        std::fs::write(
+            &path,
+            arena::script::DEFAULT_SOURCE.replace("duration: 0.8", "duration: 1.6"),
+        )
+        .unwrap();
+        let inspected = handle(state.clone(), request(&state, 1, "inspect script"))
+            .await
+            .unwrap();
+        assert!(inspected.ok);
+        let validated = handle(state.clone(), request(&state, 2, "script validate"))
+            .await
+            .unwrap();
+        assert!(validated.ok, "{:?}", validated.error);
+        let hash = validated.data["candidate"]["hash"].as_str().unwrap();
+        let stage = request(&state, 3, &format!("script stage {hash}"));
+        let first = handle(state.clone(), stage.clone()).await.unwrap();
+        assert!(first.ok, "{:?}", first.error);
+        assert_eq!(
+            serde_json::to_value(&first).unwrap(),
+            serde_json::to_value(handle(state.clone(), stage).await.unwrap()).unwrap()
+        );
+        std::fs::write(&path, "fn boss(input) {").unwrap();
+        let invalid = handle(state.clone(), request(&state, 4, "script validate"))
+            .await
+            .unwrap();
+        assert!(!invalid.ok);
+        assert!(invalid
+            .error
+            .as_ref()
+            .is_some_and(|error| !error.is_empty()));
+        assert!(invalid.data["diagnostics"][0]["message"].is_string());
+        assert_eq!(invalid.data["runtime"]["pending"]["hash"], hash);
+        assert!(
+            !handle(
+                state.clone(),
+                request(&state, 5, &format!("script stage {hash}"))
+            )
+            .await
+            .unwrap()
+            .ok
+        );
+        ticker.abort();
+        std::fs::remove_file(path).unwrap();
+    }
+
     #[tokio::test]
     async fn line_and_argument_clients_share_quoting_identity_and_rejections() {
         let state = super::super::tests::test_state();

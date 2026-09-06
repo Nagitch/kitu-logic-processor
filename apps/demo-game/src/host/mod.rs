@@ -40,6 +40,7 @@ const KEP_ROUTE_SERVER_EVENT: &str = "/server/event";
 mod content;
 mod playback;
 mod recording;
+mod script;
 mod shell;
 mod work;
 
@@ -50,6 +51,8 @@ pub struct HostOptions {
     pub external_controller: bool,
     /// Editable TMD, SQLite database or source plan; loaded only on explicit validation.
     pub content_path: PathBuf,
+    /// Editable Rhai source loaded on explicit validation; `None` uses the bundled script.
+    pub script_path: Option<PathBuf>,
     /// Destination for immutable run manifests.
     pub run_directory: PathBuf,
     /// Destination for TSQ1 recordings owned by this host.
@@ -67,6 +70,7 @@ impl Default for HostOptions {
         Self {
             external_controller: false,
             content_path: "apps/demo-game/content/arena.tmd".into(),
+            script_path: None,
             run_directory: "apps/demo-game/.arena/runs".into(),
             recording_directory: "apps/demo-game/.arena/recordings".into(),
             persist_runs: false,
@@ -106,6 +110,7 @@ impl ArenaHost {
                     options.content_path.clone(),
                     options.run_directory.clone(),
                 )),
+                script: Arc::new(script::Service::new(options.script_path.clone())),
                 shell: Arc::new(shell::Service::default()),
                 work: Arc::new(work::Work::default()),
                 playback_operations: Arc::new(tokio::sync::Mutex::new(())),
@@ -119,12 +124,18 @@ impl ArenaHost {
     /// Metadata and application validation use the same Runtime queue as HTTP Shell.
     pub fn submit(&mut self, bundle: OscBundle, metadata: Option<InputMetadata>) -> Result<u64> {
         self.state.work.check()?;
+        // Native owners can supply detached management source. Compile/probe it
+        // before taking the host clock lock, then use ordinary queue validation.
+        let script = arena::prepare_script_input(&bundle, metadata.as_ref())?;
         let mut game = self
             .state
             .inner
             .lock()
             .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
         game.ensure_live_input()?;
+        if let Some(script) = script {
+            arena::pin_prepared_script(&mut game.runtime, script)?;
+        }
         game.runtime
             .try_enqueue_input(bundle, metadata)
             .map_err(Into::into)
@@ -201,6 +212,7 @@ pub async fn serve_from_environment() -> Result<()> {
         .with_context(|| format!("invalid bind address: {bind}"))?;
     let listener = tokio::net::TcpListener::bind(addr).await?;
     let options = HostOptions {
+        script_path: env::var_os("KITU_ARENA_SCRIPT").map(PathBuf::from),
         content_path: env::var_os("KITU_ARENA_CONTENT")
             .or_else(|| env::var_os("KITU_ARENA_TMD"))
             .map(PathBuf::from)
@@ -238,6 +250,7 @@ struct AppState {
     inner: Arc<Mutex<GameState>>,
     events: broadcast::Sender<ServerEvent>,
     content: Arc<content::Service>,
+    script: Arc<script::Service>,
     shell: Arc<shell::Service>,
     work: Arc<work::Work>,
     playback_operations: Arc<tokio::sync::Mutex<()>>,
@@ -478,6 +491,9 @@ fn router(state: AppState) -> Router {
         .route("/arena/content", get(content::inspect))
         .route("/arena/content/validate", post(content::validate))
         .route("/arena/content/stage", post(content::stage))
+        .route("/arena/script", get(script::inspect))
+        .route("/arena/script/validate", post(script::validate))
+        .route("/arena/script/stage", post(script::stage))
         .route("/arena/recording", get(recording::status))
         .route("/arena/recording/export", get(recording::export))
         .route("/arena/recording/save", post(recording::save))

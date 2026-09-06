@@ -35,7 +35,7 @@ pub fn command_catalog() -> Vec<CommandSpec> {
         ),
         (
             "inspect",
-            "inspect <application|world|content|recording|replay>",
+            "inspect <application|world|content|script|recording|replay>",
             "Inspect the active host and observed run",
             false,
         ),
@@ -73,6 +73,18 @@ pub fn command_catalog() -> Vec<CommandSpec> {
             "content stage",
             "content stage <hash> <source-sha256>",
             "Stage the reviewed candidate for the next run",
+            true,
+        ),
+        (
+            "script validate",
+            "script validate",
+            "Compile and validate the boss script without changing the current run",
+            true,
+        ),
+        (
+            "script stage",
+            "script stage <hash>",
+            "Stage the reviewed script source and policy for the next run",
             true,
         ),
         (

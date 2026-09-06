@@ -15,10 +15,17 @@ use kitu_tsq1::recording::{bundle_bytes, Recording, TimedBundle};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
 /// Maximum session duration accepted by the initial in-memory recorder (one hour).
 pub const MAX_TICKS: u64 = 216_000;
-const RECORDING_VERSION: u32 = 1;
+const RECORDING_VERSION: u32 = 2;
+/// Maximum distinct source versions, including the initial program, in one recording.
+/// This bound applies identically while capturing and loading retained programs.
+pub const MAX_SCRIPT_VERSIONS: usize = 64;
 
 /// Build identity required to replay rules with the same execution semantics.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -68,6 +75,8 @@ pub struct Manifest {
     pub tick_rate: u32,
     /// Evaluated content present before the very first input/tick.
     pub initial_content: ContentVersion,
+    /// Detached boss source and sandbox policy present before the first tick.
+    pub initial_script: arena::script::ScriptVersion,
     /// Projection before execution; protects initial-condition compatibility.
     pub initial_state: String,
     /// Total completed management ticks, including pauses and empty input ticks.
@@ -91,6 +100,7 @@ pub struct Recorder {
     manifest: Manifest,
     inputs: Vec<TimedBundle>,
     encoded_size_bound: usize,
+    script_versions: HashSet<String>,
 }
 impl Recorder {
     /// Captures initial conditions without advancing or changing the Runtime.
@@ -115,6 +125,8 @@ impl Recorder {
             initial.run == 0 && initial.active.is_none(),
             "recording requires initial Arena state"
         );
+        let initial_script = arena::inspect_script(runtime)?.pending;
+        let script_versions = HashSet::from([initial_script.hash.clone()]);
         let mut recorder = Self {
             manifest: Manifest {
                 version: RECORDING_VERSION,
@@ -123,6 +135,7 @@ impl Recorder {
                 contract_version: arena::SCHEMA_VERSION,
                 tick_rate: runtime.config().tick_rate_hz,
                 initial_content: initial.pending,
+                initial_script,
                 initial_state: hash_bundles(&runtime.inspect_application())?,
                 ticks: 0,
                 proofs: Vec::new(),
@@ -130,6 +143,7 @@ impl Recorder {
             },
             inputs: Vec::new(),
             encoded_size_bound: 0,
+            script_versions,
         };
         // Reserve growth from the initial one-digit tick count to any u64.
         recorder.encoded_size_bound = recorder.encode()?.len() + 20;
@@ -166,6 +180,21 @@ impl Recorder {
                 })
             })
             .collect::<Result<Vec<_>>>()?;
+        let mut new_script_versions = HashSet::new();
+        for entry in &entries {
+            let identity: InputIdentity = serde_json::from_value(entry.metadata.clone())?;
+            if let Some(version) =
+                arena::script_input_version(&entry.bundle, identity.identity.as_ref())?
+            {
+                if !self.script_versions.contains(&version.hash) {
+                    new_script_versions.insert(version.hash);
+                }
+            }
+        }
+        ensure!(
+            self.script_versions.len() + new_script_versions.len() <= MAX_SCRIPT_VERSIONS,
+            "recording reached 64 script versions; start a new session"
+        );
         let proof = proof(runtime, outputs)?;
         let mut runs = Vec::new();
         for message in outputs.iter().flat_map(|bundle| &bundle.messages) {
@@ -202,6 +231,7 @@ impl Recorder {
             "recording reached encoded-size limit; start a new session"
         );
         self.encoded_size_bound = size;
+        self.script_versions.extend(new_script_versions);
         self.inputs.extend(entries);
         self.manifest.proofs.push(proof);
         self.manifest.runs.extend(runs);
@@ -227,6 +257,7 @@ impl Recorder {
 pub struct Session {
     manifest: Manifest,
     inputs: Vec<TimedBundle>,
+    scripts: HashMap<String, Arc<arena::script::PreparedScript>>,
 }
 
 /// Result of a complete deterministic re-execution.
@@ -264,6 +295,8 @@ impl Session {
             "invalid recording tick count"
         );
         manifest.initial_content.validate()?;
+        let initial_script = arena::script::prepare_version(&manifest.initial_script)?;
+        let mut scripts = HashMap::from([(manifest.initial_script.hash.clone(), initial_script)]);
         ensure!(
             valid_hash(&manifest.initial_state)
                 && manifest
@@ -282,10 +315,30 @@ impl Session {
                 identity.sequence == sequence as u64,
                 "recorded queue order is not contiguous"
             );
+            if let Some(version) =
+                arena::script_input_version(&entry.bundle, identity.identity.as_ref())?
+            {
+                if let Some(prepared) = scripts.get(&version.hash) {
+                    ensure!(
+                        prepared.version == version,
+                        "recorded script identity conflicts with its source"
+                    );
+                } else {
+                    ensure!(
+                        scripts.len() < MAX_SCRIPT_VERSIONS,
+                        "recording exceeds 64 script versions"
+                    );
+                    scripts.insert(
+                        version.hash.clone(),
+                        arena::script::prepare_version(&version)?,
+                    );
+                }
+            }
         }
         Ok(Self {
             manifest,
             inputs: document.entries,
+            scripts,
         })
     }
     /// Returns saved metadata, including all detached run configurations.
@@ -295,7 +348,14 @@ impl Session {
     /// Creates a fresh Runtime with saved initial conditions and no authoring I/O.
     pub fn runtime(&self) -> Result<DemoRuntime> {
         let mut runtime = build_demo_runtime()?;
-        arena::install_with_content(&mut runtime, self.manifest.initial_content.clone())?;
+        arena::install_with_prepared_versions(
+            &mut runtime,
+            self.manifest.initial_content.clone(),
+            self.scripts
+                .get(&self.manifest.initial_script.hash)
+                .expect("initial program prepared during decode")
+                .clone(),
+        )?;
         ensure!(
             hash_bundles(&runtime.inspect_application())? == self.manifest.initial_state,
             "incompatible initial Arena state"
@@ -317,6 +377,15 @@ impl Session {
             .take_while(|entry| entry.tick == tick)
         {
             let identity: InputIdentity = serde_json::from_value(entry.metadata.clone())?;
+            if let Some(version) =
+                arena::script_input_version(&entry.bundle, identity.identity.as_ref())?
+            {
+                let prepared = self
+                    .scripts
+                    .get(&version.hash)
+                    .context("recorded script was not prepared during decode")?;
+                arena::pin_prepared_script(runtime, prepared.clone())?;
+            }
             let sequence = runtime
                 .try_enqueue_input(entry.bundle.clone(), identity.identity)
                 .with_context(|| {

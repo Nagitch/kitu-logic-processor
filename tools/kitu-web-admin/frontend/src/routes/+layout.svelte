@@ -12,6 +12,7 @@
     SlidersHorizontal,
     Play,
     Terminal,
+    FileCode,
   } from "@lucide/svelte";
   import {
     connectAdminSocket,
@@ -50,6 +51,7 @@
           label: "Game Parameters",
           icon: SlidersHorizontal,
         },
+        { href: "/game-scripts", label: "Game Scripts", icon: FileCode },
       ],
     },
   ];

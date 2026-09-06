@@ -24,6 +24,7 @@ kitu-ecs = { path = "../../crates/kitu-ecs" }
 kitu-data-tmd = { path = "../../crates/kitu-data-tmd" }
 kitu-data-sqlite = { path = "../../crates/kitu-data-sqlite" }
 rusqlite = { version = "=0.40.2", features = ["bundled"] }
+kitu-scripting-rhai = { path = "../../crates/kitu-scripting-rhai" }
 kitu-tsq1 = { path = "../../crates/kitu-tsq1" }
 sha2 = "0.11"
 hex = "0.4"
@@ -34,6 +35,9 @@ tokio = { version = "1", features = ["full"] }
 tower-http = { version = "0.7", features = ["cors"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
 [build-dependencies]
 sha2 = "0.11"
