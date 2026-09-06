@@ -33,6 +33,8 @@ const KEP_ROUTE_SERVER_EVENT: &str = "/server/event";
 
 #[path = "admin_host/content.rs"]
 mod content;
+#[path = "admin_host/recording.rs"]
+mod recording;
 
 #[derive(Clone)]
 struct AppState {
@@ -43,6 +45,8 @@ struct AppState {
 
 struct GameState {
     runtime: DemoRuntime,
+    recorder: kitu_demo_game::replay::Recorder,
+    recording_error: Option<String>,
     next_log_id: u64,
     logs: Vec<DebugLogEntry>,
     runtime_id: String,
@@ -52,8 +56,12 @@ struct GameState {
 
 impl GameState {
     fn new() -> Result<Self> {
+        let runtime = build_arena_runtime()?;
+        let recorder = kitu_demo_game::replay::Recorder::new(&runtime)?;
         Ok(Self {
-            runtime: build_arena_runtime()?,
+            runtime,
+            recorder,
+            recording_error: None,
             next_log_id: 1,
             logs: Vec::new(),
             runtime_id: format!(
@@ -256,6 +264,16 @@ async fn main() -> Result<()> {
         .route("/arena/content", get(content::inspect))
         .route("/arena/content/validate", post(content::validate))
         .route("/arena/content/stage", post(content::stage))
+        .route("/arena/recording", get(recording::status))
+        .route("/arena/recording/export", get(recording::export))
+        .route("/arena/recording/save", post(recording::save))
+        .route("/arena/recordings", get(recording::list))
+        .route("/arena/recordings/import", post(recording::import))
+        .route("/arena/recordings/{id}", get(recording::download))
+        .route("/arena/recordings/{id}/verify", post(recording::verify))
+        .layer(axum::extract::DefaultBodyLimit::max(
+            kitu_tsq1::recording::MAX_BYTES,
+        ))
         .route("/app-actions", get(app_action_catalog))
         .route("/app-actions/{id}", get(app_action_definition))
         .route("/app-actions/{id}/run", post(run_app_action))
@@ -709,8 +727,17 @@ fn advance_runtime_tick(state: &AppState) -> Result<Vec<ServerEvent>> {
         .lock()
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
     guard.runtime.tick_once().context("tick Kitu runtime")?;
+    let outputs = guard.runtime.drain_output_buffer();
+    if guard.recording_error.is_none() {
+        let GameState {
+            runtime, recorder, ..
+        } = &mut *guard;
+        if let Err(error) = recorder.capture(runtime, &outputs) {
+            guard.recording_error = Some(format!("{error:#}"));
+        }
+    }
     let mut events = Vec::new();
-    for bundle in guard.runtime.drain_output_buffer() {
+    for bundle in outputs {
         for message in bundle.messages {
             events.push(ServerEvent::Osc {
                 address: message.address,
@@ -965,7 +992,7 @@ impl IntoResponse for ApiError {
     fn into_response(self) -> axum::response::Response {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(serde_json::json!({ "error": self.0.to_string() })),
+            Json(serde_json::json!({ "error": format!("{:#}", self.0) })),
         )
             .into_response()
     }

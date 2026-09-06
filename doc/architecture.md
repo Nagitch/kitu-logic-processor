@@ -68,7 +68,10 @@ and shows active/pending hashes. Runs retain and save their evaluated configurat
 invalid edits preserve the last valid version. See the
 [authoring workflow](../apps/demo-game/README.md#tanu-parameters).
 
-TSQ1 recording/inspection, live command tooling and the full-game FFI/native player
+Real TSQ1 recording and deterministic re-execution now preserve exact input ticks,
+identities and frozen content through the normal Runtime queue (stage 7; see
+[the replay contract](specs/arena-replay.md)). Admin playback controls, live command
+tooling and the full-game FFI/native player
 path remain subsequent stages, not implied by the movement-only FFI or the other
 placeholder data adapters described below.
 

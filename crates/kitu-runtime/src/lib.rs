@@ -413,6 +413,23 @@ impl<T: Transport> Runtime<T> {
         drained
     }
 
+    /// Returns the last committed batch with its application identities and queue order.
+    ///
+    /// Inspect immediately after a successful tick and before draining committed
+    /// inputs. Pending inputs are excluded; inspection never consumes the batch.
+    ///
+    /// # Examples
+    /// ```
+    /// let mut runtime = kitu_runtime::build_runtime(kitu_transport::LocalChannel::connected());
+    /// runtime.enqueue_input(kitu_osc_ir::OscBundle::new());
+    /// runtime.tick_once().unwrap();
+    /// assert_eq!(runtime.committed_input_records()[0].sequence, 0);
+    /// assert_eq!(runtime.committed_input_records().len(), 1);
+    /// ```
+    pub fn committed_input_records(&self) -> Vec<RuntimeInput> {
+        self.inputs.committed_batch.iter().cloned().collect()
+    }
+
     fn enqueue_player_move(&mut self, entity_id: &str, x: f32, z: f32) {
         let mut message = OscMessage::new("/input/move");
         message.push_arg(OscArg::Str(entity_id.to_string()));

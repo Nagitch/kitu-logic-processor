@@ -105,7 +105,7 @@ Each start emits `/game/arena/run` with the complete evaluated configuration and
 hash. The host writes an atomic JSON manifest under
 `apps/demo-game/.arena/runs/<runtime-session>/<run>.json`; use
 `KITU_ARENA_RUN_DIRECTORY` to choose the directory. Admin reports save failures.
-Keep these manifests with future recordings; input recording/playback is stage 7.
+TSQ1 recordings also retain these full evaluated run configurations; see the recording workflow below.
 
 HTTP interfaces use the same host as Unity:
 
@@ -134,3 +134,29 @@ development; it is not the live Runtime CLI planned in stage 9. The macOS PlayMo
 test `LiveTanuConfigurationIsProjectedInNewRuns` accepts
 `KITU_ARENA_EXPECTED_STARTER_DAMAGE` (default 20) to verify a value applied through
 Admin. See [stage 6 evidence](../../doc/verification/arena-tanu/results.json).
+
+
+## TSQ1 recordings
+
+The host records from its first Runtime tick, including pauses and retries. Save
+and verify a live session through the actual binary TSQ1 APIs:
+
+```sh
+curl -X POST http://127.0.0.1:8787/arena/recording/save
+# Use the returned SHA-256 id:
+curl -X POST http://127.0.0.1:8787/arena/recordings/ID/verify
+curl http://127.0.0.1:8787/arena/recording/export -o arena.tsq
+curl -X POST --data-binary @arena.tsq http://127.0.0.1:8787/arena/recordings/import
+```
+
+Verification runs a separate instance of the same Runtime, restoring saved
+initial values and replaying normal input admission/ticks. It compares every
+state and ordered output, then returns the final state; the live game continues.
+Changing the current Tanu document does not change the saved configuration.
+`GET /arena/recording` exposes limits and recording failures. Initial limits are
+one hour of management ticks and 64 MiB per encoded file; start a new host session
+for a fresh recording. Invalid/incompatible files return a diagnostic.
+
+See the [full file/version/endpoint contract](../../doc/specs/arena-replay.md).
+Admin playback/seek controls follow in stage 8; these endpoints already save,
+load and re-execute real TSQ1. No standalone live CLI is implied by the curl examples.
