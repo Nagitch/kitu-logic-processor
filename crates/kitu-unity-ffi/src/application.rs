@@ -37,10 +37,10 @@ use std::{
 use kitu_osc_ir::OscBundle;
 use kitu_runtime::{InputMetadata, Runtime};
 use kitu_transport::{
-    wire::{WireBundle, WireBundlesRef},
+    application::{Codec, Encoding, NATIVE_INPUT_LIMITS},
+    wire::WireBundlesRef,
     LocalChannel,
 };
-use serde::{Deserialize, Serialize};
 
 /// C ABI version; application contract versions are carried separately in metadata.
 pub const ABI_VERSION: u32 = 1;
@@ -155,14 +155,7 @@ impl ApplicationDriver for RuntimeDriver {
 }
 
 /// Typed JSON request accepted by [`submit_json`]. Unknown fields are rejected.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct InputRequest {
-    /// Producer identity and application contract version; legacy inputs may omit it.
-    pub metadata: Option<InputMetadata>,
-    /// Ordered OSC messages and explicitly typed arguments.
-    pub bundle: WireBundle,
-}
+pub use kitu_transport::application::InputFrame as InputRequest;
 
 /// Opaque C handle; its layout and Rust allocations are never exposed to the caller.
 ///
@@ -343,7 +336,9 @@ pub unsafe fn submit_json(
         {
             return handle.error(QUEUE_FULL, "pending input budget exhausted; advance a tick");
         }
-        let request: InputRequest = match serde_json::from_slice(bytes) {
+        let request = match Codec::new(Encoding::Json, NATIVE_INPUT_LIMITS)
+            .and_then(|codec| codec.decode_input(bytes))
+        {
             Ok(request) => request,
             Err(error) => {
                 return handle.error(INVALID_INPUT, format!("invalid input JSON: {error}"))

@@ -19,7 +19,7 @@ namespace UnityOnlyArena
         private const int MaximumBytes = 64 * 1024 * 1024;
         private static readonly List<ArenaNativeConnection> live = new List<ArenaNativeConnection>();
         private readonly int ownerThread = Thread.CurrentThread.ManagedThreadId;
-        private readonly Queue<string> incoming = new Queue<string>();
+        private readonly Queue<JObject> incoming = new Queue<JObject>();
         private readonly ArenaTickClock clock = new ArenaTickClock();
         private IntPtr handle;
         private bool attached, faulted;
@@ -83,6 +83,7 @@ namespace UnityOnlyArena
         {
             EnsureOwner();
             if (handle == IntPtr.Zero || !attached) return;
+            incoming.Clear();
             if (!faulted)
             {
                 RefreshHost();
@@ -112,7 +113,7 @@ namespace UnityOnlyArena
             Status = "Embedded controller disconnected; Runtime retained";
         }
 
-        public bool Send(string message)
+        public bool Send(JObject input)
         {
             EnsureOwner();
             if (!Connected) return false;
@@ -120,26 +121,19 @@ namespace UnityOnlyArena
             {
                 RefreshHost();
                 if (ReadOnly) return false;
-                var envelope = JObject.Parse(message);
-                if ((string)envelope["sessionId"] != sessionId || (int?)envelope["schemaVersion"] != 1)
-                    throw new InvalidOperationException("Native Arena session or contract changed; reconnect before sending input");
-                string source = (string)envelope["clientId"];
-                string address = (string)envelope["address"];
-                if (source == null || source.StartsWith("host:", StringComparison.Ordinal) || address == "/input/arena/disconnect")
-                    throw new InvalidOperationException("Reserved native controller identity or command");
-                var request = new JObject {
-                    ["metadata"] = new JObject { ["source"] = source, ["messageId"] = envelope["messageId"], ["schemaVersion"] = 1 },
-                    ["bundle"] = new JObject { ["messages"] = new JArray(new JObject {
-                        ["address"] = address, ["args"] = envelope["args"],
-                    }) },
-                };
-                Submit(request.ToString(Formatting.None));
+                string source = (string)input["metadata"]?["source"];
+                if (string.IsNullOrEmpty(source) || source.StartsWith("host:", StringComparison.Ordinal))
+                    throw new InvalidOperationException("Reserved native controller identity");
+                foreach (var message in (JArray)input["bundle"]["messages"])
+                    if ((string)message["address"] == "/input/arena/disconnect")
+                        throw new InvalidOperationException("Reserved native controller command");
+                var codec = new ArenaWireCodec(ArenaWireEncoding.Json, 1024 * 1024, 1024 * 1024, 1024 * 1024);
+                Submit(Encoding.UTF8.GetString(codec.EncodeInput(input)));
                 return true;
             }
             catch (NativeFailure error) when (error.Code == -2 || error.Code == -7 || error.Code == -8)
             {
-                // Admission refusal leaves the native queue/state usable. In
-                // particular replay activation can race the preceding snapshot.
+                // Replay may become read-only after inspection; an admission refusal leaves the queue usable.
                 Queue(new JObject { ["type"] = "error", ["message"] = error.Message });
                 return false;
             }
@@ -163,7 +157,7 @@ namespace UnityOnlyArena
             return sequence;
         }
 
-        public bool TryReceive(out string message)
+        public bool TryReceive(out JObject message)
         {
             EnsureOwner();
             if (incoming.Count == 0) { message = null; return false; }
@@ -197,8 +191,8 @@ namespace UnityOnlyArena
             EnsureUsable();
             Check(Native.Tick(handle));
             LastOutputJson = Read(Native.ReadOutput);
-            QueueBundles(JArray.Parse(LastOutputJson));
             RefreshHost();
+            QueueBundles(JArray.Parse(LastOutputJson));
         }
 
         public string InspectStateJson()
@@ -218,6 +212,8 @@ namespace UnityOnlyArena
                         status = JObject.Parse((string)message["args"][0]["value"]);
             if (status == null || (int?)status["schemaVersion"] != 1 || string.IsNullOrEmpty((string)status["sessionId"]))
                 throw new InvalidOperationException("Missing or incompatible embedded Arena host metadata");
+            ArenaWireCodec.CheckCompatibility(status["compatibility"]);
+            ArenaWireCodec.ValidateExecution(status["execution"]);
             if ((bool?)status["closing"] == true) throw new InvalidOperationException("Embedded Arena host is closing");
             string nextSession = (string)status["sessionId"];
             if (nextSession != sessionId)
@@ -238,15 +234,14 @@ namespace UnityOnlyArena
 
         private void QueueBundles(JArray bundles)
         {
-            foreach (JObject bundle in bundles)
-                foreach (JObject message in (JArray)bundle["messages"])
-                    Queue(new JObject { ["type"] = "osc", ["address"] = message["address"], ["args"] = message["args"] });
+            // Keep the native ABI's complete batch intact through Unity's main-thread projection commit.
+            Queue(new JObject { ["type"] = "batch", ["bundles"] = bundles });
         }
 
         private void Queue(JObject message)
         {
-            if (incoming.Count >= 8192) throw new InvalidOperationException("Native projection queue exceeded; restart required");
-            incoming.Enqueue(message.ToString(Formatting.None));
+            if (incoming.Count >= 256) throw new InvalidOperationException("Native projection queue exceeded; restart required");
+            incoming.Enqueue(message);
         }
 
         private delegate int Reader(IntPtr application, [Out] byte[] buffer, UIntPtr capacity, out UIntPtr required);

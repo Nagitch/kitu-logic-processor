@@ -29,3 +29,4 @@ kitu-tsq1 = { path = "../../../crates/kitu-tsq1" }
 kitu-transport = { path = "../../../crates/kitu-transport" }
 ureq = { version = "3", default-features = false, features = ["json"] }
 tungstenite = "0.29"
+sha2 = "0.11"

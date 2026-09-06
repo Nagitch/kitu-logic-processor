@@ -297,7 +297,7 @@ impl TryFrom<WireBundle> for OscBundle {
     }
 }
 
-fn validate_address(address: &str) -> Result<(), KepCodecError> {
+pub(crate) fn validate_address(address: &str) -> Result<(), KepCodecError> {
     if !address.starts_with('/') || address.contains('\0') {
         return Err(KepCodecError::InvalidOsc(
             "address must start with / and contain no NUL bytes",
@@ -306,7 +306,7 @@ fn validate_address(address: &str) -> Result<(), KepCodecError> {
     Ok(())
 }
 
-fn validate_string(value: &str) -> Result<(), KepCodecError> {
+pub(crate) fn validate_string(value: &str) -> Result<(), KepCodecError> {
     if value.contains('\0') {
         return Err(KepCodecError::InvalidOsc(
             "string argument must contain no NUL bytes",
@@ -315,7 +315,7 @@ fn validate_string(value: &str) -> Result<(), KepCodecError> {
     Ok(())
 }
 
-fn validate_float(value: f32) -> Result<(), KepCodecError> {
+pub(crate) fn validate_float(value: f32) -> Result<(), KepCodecError> {
     if !value.is_finite() {
         return Err(KepCodecError::InvalidOsc("float argument must be finite"));
     }

@@ -55,6 +55,7 @@ pub(super) fn apply_controls(game: &mut GameState) -> Option<AppliedControl> {
                 match prepared {
                     Ok(playback) => {
                         game.playback = Some(*playback);
+                        game.wire_snapshot_pending = true;
                         Ok(())
                     }
                     Err(error) => {
@@ -117,18 +118,7 @@ async fn wait_control(
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct Mode {
-    pub active: bool,
-    pub recording_id: Option<String>,
-    /// Last applied input tick; -1 is the initial state before tick zero.
-    pub tick: i64,
-    pub total_ticks: u64,
-    pub playing: bool,
-    pub seeking: bool,
-    pub error: Option<String>,
-}
+pub(super) type Mode = kitu_transport::application::ReplayMode;
 
 pub(super) struct Playback {
     id: String,
@@ -368,6 +358,7 @@ fn operate(game: &mut GameState, action: &str) -> Result<()> {
         game.playback_generation += 1;
         game.pending_playback = None;
         game.playback = None;
+        game.wire_snapshot_pending = true;
         return Ok(());
     }
     anyhow::ensure!(
