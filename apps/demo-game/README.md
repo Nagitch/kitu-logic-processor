@@ -87,7 +87,7 @@ Quick Blade's boss damage is the Formula `D2 * 1.2`, evaluated as 24.
    the CLI/editor preparation tasks. This workflow needs that same compatible Tanu version.
 2. In **Table**, select a source, select a cell, edit its value or Formula, then
    save the document. Numeric Formula input in the editor begins with `=`.
-3. Open Admin's **Game Parameters** page and choose **Validate TMD**. Inspect the
+3. Open Admin's **Game Parameters** page and choose **Reload and validate**. Inspect the
    evaluated tables and candidate hash. Formula errors, wrong types, duplicate
    identifiers, out-of-range values, or dangling chest item references reject
    the whole candidate. Tanu itself also refuses to publish invalid Formula documents.
@@ -97,7 +97,9 @@ Quick Blade's boss damage is the Formula `D2 * 1.2`, evaluated as 24.
    death, to activate the pending version without restarting Unity.
 
 The host reads `apps/demo-game/content/arena.tmd` relative to its working directory;
-set `KITU_ARENA_TMD` to another file if needed. Validation does not automatically
+set `KITU_ARENA_CONTENT` to another `.tmd`, `.sqlite` or `.arena.json` file if needed.
+The legacy `KITU_ARENA_TMD` alias remains a fallback when `KITU_ARENA_CONTENT` is unset.
+Validation does not automatically
 apply a file. The initial pending version is bundled into the application; after
 a host restart, validate and apply any local edits again.
 
@@ -111,7 +113,7 @@ HTTP interfaces use the same host as Unity:
 
 | Endpoint | Behavior |
 |---|---|
-| `GET /arena/content` | Current and next-run values, last candidate, diagnostics, saved-run status |
+| `GET /arena/content` | Current and next-run values, last candidate, source snapshots, field origins, candidate differences, diagnostics, saved-run status |
 | `POST /arena/content/validate` | Read the configured file and evaluate outside the simulation lock |
 | `POST /arena/content/stage` | Queue a reviewed candidate; JSON body contains `hash` and `sourceSha256` |
 
@@ -130,10 +132,45 @@ pnpm check && pnpm lint && pnpm build
 ```
 
 `arena-content create-reference <path>` generates a new reference-valued TMD for
-development; it is not the live Runtime CLI planned in stage 9. The macOS PlayMode
+development. The separate [live CLI](../../doc/specs/live-shell.md) operates the running host.
+The macOS PlayMode
 test `LiveTanuConfigurationIsProjectedInNewRuns` accepts
 `KITU_ARENA_EXPECTED_STARTER_DAMAGE` (default 20) to verify a value applied through
 Admin. See [stage 6 evidence](../../doc/verification/arena-tanu/results.json).
+
+## SQLite and layered parameters
+
+The same four typed tables can come from real SQLite. A source plan combines a
+complete base with sparse difficulty, event and debug overrides. TMD layers use
+the public Tanu Formula evaluator; SQLite layers retain their native scalar types.
+The fixed order is `base → difficulty → event → debug`, independent of JSON key order.
+
+Generate editable samples in the Dev Container from the Kitu repository root:
+
+```sh
+mkdir -p .tmp/content
+cargo run -p kitu-demo-game --bin arena-content -- create-sqlite .tmp/content/default.sqlite
+cargo run -p kitu-demo-game --bin arena-content -- create-plan .tmp/content/sample.arena.json
+cargo run -p kitu-demo-game --bin arena-content -- validate .tmp/content/sample.arena.json
+KITU_ARENA_CONTENT="$PWD/.tmp/content/sample.arena.json" cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
+```
+
+The SQLite-only sample exactly preserves reference values. The four-layer sample
+deliberately changes starter damage from base 20 through 24 and 28 to debug 32.
+Edit its TMD sources in VS Code or its SQLite scalar cells with a SQLite editor.
+Reload in **Game Parameters**, inspect the sources, hashes, field origins and
+differences against active/pending values, then apply the candidate to the next run.
+An invalid edit clears the candidate and reports diagnostics while retaining the
+last valid active and pending versions. Stale source hashes are rejected even when
+the evaluated values have not changed.
+
+For an embedded macOS player, pass `--arena-content /absolute/path/sample.arena.json`
+with its development bridge enabled. The same host APIs operate that native Runtime;
+no external server is required. Source files are read only on explicit validation.
+Saved run and TSQ1 data contain evaluated values and detached provenance, so replay
+does not reopen authoring files. Different execution builds still require the
+matching archived runtime. See the [source contract](../../doc/specs/arena-content-sources.md)
+for SQL schema, patch identities, limits and compatibility.
 
 
 ## TSQ1 recordings

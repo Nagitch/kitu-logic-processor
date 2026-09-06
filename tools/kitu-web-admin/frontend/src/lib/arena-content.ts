@@ -26,13 +26,50 @@ export type ArenaConfig = {
 export type ContentVersion = {
   hash: string;
   sourceSha256: string;
-  tanuRevision: string;
+  tanuRevision?: string;
+  provenance?: {
+    version: 1;
+    sources: Array<{
+      layer: ContentLayer;
+      format: ContentFormat;
+      schemaVersion: number;
+      evaluator: string;
+      sourceSha256: string;
+    }>;
+    origins: Record<string, ContentLayer>;
+  };
   values: ArenaConfig;
+};
+
+export type ContentLayer = "base" | "difficulty" | "event" | "debug";
+export type ContentFormat = "tmd" | "sqlite";
+export type ContentDifference = {
+  path: string;
+  before: unknown;
+  after: unknown;
+  winningLayer: ContentLayer;
 };
 
 export type ContentStatus = {
   path: string;
   readOnly: boolean;
+  sources: Array<{
+    layer: ContentLayer;
+    format: ContentFormat;
+    path: string;
+    sourceSha256: string;
+    evaluator: string;
+    schemaVersion: number;
+  }>;
+  differences: {
+    active: ContentDifference[] | null;
+    pending: ContentDifference[] | null;
+  };
+  origins: {
+    candidate: Record<string, ContentLayer> | null;
+    active: Record<string, ContentLayer> | null;
+    pending: Record<string, ContentLayer>;
+  };
   runtime: {
     run: number;
     active: ContentVersion | null;

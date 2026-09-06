@@ -1,0 +1,45 @@
+{
+  "recordedAtUtc": "2026-09-06T09:32:17.143025+00:00",
+  "environment": {
+    "container": "kitu-e19c-development",
+    "directory": "/workspaces/kitu-logic-processor/tools/kitu-web-admin/frontend"
+  },
+  "checks": [
+    {
+      "command": "pnpm check",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm exec vite build",
+      "exitCode": 0,
+      "viteVersion": "8.1.0",
+      "wasmPrebuild": "not run; coordinated with root to avoid concurrent Cargo jobs",
+      "notices": [
+        "existing chunk larger than500kB",
+        "plugin timing notice",
+        "empty env chunk"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "tools/kitu-web-admin/frontend/src/lib/arena-content.ts",
+      "sha256": "0a914225fdef509e509b2ada517600a312dff0487929b16d2cb8127296f23605"
+    },
+    {
+      "path": "tools/kitu-web-admin/frontend/src/routes/(project)/game-parameters/+page.svelte",
+      "sha256": "a010b25630df1d40c2edfca1d994c02d9e57cf51abea823dfae8d55df73279f9"
+    }
+  ],
+  "browser": {
+    "passed": true,
+    "report": ".tmp/stage12/browser-proof/results.json",
+    "reportSha256": "9d71709835c3baaedd9513a4ebe93cbf8cc16cdca5f4f4cf2fcfd1afe279881b"
+  }
+}

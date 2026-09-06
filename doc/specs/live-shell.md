@@ -50,7 +50,7 @@ Use `help` for the authoritative catalog. The initial command families are:
 | `inspect application/world/content/recording/replay` | State, recorded tick, settings or replay diagnostics from the active host |
 | `osc send <address> [typed arguments]` | Normal input admission and applied outcome |
 | `app action list/describe/run` | Runtime catalog and application-owned actions |
-| `content validate` | Actual Tanu evaluation; invalid diagnostics produce a refusal |
+| `content validate` | Actual Tanu/SQLite/source-plan evaluation; invalid diagnostics produce a refusal |
 | `content stage <hash> <source-sha256>` | Reviewed next-run candidate, with its applied receipt |
 | `replay list/save/verify/load/play/pause/step/stop/seek/live` | Existing TSQ1 and playback operations; step returns after advancement |
 | `scenario list/run` | Application-owned bounded action sequences on the live Runtime |

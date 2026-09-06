@@ -152,6 +152,135 @@ fn shell(endpoint: &str, session: &Value, id: u64, args: &[&str]) -> thread::Joi
 }
 
 #[test]
+fn layered_sqlite_content_survives_source_removal_and_replays_in_the_native_host() {
+    use kitu_demo_game::arena::config::{write_sqlite, ArenaConfig};
+
+    let storage = Storage::new();
+    std::fs::create_dir_all(&storage.0).unwrap();
+    let database = storage.0.join("base.sqlite");
+    let debug = storage.0.join("debug.tmd");
+    let plan = storage.0.join("arena.arena.json");
+    let mut base = ArenaConfig::default();
+    base.items[0].damage = 23;
+    write_sqlite(&database, &base.to_tables().unwrap()).unwrap();
+    let mut edited = base.clone();
+    edited.items[0].damage = 37;
+    std::fs::write(&debug, edited.to_tmd().unwrap()).unwrap();
+    std::fs::write(
+        &plan,
+        serde_json::to_vec(&json!({
+            "version": 1,
+            "base": {"format": "sqlite", "path": "base.sqlite"},
+            "debug": {"format": "tmd", "path": "debug.tmd"}
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+
+    let native = Native::create(json!({
+        "bridge": {"enabled": true, "address": "127.0.0.1:0"},
+        "storageDirectory": storage.0,
+        "contentPath": plan
+    }));
+    let metadata = native.metadata();
+    let endpoint = metadata["bridgeEndpoint"].as_str().unwrap();
+    assert_eq!(
+        get(endpoint, "/arena/content")["runtime"]["pending"]["hash"],
+        ArenaConfig::default().hash().unwrap(),
+        "an authoring source cannot replace the factory's detached initial settings"
+    );
+    assert_eq!(native.command("/input/arena/start", 1), OK);
+    native.tick();
+    assert_eq!(native.state()["inventory"]["equipment"][0]["damage"], 20);
+
+    let validated = native.complete(post(endpoint, "/arena/content/validate", json!({})));
+    assert_eq!(validated["diagnostics"], json!([]));
+    assert_eq!(validated["sources"][0]["format"], "sqlite");
+    assert_eq!(validated["sources"][1]["layer"], "debug");
+    assert_eq!(
+        validated["origins"]["candidate"]["/items/starter/damage"],
+        "debug"
+    );
+    let difference = validated["differences"]["active"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|difference| difference["path"] == "/items/starter/damage")
+        .unwrap();
+    assert_eq!(
+        (difference["before"].clone(), difference["after"].clone()),
+        (json!(20), json!(37))
+    );
+    assert_eq!(difference["winningLayer"], "debug");
+    let candidate = validated["candidate"].clone();
+    assert!(
+        candidate.get("tanuRevision").is_none(),
+        "stack evaluators are recorded per source"
+    );
+    native.complete(post(
+        endpoint,
+        "/arena/content/stage",
+        json!({
+            "hash": candidate["hash"], "sourceSha256": candidate["sourceSha256"]
+        }),
+    ));
+    native.tick();
+    assert_eq!(
+        get(endpoint, "/arena/content")["runtime"]["pending"],
+        candidate
+    );
+    assert_eq!(native.state()["inventory"]["equipment"][0]["damage"], 20);
+    assert_eq!(native.command("/input/arena/menu", 2), OK);
+    native.tick();
+    assert_eq!(native.command("/input/arena/start", 3), OK);
+    native.tick();
+    assert_eq!(native.state()["inventory"]["equipment"][0]["damage"], 37);
+    let saved = native.complete(post(endpoint, "/arena/recording/save", json!({})));
+
+    std::fs::remove_file(database).unwrap();
+    std::fs::remove_file(debug).unwrap();
+    let invalid = native.complete(post(endpoint, "/arena/content/validate", json!({})));
+    assert!(!invalid["diagnostics"].as_array().unwrap().is_empty());
+    assert!(invalid["candidate"].is_null());
+    assert_eq!(invalid["sources"], json!([]));
+    assert!(invalid["differences"]["active"].is_null());
+    assert_eq!(invalid["runtime"]["active"], candidate);
+    assert_eq!(invalid["runtime"]["pending"], candidate);
+    let id = saved["id"].as_str().unwrap();
+    let verified = native.complete(post(
+        endpoint,
+        &format!("/arena/recordings/{id}/verify"),
+        json!({}),
+    ));
+    let last_tick = verified["ticks"].as_u64().unwrap() as i64 - 1;
+    native.complete(post(endpoint, "/arena/playback/load", json!({"id": id})));
+    native.tick();
+    native.complete(post(
+        endpoint,
+        "/arena/playback/command",
+        json!({"action": "step"}),
+    ));
+    let sought = native.complete(post(
+        endpoint,
+        "/arena/playback/seek",
+        json!({"tick": last_tick}),
+    ));
+    assert_eq!(sought["mode"]["tick"], last_tick);
+    assert_eq!(sought["contentHash"], candidate["hash"]);
+    assert_eq!(native.state()["inventory"]["equipment"][0]["damage"], 37);
+    assert_eq!(
+        get(endpoint, "/arena/content")["runtime"]["active"],
+        candidate
+    );
+    native.complete(post(
+        endpoint,
+        "/arena/playback/command",
+        json!({"action": "live"}),
+    ));
+    assert_eq!(native.state()["overlay"], "pause");
+}
+
+#[test]
 fn bridge_commands_content_and_replay_share_the_native_clock_and_session() {
     let storage = Storage::new();
     let native = Native::create(

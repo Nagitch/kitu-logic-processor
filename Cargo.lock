@@ -893,7 +893,11 @@ dependencies = [
 name = "kitu-data-sqlite"
 version = "0.1.0"
 dependencies = [
- "kitu-core",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
 ]
 
 [[package]]
@@ -914,6 +918,7 @@ dependencies = [
  "hex",
  "kitu-app-actions",
  "kitu-core",
+ "kitu-data-sqlite",
  "kitu-data-tmd",
  "kitu-ecs",
  "kitu-osc-ir",
@@ -921,6 +926,7 @@ dependencies = [
  "kitu-shell",
  "kitu-transport",
  "kitu-tsq1",
+ "rusqlite",
  "serde",
  "serde_json",
  "sha2",

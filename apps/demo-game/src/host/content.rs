@@ -1,8 +1,11 @@
 //! File evaluation and persistence stay outside the simulation lock and tick.
 
-use std::{io::Read, path::PathBuf};
+use std::{collections::BTreeMap, path::PathBuf};
 
-use arena::config::{ContentSnapshot, ContentVersion};
+use arena::config::{
+    content_origins, diff_content, load_content_with_cancel, ContentDifference, ContentSnapshot,
+    ContentVersion, Layer, LoadedContent, SourceFormat,
+};
 
 use super::*;
 
@@ -16,10 +19,35 @@ pub(super) struct Service {
 #[derive(Default)]
 struct Catalog {
     candidate: Option<ContentVersion>,
+    sources: Vec<SourceDescriptor>,
     diagnostics: Vec<String>,
     next_id: u64,
     saved_run: Option<u64>,
     persistence_error: Option<String>,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SourceDescriptor {
+    layer: Layer,
+    format: SourceFormat,
+    path: String,
+    source_sha256: String,
+    evaluator: String,
+    schema_version: u32,
+}
+
+#[derive(Serialize)]
+struct Differences {
+    active: Option<Vec<ContentDifference>>,
+    pending: Option<Vec<ContentDifference>>,
+}
+
+#[derive(Serialize)]
+struct Origins {
+    candidate: Option<BTreeMap<String, Layer>>,
+    active: Option<BTreeMap<String, Layer>>,
+    pending: BTreeMap<String, Layer>,
 }
 
 #[derive(Serialize)]
@@ -29,6 +57,9 @@ pub(super) struct ContentStatus {
     read_only: bool,
     runtime: ContentSnapshot,
     candidate: Option<ContentVersion>,
+    sources: Vec<SourceDescriptor>,
+    differences: Differences,
+    origins: Origins,
     diagnostics: Vec<String>,
     saved_run: Option<u64>,
     persistence_error: Option<String>,
@@ -67,11 +98,36 @@ fn status(state: &AppState) -> Result<ContentStatus> {
         .catalog
         .lock()
         .map_err(|_| anyhow::anyhow!("content lock poisoned"))?;
+    let differences = Differences {
+        active: runtime
+            .active
+            .as_ref()
+            .zip(catalog.candidate.as_ref())
+            .map(|(before, after)| diff_content(before, after))
+            .transpose()?,
+        pending: catalog
+            .candidate
+            .as_ref()
+            .map(|candidate| diff_content(&runtime.pending, candidate))
+            .transpose()?,
+    };
+    let origins = Origins {
+        candidate: catalog
+            .candidate
+            .as_ref()
+            .map(content_origins)
+            .transpose()?,
+        active: runtime.active.as_ref().map(content_origins).transpose()?,
+        pending: content_origins(&runtime.pending)?,
+    };
     Ok(ContentStatus {
         path: state.content.path.display().to_string(),
         read_only,
         runtime,
         candidate: catalog.candidate.clone(),
+        sources: catalog.sources.clone(),
+        differences,
+        origins,
         diagnostics: catalog.diagnostics.clone(),
         saved_run: catalog.saved_run,
         persistence_error: catalog.persistence_error.clone(),
@@ -85,7 +141,14 @@ pub(super) async fn validate(
     // The runtime continues to tick while disk I/O and Formula evaluation run.
     let _validation = state.content.validation.lock().await;
     let path = state.content.path.clone();
-    let result = state.spawn_blocking(move || read_candidate(path))?.await;
+    let work = state.work.clone();
+    let result = state
+        .spawn_blocking(move || {
+            let loaded = load_content_with_cancel(&path, move || work.is_closing())?;
+            let sources = describe_sources(&loaded)?;
+            Ok((loaded.version, sources))
+        })?
+        .await;
     {
         let mut catalog = state
             .content
@@ -93,29 +156,59 @@ pub(super) async fn validate(
             .lock()
             .map_err(|_| ApiError::state_poisoned())?;
         catalog.candidate = None;
+        catalog.sources.clear();
         catalog.diagnostics.clear();
         match result {
-            Ok(Ok(candidate)) => catalog.candidate = Some(candidate),
+            Ok(Ok((candidate, sources))) => {
+                catalog.candidate = Some(candidate);
+                catalog.sources = sources;
+            }
             Ok(Err(error)) => catalog.diagnostics.push(format!("{error:#}")),
             Err(error) => catalog
                 .diagnostics
-                .push(format!("Tanu evaluation task failed: {error}")),
+                .push(format!("content evaluation task failed: {error}")),
         }
     }
     status(&state).map(Json).map_err(Into::into)
 }
 
-fn read_candidate(path: PathBuf) -> Result<ContentVersion> {
-    anyhow::ensure!(
-        !path.as_os_str().is_empty(),
-        "content source is disabled for this host"
-    );
-    let mut bytes = Vec::new();
-    std::fs::File::open(&path)
-        .with_context(|| format!("open {}", path.display()))?
-        .take(16 * 1024 * 1024 + 1)
-        .read_to_end(&mut bytes)?;
-    ContentVersion::from_tmd(&bytes).map_err(anyhow::Error::msg)
+fn describe_sources(loaded: &LoadedContent) -> Result<Vec<SourceDescriptor>> {
+    loaded
+        .sources
+        .iter()
+        .map(|location| {
+            let source = loaded.version.provenance.as_ref().and_then(|provenance| {
+                provenance
+                    .sources
+                    .iter()
+                    .find(|source| source.layer == location.layer)
+            });
+            let (source_sha256, evaluator, schema_version) = match source {
+                Some(source) => (
+                    source.source_sha256.clone(),
+                    source.evaluator.clone(),
+                    source.schema_version,
+                ),
+                None => (
+                    loaded.version.source_sha256.clone(),
+                    loaded
+                        .version
+                        .tanu_revision
+                        .clone()
+                        .context("missing content evaluator")?,
+                    1,
+                ),
+            };
+            Ok(SourceDescriptor {
+                layer: location.layer,
+                format: location.format,
+                path: location.path.display().to_string(),
+                source_sha256,
+                evaluator,
+                schema_version,
+            })
+        })
+        .collect()
 }
 
 #[derive(Deserialize)]
@@ -154,7 +247,7 @@ pub(super) fn stage_candidate(state: &AppState, request: StageRequest) -> Result
     let candidate = catalog
         .candidate
         .as_ref()
-        .context("validate a valid TMD before applying")?;
+        .context("validate valid content sources before applying")?;
     anyhow::ensure!(
         candidate.hash == request.hash && candidate.source_sha256 == request.source_sha256,
         "candidate changed; inspect and validate the new version before applying"
@@ -240,6 +333,78 @@ async fn persist_run(service: &Service, runtime_id: &str, run: &serde_json::Valu
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn a_source_only_edit_invalidates_the_reviewed_stack_token() {
+        use arena::config::ArenaConfig;
+        use kitu_data_tmd::tables::TanuDocument;
+
+        let mut state = super::super::tests::test_state();
+        let directory = std::env::temp_dir().join(format!(
+            "arena-source-token-{}",
+            state.inner.lock().unwrap().runtime_id
+        ));
+        std::fs::create_dir_all(&directory).unwrap();
+        let path = directory.join("arena.arena.json");
+        let source = directory.join("base.tmd");
+        state.content = Arc::new(Service::new(path.clone(), directory.join("runs")));
+        std::fs::write(&source, ArenaConfig::default().to_tmd().unwrap()).unwrap();
+        std::fs::write(
+            &path,
+            serde_json::to_vec(&serde_json::json!({
+                "version": 1, "base": {"format": "tmd", "path": "base.tmd"}
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        let Json(first) = validate(State(state.clone())).await.unwrap();
+        let reviewed = first.candidate.unwrap();
+        let document = TanuDocument::read(&std::fs::read(&source).unwrap()).unwrap();
+        let edited = TanuDocument::create(
+            "# A source-only edit\nSame evaluated values, a different reviewed source.".into(),
+            document.sources().unwrap().sources,
+        )
+        .unwrap();
+        std::fs::write(&source, edited.bytes().unwrap()).unwrap();
+        let Json(second) = validate(State(state.clone())).await.unwrap();
+        let candidate = second.candidate.unwrap();
+        assert_eq!(reviewed.hash, candidate.hash);
+        assert_ne!(reviewed.source_sha256, candidate.source_sha256);
+        assert_eq!(
+            second.sources[0].source_sha256,
+            candidate.provenance.as_ref().unwrap().sources[0].source_sha256
+        );
+        assert!(second.differences.pending.unwrap().is_empty());
+        let error = stage_candidate(
+            &state,
+            StageRequest {
+                hash: reviewed.hash,
+                source_sha256: reviewed.source_sha256,
+            },
+        )
+        .err()
+        .unwrap();
+        assert!(error.to_string().contains("candidate changed"));
+        assert_eq!(
+            status(&state).unwrap().runtime.pending,
+            first.runtime.pending
+        );
+        stage_candidate(
+            &state,
+            StageRequest {
+                hash: candidate.hash.clone(),
+                source_sha256: candidate.source_sha256.clone(),
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            status(&state).unwrap().runtime.pending,
+            first.runtime.pending
+        );
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(status(&state).unwrap().runtime.pending, candidate);
+        std::fs::remove_dir_all(directory).unwrap();
+    }
 
     #[tokio::test]
     async fn invalid_edit_retains_pending_values_and_saved_runs_are_detached() {

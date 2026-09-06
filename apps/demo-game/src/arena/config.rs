@@ -10,16 +10,37 @@ use kitu_data_tmd::tables::{
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+mod layers;
+mod sources;
+pub use layers::{
+    content_origins, diff_content, ContentDifference, ContentProvenance, Layer, SourceDescriptor,
+    SourceFormat,
+};
+pub use sources::{
+    create_source_plan, load_content, load_content_with_cancel, write_sqlite, LoadedContent,
+    SourceLocation, SourcePlan, SourceReference,
+};
+
+/// Largest detached content request accepted by Arena's ordinary input queue.
+pub const MAX_CONTENT_BYTES: usize = 128 * 1024;
+
+/// Evaluated tables shared by the real Tanu and SQLite adapters.
+pub type ArenaTables = BTreeMap<String, DataTable>;
+
 /// Evaluated values and provenance retained with a run; the file may change later.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ContentVersion {
     /// SHA-256 of the canonical evaluated values.
     pub hash: String,
-    /// SHA-256 of the original TMD container bytes.
+    /// SHA-256 of legacy TMD bytes, or the complete ordered source provenance.
     pub source_sha256: String,
     /// Tanu API revision that evaluated the source.
-    pub tanu_revision: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tanu_revision: Option<String>,
+    /// Detached source kinds, digests and field origins; never filesystem paths.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provenance: Option<ContentProvenance>,
     /// Complete values needed to reproduce gameplay without re-evaluating a file.
     pub values: ArenaConfig,
 }
@@ -31,12 +52,19 @@ impl ContentVersion {
     /// Returns the document, Formula or typed game validation diagnostic.
     pub fn from_tmd(bytes: &[u8]) -> Result<Self> {
         let values = ArenaConfig::from_tmd(bytes)?;
-        Ok(Self {
+        Self::from_evaluated_tmd(bytes, values)
+    }
+
+    fn from_evaluated_tmd(bytes: &[u8], values: ArenaConfig) -> Result<Self> {
+        let version = Self {
             hash: values.hash()?,
             source_sha256: hex::encode(Sha256::digest(bytes)),
-            tanu_revision: kitu_data_tmd::tables::TANU_REVISION.into(),
+            tanu_revision: Some(kitu_data_tmd::tables::TANU_REVISION.into()),
+            provenance: None,
             values,
-        })
+        };
+        version.validate()?;
+        Ok(version)
     }
 
     /// Verifies detached metadata and values, without doing document I/O.
@@ -44,10 +72,22 @@ impl ContentVersion {
     /// # Errors
     /// Rejects incompatible evaluator metadata, altered values or invalid hashes.
     pub fn validate(&self) -> Result<()> {
-        ensure!(
-            self.tanu_revision == kitu_data_tmd::tables::TANU_REVISION,
-            "incompatible Tanu evaluator revision"
-        );
+        if let Some(provenance) = &self.provenance {
+            ensure!(
+                self.tanu_revision.is_none(),
+                "layered sources must use their explicit evaluators"
+            );
+            provenance.validate(&self.values)?;
+            ensure!(
+                self.source_sha256 == provenance.digest()?,
+                "source stack digest mismatch"
+            );
+        } else {
+            ensure!(
+                self.tanu_revision.as_deref() == Some(kitu_data_tmd::tables::TANU_REVISION),
+                "incompatible Tanu evaluator revision"
+            );
+        }
         ensure!(
             self.source_sha256.len() == 64
                 && self.source_sha256.bytes().all(|c| c.is_ascii_hexdigit()),
@@ -56,6 +96,10 @@ impl ContentVersion {
         ensure!(
             self.hash == self.values.hash()?,
             "evaluated content hash mismatch"
+        );
+        ensure!(
+            serde_json::to_vec(self)?.len() <= MAX_CONTENT_BYTES,
+            "detached content exceeds 128 KiB"
         );
         Ok(())
     }
@@ -174,17 +218,41 @@ impl ArenaConfig {
     /// Rejects malformed containers, missing/unknown tables, Formula errors,
     /// invalid identities, types, ranges or dangling chest references.
     pub fn from_tmd(bytes: &[u8]) -> Result<Self> {
-        let doc = TanuDocument::read(bytes).context("read Tanu document")?;
+        Self::from_tables(sources::tmd_tables(bytes)?)
+    }
+
+    /// Validates complete typed tables independently of their storage format.
+    ///
+    /// # Errors
+    /// Rejects missing/unknown columns or tables, invalid scalar types, identities,
+    /// ranges and references using exactly the same contract as Tanu content.
+    pub fn from_tables(mut tables: ArenaTables) -> Result<Self> {
         ensure!(
-            doc.source_names()? == ["chests", "difficulty", "enemies", "items"],
+            tables.keys().map(String::as_str).collect::<Vec<_>>()
+                == ["chests", "difficulty", "enemies", "items"],
             "Arena requires exactly chests, difficulty, enemies and items tables"
         );
-        let items = rows::<ItemRule>(doc.table("items")?, "items", ITEM_COLUMNS)?;
-        let enemies = rows::<EnemyRule>(doc.table("enemies")?, "enemies", ENEMY_COLUMNS)?;
-        let mut difficulty =
-            rows::<Difficulty>(doc.table("difficulty")?, "difficulty", DIFFICULTY_COLUMNS)?;
+        let items = rows::<ItemRule>(
+            tables.remove("items").expect("checked table"),
+            "items",
+            ITEM_COLUMNS,
+        )?;
+        let enemies = rows::<EnemyRule>(
+            tables.remove("enemies").expect("checked table"),
+            "enemies",
+            ENEMY_COLUMNS,
+        )?;
+        let mut difficulty = rows::<Difficulty>(
+            tables.remove("difficulty").expect("checked table"),
+            "difficulty",
+            DIFFICULTY_COLUMNS,
+        )?;
         ensure!(difficulty.len() == 1, "difficulty requires exactly one row");
-        let chests = rows::<ChestEntry>(doc.table("chests")?, "chests", CHEST_COLUMNS)?;
+        let chests = rows::<ChestEntry>(
+            tables.remove("chests").expect("checked table"),
+            "chests",
+            CHEST_COLUMNS,
+        )?;
         let config = Self {
             schema_version: 1,
             items,
@@ -304,6 +372,23 @@ impl ArenaConfig {
     pub fn hash(&self) -> Result<String> {
         self.validate()?;
         Ok(hex::encode(Sha256::digest(serde_json::to_vec(self)?)))
+    }
+
+    /// Exports validated scalar tables for app-owned authoring tools.
+    ///
+    /// ```
+    /// use kitu_demo_game::arena::config::ArenaConfig;
+    /// let values = ArenaConfig::default();
+    /// let tables = values.to_tables()?;
+    /// assert_eq!(ArenaConfig::from_tables(tables)?, values);
+    /// # Ok::<(), anyhow::Error>(())
+    /// ```
+    ///
+    /// # Errors
+    /// Rejects invalid configuration before producing a table snapshot.
+    pub fn to_tables(&self) -> Result<ArenaTables> {
+        self.validate()?;
+        layers::tables_from_values(self)
     }
 
     /// Creates the editable reference document with real managed Formula tables.

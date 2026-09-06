@@ -7,6 +7,7 @@
     inspectContent,
     validateContent,
     stageContent,
+    type ContentLayer,
     type ContentStatus,
   } from "$lib/arena-content";
 
@@ -14,9 +15,19 @@
   let busy = false;
   let error = "";
   let notice = "";
-  let selected = "candidate";
+  let selected: "candidate" | "pending" | "active" = "candidate";
+  let comparison: "active" | "pending" = "pending";
+  let originFilter = "";
   let requestId = 0;
   let disposed = false;
+
+  const layers: ContentLayer[] = ["base", "difficulty", "event", "debug"];
+  const layerNames: Record<ContentLayer, string> = {
+    base: "Base",
+    difficulty: "Difficulty",
+    event: "Event",
+    debug: "Debug",
+  };
 
   $: version =
     selected === "active"
@@ -35,6 +46,34 @@
   $: alreadyStaged =
     status?.candidate?.sourceSha256 === status?.runtime.pending.sourceSha256 &&
     status?.candidate?.hash === status?.runtime.pending.hash;
+  $: sources = layers.flatMap((layer) =>
+    (status?.sources ?? []).filter((source) => source.layer === layer),
+  );
+  $: differences = status?.differences?.[comparison];
+  $: comparisonName = comparison === "active" ? "current run" : "next run";
+  $: origins =
+    status?.origins?.[selected] ?? version?.provenance?.origins ?? null;
+  $: visibleOrigins = Object.entries(origins ?? {})
+    .sort(([left], [right]) => left.localeCompare(right))
+    .filter(([path, layer]) =>
+      `${parameterName(path)} ${layerNames[layer]}`
+        .toLowerCase()
+        .includes(originFilter.toLowerCase()),
+    );
+
+  function parameterName(path: string) {
+    return path
+      .split("/")
+      .slice(1)
+      .map((part) => part.replace(/~1/g, "/").replace(/~0/g, "~"))
+      .join(" / ");
+  }
+
+  function displayValue(value: unknown) {
+    if (value === null) return "Not present";
+    if (typeof value === "object") return JSON.stringify(value, null, 2);
+    return String(value);
+  }
 
   async function refresh() {
     const id = ++requestId;
@@ -97,20 +136,26 @@
 <svelte:head><title>Game Parameters - Kitu Admin</title></svelte:head>
 
 <div class="grid gap-4">
-  <Panel title="Endless Arena parameters" eyebrow="Tanu content">
+  <Panel title="Endless Arena parameters" eyebrow="Game content">
     <div class="grid gap-4 text-sm">
       <p class="text-muted-foreground">
-        Edit and save the Tanu tables in VS Code, validate the file here, then
-        apply the evaluated values to the next run.
+        Edit and save the configured Tanu tables or SQLite data, reload and
+        validate them here, then apply the evaluated values to the next run.
       </p>
       {#if status?.readOnly}<p class="text-amber-700">
           Replay inspection is read-only. Return to the live run before applying
           parameters.
         </p>{/if}
-      {#if status}<p class="break-all font-mono text-xs">{status.path}</p>{/if}
+      {#if status}
+        <div>
+          <p class="text-muted-foreground">Configured source</p>
+          <p class="break-all font-mono text-xs">{status.path}</p>
+        </div>
+      {/if}
       <div class="flex flex-wrap gap-2">
         <Button onclick={validate} disabled={busy}
-          ><FileCheck size={16} /> {busy ? "Working…" : "Validate TMD"}</Button
+          ><FileCheck size={16} />
+          {busy ? "Working…" : "Reload and validate"}</Button
         >
         <Button
           variant="secondary"
@@ -129,7 +174,7 @@
       {#if status?.diagnostics.length}
         <div role="alert" class="rounded-md border border-destructive p-3">
           <p class="font-semibold">This edit cannot be applied.</p>
-          <p>The last valid settings remain available for the next run.</p>
+          <p>The current and next run keep their last valid settings.</p>
           {#each status.diagnostics as diagnostic}<p
               class="mt-2 whitespace-pre-wrap break-words font-mono text-xs"
             >
@@ -164,6 +209,139 @@
       {/if}
     </div>
   </Panel>
+  <Panel title="Validated sources" eyebrow="Override order">
+    <div class="grid gap-4 text-sm">
+      <p class="text-muted-foreground">
+        Later configured layers win when they set the same value. Layers that
+        are not configured are skipped.
+      </p>
+      <ol
+        aria-label="Configuration override order"
+        class="flex flex-wrap gap-2"
+      >
+        {#each layers as layer, index}
+          <li class="rounded-md border border-border px-3 py-2">
+            {index + 1}. {layerNames[layer]}
+          </li>
+        {/each}
+      </ol>
+      {#if sources.length}
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <caption class="pb-2 text-left text-muted-foreground">
+              Source files used for the validated edit
+            </caption>
+            <thead>
+              <tr>
+                {#each ["Layer", "Format", "Path", "Source digest"] as heading}
+                  <th
+                    scope="col"
+                    class="border-b border-border px-3 py-2 font-medium"
+                    >{heading}</th
+                  >
+                {/each}
+              </tr>
+            </thead>
+            <tbody>
+              {#each sources as source}
+                <tr>
+                  <td class="border-b border-border px-3 py-2"
+                    >{layerNames[source.layer]}</td
+                  >
+                  <td class="border-b border-border px-3 py-2"
+                    >{source.format === "tmd" ? "TMD" : "SQLite"}</td
+                  >
+                  <td
+                    class="max-w-sm break-all border-b border-border px-3 py-2 font-mono"
+                    >{source.path}</td
+                  >
+                  <td
+                    class="max-w-xs break-all border-b border-border px-3 py-2 font-mono"
+                    >{source.sourceSha256}</td
+                  >
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {:else}
+        <p class="text-muted-foreground">
+          No validated source list. Reload and validate the configured source to
+          inspect its layers.
+        </p>
+      {/if}
+    </div>
+  </Panel>
+  <Panel title="Changes in validated edit" eyebrow="Before applying">
+    <div class="grid gap-4 text-sm">
+      <label class="flex items-center gap-3">
+        Compare with
+        <select
+          bind:value={comparison}
+          class="rounded-md border border-border bg-background p-2"
+        >
+          <option value="pending">Next run</option>
+          <option value="active">Current run</option>
+        </select>
+      </label>
+      {#if !status?.candidate}
+        <p class="text-muted-foreground">
+          Reload and validate an edit to compare its values.
+        </p>
+      {:else if differences == null}
+        <p class="text-muted-foreground">
+          No {comparisonName} configuration is available to compare.
+        </p>
+      {:else if differences.length === 0}
+        <p class="text-muted-foreground">
+          The validated values match the {comparisonName} settings.
+        </p>
+      {:else}
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <caption class="pb-2 text-left text-muted-foreground">
+              {differences.length} changed {differences.length === 1
+                ? "value"
+                : "values"} compared with the {comparisonName}
+            </caption>
+            <thead>
+              <tr>
+                {#each ["Parameter", "Before", "Validated edit", "Winning layer"] as heading}
+                  <th
+                    scope="col"
+                    class="border-b border-border px-3 py-2 font-medium"
+                    >{heading}</th
+                  >
+                {/each}
+              </tr>
+            </thead>
+            <tbody>
+              {#each differences as difference}
+                <tr>
+                  <th
+                    scope="row"
+                    class="max-w-xs break-words border-b border-border px-3 py-2 font-medium"
+                    >{parameterName(difference.path)}</th
+                  >
+                  <td
+                    class="max-w-sm whitespace-pre-wrap break-words border-b border-border px-3 py-2 font-mono"
+                    >{displayValue(difference.before)}</td
+                  >
+                  <td
+                    class="max-w-sm whitespace-pre-wrap break-words border-b border-border px-3 py-2 font-mono"
+                    >{displayValue(difference.after)}</td
+                  >
+                  <td class="border-b border-border px-3 py-2"
+                    >{layerNames[difference.winningLayer]}</td
+                  >
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/if}
+    </div>
+  </Panel>
   <Panel title="Evaluated values" eyebrow="Review">
     <div class="grid gap-4">
       <label class="flex items-center gap-3 text-sm"
@@ -178,9 +356,78 @@
         </select>
       </label>
       {#if version}
-        <p class="break-all font-mono text-xs text-muted-foreground">
-          {version.hash}
-        </p>
+        <dl class="grid gap-3 text-sm">
+          <div>
+            <dt class="text-muted-foreground">
+              Evaluated configuration version
+            </dt>
+            <dd class="break-all font-mono text-xs">{version.hash}</dd>
+          </div>
+          <div>
+            <dt class="text-muted-foreground">Source digest</dt>
+            <dd class="break-all font-mono text-xs">{version.sourceSha256}</dd>
+          </div>
+        </dl>
+        <details class="rounded-md border border-border p-3 text-sm">
+          <summary class="cursor-pointer font-medium">Value origins</summary>
+          <div class="mt-3 grid gap-3">
+            {#if origins}
+              <label class="grid gap-1">
+                Filter parameters or layers
+                <input
+                  bind:value={originFilter}
+                  type="search"
+                  class="rounded-md border border-border bg-background p-2"
+                />
+              </label>
+              <div class="max-h-80 overflow-auto">
+                <table class="w-full text-left text-xs">
+                  <caption class="pb-2 text-left text-muted-foreground"
+                    >Winning layer for the selected configuration</caption
+                  >
+                  <thead
+                    ><tr>
+                      <th
+                        scope="col"
+                        class="border-b border-border px-3 py-2 font-medium"
+                        >Parameter</th
+                      >
+                      <th
+                        scope="col"
+                        class="border-b border-border px-3 py-2 font-medium"
+                        >Winning layer</th
+                      >
+                    </tr></thead
+                  >
+                  <tbody>
+                    {#each visibleOrigins as [path, layer]}
+                      <tr>
+                        <th
+                          scope="row"
+                          class="break-words border-b border-border px-3 py-2 font-medium"
+                          >{parameterName(path)}</th
+                        >
+                        <td class="border-b border-border px-3 py-2"
+                          >{layerNames[layer]}</td
+                        >
+                      </tr>
+                    {:else}
+                      <tr
+                        ><td colspan="2" class="p-3 text-muted-foreground"
+                          >No matching parameters.</td
+                        ></tr
+                      >
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            {:else}
+              <p class="text-muted-foreground">
+                Field origins were not saved with this configuration.
+              </p>
+            {/if}
+          </div>
+        </details>
         {#each tables as table}
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
@@ -190,6 +437,7 @@
               <thead
                 ><tr
                   >{#each Object.keys(table.rows[0] ?? {}) as column}<th
+                      scope="col"
                       class="border-b border-border px-3 py-2 font-medium"
                       >{column}</th
                     >{/each}</tr
@@ -208,7 +456,8 @@
           </div>
         {/each}
       {:else}<p class="text-sm text-muted-foreground">
-          No configuration selected. Validate the TMD or select another version.
+          No configuration selected. Reload and validate the source or select
+          another version.
         </p>{/if}
     </div>
   </Panel>

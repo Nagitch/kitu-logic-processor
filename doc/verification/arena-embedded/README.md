@@ -44,10 +44,11 @@ confirms the descendant was terminated. Reserved self-test argument overrides
 are rejected before accessing any Player or fixture file.
 
 The JSON reports are unchanged copies of generated evidence and retain the
-original local artifact/log paths. Only compact reports are retained in Git. The nine original PNGs, large traces,
-native binaries, the `.app`, Unity XML and console logs remain local generated
-artifacts under `.tmp/stage11/` or `Builds/`. Screenshot hashes and original paths
-are retained in the reports; publication of the images is pending approval.
+original local artifact/log paths. Compact reports and the nine original PNGs are
+retained in Git. The screenshots were added after publication was authorized;
+their bytes match the original evidence. Large traces, native binaries, the `.app`,
+Unity XML and console logs remain local generated artifacts under `.tmp/stage11/`
+or `Builds/`. Screenshot hashes and original paths are retained in the reports.
 Use the [macOS build and verification instructions](../../../kitu-integration-runner/unity-demo-game/README.md#reproduce-the-embedded-macos-build)
 and the [native ABI instructions](../../specs/arena-native-abi.md) to reproduce them.
 
@@ -59,6 +60,18 @@ chest contents, 1F combat, a 5F boss and projectiles, then the 11F result with
 10 cleared floors, 58 defeated enemies, two bosses and 88.02 seconds. Retry
 returns to 0F with HP 100/100, the starter Blade and empty remaining equipment.
 
+![Preparation inventory](screenshots/inventory.png)
+
+![Supply chest](screenshots/chest.png)
+
+![1F combat](screenshots/combat.png)
+
+![5F boss](screenshots/boss.png)
+
+![11F death and result](screenshots/death-11f.png)
+
+![Retry at 0F](screenshots/retry.png)
+
 ## Ordinary standalone with CLI and Admin
 
 [Initial live bridge evidence](live-bridge.json) records a separate normal Player session before the playback-control review fix
@@ -68,6 +81,12 @@ session ID and applied receipts. Admin validated a real Tanu edit (starter damag
 contains 42,510 ticks; verification/load, step, seek to tick 4,786, continuous play,
 pause and stop retained its original content hash. Return to live restored run 2
 with the edited content and a paused game. No browser errors were reported.
+
+![Browser Shell on the initial native session](screenshots/admin-shell.png)
+
+![Tanu next-run activation](screenshots/admin-tanu.png)
+
+![Recorded tick in Admin](screenshots/admin-replay.png)
 
 The [final reviewed Player check](final-live-bridge.json) repeats real CLI and
 browser Shell operations against the rebuilt native library. The old 42,510-tick

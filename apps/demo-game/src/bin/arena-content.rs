@@ -1,12 +1,13 @@
-//! Internal tool for creating and validating the reference Tanu content file.
+//! Authoring tool for real Tanu/SQLite sources and fixed-order source plans.
 use anyhow::{bail, Context, Result};
 use kitu_data_tmd::tables::{DataSourceDefinition, FormulaTableCellContent, TanuDocument};
-use kitu_demo_game::arena::config::ArenaConfig;
+use kitu_demo_game::arena::config::{create_source_plan, load_content, write_sqlite, ArenaConfig};
+use std::path::Path;
 
 fn main() -> Result<()> {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     let [command, path] = args.as_slice() else {
-        bail!("usage: arena-content create-reference|validate PATH")
+        bail!("usage: arena-content create-reference|create-sqlite|create-plan|validate PATH")
     };
     match command.as_str() {
         "create-reference" => {
@@ -34,13 +35,16 @@ fn main() -> Result<()> {
             println!("created {path}: {}", config.hash()?);
         }
         "validate" => {
-            let config = ArenaConfig::from_tmd(&std::fs::read(path)?)?;
-            println!(
-                "{}",
-                serde_json::to_string_pretty(
-                    &serde_json::json!({"hash":config.hash()?,"config":config})
-                )?
-            );
+            let loaded = load_content(Path::new(path))?;
+            println!("{}", serde_json::to_string_pretty(&loaded)?);
+        }
+        "create-sqlite" => {
+            write_sqlite(Path::new(path), &ArenaConfig::default().to_tables()?)?;
+            println!("created {path}");
+        }
+        "create-plan" => {
+            create_source_plan(Path::new(path))?;
+            println!("created {path} and its four editable sources");
         }
         _ => bail!("unknown content command: {command}"),
     }
