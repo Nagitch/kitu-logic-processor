@@ -73,9 +73,12 @@ impl Native {
         self.read(kitu_application_read_output)
     }
     fn command(&self, address: &str, id: u64) -> i32 {
+        self.submit(address, "native-test", id, json!([]))
+    }
+    fn submit(&self, address: &str, source: &str, id: u64, args: Value) -> i32 {
         let bytes = serde_json::to_vec(
-            &json!({"metadata":{"source":"native-test","messageId":id,"schemaVersion":1},
-            "bundle":{"messages":[{"address":address,"args":[]}]}}),
+            &json!({"metadata":{"source":source,"messageId":id,"schemaVersion":1},
+            "bundle":{"messages":[{"address":address,"args":args}]}}),
         )
         .unwrap();
         let mut sequence = u64::MAX;
@@ -93,6 +96,144 @@ impl Native {
         }
         task.join().unwrap()
     }
+}
+
+#[test]
+fn native_management_ids_do_not_exhaust_admin_or_shell_staging() {
+    use kitu_demo_game::arena::{
+        config::{ArenaConfig, ContentVersion},
+        script::{default_script, ScriptVersion},
+    };
+    let storage = Storage::new();
+    let native = Native::create(json!({
+        "bridge": {"enabled": true, "address": "127.0.0.1:0"},
+        "storageDirectory": storage.0,
+    }));
+    let metadata = native.metadata();
+    let endpoint = metadata["bridgeEndpoint"].as_str().unwrap();
+    let script = default_script().unwrap();
+    let native_script =
+        ScriptVersion::from_source(&script.source.replace("duration: 0.8", "duration: 2.4"))
+            .unwrap();
+    std::fs::write(
+        storage.0.join("boss.rhai"),
+        script.source.replace("duration: 0.8", "duration: 1.6"),
+    )
+    .unwrap();
+    let native_content =
+        ContentVersion::from_tmd(&ArenaConfig::default().to_tmd().unwrap()).unwrap();
+    let mut edited = ArenaConfig::default();
+    edited.items[0].damage += 3;
+    std::fs::write(storage.0.join("arena.tmd"), edited.to_tmd().unwrap()).unwrap();
+
+    for (kind, address, detached) in [
+        ("script", "/input/arena/script", json!(native_script)),
+        (
+            "content",
+            "/input/arena/config",
+            serde_json::from_str(&serde_json::to_string(&native_content).unwrap()).unwrap(),
+        ),
+    ] {
+        let status_path = format!("/arena/{kind}");
+        let validated = native.complete(post(
+            endpoint,
+            &format!("{status_path}/validate"),
+            json!({}),
+        ));
+        let candidate = &validated["candidate"];
+        assert_ne!(candidate["hash"], detached["hash"]);
+        for (index, native_id) in [1_000_000, u64::MAX].into_iter().enumerate() {
+            let source = format!("host:arena-{kind}");
+            assert_eq!(
+                native.submit(
+                    address,
+                    &source,
+                    native_id,
+                    json!([{"type":"str","value":detached.to_string()}]),
+                ),
+                OK
+            );
+            native.tick();
+            assert_eq!(get(endpoint, &status_path)["runtime"]["pending"], detached);
+            if index == 0 {
+                // Admin returns queue admission; the next native tick must commit it.
+                post(
+                    endpoint,
+                    &format!("{status_path}/stage"),
+                    if kind == "script" {
+                        json!({"hash":candidate["hash"]})
+                    } else {
+                        json!({"hash":candidate["hash"],"sourceSha256":candidate["sourceSha256"]})
+                    },
+                )
+                .join()
+                .unwrap();
+                let committed = native.tick();
+                let receipt: Value = committed
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .flat_map(|bundle| bundle["messages"].as_array().unwrap())
+                    .filter(|message| message["address"] == "/ui/arena/command")
+                    .map(|message| {
+                        serde_json::from_str(message["args"][0]["value"].as_str().unwrap()).unwrap()
+                    })
+                    .find(|receipt: &Value| receipt["source"] == format!("host:arena-{kind}-admin"))
+                    .expect("Admin command is committed through the native tick");
+                assert_eq!(receipt["id"], 1);
+                assert_eq!(receipt["accepted"], true, "{receipt}");
+                assert_eq!(receipt["duplicate"], false, "{receipt}");
+            } else {
+                let mut args = vec![kind, "stage", candidate["hash"].as_str().unwrap()];
+                if kind == "content" {
+                    args.push(candidate["sourceSha256"].as_str().unwrap());
+                }
+                let staged = native.complete(shell(
+                    endpoint,
+                    &metadata["sessionId"],
+                    if kind == "script" { 1 } else { 2 },
+                    &args,
+                ));
+                assert_eq!(staged["ok"], true, "{staged}");
+                assert_eq!(staged["data"]["receipt"]["accepted"], true, "{staged}");
+                assert_eq!(staged["data"]["receipt"]["duplicate"], false, "{staged}");
+                assert_eq!(staged["data"]["receipt"]["id"], 2);
+                assert_eq!(
+                    staged["data"]["receipt"]["source"],
+                    format!("host:arena-{kind}-admin")
+                );
+            }
+            assert_eq!(
+                get(endpoint, &status_path)["runtime"]["pending"],
+                *candidate
+            );
+        }
+    }
+    // The recording contains both caller-chosen high/MAX IDs and host-owned IDs.
+    // Re-execution accepts those original identities without renumbering either.
+    let saved = native.complete(post(endpoint, "/arena/recording/save", json!({})));
+    let verified = native.complete(post(
+        endpoint,
+        &format!("/arena/recordings/{}/verify", saved["id"].as_str().unwrap()),
+        json!({}),
+    ));
+    assert_eq!(verified["inputs"], 8);
+}
+
+#[test]
+fn native_inputs_cannot_impersonate_admin_management_producers() {
+    let native = Native::create(json!({}));
+    for source in ["host:arena-script-admin", "host:arena-content-admin"] {
+        // Even an ordinary gameplay command would poison the source high-water.
+        assert_eq!(
+            native.submit("/input/arena/start", source, u64::MAX, json!([])),
+            DRIVER_ERROR
+        );
+    }
+    assert_eq!(native.state()["phase"], 0);
+    assert_eq!(native.command("/input/arena/start", 1), OK);
+    native.tick();
+    assert_eq!(native.state()["phase"], 1);
 }
 impl Drop for Native {
     fn drop(&mut self) {

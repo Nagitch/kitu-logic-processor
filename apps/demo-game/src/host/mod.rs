@@ -124,6 +124,13 @@ impl ArenaHost {
     /// Metadata and application validation use the same Runtime queue as HTTP Shell.
     pub fn submit(&mut self, bundle: OscBundle, metadata: Option<InputMetadata>) -> Result<u64> {
         self.state.work.check()?;
+        anyhow::ensure!(
+            !metadata.as_ref().is_some_and(|metadata| matches!(
+                metadata.source.as_str(),
+                arena::SCRIPT_OPERATOR_SOURCE | arena::CONTENT_OPERATOR_SOURCE
+            )),
+            "Admin/Shell management producer identities are reserved from native inputs"
+        );
         // Native owners can supply detached management source. Compile/probe it
         // before taking the host clock lock, then use ordinary queue validation.
         let script = arena::prepare_script_input(&bundle, metadata.as_ref())?;
@@ -1353,6 +1360,25 @@ mod tests {
             panic!("state JSON");
         };
         serde_json::from_str(json).unwrap()
+    }
+
+    #[test]
+    fn network_controllers_cannot_claim_operator_management_identities() {
+        let state = test_state();
+        for source in [
+            arena::SCRIPT_OPERATOR_SOURCE,
+            arena::CONTENT_OPERATOR_SOURCE,
+        ] {
+            let mut request = arena_request(&state, u64::MAX, "/input/arena/start");
+            request.client_id = source.into();
+            assert!(enqueue_arena_request(&state, 1, request)
+                .unwrap_err()
+                .to_string()
+                .contains("reserved producer identity"));
+        }
+        enqueue_arena_request(&state, 1, arena_request(&state, 1, "/input/arena/start")).unwrap();
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(arena_projection(&state).phase, 1);
     }
 
     #[test]

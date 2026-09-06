@@ -1,0 +1,333 @@
+{
+  "unityVersion": "6000.6.0f1",
+  "endpoint": "http://127.0.0.1:8788",
+  "replayId": "d4fc26ec447b462f98f022fb2ed09e741e445866ac57a6ec0fc4ad6ed41e896d",
+  "suites": {
+    "EditMode": {
+      "counts": {
+        "id": "2",
+        "testcasecount": "50",
+        "result": "Passed",
+        "total": "50",
+        "passed": "50",
+        "failed": "0",
+        "inconclusive": "0",
+        "skipped": "0",
+        "asserts": "0",
+        "engine-version": "3.5.0.0",
+        "clr-version": "4.0.30319.42000",
+        "start-time": "2026-09-06 11:14:09Z",
+        "end-time": "2026-09-06 11:14:10Z",
+        "duration": "0.4261684"
+      },
+      "xmlSha256": "0652dc69f10fd300515a1e209ba1d4d4dd6f22b616339a1fb81cd7972ed5a08c",
+      "cases": [
+        {
+          "name": "ArenaInventoryTests.ChestHasSixDistinctWeaponCandidatesAndFiveItemUpgradeCandidates",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.DamageUpdateCannotRegenerateAndRecoveryStartsAfterThreeSeconds",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.DamageWithoutAShieldStillStartsSharedDelayAndChangingEquipmentKeepsIt",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.DeathPreventsRevivalConsumptionAndFurtherInventoryChanges",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.FractionalRecoveryAccumulatesAcrossSmallUpdatesAndUsesNewCapacity",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.FullHealthMedkitIsKeptAndUsedMedkitOnlyRefillsHp",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.GrenadeIsConsumedImmediatelyAndBackpackDoesNotAutoRefillEquipment",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.HealingDoesNotTouchShieldOrDelayAndNonPositiveDamageDoesNothing",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.InvalidOperationsAreAtomicAndUnequipNeedsAnEmptyBackpackSlot",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.ResetRemovesAllRunStateAndRestoresOnlyTheStarterBlade",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.ShieldChargeAndFractionSurviveSwapsButOnlyEquipmentRegenerates",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.ShieldsAbsorbInSlotOrderAndRemainEquippedWhenEmpty",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.TakingSwappingAndEquippingConserveItemInstancesEvenWhenBackpackIsFull",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.UpgradesConsumeOnceAndHealthUpgradeDoesNotRefillAnExistingShield",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.UsingMedkitAThenBConsumesOnlyAWhenAHealsToFull",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaReferenceTests.CaptureDetachesEntitiesItemsAndRecordedCommands",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaReferenceTests.DuplicatesKeepTheirOriginalResultAndStaleItemsCannotMove",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaReferenceTests.FrozenTraceReplaysThroughOriginalRules(\"preparation\")",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaReferenceTests.FrozenTraceReplaysThroughOriginalRules(\"stock-eleven-death-retry\")",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaReferenceTests.InvalidBatchesAndNonContiguousTicksFailBeforeStateMutation",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaReferenceTests.InvalidChestDestinationsUseTheStableTargetCodeWithoutMovingItems",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaReferenceTests.PauseConsumesCommandsWithoutAdvancingAnyGameplayClock",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaReferenceTests.SuccessfulUpgradeIsNotConsumedTwiceAfterRetry",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaRunScenarioTests.StockChestLoadoutAndContinuousMovementCanClearElevenFloors",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ActualPursuerMovementAndMeleeEventuallyKillAnIdlePlayer",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BossClearHealsOnceAndKeepsRewardContentsAndShieldCharge",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BossTelegraphsThenFiresEightShotsAndDoesNotMeleeDuringTellOrRecovery",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BulletsExpireAtWallOrMaximumRange",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BulletSpawnOverlappingEnemyStillHitsInsteadOfSkippingCloseTarget",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ClearRemovesHostileShotsAndGrenadesBeforeSafeStateCanBeDamaged",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ContactAloneDoesNoDamageAndEnemyWaitsInitialAttackInterval",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.DeathSnapshotStaysFixedAndRetryResetsRunWhileMenuClearsIt",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.EndlessProgressionThroughTwentyOneFloorsUsesSpecifiedRosterAndRewards",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.EnemyBulletSweepDamagesPlayerAndIgnoresOtherEnemies",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.FloorTransitionCarriesHealthInventoryAndShieldTimersButResetsTransientState",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.GrenadeRequiresAimConsumesAtThrowAndDealsSnapshotAreaDamageAfterDelay",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.GrenadeTargetIsLimitedByThrowRangeAndArena",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.IndependentWeaponsHitConeOncePerEnemyAndHonorCooldowns",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.MedkitInputsAreOrderedBeforeIncomingDamageAndSecondFullHealthMedkitIsKept",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.MovementIsNormalizedWallBoundAndMaintainsLastValidAim",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.OpeningDoesNotRunAndStartingCreatesOnePreparationChest",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.PortalAppearingUnderPlayerRequiresExitAndReentryAndCannotTransitionTwice",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.PortalRejectsNoWeaponWithoutDiscardingChest",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ProjectileSweepHitsNearestTargetEvenWhenListOrderIsFarFirst",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ShooterApproachesAndFiresTowardPlayerAfterItsInitialDelay",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(1)",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(5)",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaTickClockTests.ClockRetainsCatchupDebtAndFractionalTime",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaTickClockTests.InvalidElapsedTimeDoesNotConsumePendingTicks",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaTickClockTests.SchedulingDependsOnElapsedTimeAndSurvivesRenderRateChanges",
+          "result": "Passed"
+        }
+      ]
+    },
+    "PlayMode": {
+      "counts": {
+        "id": "2",
+        "testcasecount": "21",
+        "result": "Passed",
+        "total": "21",
+        "passed": "21",
+        "failed": "0",
+        "inconclusive": "0",
+        "skipped": "0",
+        "asserts": "0",
+        "engine-version": "3.5.0.0",
+        "clr-version": "4.0.30319.42000",
+        "start-time": "2026-09-06 11:14:23Z",
+        "end-time": "2026-09-06 11:17:55Z",
+        "duration": "212.0299472"
+      },
+      "xmlSha256": "1483250566546ae03da18ddb452b1396472011f5643bd309041341543aeb5c0b",
+      "cases": [
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.CameraTracksArenaCornersWithoutZoomOrClampingAndSnapsOnRestart",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.CardinalKeysMoveAlongScreenAxesWithTheRotatedCamera",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.ChestDistanceAndCombatInventoryGatesUseEAndTab",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.FullHealthMedkitAndSimultaneousMedkitsDoNotConsumeAnExtraItem",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.HeldButtonsAcrossInventoryCloseRequireReleaseBeforeWeaponsOrItems",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.OpeningStartAndReturnToMenuOwnTheSceneAndRunLifetime",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.PauseSettingsAndFocusLossFreezeCombatAndReturnToPause",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.SettingsDraftCancelResetAndApplyReturnToOpeningWithoutAdvancingRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.SettingsSaveLoadUsesAnIsolatedPrefixAndRejectsInvalidSavedValues",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.WasdAimAndBothMouseButtonsReachTheRunningSimulation",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.ZAndXUseTheirOwnSlotsThroughTheInputSystem",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.DisableAndReenableReleasesOwnershipAndWrongThreadCallsNeverEnterFfi",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.EmbeddedBridgeShellAndReplayControlTheSameProjectedRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.NativeClockContinuesDuringPauseAndDetachAndReconnectKeepsTheRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSceneScenarioTests.ActualSceneStockRunReachesElevenThenDiesAndRestarts",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.EmbeddedStockRunReachesElevenDiesAndRetriesWithLocalSettings",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveCliAndBrowserShellControlTheProjectedUnityRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveTanuConfigurationIsProjectedInNewRuns",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules",
+          "result": "Passed"
+        }
+      ]
+    }
+  }
+}

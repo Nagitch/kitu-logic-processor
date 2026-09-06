@@ -1,0 +1,83 @@
+{
+  "nativeLibrary": {
+    "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+    "bytes": 27109808,
+    "sha256": "b2f779b50086428c7f4b08deb8e983da85d4408414e194190be256ae203d2ca3"
+  },
+  "cCaller": {
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/c_abi",
+    "bytes": 35368,
+    "sha256": "54d382a91c8d71e559cf5b8c71eb699d5f9c733e99cf49291a4c0726dd038aab"
+  },
+  "scenarios": {
+    "preparation": {
+      "comparison": {
+        "ticks": 28,
+        "stateAndOutput": "exact match",
+        "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/preparation.expected.ndjson",
+        "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/preparation.actual.ndjson"
+      },
+      "trace": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/preparation.trace",
+        "bytes": 11733,
+        "sha256": "2c764a254771e919c33ca8093322c31093d547443b2c942b061bb9f8072d5362"
+      },
+      "expected": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/preparation.expected.ndjson",
+        "bytes": 427014,
+        "sha256": "8e6a5cf0139e9ed47cb61a83e221a2cde7366ea82a239e59a348a25ce188b1fb"
+      },
+      "actual": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/preparation.actual.ndjson",
+        "bytes": 427014,
+        "sha256": "df43d9ada1fc9d338ec2c1d9d44d3b5dcd1cb25067108b43de0cd9c020334898"
+      }
+    },
+    "stock-eleven-death-retry": {
+      "comparison": {
+        "ticks": 5528,
+        "stateAndOutput": "exact match",
+        "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/stock-eleven-death-retry.expected.ndjson",
+        "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/stock-eleven-death-retry.actual.ndjson"
+      },
+      "trace": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/stock-eleven-death-retry.trace",
+        "bytes": 2209146,
+        "sha256": "0b14c384ac29e986a51cde1b5c206fc3844472b5dd50fec1793b713ad262d1f8"
+      },
+      "expected": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/stock-eleven-death-retry.expected.ndjson",
+        "bytes": 86239319,
+        "sha256": "a1e176f4dbe77c20233761ebd52d4f384f09825510fb53ef61de956448573323"
+      },
+      "actual": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/stock-eleven-death-retry.actual.ndjson",
+        "bytes": 86239319,
+        "sha256": "fd794524edab8b62c9526a03b65be03a0f903fde921dc5b55e1d1f6b3d48f6d3"
+      }
+    },
+    "rhai-boss": {
+      "comparison": {
+        "ticks": 1800,
+        "stateAndOutput": "exact match",
+        "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/rhai-boss.expected.ndjson",
+        "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/rhai-boss.actual.ndjson"
+      },
+      "trace": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/rhai-boss.trace",
+        "bytes": 722470,
+        "sha256": "810b0b3c2adb76b58dbedf065c98cc188e4803e8cb30128db2c4540194c20aee"
+      },
+      "expected": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/rhai-boss.expected.ndjson",
+        "bytes": 26593853,
+        "sha256": "421819caf73a1cf5980193eeefa20475fdc0c9ad28bae92b29dc28cfb85cd41f"
+      },
+      "actual": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/reference/rhai-boss.actual.ndjson",
+        "bytes": 26593853,
+        "sha256": "f97048c8151a8e3cb36a69433f55400b7605a5614a4493159d17d93f31c971b8"
+      }
+    }
+  }
+}

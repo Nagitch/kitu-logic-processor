@@ -30,7 +30,11 @@ contract. Stale tokens and invalid candidates are refused. A source-only comment
 edit changes the token too.
 
 Staging uses `/input/arena/script` with one JSON `ScriptVersion` string and the
-reserved `host:arena-script` producer. Ordinary ordered admission, message IDs,
+reserved `host:arena-script-admin` producer for Admin/Shell. Native detached
+staging and the public Rust helper retain `host:arena-script`; caller-chosen IDs
+cannot exhaust the operator catalog's separate ID space. Native and network
+inputs cannot impersonate the operator producer. Saved replays accept both
+identities unchanged. Ordinary ordered admission, message IDs,
 receipts and duplicate detection apply. Pending source becomes active only at
 start/retry. Neither validation nor staging alters the active boss. Invalid edits
 clear the authoring candidate but retain valid pending and active versions.

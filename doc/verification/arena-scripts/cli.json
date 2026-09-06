@@ -1,0 +1,71 @@
+{
+  "verifiedAtUtc": "2026-09-06T11:23:56.145594+00:00",
+  "passed": true,
+  "transport": "actual kitu-cli HTTP commands; no in-process simulation",
+  "endpoint": "http://127.0.0.1:8791",
+  "sessionId": "1-1788692706882880805",
+  "cli": {
+    "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/kitu-cli",
+    "sha256": "91be477e451a1805017e984a4dbae52141ce7c5ec271aac117d56a5aa1a13994"
+  },
+  "commands": {
+    "total": 25,
+    "successes": 22,
+    "expectedRefusals": 3
+  },
+  "scriptVersions": {
+    "oldActiveHash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+    "oldSourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+    "newActiveHash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+    "newSourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+    "policyVersion": "kitu-rhai-json-v1",
+    "rhaiVersion": "1.26.0"
+  },
+  "nextRun": {
+    "priorRun": 2,
+    "activatedRun": 3,
+    "stageAppliedTick": 44068,
+    "startAppliedTick": 45808
+  },
+  "invalidEditPreservedActiveAndPending": true,
+  "refusals": {
+    "04-stage-stale": {
+      "exitCode": 1,
+      "reason": "candidate changed; inspect and validate the new version before applying"
+    },
+    "11-validate-invalid": {
+      "exitCode": 1,
+      "reason": "Expecting '}' to terminate this block (line 2, position 1)"
+    },
+    "20-refuse-valid-candidate-in-replay": {
+      "exitCode": 1,
+      "reason": "replay is read-only; return to live mode before sending game inputs"
+    }
+  },
+  "detachedReplay": {
+    "recordingId": "245c26aa9fe528e7f7321335aed6d09006a9ba260a2dec71fb13a5b9a1d2ef49",
+    "sourceRemovedAtUtc": "2026-09-06T11:19:03.954640+00:00",
+    "ticks": 19236,
+    "inputs": 4,
+    "runs": 2,
+    "loadedTick": -1,
+    "steppedTick": 0,
+    "seekTick": 19235,
+    "seekAndInspectionExactlyMatchVerifiedState": true,
+    "stateJsonSha256": "c7fde7ee08346882f41e533bae4fa2728e746dd1452aef8edb68ff0b502243c1",
+    "savedScriptHash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+    "validCandidatePresentDuringReadOnlyRefusal": true
+  },
+  "final": {
+    "mode": "live",
+    "run": 3,
+    "overlay": "pause",
+    "tick": 59543,
+    "simulationSteps": 12260,
+    "activeHash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+    "pendingHash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+    "authoringFileRestored": true,
+    "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda"
+  },
+  "logs": "Each numbered JSON contains full argv, start time, elapsed time, exit code, stdout and stderr."
+}

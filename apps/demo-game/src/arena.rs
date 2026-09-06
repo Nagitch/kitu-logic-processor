@@ -22,6 +22,11 @@ use inventory::Inventory;
 /// Stage-independent Arena OSC contract version.
 pub const SCHEMA_VERSION: u32 = 1;
 
+// Operator catalogs own these ID spaces exclusively. The public staging helpers
+// retain their original producer identities for native callers and saved replays.
+pub(crate) const CONTENT_OPERATOR_SOURCE: &str = "host:arena-content-admin";
+pub(crate) const SCRIPT_OPERATOR_SOURCE: &str = "host:arena-script-admin";
+
 /// A ground-plane vector; `y` maps to Unity world Z for reference compatibility.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Vec2 {
@@ -265,6 +270,15 @@ pub fn stage_content(
     content: config::ContentVersion,
     id: u64,
 ) -> Result<u64> {
+    stage_content_from(runtime, content, id, "host:arena-content")
+}
+
+pub(crate) fn stage_content_from(
+    runtime: &mut DemoRuntime,
+    content: config::ContentVersion,
+    id: u64,
+    source: &str,
+) -> Result<u64> {
     content
         .validate()
         .map_err(|_| KituError::InvalidInput("invalid evaluated Arena content"))?;
@@ -273,7 +287,7 @@ pub fn stage_content(
     runtime.try_enqueue_input(
         bundle,
         Some(InputMetadata {
-            source: "host:arena-content".into(),
+            source: source.into(),
             message_id: id,
             schema_version: SCHEMA_VERSION,
         }),
@@ -327,11 +341,20 @@ pub(crate) fn stage_prepared_script(
     prepared: Arc<script::PreparedScript>,
     id: u64,
 ) -> Result<u64> {
+    stage_prepared_script_from(runtime, prepared, id, "host:arena-script")
+}
+
+pub(crate) fn stage_prepared_script_from(
+    runtime: &mut DemoRuntime,
+    prepared: Arc<script::PreparedScript>,
+    id: u64,
+    source: &str,
+) -> Result<u64> {
     let bundle = OscBundle {
         messages: vec![json_message("/input/arena/script", &prepared.version)],
     };
     let metadata = InputMetadata {
-        source: "host:arena-script".into(),
+        source: source.into(),
         message_id: id,
         schema_version: SCHEMA_VERSION,
     };
@@ -445,12 +468,22 @@ pub fn validate_input(message: &OscMessage, metadata: &InputMetadata) -> Result<
 }
 
 fn validate_metadata(message: &OscMessage, metadata: &InputMetadata) -> Result<()> {
-    if message.address == "/input/arena/config" && metadata.source != "host:arena-content" {
+    if message.address == "/input/arena/config"
+        && !matches!(
+            metadata.source.as_str(),
+            "host:arena-content" | CONTENT_OPERATOR_SOURCE
+        )
+    {
         return Err(KituError::InvalidInput(
             "Arena configuration requires the content management producer",
         ));
     }
-    if message.address == "/input/arena/script" && metadata.source != "host:arena-script" {
+    if message.address == "/input/arena/script"
+        && !matches!(
+            metadata.source.as_str(),
+            "host:arena-script" | SCRIPT_OPERATOR_SOURCE
+        )
+    {
         return Err(KituError::InvalidInput(
             "Arena script requires the script management producer",
         ));

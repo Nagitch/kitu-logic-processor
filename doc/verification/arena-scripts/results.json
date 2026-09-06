@@ -1,0 +1,206 @@
+{
+  "verifiedAtUtc": "2026-09-06T11:19:45.894429+00:00",
+  "stage": 13,
+  "issue": 154,
+  "pullRequest": 155,
+  "implementationCommit": "54befd3162b71244826e607ebf915633b832b60c",
+  "rust": {
+    "suites": 52,
+    "passed": 274,
+    "failed": 0,
+    "ignored": 0,
+    "logSha256": "957882b6ea8f2669b2cc3fa1b3c075eb7a0ccf69f507509449a01f1aed4a47ca"
+  },
+  "checks": {
+    "format": "passed",
+    "clippyAllTargetsAllFeatures": "passed",
+    "rustdocWarningsDenied": "passed",
+    "frontendCheckLintFullBuildWithWasm": "passed",
+    "frozenSourceAndFixtureHashes": "unchanged"
+  },
+  "macNative": {
+    "passedTestsAndDoctests": 14,
+    "failedAfterFix": 0,
+    "note": "Initial new native fixture test used an incorrect package-relative path; corrected test and remaining bridge/doc suites passed. Complete final Dev Container suite has no failures."
+  },
+  "unity": {
+    "EditMode": {
+      "id": "2",
+      "testcasecount": "50",
+      "result": "Passed",
+      "total": "50",
+      "passed": "50",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 11:14:09Z",
+      "end-time": "2026-09-06 11:14:10Z",
+      "duration": "0.4261684"
+    },
+    "PlayMode": {
+      "id": "2",
+      "testcasecount": "21",
+      "result": "Passed",
+      "total": "21",
+      "passed": "21",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 11:14:23Z",
+      "end-time": "2026-09-06 11:17:55Z",
+      "duration": "212.0299472"
+    }
+  },
+  "player": {
+    "preparation": {
+      "backend": "native",
+      "scenario": "preparation",
+      "matched": true,
+      "ticks": 28,
+      "inputs": 40,
+      "sessionId": "92848-1788692880847460000",
+      "deathObserved": false,
+      "retryObserved": false,
+      "screenshots": [
+        "inventory.png"
+      ],
+      "error": null
+    },
+    "stock": {
+      "backend": "native",
+      "scenario": "stock-eleven-death-retry",
+      "matched": true,
+      "ticks": 5528,
+      "inputs": 5581,
+      "sessionId": "92924-1788692885860894000",
+      "deathObserved": true,
+      "retryObserved": true,
+      "screenshots": [
+        "boss.png",
+        "chest.png",
+        "combat.png",
+        "death-11f.png",
+        "retry.png"
+      ],
+      "error": null
+    },
+    "script": {
+      "backend": "native",
+      "scenario": "rhai-boss",
+      "matched": true,
+      "ticks": 1800,
+      "inputs": 1817,
+      "sessionId": "93047-1788692916498288000",
+      "deathObserved": false,
+      "retryObserved": false,
+      "screenshots": [
+        "boss-script.png",
+        "chest.png",
+        "combat.png"
+      ],
+      "error": null
+    }
+  },
+  "archive": {
+    "directory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage13-fa0c180216aa",
+    "artifacts": [
+      {
+        "source": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/target/debug/kitu-demo-game-admin-host",
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage13-fa0c180216aa/linux/kitu-demo-game-admin-host",
+        "sha256": "fa0c180216aa24e591238331094635cafe900c323b6eb51134dfa821b43dc820",
+        "bytes": 147013680
+      },
+      {
+        "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage13-fa0c180216aa/macos/libkitu_demo_game_native.dylib",
+        "sha256": "c07995309a1776aad2c83496626a77584dfb929dc3d27adf4904ab2120932349",
+        "bytes": 27109792
+      },
+      {
+        "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.a",
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage13-fa0c180216aa/macos/libkitu_demo_game_native.a",
+        "sha256": "2b838981d38f605d67cbcd95dd919cab498e7cdefc9ff6724c766708e9f5286a",
+        "bytes": 85607192
+      }
+    ],
+    "playerFiles": 326
+  },
+  "screenshots": "Nine Player and four browser PNGs remain local; compact observations/hashes are committed.",
+  "cli": {
+    "verifiedAtUtc": "2026-09-06T11:23:56.145594+00:00",
+    "passed": true,
+    "transport": "actual kitu-cli HTTP commands; no in-process simulation",
+    "endpoint": "http://127.0.0.1:8791",
+    "sessionId": "1-1788692706882880805",
+    "cli": {
+      "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/kitu-cli",
+      "sha256": "91be477e451a1805017e984a4dbae52141ce7c5ec271aac117d56a5aa1a13994"
+    },
+    "commands": {
+      "total": 25,
+      "successes": 22,
+      "expectedRefusals": 3
+    },
+    "scriptVersions": {
+      "oldActiveHash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+      "oldSourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+      "newActiveHash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+      "newSourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+      "policyVersion": "kitu-rhai-json-v1",
+      "rhaiVersion": "1.26.0"
+    },
+    "nextRun": {
+      "priorRun": 2,
+      "activatedRun": 3,
+      "stageAppliedTick": 44068,
+      "startAppliedTick": 45808
+    },
+    "invalidEditPreservedActiveAndPending": true,
+    "refusals": {
+      "04-stage-stale": {
+        "exitCode": 1,
+        "reason": "candidate changed; inspect and validate the new version before applying"
+      },
+      "11-validate-invalid": {
+        "exitCode": 1,
+        "reason": "Expecting '}' to terminate this block (line 2, position 1)"
+      },
+      "20-refuse-valid-candidate-in-replay": {
+        "exitCode": 1,
+        "reason": "replay is read-only; return to live mode before sending game inputs"
+      }
+    },
+    "detachedReplay": {
+      "recordingId": "245c26aa9fe528e7f7321335aed6d09006a9ba260a2dec71fb13a5b9a1d2ef49",
+      "sourceRemovedAtUtc": "2026-09-06T11:19:03.954640+00:00",
+      "ticks": 19236,
+      "inputs": 4,
+      "runs": 2,
+      "loadedTick": -1,
+      "steppedTick": 0,
+      "seekTick": 19235,
+      "seekAndInspectionExactlyMatchVerifiedState": true,
+      "stateJsonSha256": "c7fde7ee08346882f41e533bae4fa2728e746dd1452aef8edb68ff0b502243c1",
+      "savedScriptHash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+      "validCandidatePresentDuringReadOnlyRefusal": true
+    },
+    "final": {
+      "mode": "live",
+      "run": 3,
+      "overlay": "pause",
+      "tick": 59543,
+      "simulationSteps": 12260,
+      "activeHash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+      "pendingHash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+      "authoringFileRestored": true,
+      "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda"
+    },
+    "logs": "Each numbered JSON contains full argv, start time, elapsed time, exit code, stdout and stderr."
+  }
+}

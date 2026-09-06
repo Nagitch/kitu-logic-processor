@@ -184,7 +184,12 @@ pub(super) fn stage_candidate(state: &AppState, request: StageRequest) -> Result
         .next_id
         .checked_add(1)
         .context("script command IDs exhausted")?;
-    let sequence = arena::stage_prepared_script(&mut game.runtime, candidate, id)?;
+    let sequence = arena::stage_prepared_script_from(
+        &mut game.runtime,
+        candidate,
+        id,
+        arena::SCRIPT_OPERATOR_SOURCE,
+    )?;
     catalog.next_id = id;
     Ok(StageResponse {
         sequence,

@@ -44,6 +44,16 @@ with `/host/arena/status` and a single `str` argument containing this JSON objec
 This information is inspected under the same host lock. Session identities and
 tooling state do not enter deterministic game projections or replay proof hashes.
 
+Admin/Shell content and script staging own separate reserved producers,
+`host:arena-content-admin` and `host:arena-script-admin`. Their catalogs allocate
+IDs independently from native producers `host:arena-content` and
+`host:arena-script`, so even a native `u64::MAX` ID cannot disable operator
+staging. Native admission refuses either operator identity for every command;
+network controllers already refuse all `host:` identities. Native metadata and
+existing replay identities remain unchanged, and replay accepts recorded
+operator identities through the ordinary Runtime queue. Deduplication still
+uses each producer's original ID and high-water mark.
+
 ## Native configuration and storage
 
 Empty factory configuration keeps embedded TMD defaults, no listener and no file

@@ -20,13 +20,47 @@ Verified implementation evidence:
   admission and produces exactly 96 telegraph ticks. The reference script still
   matches the frozen C# game state, outcomes and tick ordering.
 - [Native packaging](native-package.json) and the [macOS Player build](player-build.json)
-  succeeded with Unity 6000.6.0f 1 and Apple Silicon. Graphical Player and current
-  CLI/Admin/Unity test evidence is being collected before merge.
+  succeeded with Unity 6000.6.0f1 and Apple Silicon. All three graphical Player
+  scenarios matched every state/output: [preparation](player-preparation.json),
+  [stock/death/retry](player-stock.json), and [edited boss](player-script.json).
+- Unity [EditMode 50 and PlayMode 21](unity-tests.json) passed with no failures or
+  skipped cases. Frontend check, lint and full build including WASM passed.
+  [Frontend report](frontend.json).
+- The actual [Admin browser flow](browser.json) verifies source inspection,
+  valid/invalid edits, next-run activation, and saved-source replay/step/seek.
+  The [CLI proof](cli.json) checks 25 commands: 22 successes and three expected
+  refusals (stale candidate, syntax error, and valid candidate during replay).
+  After deleting the authoring file, the old record reproduced 19,236 ticks,
+  four inputs and two runs; final seek and inspected state exactly matched its
+  verified state. The live session was returned paused.
+- Nine Player and four browser PNGs were inspected locally. [Visual observations
+  and image hashes](visual-qa.json) are committed; these new images are not
+  uploaded. The stock and edited boss screenshots depict the same onset tick;
+  the changed duration is proven by the complete 48-versus-96-tick traces.
+- [Aggregate results and retained execution artifacts](results.json) preserve
+  the exact tested runtime for these records.
 
 The custom `rhai-boss` trace contains an ordinary script-stage input followed by
 the first 1800 frozen stock inputs. It has its own expected output and never
 replaces the Unity-only oracle. `ArenaNativeSelfTest` compares every state/output
 bundle, checks the 96-tick telegraph duration and captures its rendered boss.
+
+The complete feature-flow reports above identify implementation `54befd3` and its
+retained binaries. PR review then identified a shared native/operator ID space:
+a native maximum ID could prevent later Admin staging. The [review correction](review-fix.json)
+separates protected Admin/Shell script and content producers while preserving
+original caller IDs, deduplication and replay. The regression fails on the original
+code and passes after the change, including eight mixed-producer replay inputs.
+Focused Dev Container verification passed seven native and 28 host cases; a second
+read-only review found no additional issue. Final macOS verification passed all
+16 native tests/doctests (the new test's
+initial expected JSON widened f32; corrected typed serialization passed). Rebuilt
+[C comparisons](review-native-c.json), [native package](review-native-package.json),
+[Player build](review-player-build.json), [preparation](review-player-preparation.json),
+[stock/death/retry](review-player-stock.json), and [edited boss](review-player-script.json)
+again match complete state/output for 28/5528/1800 ticks. Existing browser and
+Unity test code did not change. The rebuilt Player's [nine local images](review-visual-qa.json)
+were inspected again; exact traces confirm both telegraph durations.
 
 Reproduce generic checks inside the Dev Container:
 
