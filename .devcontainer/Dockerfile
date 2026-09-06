@@ -6,6 +6,7 @@ RUN apt-get update \
         clang \
         lld \
         pkg-config \
+        python3 \
         libssl-dev \
         git \
         zsh \

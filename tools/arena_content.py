@@ -166,6 +166,8 @@ def verify_player_content(player, build, source):
     streaming = list(player.rglob("StreamingAssets"))
     if len(streaming) != 1 or not streaming[0].is_dir():
         raise ValueError("Player must contain exactly one StreamingAssets directory")
+    if streaming[0].is_symlink():
+        raise ValueError("Player StreamingAssets directory must be local")
     installed = inspect_package(streaming[0] / "KituArena")
     if installed["hash"] != source["hash"] or installed["hash"] != build["package"]["identity"]:
         raise ValueError("Player source package differs from the reviewed build input")

@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "roadmap": "https://github.com/Nagitch/kitu-logic-processor/issues/129",
+  "status": "in_progress",
+  "historySource": "Live GitHub roadmap and merged develop pull requests, read during Stage 18 preparation.",
+  "historicalEvidencePolicy": "Stage reports preserve their capture-time check and pending states. This matrix records subsequently verified merges; it does not relabel earlier measurements as a current run.",
+  "workspaceReference": {
+    "throughStage": 17,
+    "pullRequest": "https://github.com/Nagitch/kitu-workspace/pull/39",
+    "mergeCommit": "d10ccc76f2d04cce02670a4c66f550ecc7e76a3b",
+    "status": "merged"
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Contract and preserved Unity oracle",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/130",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/131",
+      "mergeCommit": "486d2b7cd05fb6687c7866b808fd6adde53cd17c",
+      "mergedAt": "2026-09-05T17:51:01Z",
+      "contract": "doc/specs/arena-runtime-contract.md",
+      "evidence": [
+        "doc/verification/arena-reference/results.json"
+      ],
+      "scope": "Versioned inputs, ordering, discrete outcomes and comparison fixtures."
+    },
+    {
+      "stage": 2,
+      "name": "Independent Runtime and Unity connection",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/132",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/133",
+      "mergeCommit": "75e5e46716c34c3e5d63b84175bc0e63b88fb980",
+      "mergedAt": "2026-09-05T18:35:55Z",
+      "contract": "doc/specs/arena-runtime-contract.md",
+      "evidence": [
+        "doc/verification/arena-runtime-host/results.json"
+      ],
+      "scope": "60 Hz ownership, movement, aim, pause and reconnect."
+    },
+    {
+      "stage": 3,
+      "name": "Inventory, equipment, HP and shields",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/134",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/135",
+      "mergeCommit": "ff880a8589c60adbf38beb42249fce5a7a5f98c5",
+      "mergedAt": "2026-09-05T18:57:07Z",
+      "contract": "doc/specs/arena-runtime-contract.md",
+      "evidence": [
+        "doc/verification/arena-inventory/results.json"
+      ],
+      "scope": "Atomic exchange, individual items, consumption and recovery clocks."
+    },
+    {
+      "stage": 4,
+      "name": "Combat, AI, projectiles and death",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/136",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/137",
+      "mergeCommit": "0da501d410786a945a8f9936ceea251cb491f210",
+      "mergedAt": "2026-09-05T19:37:07Z",
+      "contract": "doc/specs/arena-runtime-contract.md",
+      "evidence": [
+        "doc/verification/arena-combat/results.json"
+      ],
+      "scope": "Damage, hits, kills and event order against the C# reference."
+    },
+    {
+      "stage": 5,
+      "name": "Progression, bosses, results and retry",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/138",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/139",
+      "mergeCommit": "c7bb832e147dfeea3d4d54737de1aa6283397bd1",
+      "mergedAt": "2026-09-05T19:57:09Z",
+      "contract": "doc/specs/arena-runtime-contract.md",
+      "evidence": [
+        "doc/verification/arena-progression/results.json"
+      ],
+      "scope": "Complete 5,528-tick 11F/death/retry oracle; progression rules through 21F."
+    },
+    {
+      "stage": 6,
+      "name": "Tanu tables and next-run parameters",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/140",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/141",
+      "mergeCommit": "96bd46c7ba9c65cae596ee6d633068031afa0454",
+      "mergedAt": "2026-09-05T23:58:15Z",
+      "contract": "doc/specs/arena-content-sources.md",
+      "evidence": [
+        "doc/verification/arena-tanu/results.json"
+      ],
+      "scope": "Actual VS Code, Admin and Unity edit, rejection and next-run adoption."
+    },
+    {
+      "stage": 7,
+      "name": "TSQ1 recording and re-execution",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/142",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/143",
+      "mergeCommit": "db4c0dc303a48006b0a83c2230d08557cf3065f8",
+      "mergedAt": "2026-09-06T00:40:36Z",
+      "contract": "doc/specs/arena-replay.md",
+      "evidence": [
+        "doc/verification/arena-tsq1/results.json"
+      ],
+      "scope": "Exact applied ticks, ordered inputs and detached configuration."
+    },
+    {
+      "stage": 8,
+      "name": "Admin playback and seek",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/144",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/145",
+      "mergeCommit": "1399bf07d7452cf79e7fb44e121530977086e60b",
+      "mergedAt": "2026-09-06T01:32:13Z",
+      "contract": "doc/specs/arena-replay.md",
+      "evidence": [
+        "doc/verification/arena-playback/results.json"
+      ],
+      "scope": "Play, pause, step and seek with matching Unity replay projection."
+    },
+    {
+      "stage": 9,
+      "name": "Live CLI and browser Shell",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/146",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/147",
+      "mergeCommit": "04e5dc17313b0ffd83c9d348ef2a7c2f4466e588",
+      "mergedAt": "2026-09-06T06:37:21Z",
+      "contract": "doc/specs/live-shell.md",
+      "evidence": [
+        "doc/verification/arena-shell/results.json"
+      ],
+      "scope": "Shared command definitions act on the selected host with applied results."
+    },
+    {
+      "stage": 10,
+      "name": "Full application C ABI",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/148",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/149",
+      "mergeCommit": "b702b6a4367009d9859337df663a3bd65e79fc83",
+      "mergedAt": "2026-09-06T07:35:10Z",
+      "contract": "doc/specs/arena-native-abi.md",
+      "evidence": [
+        "doc/verification/arena-native/results.json"
+      ],
+      "scope": "Actual native library and C caller reproduce the full game."
+    },
+    {
+      "stage": 11,
+      "name": "Embedded macOS Player and bridge",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/150",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/151",
+      "mergeCommit": "cef5c0538984b9cbb69f3c2c47d4477798f4e423",
+      "mergedAt": "2026-09-06T09:16:52Z",
+      "contract": "doc/specs/arena-embedded-host.md",
+      "evidence": [
+        "doc/verification/arena-embedded/README.md"
+      ],
+      "scope": "Standalone native game and CLI/Admin bridge share one owner."
+    },
+    {
+      "stage": 12,
+      "name": "SQLite and layered content",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/152",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/153",
+      "mergeCommit": "41728867a5d6550e8fb94135be0f03c4560b4a2b",
+      "mergedAt": "2026-09-06T10:26:37Z",
+      "contract": "doc/specs/arena-content-sources.md",
+      "evidence": [
+        "doc/verification/arena-sources/README.md"
+      ],
+      "scope": "Typed sources, fixed override order, origins and detached replay."
+    },
+    {
+      "stage": 13,
+      "name": "Bounded Rhai boss rules",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/154",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/155",
+      "mergeCommit": "216e9f359ae1ba670b91f56b695ba58acdb686da",
+      "mergedAt": "2026-09-06T11:44:33Z",
+      "contract": "doc/specs/arena-boss-scripts.md",
+      "evidence": [
+        "doc/verification/arena-scripts/README.md"
+      ],
+      "scope": "Validated source, next-run adoption, bounded faults and saved-source replay."
+    },
+    {
+      "stage": 14,
+      "name": "TSQ1 presentation timelines",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/156",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/157",
+      "mergeCommit": "12c82622ebba5d578fdcc4d41e8a61271215ebdf",
+      "mergedAt": "2026-09-06T13:29:48Z",
+      "contract": "doc/specs/arena-presentation-timelines.md",
+      "evidence": [
+        "doc/verification/arena-timelines/README.md"
+      ],
+      "scope": "Runtime-owned boss warnings and floor transitions through replay and native."
+    },
+    {
+      "stage": 15,
+      "name": "JSON, MessagePack and compatibility",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/158",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/159",
+      "mergeCommit": "896da98b307da8b0922b2bab0f9ac8ccc90508ed",
+      "mergedAt": "2026-09-06T14:50:55Z",
+      "contract": "doc/specs/arena-application-wire.md",
+      "evidence": [
+        "doc/verification/arena-wire/README.md"
+      ],
+      "scope": "Cross-language fixtures and actual socket/native complete-state parity."
+    },
+    {
+      "stage": 16,
+      "name": "Addressables and bundled content",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/160",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/161",
+      "mergeCommit": "f8aba416b97f2e670a90689080699596053124b8",
+      "mergedAt": "2026-09-06T16:12:12Z",
+      "contract": "doc/specs/arena-packaged-content.md",
+      "evidence": [
+        "doc/verification/arena-content/README.md"
+      ],
+      "scope": "Relocated Player, same-dylib edited package, local assets and invalid-start rejection."
+    },
+    {
+      "stage": 17,
+      "name": "Coherent Admin inspection",
+      "status": "merged",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/162",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/163",
+      "mergeCommit": "43723714d84348f25cb67144f1d0cb7e10b45b35",
+      "mergedAt": "2026-09-06T17:15:50Z",
+      "contract": "doc/specs/arena-inspection.md",
+      "evidence": [
+        "doc/verification/arena-inspection/README.md"
+      ],
+      "scope": "Server and embedded state, events, minimap, cue positions and host timing."
+    },
+    {
+      "stage": 18,
+      "name": "Reproducible builds, CI and delivery status",
+      "status": "in_progress",
+      "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/164",
+      "pullRequest": null,
+      "mergeCommit": null,
+      "mergedAt": null,
+      "contract": "doc/specs/arena-build-verification.md",
+      "evidence": [
+        "doc/verification/arena-delivery/README.md"
+      ],
+      "scope": "Shared repository checks and macOS native/full verification orchestration."
+    }
+  ],
+  "stage18": {
+    "repositoryChecks": "pending",
+    "nativeChecks": "pending",
+    "licensedUnityAndPlayerChecks": "pending",
+    "ci": "pending",
+    "review": "pending",
+    "childMerge": "pending",
+    "workspaceReference": "pending",
+    "reports": []
+  },
+  "outOfScope": [
+    "Windows",
+    "multiplayer",
+    "production remote authentication and operations",
+    "CDN distribution",
+    "cloud deployment",
+    "public package releases",
+    "speculative advanced roadmap features"
+  ],
+  "structurallyDeferredInScopeFeatures": []
+}

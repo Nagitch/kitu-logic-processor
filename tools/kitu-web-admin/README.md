@@ -3,6 +3,11 @@
 Browser tools for observing Endless Arena, editing its next-run configuration
 and controlling replay, alongside the generic Kitu World editor and logs.
 
+The [delivery matrix](../../doc/verification/arena-delivery/README.md) records
+the actual Arena scope and evidence. The shared
+[verification recipe](../../doc/specs/arena-build-verification.md) includes
+frontend tests, type/lint checks and the complete Rust/WASM plus Vite build.
+
 ## Layout
 
 - `frontend/`: SvelteKit admin UI using local shadcn-svelte style components, Bits UI primitives, and Three.js.
