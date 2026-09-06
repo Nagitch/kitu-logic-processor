@@ -126,3 +126,7 @@ scoped Addressables cases also appear in the full 29-case suite. Native/Unity ch
 the macOS SDK; this evidence makes no Windows, CDN, remote catalog or production
 distribution claim. Large traces, binaries and images remain ignored local
 artifacts, identified by their recorded hashes.
+
+[Archived execution artifacts](runtime-archive.json) retain the verified Linux host,
+macOS native libraries and both signed Players for recordings made with this
+execution version. Large artifacts remain local; archive inventories are hashed.

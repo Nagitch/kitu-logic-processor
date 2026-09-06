@@ -1,7 +1,7 @@
 {
   "stage": 16,
   "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/160",
-  "implementationRevision": null,
+  "implementationRevision": "a210bd97fd2b245a051f0061bc5a71c7ad8c0f21",
   "capturedAtUtc": "2026-09-06T15:50:09.175705+00:00",
   "status": "local_verification_complete",
   "execution": {
@@ -21,7 +21,8 @@
     "invalidPlayerStartup": "failures.json",
     "rust": "rust.json",
     "unity": "unity-tests.json",
-    "visuals": "visuals.json"
+    "visuals": "visuals.json",
+    "runtimeArchive": "runtime-archive.json"
   },
   "completed": {
     "defaultPlayerScenarios": 4,
