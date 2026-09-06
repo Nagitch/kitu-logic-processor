@@ -4,6 +4,7 @@
   import {
     appActionCatalog,
     loadAppActions,
+    lastOscSendStatus,
     runAppAction,
   } from "$lib/admin-client";
   import Button from "$lib/components/ui/Button.svelte";
@@ -15,6 +16,8 @@
     ActionValue,
     AppActionDefinition,
   } from "$lib/types";
+
+  let busy = false;
 
   let inputValues: Record<string, Record<string, string | boolean>> = {};
 
@@ -58,7 +61,8 @@
     };
   }
 
-  function submitAction(action: AppActionDefinition) {
+  async function submitAction(action: AppActionDefinition) {
+    if (busy) return;
     const inputs: Record<string, ActionValue> = {};
     for (const input of action.inputs) {
       const raw = valueFor(action, input);
@@ -72,7 +76,12 @@
         inputs[input.name] = { type: "string", value: String(raw) };
       }
     }
-    runAppAction(action.id, inputs);
+    busy = true;
+    try {
+      await runAppAction(action.id, inputs);
+    } finally {
+      busy = false;
+    }
   }
 </script>
 
@@ -81,6 +90,14 @@
 </svelte:head>
 
 <div class="grid gap-4">
+  <p
+    role="status"
+    aria-live="polite"
+    class="rounded-md border border-border p-3 text-sm"
+  >
+    {$lastOscSendStatus.phase}: {$lastOscSendStatus.detail ??
+      "Choose an action"}
+  </p>
   <div class="grid grid-cols-2 gap-4 max-lg:grid-cols-1">
     <Panel title="Kitu General Actions" eyebrow="Kitu general">
       <div class="grid gap-3">
@@ -124,6 +141,7 @@
               {/each}
             </div>
             <Button
+              disabled={busy}
               type="submit"
               variant={action.ui.destructive ? "destructive" : "default"}
             >
@@ -173,7 +191,7 @@
                 </Field>
               {/each}
             </div>
-            <Button type="submit" variant="secondary">
+            <Button disabled={busy} type="submit" variant="secondary">
               <Play size={15} />
               {action.ui.submitLabel}
             </Button>

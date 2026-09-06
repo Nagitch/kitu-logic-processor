@@ -71,6 +71,10 @@ that recording would then replay twice. Queued World actions run after ECS
 systems and before the unchanged legacy move slice and Arena application update.
 Legacy direct Rust World/app-action APIs remain available for existing callers;
 the CLI, browser Shell and HTTP action forms use the queued command path.
+The Admin App Actions page posts typed inputs to `/app-actions/{id}/run`;
+server-side catalog materialization and applied receipts determine the displayed
+result. Forms are disabled while a request is pending, and refused actions show
+the Runtime reason instead of a transport-send success.
 
 Application actions are defined in `apps/demo-game/kitu-app-actions.toml`.
 Unsupported legacy sample addresses return a diagnostic through the new live

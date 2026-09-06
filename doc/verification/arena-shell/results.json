@@ -12,7 +12,10 @@
     "apps/demo-game/kitu-app-actions.toml": "ed7bc08144ee2f840f3d440ed8f764a596e6abb0b111383dadbb45a1df9b4216",
     "tools/kitu-cli/src/main.rs": "cbbae29694678161edba231d8e8f350a693a8e0ec98dcf1b77dc0c1a2946f589",
     "tools/kitu-web-admin/frontend/src/routes/(kitu-general)/shell/+page.svelte": "1cbf173910adbc26ad59b79a80b79502c2964eeb85f6e0b17cec314d81d7c887",
-    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/KituArenaConnectionTests.cs": "69d771d5046abb41f3f19869b25749503045d9f225d1b75cba536900d8ca8308"
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/KituArenaConnectionTests.cs": "69d771d5046abb41f3f19869b25749503045d9f225d1b75cba536900d8ca8308",
+    "tools/kitu-web-admin/frontend/src/lib/admin-client.ts": "27bb3a7c8dee343b5baaf7e8614ce57df5ce11a8af82f025310682fb2188e425",
+    "tools/kitu-web-admin/frontend/src/lib/components/TransportStatus.svelte": "3b175259c81619742891f00504a399c6d9d77a6b5d02cb304cb6c880908d8e1d",
+    "tools/kitu-web-admin/frontend/src/routes/(project)/app-actions/+page.svelte": "9a330f57bb58b1e8afa6d906954718f5146e66535e82f3f5720734cb5bcb7338"
   },
   "validation": {
     "rustWorkspaceTestsAndDoctests": 179,
@@ -71,5 +74,10 @@
     "Scenarios allow 32 steps and 600 waiting ticks; earlier applied effects are retained if later steps are refused. Concurrent input is recorded in its real order.",
     "CLI supports local HTTP development and has a 90-second request deadline. Remote production authentication/TLS is outside this plan.",
     "Parent workspace publication remains blocked by GitHub integration write access (403); local per-stage pointer commits are prepared."
-  ]
+  ],
+  "reviewFix": {
+    "comment": 3942691928,
+    "behavior": "Actual Admin App Actions forms POST to the queued HTTP action handler; show applied/refused results and disable concurrent form submissions. The obsolete client-side materializer was removed.",
+    "validation": "Frontend check (0 errors/warnings), lint and production build passed. Real browser button results and authoritative state are recorded in browser-actions.json."
+  }
 }
