@@ -1,0 +1,535 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-09-06T10:02:35.781583+00:00",
+  "passed": true,
+  "tool": "agent-browser 0.27.0",
+  "adminUrl": "http://127.0.0.1:5176",
+  "hostUrl": "http://127.0.0.1:8790",
+  "sourcePlan": ".tmp/stage12/authoring/sample.arena.json",
+  "digestContract": "Source SHA-256 is raw TMD bytes or normalized queried SQLite snapshot, as defined in config/layers.rs and config/sources.rs; evaluated version hashes identify values. Raw file identities are recorded separately below.",
+  "initialSources": [
+    {
+      "layer": "base",
+      "format": "sqlite",
+      "path": "/workspaces/kitu-logic-processor/.tmp/stage12/authoring/sample.arena-base.sqlite",
+      "sourceSha256": "54dd7f8bf22196ac47698c859079fb8a31b7a65177f6d94fa78cc938259837c4",
+      "evaluator": "arena-sqlite-scalars-v1",
+      "schemaVersion": 1
+    },
+    {
+      "layer": "difficulty",
+      "format": "tmd",
+      "path": "/workspaces/kitu-logic-processor/.tmp/stage12/authoring/sample.arena-difficulty.tmd",
+      "sourceSha256": "cf5008226d76c5a69fdf138ef93f104aa4a57e139fd7ba1dbfb6752f1b4e953f",
+      "evaluator": "194358e8791f1391492abcb60d8cfcc37bbb383a",
+      "schemaVersion": 1
+    },
+    {
+      "layer": "event",
+      "format": "sqlite",
+      "path": "/workspaces/kitu-logic-processor/.tmp/stage12/authoring/sample.arena-event.sqlite",
+      "sourceSha256": "39c726359916679acc823248a424d1b586f6bf7889de171f0e348fbe068cc89e",
+      "evaluator": "arena-sqlite-scalars-v1",
+      "schemaVersion": 1
+    },
+    {
+      "layer": "debug",
+      "format": "tmd",
+      "path": "/workspaces/kitu-logic-processor/.tmp/stage12/authoring/sample.arena-debug.tmd",
+      "sourceSha256": "b98940df3bced9602462d763dccb8adcc597095bf8c4d15e6ae3f3d1666b216b",
+      "evaluator": "194358e8791f1391492abcb60d8cfcc37bbb383a",
+      "schemaVersion": 1
+    }
+  ],
+  "finalSources": [
+    {
+      "layer": "base",
+      "format": "sqlite",
+      "path": "/workspaces/kitu-logic-processor/.tmp/stage12/authoring/sample.arena-base.sqlite",
+      "sourceSha256": "54dd7f8bf22196ac47698c859079fb8a31b7a65177f6d94fa78cc938259837c4",
+      "evaluator": "arena-sqlite-scalars-v1",
+      "schemaVersion": 1
+    },
+    {
+      "layer": "difficulty",
+      "format": "tmd",
+      "path": "/workspaces/kitu-logic-processor/.tmp/stage12/authoring/sample.arena-difficulty.tmd",
+      "sourceSha256": "cf5008226d76c5a69fdf138ef93f104aa4a57e139fd7ba1dbfb6752f1b4e953f",
+      "evaluator": "194358e8791f1391492abcb60d8cfcc37bbb383a",
+      "schemaVersion": 1
+    },
+    {
+      "layer": "event",
+      "format": "sqlite",
+      "path": "/workspaces/kitu-logic-processor/.tmp/stage12/authoring/sample.arena-event.sqlite",
+      "sourceSha256": "b36d240ab50335dd816a26a2f3ceaa2f74f77cf723d429a457a79703a149a0fa",
+      "evaluator": "arena-sqlite-scalars-v1",
+      "schemaVersion": 1
+    }
+  ],
+  "rawSourceFiles": {
+    "initial": [
+      {
+        "file": "sample.arena-base.sqlite",
+        "sha256": "2b91d2d7adbc891c9c9a467407e1b69fce6c9e976ea5940a0f8a534e5deaf228"
+      },
+      {
+        "file": "sample.arena-debug.tmd",
+        "sha256": "b98940df3bced9602462d763dccb8adcc597095bf8c4d15e6ae3f3d1666b216b"
+      },
+      {
+        "file": "sample.arena-difficulty.tmd",
+        "sha256": "cf5008226d76c5a69fdf138ef93f104aa4a57e139fd7ba1dbfb6752f1b4e953f"
+      },
+      {
+        "file": "sample.arena-event.sqlite",
+        "sha256": "7df52e487b189430adb9afac631aa7a916ad165b291f634e2a651ce283523376"
+      },
+      {
+        "file": "sample.arena.json",
+        "sha256": "65580251b64a7aff6bbe41658c149042098f4f36314a5daf6932feef67bb2681"
+      }
+    ],
+    "final": [
+      {
+        "file": "sample.arena-base.sqlite",
+        "sha256": "2b91d2d7adbc891c9c9a467407e1b69fce6c9e976ea5940a0f8a534e5deaf228"
+      },
+      {
+        "file": "sample.arena-debug.tmd",
+        "sha256": "b98940df3bced9602462d763dccb8adcc597095bf8c4d15e6ae3f3d1666b216b"
+      },
+      {
+        "file": "sample.arena-difficulty.tmd",
+        "sha256": "cf5008226d76c5a69fdf138ef93f104aa4a57e139fd7ba1dbfb6752f1b4e953f"
+      },
+      {
+        "file": "sample.arena-event.sqlite",
+        "sha256": "0c598ae2194c52d74634fe6fa4d28b8072e02f806d8e1c780c97dde335b7aec3"
+      },
+      {
+        "file": "sample.arena.json",
+        "sha256": "8f80832c30bb5e031509fd26cae49e5c5c988e2825d74a61e2806bda2f3b044d"
+      }
+    ]
+  },
+  "stages": [
+    {
+      "name": "01-baseline",
+      "run": 1,
+      "active": {
+        "hash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "sourceSha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa",
+        "starterDamage": 20
+      },
+      "pending": {
+        "hash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "sourceSha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa",
+        "starterDamage": 20
+      },
+      "candidate": null,
+      "differences": {
+        "active": null,
+        "pending": null
+      },
+      "starterDamageOrigins": {
+        "candidate": null,
+        "active": "base",
+        "pending": "base"
+      },
+      "sourceLayers": [],
+      "diagnostics": []
+    },
+    {
+      "name": "02-four-layer-candidate",
+      "run": 1,
+      "active": {
+        "hash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "sourceSha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa",
+        "starterDamage": 20
+      },
+      "pending": {
+        "hash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "sourceSha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa",
+        "starterDamage": 20
+      },
+      "candidate": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "differences": {
+        "active": [
+          {
+            "path": "/items/starter/damage",
+            "before": 20,
+            "after": 32,
+            "winningLayer": "debug"
+          }
+        ],
+        "pending": [
+          {
+            "path": "/items/starter/damage",
+            "before": 20,
+            "after": 32,
+            "winningLayer": "debug"
+          }
+        ]
+      },
+      "starterDamageOrigins": {
+        "candidate": "debug",
+        "active": "base",
+        "pending": "base"
+      },
+      "sourceLayers": [
+        "base",
+        "difficulty",
+        "event",
+        "debug"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "03-staged-32",
+      "run": 1,
+      "active": {
+        "hash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "sourceSha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa",
+        "starterDamage": 20
+      },
+      "pending": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "candidate": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "differences": {
+        "active": [
+          {
+            "path": "/items/starter/damage",
+            "before": 20,
+            "after": 32,
+            "winningLayer": "debug"
+          }
+        ],
+        "pending": []
+      },
+      "starterDamageOrigins": {
+        "candidate": "debug",
+        "active": "base",
+        "pending": "debug"
+      },
+      "sourceLayers": [
+        "base",
+        "difficulty",
+        "event",
+        "debug"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "04-active-32",
+      "run": 2,
+      "active": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "pending": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "candidate": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "differences": {
+        "active": [],
+        "pending": []
+      },
+      "starterDamageOrigins": {
+        "candidate": "debug",
+        "active": "debug",
+        "pending": "debug"
+      },
+      "sourceLayers": [
+        "base",
+        "difficulty",
+        "event",
+        "debug"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "05-event-candidate",
+      "run": 2,
+      "active": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "pending": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "candidate": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "differences": {
+        "active": [
+          {
+            "path": "/items/starter/damage",
+            "before": 32,
+            "after": 37,
+            "winningLayer": "event"
+          }
+        ],
+        "pending": [
+          {
+            "path": "/items/starter/damage",
+            "before": 32,
+            "after": 37,
+            "winningLayer": "event"
+          }
+        ]
+      },
+      "starterDamageOrigins": {
+        "candidate": "event",
+        "active": "debug",
+        "pending": "debug"
+      },
+      "sourceLayers": [
+        "base",
+        "difficulty",
+        "event"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "06-staged-37",
+      "run": 2,
+      "active": {
+        "hash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "sourceSha256": "29dd6fa2e5fa897294ecb2749a05a6d1dce3ae50db710c5542b67d1346fe28fc",
+        "starterDamage": 32
+      },
+      "pending": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "candidate": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "differences": {
+        "active": [
+          {
+            "path": "/items/starter/damage",
+            "before": 32,
+            "after": 37,
+            "winningLayer": "event"
+          }
+        ],
+        "pending": []
+      },
+      "starterDamageOrigins": {
+        "candidate": "event",
+        "active": "debug",
+        "pending": "event"
+      },
+      "sourceLayers": [
+        "base",
+        "difficulty",
+        "event"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "07-active-37",
+      "run": 3,
+      "active": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "pending": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "candidate": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "differences": {
+        "active": [],
+        "pending": []
+      },
+      "starterDamageOrigins": {
+        "candidate": "event",
+        "active": "event",
+        "pending": "event"
+      },
+      "sourceLayers": [
+        "base",
+        "difficulty",
+        "event"
+      ],
+      "diagnostics": []
+    },
+    {
+      "name": "08-invalid",
+      "run": 3,
+      "active": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "pending": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "candidate": null,
+      "differences": {
+        "active": null,
+        "pending": null
+      },
+      "starterDamageOrigins": {
+        "candidate": null,
+        "active": "event",
+        "pending": "event"
+      },
+      "sourceLayers": [],
+      "diagnostics": [
+        "Event source /workspaces/kitu-logic-processor/.tmp/stage12/authoring/sample.arena-event.sqlite: items/damage: integer out of range"
+      ]
+    },
+    {
+      "name": "09-recovered",
+      "run": 3,
+      "active": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "pending": {
+        "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+        "sourceSha256": "21de339e875296b87bc29001d14a029494e4fa6f31a2ec3564be92622f6c9eb6",
+        "starterDamage": 37
+      },
+      "candidate": {
+        "hash": "460913f06a4a798eeaf146005bec889147aa2a7b33548916f0d20c6aa28a89d6",
+        "sourceSha256": "410de5d63182b6947d23e5e6aa3ce888daab9a92f1ebb4a49aeb3a9657f76e1c",
+        "starterDamage": 39
+      },
+      "differences": {
+        "active": [
+          {
+            "path": "/items/starter/damage",
+            "before": 37,
+            "after": 39,
+            "winningLayer": "event"
+          }
+        ],
+        "pending": [
+          {
+            "path": "/items/starter/damage",
+            "before": 37,
+            "after": 39,
+            "winningLayer": "event"
+          }
+        ]
+      },
+      "starterDamageOrigins": {
+        "candidate": "event",
+        "active": "event",
+        "pending": "event"
+      },
+      "sourceLayers": [
+        "base",
+        "difficulty",
+        "event"
+      ],
+      "diagnostics": []
+    }
+  ],
+  "browser": {
+    "navigation": [
+      "/game-parameters",
+      "/shell",
+      "/game-parameters",
+      "/",
+      "/game-parameters"
+    ],
+    "consoleErrors": 0,
+    "pageErrors": 0,
+    "errorOverlays": 0,
+    "webSocket": "open",
+    "originsFilterVerified": true,
+    "invalidApplyDisabled": true,
+    "renderedSourcePathsDigestsAndVersionsMatchApi": true,
+    "renderedActiveAndPendingRetainedOnInvalid": true
+  },
+  "setupCorrection": "Dedicated Admin initially set PUBLIC_KITU_RUNTIME_WS_URL instead of PUBLIC_KITU_ADMIN_WS_URL. Recreated dedicated Admin with PUBLIC_KITU_ADMIN_WS_URL=ws://127.0.0.1:8790/ws and reloaded; final connection and navigation passed. No source code change required.",
+  "recording": {
+    "id": "de5aca74604261712e97c4a146cc6e871deea3d46c685b3260e4f0dcdb787006",
+    "savedAfter": "04-active-32",
+    "bytes": 5269061,
+    "verification": "Root will verify through CLI after browser handoff; original ID and file preserved."
+  },
+  "finalFixture": {
+    "layers": [
+      "base",
+      "difficulty",
+      "event"
+    ],
+    "eventSqliteStarterDamage": 39,
+    "debugOverride": "removed from plan; original TMD preserved",
+    "activeStarterDamage": 37,
+    "pendingStarterDamage": 37,
+    "candidateStarterDamage": 39,
+    "candidateStaged": false
+  },
+  "screenshots": {
+    "publication": "local only",
+    "files": [
+      {
+        "path": ".tmp/stage12/browser-proof/02-debug-origin.png",
+        "sha256": "dfd69b2adfc19d65829a6b85a68b78cf0ece5c34b38bfa187d8b15120558af0e"
+      },
+      {
+        "path": ".tmp/stage12/browser-proof/03-staged.png",
+        "sha256": "4f1c71ccf6e38920f452869117836cf64744c12f993004088c02d844ad6bcdb8"
+      },
+      {
+        "path": ".tmp/stage12/browser-proof/05-event.png",
+        "sha256": "6c90ace244084b66844ce416d7a5ae83e1bca1ea3461a6118825bf1abb3b687c"
+      },
+      {
+        "path": ".tmp/stage12/browser-proof/08-invalid.png",
+        "sha256": "c2b76883a44145e172da1d7e51592b77bd080a67a9d39bceec63ef09961c86dc"
+      },
+      {
+        "path": ".tmp/stage12/browser-proof/09-recovered.png",
+        "sha256": "efab2873d6733eb315be2b87b39c0bdd7c2788adfb80590b1fd00ddbd26dd181"
+      }
+    ]
+  },
+  "frontendFiles": {
+    "tools/kitu-web-admin/frontend/src/lib/arena-content.ts": "0a914225fdef509e509b2ada517600a312dff0487929b16d2cb8127296f23605",
+    "tools/kitu-web-admin/frontend/src/routes/(project)/game-parameters/+page.svelte": "a010b25630df1d40c2edfca1d994c02d9e57cf51abea823dfae8d55df73279f9"
+  }
+}

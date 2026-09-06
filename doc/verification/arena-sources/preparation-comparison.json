@@ -1,0 +1,6 @@
+{
+  "ticks": 28,
+  "stateAndOutput": "exact match",
+  "expected": ".tmp/stage12/reference/preparation.expected.ndjson",
+  "actual": ".tmp/stage12/reference/preparation.actual.ndjson"
+}

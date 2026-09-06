@@ -1,0 +1,20 @@
+{
+  "rust": {
+    "suites": 51,
+    "passed": 248,
+    "failed": 0,
+    "ignored": 0,
+    "logSha256": "8f466155df367d855b2ea3496fd336454cf3d012db992123546b5d8354ec3ee8"
+  },
+  "macNative": {
+    "suites": 4,
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "logSha256": "23da8e1ecbf6ecc35bfc07806e4f4eb70b5e86e6e14ccd7ede1f23cf74b12b1f"
+  },
+  "fmt": "passed",
+  "clippy": "passed",
+  "rustdocWarningsDenied": "passed",
+  "frozenReference": "unchanged hashes; preparation28/12/12 and stock5528/550/53 verified"
+}

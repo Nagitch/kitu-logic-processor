@@ -1,0 +1,100 @@
+{
+  "rust": {
+    "suites": 51,
+    "passed": 248,
+    "failed": 0,
+    "ignored": 0,
+    "logSha256": "8f466155df367d855b2ea3496fd336454cf3d012db992123546b5d8354ec3ee8"
+  },
+  "macNative": {
+    "suites": 4,
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0,
+    "logSha256": "23da8e1ecbf6ecc35bfc07806e4f4eb70b5e86e6e14ccd7ede1f23cf74b12b1f"
+  },
+  "fmt": "passed",
+  "clippy": "passed",
+  "rustdocWarningsDenied": "passed",
+  "frozenReference": "unchanged hashes; preparation28/12/12 and stock5528/550/53 verified",
+  "stage": 12,
+  "issue": 152,
+  "pr": 153,
+  "baseRevision": "cef5c0538984b9cbb69f3c2c47d4477798f4e423",
+  "implementationRevision": "42fbe9a4fa6371e97297049b90ed0a32e2b77b51",
+  "verifiedAtUtc": "2026-09-06T10:06:32.757741+00:00",
+  "sourceSha256": {
+    "apps/demo-game/src/arena/config.rs": "991d65de92ad8af216cb3efa2ac439faaed935f48c809e16c4e33373f591f09c",
+    "apps/demo-game/src/arena/config/layers.rs": "0edc5dec37238a53a8fc9bec48a04975883e865490739bb094489a94b169697e",
+    "apps/demo-game/src/arena/config/sources.rs": "1f005bb0ac0a09bc58a2c265aeaf3c082d6bc3e64d0ea154e0bf88049c25b362",
+    "apps/demo-game/src/host/content.rs": "6ddd4f4fa1815c574748b4abaf36681ec3c29f74b9771428a6deaa68ebaf3504",
+    "crates/kitu-data-sqlite/src/lib.rs": "17313888d0acb982ff62193f28a142dcec1ca13c9c533e25237f2dc52ec8b3aa",
+    "crates/kitu-data-sqlite/src/reader.rs": "43ac19c5a6a671252b98cd110b234eff682da135fd18145afb29a8c2109f133e",
+    "Cargo.lock": "869d68127fd4372f68b9527508e2c4364acb24ee4398bff262221405d83d87b1"
+  },
+  "frontend": {
+    "check": "0 errors, 0 warnings",
+    "lint": "passed",
+    "fullProductionBuild": "pnpm build passed, including WASM prebuild and Vite/adapter-node",
+    "fullBuildLogSha256": "100275d562b4744f160dc3c284998890e824560706976ccef69b146f882c8c83",
+    "browser": "browser.json; real four-layer changes, next-run activation, invalid retention and recovery; no console errors"
+  },
+  "packageLists": {
+    "sqlite": "passed",
+    "app": "passed with existing non-publishable app metadata warning",
+    "noCratesIoPublication": true
+  },
+  "native": {
+    "macChecks": 12,
+    "cPreparation": "28 ticks, 40 inputs; complete state/output equal",
+    "cStock": "5528 ticks, 5581 inputs; complete state/output equal",
+    "standalonePreparation": "28 ticks, 40 inputs; exact match and visual QA",
+    "standaloneStock": "5528 ticks, 5581 inputs; exact match, 11F death/retry and visual QA",
+    "build": "Unity 6000.6.0f1 ARM64 Mono; bundled library signature/code verified, 0 errors, 4 existing shader/GPU warnings"
+  },
+  "unity": {
+    "editMode": 50,
+    "playMode": 21,
+    "failed": 0,
+    "skipped": 0,
+    "sameBuildStockRecording": "d8ba349add4779ff2797eb2e15939c284aad8f72a6646440b4ad3dbec420dd17"
+  },
+  "cli": {
+    "recordingId": "de5aca74604261712e97c4a146cc6e871deea3d46c685b3260e4f0dcdb787006",
+    "recordedTicks": 34302,
+    "savedDamage": 32,
+    "currentAuthoringDamage": 39,
+    "liveActiveDamage": 37,
+    "pendingDamage": 37,
+    "savedWinningLayer": "debug",
+    "liveWinningLayer": "event",
+    "firstStep": 0,
+    "seekTick": 34301,
+    "seekStateEqualsVerifiedState": true,
+    "stageDuringReplay": {
+      "id": 1,
+      "ok": false,
+      "data": null,
+      "error": "replay is read-only; return to live mode before sending game inputs"
+    },
+    "returnLive": "same active/pending/candidate values, paused then explicit resume/pause",
+    "sessionId": "1-1788687912503672559",
+    "savedContentHash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+    "currentActiveHash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+    "candidateHash": "460913f06a4a798eeaf146005bec889147aa2a7b33548916f0d20c6aa28a89d6",
+    "authoringSourceModifiedSinceRecording": true
+  },
+  "compatibility": {
+    "singleTmdJson": "unchanged legacy fields",
+    "valuesHash": "unchanged semantics",
+    "sourceStack": "ordered detached provenance, queried SQLite WAL snapshot digest",
+    "authoringEdits": "saved values/provenance replay independently of current files",
+    "differentExecutionBuilds": "strict rejection remains; exact stage12 Linux and macOS binaries/Player archived locally before later work"
+  },
+  "limits": [
+    "Tanu public read/evaluate calls are indivisible; cancellation is checked around calls and between tables.",
+    "Each source has a consistent snapshot; multiple separate files have no shared cross-file transaction.",
+    "Stage12 PNGs, native binaries, full traces and Unity XML/logs remain local; compact reports and hashes are committed.",
+    "Nine separately authorized original stage11 PNGs were added to the preceding stage verification directory, unchanged."
+  ]
+}
