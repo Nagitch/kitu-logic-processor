@@ -69,7 +69,16 @@ pub fn replay_reference(name: &str, limit: usize) -> (usize, usize) {
 pub fn replay_reference_observing(
     name: &str,
     limit: usize,
+    observe: impl FnMut(&OscMessage),
+) -> (usize, usize) {
+    replay_reference_observing_ticks(name, limit, observe, |_, _| {})
+}
+
+pub fn replay_reference_observing_ticks(
+    name: &str,
+    limit: usize,
     mut observe: impl FnMut(&OscMessage),
+    mut on_tick: impl FnMut(&DemoRuntime, &[OscBundle]),
 ) -> (usize, usize) {
     let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../kitu-integration-runner/scenarios/arena/reference")
@@ -144,7 +153,9 @@ pub fn replay_reference_observing(
             }
         }
         runtime.tick_once().unwrap();
-        for bundle in runtime.drain_output_buffer() {
+        let outputs = runtime.drain_output_buffer();
+        on_tick(&runtime, &outputs);
+        for bundle in outputs {
             for message in bundle.messages {
                 observe(&message);
                 if message.address == "/ui/arena/command" {

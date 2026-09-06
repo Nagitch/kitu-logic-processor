@@ -1,6 +1,14 @@
 # kitu-tsq1
 
-TSQ1 timeline AST and playback helpers for Kitu presentation flows.
+Real TSQ1 binary recordings, typed OSC-IR conversion and legacy timeline helpers.
+
+`recording::Recording` uses the pinned public TSQ1/OSC APIs, with explicit tick/order
+envelopes and application-owned manifests. i32/i64 widths, finite f32 values,
+argument/message ordering and immediate bundles round trip losslessly. Unsupported
+bundle semantics are rejected. See `doc/specs/arena-replay.md` in the repository.
+
+The old `Timeline::parse` emit/wait text helper remains a compatibility API; it is
+not the binary TSQ1 format and is not used by Arena recording.
 
 ## Responsibilities
 - Model TSQ1 timelines and events in a deterministic, testable form.

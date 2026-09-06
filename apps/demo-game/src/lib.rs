@@ -8,6 +8,7 @@ use kitu_runtime::{build_runtime, Runtime};
 use kitu_transport::LocalChannel;
 
 pub mod arena;
+pub mod replay;
 
 /// Stable app identifier used in project-scoped app actions.
 pub const APP_ID: &str = "demo-game";

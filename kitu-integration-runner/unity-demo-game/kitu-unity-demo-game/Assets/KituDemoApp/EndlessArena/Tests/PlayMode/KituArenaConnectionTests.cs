@@ -310,7 +310,9 @@ namespace UnityOnlyArena.Tests
                     { client.Command("use", 3); usedItem = item; }
                 }
                 client.Frame(move, aim, fire, fire, fire);
-                yield return null;
+                // Drive one intent per projected Runtime update, independent of
+                // uncapped batchmode render FPS (the device path is also 60 Hz).
+                yield return Until(() => client.State.tick > state.tick, "stock input applied");
             }
             Assert.That(client.State.phase, Is.EqualTo(5), "stock run must naturally reach results");
             Assert.That(client.State.floor, Is.EqualTo(11), "stock loadout must survive ten floors");

@@ -41,7 +41,7 @@ Implementation status:
 
 - Endless Arena now runs its complete game rules in the persistent 60 Hz Kitu application; Unity is the default input/presentation client. See the [run instructions](kitu-integration-runner/unity-demo-game/README.md#endless-arena-with-kitu-default), [contract](doc/specs/arena-runtime-contract.md) and [comparison evidence](doc/verification/arena-progression/results.json).
 - Arena's real [Tanu tables](apps/demo-game/content/arena.tmd) can be edited in VS Code, evaluated and validated in Admin, and applied to the next run. Active runs retain their saved values and hash. See the [authoring workflow](apps/demo-game/README.md#tanu-parameters) and [evidence](doc/verification/arena-tanu/results.json).
-- The Unity-only reference and frozen inputs remain available. TSQ1 replay, live CLI/Shell commands and full native embedding follow in the [staged implementation](https://github.com/Nagitch/kitu-logic-processor/issues/129).
+- The Unity-only reference and frozen inputs remain available. Real [TSQ1 session recording and re-execution](doc/specs/arena-replay.md) preserve exact ticks, ordered inputs and frozen content. Admin playback controls, live CLI/Shell commands and full native embedding follow in the [staged implementation](https://github.com/Nagitch/kitu-logic-processor/issues/129).
 - Several data/content and tooling sections below describe target architecture rather than finished production features.
 - For the current implemented/partial/staged breakdown, use [doc/architecture.md](doc/architecture.md#current-implementation-staging).
 - For the rationale and tradeoffs behind accepted cross-cutting choices, use

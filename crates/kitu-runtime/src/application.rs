@@ -5,7 +5,8 @@ use kitu_ecs::EcsWorld;
 use kitu_osc_ir::OscBundle;
 
 /// Identity and schema information retained alongside a logical input bundle.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct InputMetadata {
     /// Stable producer identity, retained across reconnects to the same runtime.
     pub source: String,

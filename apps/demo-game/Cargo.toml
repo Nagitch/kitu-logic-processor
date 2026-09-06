@@ -21,6 +21,7 @@ kitu-runtime = { path = "../../crates/kitu-runtime" }
 kitu-core = { path = "../../crates/kitu-core" }
 kitu-ecs = { path = "../../crates/kitu-ecs" }
 kitu-data-tmd = { path = "../../crates/kitu-data-tmd" }
+kitu-tsq1 = { path = "../../crates/kitu-tsq1" }
 sha2 = "0.11"
 hex = "0.4"
 kitu-transport = { path = "../../crates/kitu-transport" }
@@ -30,3 +31,7 @@ tokio = { version = "1", features = ["full"] }
 tower-http = { version = "0.7", features = ["cors"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[build-dependencies]
+sha2 = "0.11"
+hex = "0.4"

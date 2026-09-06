@@ -761,6 +761,7 @@ dependencies = [
  "kitu-osc-ir",
  "kitu-runtime",
  "kitu-transport",
+ "kitu-tsq1",
  "serde",
  "serde_json",
  "sha2",
@@ -816,6 +817,7 @@ dependencies = [
  "kitu-ecs",
  "kitu-osc-ir",
  "kitu-transport",
+ "serde",
 ]
 
 [[package]]
@@ -849,7 +851,13 @@ dependencies = [
 name = "kitu-tsq1"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "kitu-core",
+ "kitu-osc-ir",
+ "serde",
+ "serde_json",
+ "tsq1",
+ "tsq1-osc",
 ]
 
 [[package]]
@@ -941,6 +949,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88904434abc2901f197fe8cc55f0445e7ded921dba5911dad2e2b39b48e663c4"
 
 [[package]]
+name = "midly"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "207d755f4cb882d20c4da58d707ca9130a0c9bc5061f657a4f299b8e36362b7a"
+
+[[package]]
 name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -996,6 +1010,27 @@ version = "0.1.0"
 source = "git+https://github.com/Nagitch/openformula-kernel.git?rev=5448dcf6d130e4355da15aeed6c88e56a9a15673#5448dcf6d130e4355da15aeed6c88e56a9a15673"
 dependencies = [
  "libm",
+]
+
+[[package]]
+name = "osc-codec-msgpack"
+version = "0.1.0-alpha.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "adc6e1d77ba4415e216d9eff921d266b8361f2599bb7557586ab74f0bbee2d44"
+dependencies = [
+ "osc-ir",
+ "rmp-serde",
+ "serde",
+]
+
+[[package]]
+name = "osc-ir"
+version = "0.1.0-alpha.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56f6bfb8751d4c5420e75a5104e0100be476dc915a6f4883c5f53c42e20005fb"
+dependencies = [
+ "serde",
+ "serde_bytes",
 ]
 
 [[package]]
@@ -1769,6 +1804,25 @@ dependencies = [
  "tracing",
  "tracing-core",
  "tracing-log",
+]
+
+[[package]]
+name = "tsq1"
+version = "0.1.0"
+source = "git+https://github.com/Nagitch/tsq1?rev=05707147e83a4fba591a3933d49f056bb6d3540b#05707147e83a4fba591a3933d49f056bb6d3540b"
+dependencies = [
+ "midly",
+ "openformula-kernel",
+]
+
+[[package]]
+name = "tsq1-osc"
+version = "0.1.0"
+source = "git+https://github.com/Nagitch/tsq1?rev=05707147e83a4fba591a3933d49f056bb6d3540b#05707147e83a4fba591a3933d49f056bb6d3540b"
+dependencies = [
+ "osc-codec-msgpack",
+ "osc-ir",
+ "tsq1",
 ]
 
 [[package]]

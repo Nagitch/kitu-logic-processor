@@ -174,6 +174,18 @@ struct ArenaApplication;
 pub fn install(runtime: &mut DemoRuntime) -> Result<()> {
     let content = config::ContentVersion::from_tmd(include_bytes!("../content/arena.tmd"))
         .map_err(|_| KituError::InvalidInput("invalid bundled Arena TMD"))?;
+    install_with_content(runtime, content)
+}
+
+/// Installs an unstarted Arena using detached, previously evaluated content.
+/// Replay uses this boundary so the current authoring file is never consulted.
+pub fn install_with_content(
+    runtime: &mut DemoRuntime,
+    content: config::ContentVersion,
+) -> Result<()> {
+    content
+        .validate()
+        .map_err(|_| KituError::InvalidInput("invalid initial Arena content"))?;
     runtime.install_application(ArenaApplication)?;
     runtime.world_mut().insert_resource(ArenaSession {
         pending_content: Some(Arc::new(content)),
