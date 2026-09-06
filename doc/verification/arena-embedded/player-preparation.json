@@ -1,13 +1,13 @@
 {
-  "verifiedAtUtc": "2026-09-06T08:17:15.012244+00:00",
-  "elapsedSeconds": 5.450129747390747,
+  "verifiedAtUtc": "2026-09-06T09:00:52.396579+00:00",
+  "elapsedSeconds": 5.467775106430054,
   "result": {
     "backend": "native",
     "scenario": "preparation",
     "matched": true,
     "ticks": 28,
     "inputs": 40,
-    "sessionId": "76250-1788682633750369000",
+    "sessionId": "80158-1788685251122748000",
     "deathObserved": false,
     "retryObserved": false,
     "screenshots": [
@@ -18,12 +18,12 @@
   "executable": {
     "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
     "bytes": 35172,
-    "sha256": "7f1fcefdcf4e632f1e64716572c130c49a3d81e6ca15f80ad3667cd38faa5c70"
+    "sha256": "6e4daaa63ec4f916695eb06e818453cf0effbc43822799e748ac9acecc4989ef"
   },
   "bundledPlugin": {
     "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/PlugIns/ARM64/libkitu_demo_game_native.dylib",
-    "bytes": 24873408,
-    "sha256": "1235ae0fd86f2ad4991d398bf0290a9370838650c4728c9909a57578c020d927",
+    "bytes": 24876656,
+    "sha256": "35d90e9e91ac071644bf2e3171ab511ea7bd598621d6bc8618af9cb3ca4bcaae",
     "architecture": "arm64",
     "installName": "@rpath/libkitu_demo_game_native.dylib",
     "dependencies": [
@@ -43,33 +43,33 @@
       "kitu_application_submit_json",
       "kitu_application_tick"
     ],
-    "unsignedSha256": "0c6003a4636d8b4de24e8bb0b994dd47eb869d1d855b4dbb4579b4e19ccf59d0",
+    "unsignedSha256": "0c6c37b8e4b6e0ea4bb47ff8ecec66abdf2fc1f07f3c231e24d3d4fc72125602",
     "signatureVerified": true
   },
   "trace": {
-    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/preparation.trace",
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.trace",
     "bytes": 11733,
     "sha256": "2c764a254771e919c33ca8093322c31093d547443b2c942b061bb9f8072d5362"
   },
   "expected": {
-    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/preparation.expected.ndjson",
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.expected.ndjson",
     "bytes": 363311,
     "sha256": "d1f06c141ad8444a8f843639b1cb231c8068538165164a0303e4b12b9e7f5084"
   },
   "actual": {
-    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-preparation/actual.ndjson",
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-preparation/actual.ndjson",
     "bytes": 363311,
     "sha256": "3e565d9dda71784ef6ded1688936ff76a5b12a8701d7104b974333687c7ecc9c"
   },
   "independentComparison": {
     "ticks": 28,
     "stateAndOutput": "exact match",
-    "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/preparation.expected.ndjson",
-    "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-preparation/actual.ndjson"
+    "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.expected.ndjson",
+    "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-preparation/actual.ndjson"
   },
   "screenshots": [
     {
-      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-preparation/inventory.png",
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-preparation/inventory.png",
       "bytes": 133884,
       "sha256": "27e19d33d1595fabc836277acb3d0c02516addb79923ec9ef3e74e9278371a04"
     }
@@ -84,12 +84,12 @@
     "-screen-height",
     "720",
     "-logFile",
-    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-preparation/player.log",
+    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-preparation/player.log",
     "--arena-self-test",
-    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/preparation.trace",
+    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.trace",
     "--arena-expected",
-    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/preparation.expected.ndjson",
+    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.expected.ndjson",
     "--arena-evidence",
-    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-preparation"
+    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-preparation"
   ]
 }

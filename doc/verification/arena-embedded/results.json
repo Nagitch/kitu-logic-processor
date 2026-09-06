@@ -29,5 +29,6 @@
   ],
   "unity": "unity-tests.json",
   "ordinaryPlayerCliAndAdmin": "live-bridge.json",
-  "reviewRegression": "review-regression.json"
+  "reviewRegression": "review-regression.json",
+  "finalOrdinaryPlayerCliAndAdmin": "final-live-bridge.json"
 }

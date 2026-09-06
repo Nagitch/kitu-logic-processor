@@ -1,6 +1,6 @@
 {
   "ticks": 28,
   "stateAndOutput": "exact match",
-  "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/preparation.expected.ndjson",
-  "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/preparation.actual.ndjson"
+  "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.expected.ndjson",
+  "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.actual.ndjson"
 }

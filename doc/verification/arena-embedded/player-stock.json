@@ -1,13 +1,13 @@
 {
-  "verifiedAtUtc": "2026-09-06T08:18:02.367834+00:00",
-  "elapsedSeconds": 28.901726961135864,
+  "verifiedAtUtc": "2026-09-06T09:01:56.575479+00:00",
+  "elapsedSeconds": 28.745537042617798,
   "result": {
     "backend": "native",
     "scenario": "stock-eleven-death-retry",
     "matched": true,
     "ticks": 5528,
     "inputs": 5581,
-    "sessionId": "76306-1788682656355990000",
+    "sessionId": "80206-1788685290716865000",
     "deathObserved": true,
     "retryObserved": true,
     "screenshots": [
@@ -22,12 +22,12 @@
   "executable": {
     "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
     "bytes": 35172,
-    "sha256": "7f1fcefdcf4e632f1e64716572c130c49a3d81e6ca15f80ad3667cd38faa5c70"
+    "sha256": "6e4daaa63ec4f916695eb06e818453cf0effbc43822799e748ac9acecc4989ef"
   },
   "bundledPlugin": {
     "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/PlugIns/ARM64/libkitu_demo_game_native.dylib",
-    "bytes": 24873408,
-    "sha256": "1235ae0fd86f2ad4991d398bf0290a9370838650c4728c9909a57578c020d927",
+    "bytes": 24876656,
+    "sha256": "35d90e9e91ac071644bf2e3171ab511ea7bd598621d6bc8618af9cb3ca4bcaae",
     "architecture": "arm64",
     "installName": "@rpath/libkitu_demo_game_native.dylib",
     "dependencies": [
@@ -47,53 +47,53 @@
       "kitu_application_submit_json",
       "kitu_application_tick"
     ],
-    "unsignedSha256": "0c6003a4636d8b4de24e8bb0b994dd47eb869d1d855b4dbb4579b4e19ccf59d0",
+    "unsignedSha256": "0c6c37b8e4b6e0ea4bb47ff8ecec66abdf2fc1f07f3c231e24d3d4fc72125602",
     "signatureVerified": true
   },
   "trace": {
-    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/stock-eleven-death-retry.trace",
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/stock-eleven-death-retry.trace",
     "bytes": 2209146,
     "sha256": "0b14c384ac29e986a51cde1b5c206fc3844472b5dd50fec1793b713ad262d1f8"
   },
   "expected": {
-    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/stock-eleven-death-retry.expected.ndjson",
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/stock-eleven-death-retry.expected.ndjson",
     "bytes": 74286921,
     "sha256": "e245c9b92c340472cfe7d6c2c8c63b1398f8903d93cb84ddfa62aafca703bb50"
   },
   "actual": {
-    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock/actual.ndjson",
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock/actual.ndjson",
     "bytes": 74286921,
     "sha256": "53895b09088ff33fbb6235331c33b724df65643d1ffaeb1918cc73fb9244001c"
   },
   "independentComparison": {
     "ticks": 5528,
     "stateAndOutput": "exact match",
-    "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/stock-eleven-death-retry.expected.ndjson",
-    "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock/actual.ndjson"
+    "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/stock-eleven-death-retry.expected.ndjson",
+    "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock/actual.ndjson"
   },
   "screenshots": [
     {
-      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock/boss.png",
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock/boss.png",
       "bytes": 138402,
       "sha256": "d5be5258631e4e7ec9fe93896e31d17ff32541ce210ec714133a4b22f4e31671"
     },
     {
-      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock/chest.png",
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock/chest.png",
       "bytes": 190335,
       "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92"
     },
     {
-      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock/combat.png",
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock/combat.png",
       "bytes": 125534,
       "sha256": "61fe10d494fa62ab0a1776521607dfb52703598fbf8e636c451c4f137582829c"
     },
     {
-      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock/death-11f.png",
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock/death-11f.png",
       "bytes": 169254,
       "sha256": "f322a81b1e913f415e27d8942c62edbd83c89108c66ee5318bdc47d24ec1bb61"
     },
     {
-      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock/retry.png",
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock/retry.png",
       "bytes": 116306,
       "sha256": "7ad3badf7dc7194e24a2290921a0285cee48fcb7fd1889bcd7a887b255b4c231"
     }
@@ -108,12 +108,12 @@
     "-screen-height",
     "720",
     "-logFile",
-    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock/player.log",
+    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock/player.log",
     "--arena-self-test",
-    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/stock-eleven-death-retry.trace",
+    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/stock-eleven-death-retry.trace",
     "--arena-expected",
-    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/reference/stock-eleven-death-retry.expected.ndjson",
+    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/stock-eleven-death-retry.expected.ndjson",
     "--arena-evidence",
-    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/player-stock"
+    "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-player-stock"
   ]
 }

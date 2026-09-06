@@ -1,13 +1,6 @@
 {
-  "verifiedAtUtc": "2026-09-06T08:14:06.813172+00:00",
+  "verifiedAtUtc": "2026-09-06T09:00:34.121239+00:00",
   "container": "kitu-e19c-arena-host",
-  "command": [
-    "/usr/local/bin/docker",
-    "inspect",
-    "--format",
-    "{{json .State}}",
-    "kitu-e19c-arena-host"
-  ],
   "state": {
     "Status": "exited",
     "Running": false,
@@ -18,12 +11,12 @@
     "Pid": 0,
     "ExitCode": 137,
     "Error": "",
-    "StartedAt": "2026-09-06T08:00:24.480424527Z",
-    "FinishedAt": "2026-09-06T08:12:52.615424732Z"
+    "StartedAt": "2026-09-06T08:19:02.631786289Z",
+    "FinishedAt": "2026-09-06T09:00:15.530687325Z"
   },
-  "purpose": "Graphical native standalone fixtures without external Arena server",
+  "purpose": "Final review native standalone fixtures without external server",
   "afterBothGraphicalRuns": {
-    "container": "kitu-e19c-arena-host",
+    "verifiedAtUtc": "2026-09-06T09:02:48.467365+00:00",
     "state": {
       "Status": "exited",
       "Running": false,
@@ -34,9 +27,8 @@
       "Pid": 0,
       "ExitCode": 137,
       "Error": "",
-      "StartedAt": "2026-09-06T08:00:24.480424527Z",
-      "FinishedAt": "2026-09-06T08:12:52.615424732Z"
-    },
-    "observation": "docker inspect after stock session 14471 exited 0 and before restart handoff also reported Running:false and Pid:0"
+      "StartedAt": "2026-09-06T08:19:02.631786289Z",
+      "FinishedAt": "2026-09-06T09:00:15.530687325Z"
+    }
   }
 }
