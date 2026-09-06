@@ -54,6 +54,35 @@ struct Envelope {
     metadata: Value,
 }
 
+impl TimedBundle {
+    /// Validates OSC encoding and returns a conservative wire-size bound for this
+    /// envelope/event pair. The bound includes maximum-width TSQ1 framing, so it
+    /// remains valid for any preceding tick without serializing the whole track.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_tsq1::recording::TimedBundle;
+    /// let input = TimedBundle { tick: 0, order: 0, metadata: serde_json::Value::Null,
+    ///     bundle: kitu_osc_ir::OscBundle::new() };
+    /// assert!(input.encoded_size_bound().unwrap() > 0);
+    /// ```
+    pub fn encoded_size_bound(&self) -> Result<usize> {
+        let envelope = serde_json::to_vec(&Envelope {
+            tick: self.tick,
+            order: self.order,
+            metadata: self.metadata.clone(),
+        })?;
+        let payload = bundle_bytes(&self.bundle)?;
+        // Two event deltas and lengths are at most ten-byte VLQs each; the
+        // remaining domain/kind/vendor/OSC-format discriminants fit in 24 bytes.
+        envelope
+            .len()
+            .checked_add(payload.len())
+            .and_then(|size| size.checked_add(64))
+            .context("encoded input size overflow")
+    }
+}
+
 impl Recording {
     /// Encodes using the pinned TSQ1 public API, validating order before writing.
     ///
@@ -319,6 +348,19 @@ mod tests {
             ],
         };
         let bytes = doc.encode().unwrap();
+        let empty_size = Recording {
+            manifest: doc.manifest.clone(),
+            entries: vec![],
+        }
+        .encode()
+        .unwrap()
+        .len();
+        let bound: usize = doc
+            .entries
+            .iter()
+            .map(|entry| entry.encoded_size_bound().unwrap())
+            .sum();
+        assert!(bytes.len() <= empty_size + bound);
         assert_eq!(&bytes[..4], b"TSQ1");
         let restored = Recording::decode(&bytes).unwrap();
         assert_eq!(restored, doc);

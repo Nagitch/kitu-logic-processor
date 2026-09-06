@@ -147,6 +147,34 @@ pub(super) async fn verify(
 mod tests {
     use super::*;
     #[tokio::test]
+    async fn unencodable_committed_input_reports_recording_failure_while_game_ticks_continue() {
+        let state = super::super::tests::test_state();
+        {
+            let mut game = state.inner.lock().unwrap();
+            let mut message = OscMessage::new("/test/ignored");
+            message.args.push(OscArg::Float(f32::NAN));
+            game.runtime
+                .try_enqueue_input(
+                    kitu_osc_ir::OscBundle {
+                        messages: vec![message],
+                    },
+                    None,
+                )
+                .unwrap();
+        }
+        advance_runtime_tick(&state).unwrap();
+        advance_runtime_tick(&state).unwrap();
+        let Json(status) = status(State(state.clone())).await.unwrap();
+        assert_eq!(status["liveTick"], 2);
+        assert_eq!(status["ticks"], 0);
+        assert!(status["error"]
+            .as_str()
+            .unwrap()
+            .contains("non-finite OSC float"));
+        assert!(encoded(&state).await.is_err());
+    }
+
+    #[tokio::test]
     async fn live_host_saves_loads_and_verifies_the_same_tick_queue() {
         let state = super::super::tests::test_state();
         {

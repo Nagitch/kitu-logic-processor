@@ -90,6 +90,7 @@ struct InputIdentity {
 pub struct Recorder {
     manifest: Manifest,
     inputs: Vec<TimedBundle>,
+    encoded_size_bound: usize,
 }
 impl Recorder {
     /// Captures initial conditions without advancing or changing the Runtime.
@@ -114,7 +115,7 @@ impl Recorder {
             initial.run == 0 && initial.active.is_none(),
             "recording requires initial Arena state"
         );
-        Ok(Self {
+        let mut recorder = Self {
             manifest: Manifest {
                 version: RECORDING_VERSION,
                 app: "endless-arena".into(),
@@ -128,7 +129,11 @@ impl Recorder {
                 runs: Vec::new(),
             },
             inputs: Vec::new(),
-        })
+            encoded_size_bound: 0,
+        };
+        // Reserve growth from the initial one-digit tick count to any u64.
+        recorder.encoded_size_bound = recorder.encode()?.len() + 20;
+        Ok(recorder)
     }
     /// Records one successfully completed tick, before committed inputs are drained.
     /// Missing ticks, excessive sessions or invalid OSC fail without partial capture.
@@ -139,7 +144,7 @@ impl Recorder {
         );
         ensure!(
             self.manifest.ticks < MAX_TICKS,
-            "recording reached one-hour limit; save and start a new session"
+            "recording reached one-hour limit; start a new session"
         );
         let batch = runtime.committed_input_records();
         ensure!(
@@ -171,6 +176,32 @@ impl Recorder {
                 runs.push(serde_json::from_str(json)?);
             }
         }
+        let mut size = self.encoded_size_bound;
+        for (offset, entry) in entries.iter().enumerate() {
+            let identity: InputIdentity = serde_json::from_value(entry.metadata.clone())?;
+            ensure!(
+                identity.sequence == (self.inputs.len() + offset) as u64,
+                "recording queue sequence was skipped"
+            );
+            size = size
+                .checked_add(entry.encoded_size_bound()?)
+                .context("recording size overflow")?;
+        }
+        // These values are already JSON-owned or strings, so serde_json's value
+        // conversion does not change their representation in the TSQ1 manifest.
+        size = size
+            .checked_add(serde_json::to_vec(&proof)?.len() + 1)
+            .context("recording size overflow")?;
+        for run in &runs {
+            size = size
+                .checked_add(serde_json::to_vec(run)?.len() + 1)
+                .context("recording size overflow")?;
+        }
+        ensure!(
+            size <= kitu_tsq1::recording::MAX_BYTES,
+            "recording reached encoded-size limit; start a new session"
+        );
+        self.encoded_size_bound = size;
         self.inputs.extend(entries);
         self.manifest.proofs.push(proof);
         self.manifest.runs.extend(runs);
@@ -356,4 +387,62 @@ fn hash_bundles(bundles: &[OscBundle]) -> Result<String> {
         hash.update(bytes);
     }
     Ok(hex::encode(hash.finalize()))
+}
+
+#[cfg(test)]
+mod recording_bounds_tests {
+    use super::*;
+    use kitu_osc_ir::{OscArg, OscMessage};
+
+    fn pending(runtime: &mut DemoRuntime, argument: OscArg) {
+        let mut message = OscMessage::new("/test/unhandled");
+        message.args.push(argument);
+        runtime
+            .try_enqueue_input(
+                OscBundle {
+                    messages: vec![message],
+                },
+                None,
+            )
+            .unwrap();
+        runtime.tick_once().unwrap();
+    }
+
+    #[test]
+    fn capture_rejects_unencodable_osc_without_poisoning_the_saved_prefix() {
+        let mut runtime = crate::build_arena_runtime().unwrap();
+        let mut recorder = Recorder::new(&runtime).unwrap();
+        let prefix = recorder.encode().unwrap();
+        pending(&mut runtime, OscArg::Float(f32::NAN));
+        let outputs = runtime.drain_output_buffer();
+        assert!(recorder
+            .capture(&runtime, &outputs)
+            .unwrap_err()
+            .to_string()
+            .contains("non-finite OSC float"));
+        assert_eq!(recorder.encode().unwrap(), prefix);
+        assert_eq!(recorder.ticks(), 0);
+    }
+
+    #[test]
+    fn capture_checks_cumulative_encoded_bound_before_appending() {
+        let mut runtime = crate::build_arena_runtime().unwrap();
+        let mut recorder = Recorder::new(&runtime).unwrap();
+        pending(&mut runtime, OscArg::Str("small".into()));
+        let outputs = runtime.drain_output_buffer();
+        recorder.capture(&runtime, &outputs).unwrap();
+        assert!(recorder.encode().unwrap().len() <= recorder.encoded_size_bound);
+        let prefix = recorder.encode().unwrap();
+        // Model an almost-full recorder without allocating 64 MiB in every test.
+        recorder.encoded_size_bound = kitu_tsq1::recording::MAX_BYTES - 1;
+        pending(&mut runtime, OscArg::Str("next valid finite input".into()));
+        let outputs = runtime.drain_output_buffer();
+        assert!(recorder
+            .capture(&runtime, &outputs)
+            .unwrap_err()
+            .to_string()
+            .contains("encoded-size limit"));
+        assert_eq!(recorder.encode().unwrap(), prefix);
+        assert_eq!(recorder.ticks(), 1);
+    }
 }

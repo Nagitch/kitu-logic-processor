@@ -57,7 +57,8 @@ C# reference comparison continues to allow absolute float error `1e-4` while
 requiring exact discrete state, hits/deaths and event ticks/order.
 
 The first recorder is bounded to 216,000 management ticks (one hour), 1,000,000
-input bundles and 64 MiB encoded files. Reaching a recorder bound reports an
+input bundles and 64 MiB encoded files. Capture validates every OSC bundle and maintains a checked, conservative cumulative
+encoded-size bound before appending a tick. Reaching a recorder bound reports an
 incomplete-recording diagnostic without stopping live gameplay. Start a new host
 session for a fresh recording. This is an explicit initial implementation limit,
 not a claim of arbitrary-duration streaming or crash recovery.

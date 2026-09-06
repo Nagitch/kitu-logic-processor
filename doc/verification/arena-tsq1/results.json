@@ -5,10 +5,10 @@
   "tsq1Revision": "05707147e83a4fba591a3933d49f056bb6d3540b",
   "sourceSha256": {
     "apps/demo-game/build.rs": "25ad0ab65ae4ccff6abc6eb0ab884c615a940b77f88c555f02c0fc73612788e6",
-    "apps/demo-game/src/replay.rs": "a94c92dfead1724ac71a702e8487a9f525b8a626c9a52583687e0e77adce685c",
-    "apps/demo-game/src/bin/admin_host/recording.rs": "fc6065a6d0791759be138015bd6be98b294f692abed9c93a5ce100bbd9d79ea6",
+    "apps/demo-game/src/replay.rs": "daef8a968a314f0a6b1547885a2c2e7cd5faff215a842904961b0b67399887fd",
+    "apps/demo-game/src/bin/admin_host/recording.rs": "e2aad1b3308ae7d7888dc2af3620310b8caefc71cd9dcdcaeb044c8fc1b3aeae",
     "apps/demo-game/src/bin/admin_host.rs": "a70158138e901c9aca6ad4334013e277ec99b3990a577bb60217aae06a6c7b63",
-    "crates/kitu-tsq1/src/recording.rs": "5b3a57f9e91b3ceeec9d300b0ef0506150a295aa6797b1b2235a2943a2bfc0f4",
+    "crates/kitu-tsq1/src/recording.rs": "df18f34fad057cea3db0826337f0cd34c6f8edd1841c45e80c4509502734782b",
     "crates/kitu-runtime/src/lib.rs": "b91c815eacd65cc85fce65062bb35886941315a312ced13aa32506b11b92e01c",
     "crates/kitu-runtime/src/application.rs": "bb68dc96960c9cac272a61950c16e8cfb449f1856d63385acf5f1cda960cf382",
     "Cargo.lock": "195e87ac7008ecabeee51ed9617580dbf471a644362cd0da2a8011944d60b00f"
@@ -33,7 +33,8 @@
       "skipped": "0",
       "duration": "101.4366727"
     },
-    "frozenReference": "Original rule/fixture hashes unchanged; 550 stock checkpoints and 53 outcomes through 11F, natural death and retry; zero mismatches"
+    "frozenReference": "Original rule/fixture hashes unchanged; 550 stock checkpoints and 53 outcomes through 11F, natural death and retry; zero mismatches",
+    "reviewFix": "Each captured bundle now validates OSC encoding; checked cumulative conservative wire-size bounds reject overflow before appending. Skipped queue sequences are rejected. Added 2 recorder tests, 1 host status/continued-ticking test and 1 size-bound doctest; affected suites, workspace Clippy and rustdoc passed. The existing real Unity file again verified all 10122 ticks, 30144 inputs and 5 runs through the updated HTTP host."
   },
   "recordings": {
     "stock": {
