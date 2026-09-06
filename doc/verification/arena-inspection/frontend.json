@@ -1,0 +1,108 @@
+{
+  "environment": "Dev Container; pnpm 11.9.0",
+  "checks": {
+    "tests": {
+      "status": "passed",
+      "reproductionCommand": [
+        "pnpm",
+        "test:inspection"
+      ],
+      "log": {
+        "path": ".tmp/stage17/frontend/test-inspection-final.log",
+        "bytes": 1904,
+        "sha256": "c87144f480b499e54eb6c0f2e3ad293951ee057f20475df8ea7af7d29b750cf9"
+      },
+      "counts": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "skipped": 0,
+        "cancelled": 0
+      }
+    },
+    "types": {
+      "status": "passed",
+      "reproductionCommand": [
+        "pnpm",
+        "check"
+      ],
+      "log": {
+        "path": ".tmp/stage17/frontend/check-final.log",
+        "bytes": 285,
+        "sha256": "26dd324eb2c1eb58e9659fce4de06242ab4907b2c0f3a1e6aea6a5ccc5fbbfe1"
+      }
+    },
+    "lint": {
+      "status": "passed",
+      "reproductionCommand": [
+        "pnpm",
+        "lint"
+      ],
+      "log": {
+        "path": ".tmp/stage17/frontend/lint-final.log",
+        "bytes": 151,
+        "sha256": "054948d5fe370de268ac7c93e202ac730d76a536eb1b788973be0c47e8cc7653"
+      }
+    },
+    "wasmAndProductionBuild": {
+      "status": "passed",
+      "reproductionCommand": [
+        "pnpm",
+        "build"
+      ],
+      "log": {
+        "path": ".tmp/stage17/frontend/build.log",
+        "bytes": 10296,
+        "sha256": "4ac32d0f780ed36179f2d3e0dd6cacc030129e3b0495fdb2f25d2b507231b666"
+      }
+    },
+    "finalProductionBuild": {
+      "status": "passed",
+      "reproductionCommand": [
+        "pnpm",
+        "exec",
+        "vite",
+        "build"
+      ],
+      "log": {
+        "path": ".tmp/stage17/frontend/vite-final.log",
+        "bytes": 10011,
+        "sha256": "c27484d67f12b8d20c68b937d48bb417e8eb92cd8df2000134106bedaf8227c7"
+      }
+    }
+  },
+  "backendReadback": {
+    "log": {
+      "path": ".tmp/stage17/frontend/backend-readback.log",
+      "bytes": 333,
+      "sha256": "93a66061a3ae0bdd20fc718b00474526e9bb47043a03f6a9f89ee940a3681f87"
+    },
+    "snapshots": [
+      {
+        "name": "initial",
+        "sessionId": "162487-1788712551465443217",
+        "tick": "-1",
+        "epoch": "0",
+        "revision": "0",
+        "attempt": "0"
+      },
+      {
+        "name": "live",
+        "sessionId": "162487-1788712551465443217",
+        "tick": "0",
+        "epoch": "0",
+        "revision": "1",
+        "attempt": "1"
+      },
+      {
+        "name": "replay",
+        "sessionId": "162487-1788712551465443217",
+        "tick": "0",
+        "epoch": "1",
+        "revision": "2",
+        "attempt": "2"
+      }
+    ]
+  },
+  "scopeNote": "Full WASM/Vite build preceded the final Inspector-only fixes; the final tests/type/lint/Vite checks include those fixes. No Rust/WASM source changed between builds."
+}

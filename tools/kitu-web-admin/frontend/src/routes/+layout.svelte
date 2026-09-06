@@ -39,6 +39,7 @@
       label: "Project",
       items: [
         { href: "/app-actions", label: "App Actions", icon: Bolt },
+        { href: "/arena-inspector", label: "Arena Inspector", icon: Activity },
         { href: "/arena-replay", label: "Arena Replay", icon: Play },
         { href: "/level-designer", label: "Level Designer", icon: Map },
         {
@@ -128,20 +129,22 @@
           </p>
           <p class="truncate text-sm font-semibold">{activeItem.label}</p>
         </div>
-        <div>
-          <p class="text-xs font-medium uppercase text-muted-foreground">
-            Tick
-          </p>
-          <p class="text-sm font-semibold">{$worldSnapshot.tick}</p>
-        </div>
-        <div>
-          <p class="text-xs font-medium uppercase text-muted-foreground">
-            Objects
-          </p>
-          <p class="text-sm font-semibold">{$objectCount}</p>
-        </div>
+        {#if $page.url.pathname !== "/arena-inspector"}
+          <div>
+            <p class="text-xs font-medium uppercase text-muted-foreground">
+              Tick
+            </p>
+            <p class="text-sm font-semibold">{$worldSnapshot.tick}</p>
+          </div>
+          <div>
+            <p class="text-xs font-medium uppercase text-muted-foreground">
+              Objects
+            </p>
+            <p class="text-sm font-semibold">{$objectCount}</p>
+          </div>
+        {/if}
       </div>
-      <TransportStatus />
+      {#if $page.url.pathname !== "/arena-inspector"}<TransportStatus />{/if}
     </header>
 
     <div class="mx-auto max-w-7xl p-5">

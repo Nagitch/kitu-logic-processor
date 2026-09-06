@@ -109,7 +109,7 @@ impl ArenaState {
         }
         self.player_position = (self.player_position
             + controls.movement.clamp_length(1.0) * (5.0 * dt))
-            .clamp_arena(0.5);
+            .clamp_arena(super::geometry::PLAYER_RADIUS);
         if controls.has_aim {
             let direction = controls.aim - self.player_position;
             if direction.squared() > 0.000001 {
@@ -195,10 +195,12 @@ impl ArenaState {
                     }),
                 );
             }
-            self.portal_armed = (self.player_position - Vec2 { x: 0.0, y: 7.5 }).length() > 1.25;
+            self.portal_armed = (self.player_position - super::geometry::PORTAL).length()
+                > super::geometry::PORTAL_RANGE;
         }
         if self.portal_available {
-            let overlaps = (self.player_position - Vec2 { x: 0.0, y: 7.5 }).length() <= 1.25;
+            let overlaps = (self.player_position - super::geometry::PORTAL).length()
+                <= super::geometry::PORTAL_RANGE;
             if !overlaps {
                 self.portal_armed = true;
             } else if self.portal_armed
@@ -603,9 +605,12 @@ impl ArenaState {
             let mut closest_enemy = 0;
             if shot.enemy_owned {
                 if self.phase == 3 {
-                    if let Some(hit) =
-                        segment_circle(from, to, self.player_position, 0.5 + shot.radius)
-                    {
+                    if let Some(hit) = segment_circle(
+                        from,
+                        to,
+                        self.player_position,
+                        super::geometry::PLAYER_RADIUS + shot.radius,
+                    ) {
                         closest = hit;
                     }
                 }
@@ -795,7 +800,7 @@ impl ArenaState {
 }
 
 fn distance_to_wall(position: Vec2, direction: Vec2, radius: f32) -> f32 {
-    let edge = 10.0 - radius;
+    let edge = super::geometry::HALF_EXTENT - radius;
     let mut distance = f32::INFINITY;
     if direction.x > 0.0 {
         distance = distance.min((edge - position.x) / direction.x);

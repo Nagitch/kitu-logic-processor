@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "sessionId": "example-arena-host",
+  "revision": "1700",
+  "attempt": "1701",
+  "epoch": "2",
+  "run": "1",
+  "mode": {
+    "active": true,
+    "recordingId": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "tick": "1649",
+    "totalTicks": "5528",
+    "playing": false,
+    "seeking": false,
+    "error": null
+  },
+  "readOnly": true,
+  "execution": {
+    "package": "kitu-demo-game 0.1.0",
+    "sourceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "target": "aarch64-apple-darwin"
+  },
+  "versions": {
+    "content": {
+      "activeHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+      "pendingHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770"
+    },
+    "script": {
+      "activeHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+      "pendingHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025"
+    },
+    "timeline": {
+      "activeHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "pendingHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82"
+    }
+  },
+  "diagnostics": {
+    "hostError": null,
+    "recordingError": null,
+    "scriptFault": null
+  },
+  "state": {
+    "tick": "1649",
+    "simulationSteps": "1636",
+    "phase": 3,
+    "overlay": "none",
+    "floor": 5,
+    "elapsed": 25.766445,
+    "playerPosition": {
+      "x": 6.264283,
+      "y": 4.4837823
+    },
+    "aimDirection": {
+      "x": -0.8698371,
+      "y": -0.49333906
+    },
+    "inventory": {
+      "health": 110,
+      "maxHealth": 110,
+      "nextItemId": 12,
+      "attackUpgrades": 1,
+      "attackMultiplier": 1.05,
+      "shieldDelayRemaining": 0.0,
+      "damagedThisUpdate": false,
+      "backpack": [
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        }
+      ],
+      "equipment": [
+        {
+          "id": 5,
+          "kind": 1,
+          "damage": 20,
+          "shield": 0,
+          "name": "Power Shooter",
+          "interval": 0.45,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 4,
+          "kind": 1,
+          "damage": 12,
+          "shield": 0,
+          "name": "Quick Shooter",
+          "interval": 0.25,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 10,
+          "kind": 5,
+          "damage": 0,
+          "shield": 110,
+          "name": "Shield",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 8,
+          "kind": 3,
+          "damage": 0,
+          "shield": 0,
+          "name": "Medkit",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        }
+      ],
+      "chest": []
+    },
+    "chestAvailable": false,
+    "portalAvailable": false,
+    "enemiesDefeated": 18,
+    "bossesDefeated": 0,
+    "floorsCleared": 4,
+    "nextEntityId": 242,
+    "transitionRemaining": -3.7252903e-9,
+    "portalArmed": false,
+    "weaponCooldowns": [0.2166665, 0.116666675],
+    "enemies": [
+      {
+        "Id": 199,
+        "Kind": 3,
+        "Position": {
+          "x": 2.526702,
+          "y": 2.3639665
+        },
+        "Health": 141,
+        "MaxHealth": 444,
+        "Radius": 1.0,
+        "Speed": 1.5,
+        "Damage": 26,
+        "AttackInterval": 1.5,
+        "AttackRange": 2.0,
+        "AttackCooldown": 0.0,
+        "BossState": 1,
+        "PhaseRemaining": 0.4000002
+      }
+    ],
+    "projectiles": [
+      {
+        "Id": 239,
+        "Position": {
+          "x": 3.9646616,
+          "y": 2.735985
+        },
+        "Direction": {
+          "x": -0.968125,
+          "y": -0.25046775
+        },
+        "Speed": 12.0,
+        "DistanceRemaining": 9.000003,
+        "Damage": 21,
+        "EnemyOwned": false,
+        "Radius": 0.14
+      },
+      {
+        "Id": 240,
+        "Position": {
+          "x": 4.9461746,
+          "y": 3.285115
+        },
+        "Direction": {
+          "x": -0.93455917,
+          "y": -0.35580775
+        },
+        "Speed": 12.0,
+        "DistanceRemaining": 10.200002,
+        "Damage": 12,
+        "EnemyOwned": false,
+        "Radius": 0.14
+      }
+    ],
+    "grenades": [],
+    "effects": [
+      {
+        "Id": 241,
+        "Kind": 2,
+        "Position": {
+          "x": 3.6616476,
+          "y": 2.4711964
+        },
+        "Direction": {
+          "x": -0.9955665,
+          "y": -0.09406016
+        },
+        "Radius": 0.35,
+        "Remaining": 0.020000001
+      }
+    ],
+    "result": {
+      "present": false,
+      "floor": 0,
+      "enemiesDefeated": 0,
+      "bossesDefeated": 0,
+      "floorsCleared": 0,
+      "maxHealth": 0,
+      "elapsed": 0.0,
+      "attackMultiplier": 0.0,
+      "equipmentNames": []
+    }
+  },
+  "presentation": {
+    "contractVersion": 1,
+    "run": "1",
+    "tick": "1649",
+    "simulationStep": "1636",
+    "bosses": [
+      {
+        "id": "r1:c6",
+        "clipId": "boss-telegraph",
+        "entityId": 199,
+        "floor": 5,
+        "startedTick": "1625",
+        "offsetTick": "24",
+        "nextEventIndex": 3,
+        "eventCount": 5,
+        "radius": 3.0,
+        "intensity": 1.0
+      }
+    ],
+    "floor": null
+  },
+  "arena": {
+    "minX": -10,
+    "maxX": 10,
+    "minY": -10,
+    "maxY": 10,
+    "playerRadius": 0.5,
+    "chest": {
+      "x": -3,
+      "y": 0,
+      "interactionRadius": 2
+    },
+    "portal": {
+      "x": 0,
+      "y": 7.5,
+      "triggerRadius": 1.25
+    }
+  },
+  "events": {
+    "capacity": 256,
+    "byteLimit": 2097152,
+    "payloadByteLimit": 65536,
+    "firstSequence": null,
+    "lastSequence": null,
+    "dropped": "0",
+    "omittedPayloads": "0",
+    "entries": []
+  },
+  "timing": {
+    "scope": "hostUpdate",
+    "capacity": 256,
+    "budgetUs": 16666.666666666668,
+    "maxDurationUs": 86400000000,
+    "totalSamples": "1",
+    "overBudgetSamples": "0",
+    "last": {
+      "attempt": "1701",
+      "revision": "1700",
+      "tick": "1649",
+      "outcome": "replacement",
+      "runtimeAdvanced": false,
+      "simulationAdvanced": false,
+      "durationUs": 52.75,
+      "lockWaitUs": 0.5,
+      "durationClamped": false,
+      "lockWaitClamped": false,
+      "overBudget": false
+    },
+    "samples": [
+      {
+        "attempt": "1701",
+        "revision": "1700",
+        "tick": "1649",
+        "outcome": "replacement",
+        "runtimeAdvanced": false,
+        "simulationAdvanced": false,
+        "durationUs": 52.75,
+        "lockWaitUs": 0.5,
+        "durationClamped": false,
+        "lockWaitClamped": false,
+        "overBudget": false
+      }
+    ],
+    "meanUs": 52.75,
+    "p95Us": 52.75,
+    "maxUs": 52.75
+  }
+}

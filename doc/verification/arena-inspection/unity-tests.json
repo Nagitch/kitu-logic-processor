@@ -1,0 +1,899 @@
+{
+  "unityVersion": "6000.6.0f1",
+  "sourceReports": [
+    {
+      "path": ".tmp/stage17/editmode-summary.json",
+      "bytes": 660,
+      "sha256": "8b925700fd2dc1705fc78224a4d5a3c56ea891ca0f9fac47c07bac0e6d11e6ee"
+    },
+    {
+      "path": ".tmp/stage17/unity-tests/results.json",
+      "bytes": 8029,
+      "sha256": "aad792ce0c554910de81e783f2d45aa77df120e66c3f3e535636a77a7453b3d1"
+    }
+  ],
+  "suites": {
+    "editmode": {
+      "status": "passed",
+      "counts": {
+        "id": "2",
+        "testcasecount": "143",
+        "result": "Passed",
+        "total": "143",
+        "passed": "143",
+        "failed": "0",
+        "inconclusive": "0",
+        "skipped": "0",
+        "asserts": "0",
+        "engine-version": "3.5.0.0",
+        "clr-version": "4.0.30319.42000",
+        "start-time": "2026-09-06 16:24:19Z",
+        "end-time": "2026-09-06 16:24:19Z",
+        "duration": "0.5907001"
+      },
+      "xml": {
+        "path": ".tmp/stage17/editmode.xml",
+        "bytes": 109381,
+        "sha256": "15c91867492b8bc9288372c0284ddeecb274ab098239636ad965b184772d8ce3"
+      }
+    },
+    "playmode-msgpack": {
+      "status": "passed",
+      "counts": {
+        "id": "2",
+        "testcasecount": "31",
+        "result": "Passed",
+        "total": "31",
+        "passed": "31",
+        "failed": "0",
+        "inconclusive": "0",
+        "skipped": "0",
+        "asserts": "0",
+        "engine-version": "3.5.0.0",
+        "clr-version": "4.0.30319.42000",
+        "start-time": "2026-09-06 16:41:15Z",
+        "end-time": "2026-09-06 16:45:48Z",
+        "duration": "272.8688807"
+      },
+      "xml": {
+        "path": ".tmp/stage17/unity-tests/playmode-msgpack.xml",
+        "bytes": 36661,
+        "sha256": "a86895b6380eafed327aa43ce317da5fda08cd825cb3f1b9af60b6d86fba1a77"
+      },
+      "cases": [
+        {
+          "name": "UnityOnlyArena.Tests.ArenaAddressableAssetsTests.DestroyBeforePreparationAndDisposeDuringRealLoadNeverAdoptLateResults",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaAddressableAssetsTests.DisableReenableRetiresClonesBeforeFreshSingleOwner",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaAddressableAssetsTests.DisconnectBeforeReadinessCancelsConnectButRetainsLoadedAssets",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaAddressableAssetsTests.EarlyRepeatedConnectUsesFinalManualSettingsAndCreatesOneView",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaAddressableAssetsTests.PackageChangedAtRealAssetResolutionIsRejectedBeforeNativeCreation",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaAddressableAssetsTests.RehashedMissingKeyFailsBeforeNativeCreationWithoutProceduralFallback",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaAddressableAssetsTests.RehashedWrongLoadedTypeFailsBeforeNativeCreationWithoutProceduralFallback",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.CameraTracksArenaCornersWithoutZoomOrClampingAndSnapsOnRestart",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.CardinalKeysMoveAlongScreenAxesWithTheRotatedCamera",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.ChestDistanceAndCombatInventoryGatesUseEAndTab",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.FullHealthMedkitAndSimultaneousMedkitsDoNotConsumeAnExtraItem",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.HeldButtonsAcrossInventoryCloseRequireReleaseBeforeWeaponsOrItems",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.OpeningStartAndReturnToMenuOwnTheSceneAndRunLifetime",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.PauseSettingsAndFocusLossFreezeCombatAndReturnToPause",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.SettingsDraftCancelResetAndApplyReturnToOpeningWithoutAdvancingRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.SettingsSaveLoadUsesAnIsolatedPrefixAndRejectsInvalidSavedValues",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.WasdAimAndBothMouseButtonsReachTheRunningSimulation",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.ZAndXUseTheirOwnSlotsThroughTheInputSystem",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaInspectionTests.EmbeddedInspectionReadsMatchUnityWithoutAdvancingTheManualOwner",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaInspectionTests.NetworkInspectionMatchesRenderedReplayAcrossForwardBackwardSeekAndRetry",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.DisableAndReenableReleasesOwnershipAndWrongThreadCallsNeverEnterFfi",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.EmbeddedBridgeShellAndReplayControlTheSameProjectedRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaNativeConnectionTests.NativeClockContinuesDuringPauseAndDetachAndReconnectKeepsTheRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSceneScenarioTests.ActualSceneStockRunReachesElevenThenDiesAndRestarts",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.EmbeddedStockRunReachesElevenDiesAndRetriesWithLocalSettings",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.ImmediateReconnectWithQueuedInputsRetainsSessionAndRequiresResume",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveCliAndBrowserShellControlTheProjectedUnityRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveTanuConfigurationIsProjectedInNewRuns",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules",
+          "result": "Passed"
+        }
+      ]
+    },
+    "playmode-json": {
+      "status": "passed",
+      "counts": {
+        "id": "2",
+        "testcasecount": "7",
+        "result": "Passed",
+        "total": "7",
+        "passed": "7",
+        "failed": "0",
+        "inconclusive": "0",
+        "skipped": "0",
+        "asserts": "0",
+        "engine-version": "3.5.0.0",
+        "clr-version": "4.0.30319.42000",
+        "start-time": "2026-09-06 16:46:05Z",
+        "end-time": "2026-09-06 16:48:56Z",
+        "duration": "171.0633764"
+      },
+      "xml": {
+        "path": ".tmp/stage17/unity-tests/playmode-json.xml",
+        "bytes": 10364,
+        "sha256": "a568a842bbc86c0aa04ff4d8fd982c39c5e5822f261eafcb6a1f6321876467a6"
+      },
+      "cases": [
+        {
+          "name": "UnityOnlyArena.Tests.ArenaInspectionTests.NetworkInspectionMatchesRenderedReplayAcrossForwardBackwardSeekAndRetry",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.ImmediateReconnectWithQueuedInputsRetainsSessionAndRequiresResume",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveCliAndBrowserShellControlTheProjectedUnityRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveStockRunReachesElevenDiesAndRetriesWithLocalSettings",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.LiveTanuConfigurationIsProjectedInNewRuns",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.KituArenaConnectionTests.RealRuntimeMovesPausesAndResynchronizesWithoutRunningLocalRules",
+          "result": "Passed"
+        }
+      ]
+    }
+  },
+  "execution": {
+    "aarch64-apple-darwin": {
+      "package": "0.1.0",
+      "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+      "target": "aarch64-apple-darwin"
+    },
+    "aarch64-unknown-linux-gnu": {
+      "package": "0.1.0",
+      "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+      "target": "aarch64-unknown-linux-gnu"
+    }
+  },
+  "inspectionCheckpoints": {
+    "native-inspection": {
+      "sourceReport": {
+        "path": ".tmp/stage17/unity-tests/inspection/native-inspection.json",
+        "bytes": 42296,
+        "sha256": "f49ccfb380b7ab135b563513499f48f9abd93a98f11d349f582cc8e9d49759af"
+      },
+      "checkpoints": [
+        {
+          "label": "native-initial",
+          "sessionId": "22418-1788712880352694000",
+          "epoch": "0",
+          "run": "0",
+          "tick": "-1",
+          "simulationSteps": "0",
+          "phase": 0,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": null,
+          "inspectionStateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "inspectionPresentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089"
+        },
+        {
+          "label": "native-start",
+          "sessionId": "22418-1788712880352694000",
+          "epoch": "0",
+          "run": "1",
+          "tick": "0",
+          "simulationSteps": "1",
+          "phase": 1,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 3,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "1",
+            "revision": "1",
+            "tick": "0",
+            "outcome": "advanced",
+            "runtimeAdvanced": true,
+            "simulationAdvanced": true,
+            "durationUs": 4258.375,
+            "lockWaitUs": 0.167,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "98418a5501e15370ecc597432facfa6e884eabd4ed92fd02bea89cb4e358a968",
+          "inspectionPresentationSha256": "2179166a60739ee167292093bebf1d7fe7f6a82d854bdc73d11bc428f496d411"
+        },
+        {
+          "label": "native-pause",
+          "sessionId": "22418-1788712880352694000",
+          "epoch": "0",
+          "run": "1",
+          "tick": "1",
+          "simulationSteps": "1",
+          "phase": 1,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 4,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "2",
+            "revision": "2",
+            "tick": "1",
+            "outcome": "advanced",
+            "runtimeAdvanced": true,
+            "simulationAdvanced": false,
+            "durationUs": 2191.75,
+            "lockWaitUs": 0.125,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "9f68c2181933e64f849c740854bb9e48677f6463ad028afd2cf8e4818aabb827",
+          "inspectionPresentationSha256": "47e31c304c8de31f2fe6049fdfd0692ae9942852616033a94965a89d2d120b88"
+        }
+      ]
+    },
+    "network-inspection-msgpack": {
+      "sourceReport": {
+        "path": ".tmp/stage17/unity-tests/inspection/network-inspection-msgpack.json",
+        "bytes": 100541,
+        "sha256": "909bfbac7510710fc0283640ebeb6ec3b4757c18733b03614789315ec634e7ed"
+      },
+      "checkpoints": [
+        {
+          "label": "replay-initial",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "1",
+          "run": "0",
+          "tick": "-1",
+          "simulationSteps": "0",
+          "phase": 0,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "5635",
+            "revision": "5635",
+            "tick": "-1",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 2929.6980000000003,
+            "lockWaitUs": 1.916,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "inspectionPresentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089"
+        },
+        {
+          "label": "replay-seek-197",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "2",
+          "run": "1",
+          "tick": "197",
+          "simulationSteps": "184",
+          "phase": 2,
+          "floor": 0,
+          "health": 110,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": {
+            "fromFloor": 0,
+            "toFloor": 1,
+            "offsetTick": "12",
+            "opacity": 0.20000000298023224
+          },
+          "lastTiming": {
+            "attempt": "5657",
+            "revision": "5657",
+            "tick": "197",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1464.307,
+            "lockWaitUs": 1.7489999999999999,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "7a83c9757af6743874f7674602b3545c79e87f6bdcec3623ed5aa91665c8e62b",
+          "inspectionPresentationSha256": "35c0cf5f775f44c056a2013f7d82b017de001fbaf370e2da7c4edc442a62bbef"
+        },
+        {
+          "label": "replay-seek-1649",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "3",
+          "run": "1",
+          "tick": "1649",
+          "simulationSteps": "1636",
+          "phase": 3,
+          "floor": 5,
+          "health": 110,
+          "eventCount": 0,
+          "bossCues": [
+            {
+              "entityId": 199,
+              "offsetTick": "24",
+              "radius": 3.0
+            }
+          ],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "5836",
+            "revision": "5836",
+            "tick": "1649",
+            "outcome": "idle",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1251.699,
+            "lockWaitUs": 3.6229999999999998,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "46a486bdec6dbfd7585635bdf7fef6ff01d966528b7b0fc53d6a481cc11d52aa",
+          "inspectionPresentationSha256": "9877f4dcc05c397b19117023a5629e43e84407d0e1af101eb52378cccc1af837"
+        },
+        {
+          "label": "replay-seek-5526",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "4",
+          "run": "1",
+          "tick": "5526",
+          "simulationSteps": "5479",
+          "phase": 5,
+          "floor": 11,
+          "health": 0,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "6349",
+            "revision": "6349",
+            "tick": "5526",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1417.663,
+            "lockWaitUs": 1.291,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "5965a143e998b39f45b332f12bfeeb2612adfc4139692e194e07cf2b46114559",
+          "inspectionPresentationSha256": "23aa19b6a1079ecf880dbecba2f40143bbe22fb24a1cd0ccd259554dc224d21c"
+        },
+        {
+          "label": "replay-seek-5527",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "5",
+          "run": "2",
+          "tick": "5527",
+          "simulationSteps": "5480",
+          "phase": 1,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "6855",
+            "revision": "6855",
+            "tick": "5527",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 2607.183,
+            "lockWaitUs": 0.75,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "53a4f5aa25ce96f1ea404337fcd049558db184038e901b031648353de91b3f4f",
+          "inspectionPresentationSha256": "867f20f299fdb3a5382260530f27019cf4363923584a5324aa479913e79577cb"
+        },
+        {
+          "label": "replay-seek-197",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "6",
+          "run": "1",
+          "tick": "197",
+          "simulationSteps": "184",
+          "phase": 2,
+          "floor": 0,
+          "health": 110,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": {
+            "fromFloor": 0,
+            "toFloor": 1,
+            "offsetTick": "12",
+            "opacity": 0.20000000298023224
+          },
+          "lastTiming": {
+            "attempt": "6874",
+            "revision": "6874",
+            "tick": "197",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1173.278,
+            "lockWaitUs": 1.708,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "7a83c9757af6743874f7674602b3545c79e87f6bdcec3623ed5aa91665c8e62b",
+          "inspectionPresentationSha256": "35c0cf5f775f44c056a2013f7d82b017de001fbaf370e2da7c4edc442a62bbef"
+        },
+        {
+          "label": "replay-step-198",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "6",
+          "run": "1",
+          "tick": "198",
+          "simulationSteps": "185",
+          "phase": 2,
+          "floor": 0,
+          "health": 110,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": {
+            "fromFloor": 0,
+            "toFloor": 1,
+            "offsetTick": "13",
+            "opacity": 0.20000000298023224
+          },
+          "lastTiming": {
+            "attempt": "6875",
+            "revision": "6875",
+            "tick": "198",
+            "outcome": "advanced",
+            "runtimeAdvanced": true,
+            "simulationAdvanced": true,
+            "durationUs": 3895.1569999999997,
+            "lockWaitUs": 0.417,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "3d233f84e57e92cf5265848f6dc2c49ccdf4c6bf600cc5a81cfe89e794b417ae",
+          "inspectionPresentationSha256": "cdbc8c564aadac2aa9e373a2563cb821c6bd1226ea6261b4d13fbaa8f8a40174"
+        },
+        {
+          "label": "replay-stop",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "7",
+          "run": "0",
+          "tick": "-1",
+          "simulationSteps": "0",
+          "phase": 0,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "6877",
+            "revision": "6877",
+            "tick": "-1",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1266.1090000000002,
+            "lockWaitUs": 2.041,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "inspectionPresentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089"
+        }
+      ]
+    },
+    "network-inspection-json": {
+      "sourceReport": {
+        "path": ".tmp/stage17/unity-tests/inspection/network-inspection-json.json",
+        "bytes": 100078,
+        "sha256": "8cf944aaae224f0e157fc7af28b13f5c0a9f9ec71662f8d606ea43d4ffd0af6c"
+      },
+      "checkpoints": [
+        {
+          "label": "replay-initial",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "15",
+          "run": "0",
+          "tick": "-1",
+          "simulationSteps": "0",
+          "phase": 0,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "22627",
+            "revision": "22627",
+            "tick": "-1",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 2278.522,
+            "lockWaitUs": 0.791,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "inspectionPresentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089"
+        },
+        {
+          "label": "replay-seek-197",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "16",
+          "run": "1",
+          "tick": "197",
+          "simulationSteps": "184",
+          "phase": 2,
+          "floor": 0,
+          "health": 110,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": {
+            "fromFloor": 0,
+            "toFloor": 1,
+            "offsetTick": "12",
+            "opacity": 0.20000000298023224
+          },
+          "lastTiming": {
+            "attempt": "22646",
+            "revision": "22646",
+            "tick": "197",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1894.3799999999999,
+            "lockWaitUs": 1.708,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "7a83c9757af6743874f7674602b3545c79e87f6bdcec3623ed5aa91665c8e62b",
+          "inspectionPresentationSha256": "35c0cf5f775f44c056a2013f7d82b017de001fbaf370e2da7c4edc442a62bbef"
+        },
+        {
+          "label": "replay-seek-1649",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "17",
+          "run": "1",
+          "tick": "1649",
+          "simulationSteps": "1636",
+          "phase": 3,
+          "floor": 5,
+          "health": 110,
+          "eventCount": 0,
+          "bossCues": [
+            {
+              "entityId": 199,
+              "offsetTick": "24",
+              "radius": 3.0
+            }
+          ],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "22791",
+            "revision": "22791",
+            "tick": "1649",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 2465.198,
+            "lockWaitUs": 1.541,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "46a486bdec6dbfd7585635bdf7fef6ff01d966528b7b0fc53d6a481cc11d52aa",
+          "inspectionPresentationSha256": "9877f4dcc05c397b19117023a5629e43e84407d0e1af101eb52378cccc1af837"
+        },
+        {
+          "label": "replay-seek-5526",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "18",
+          "run": "1",
+          "tick": "5526",
+          "simulationSteps": "5479",
+          "phase": 5,
+          "floor": 11,
+          "health": 0,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "23308",
+            "revision": "23308",
+            "tick": "5526",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1446.124,
+            "lockWaitUs": 0.667,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "5965a143e998b39f45b332f12bfeeb2612adfc4139692e194e07cf2b46114559",
+          "inspectionPresentationSha256": "23aa19b6a1079ecf880dbecba2f40143bbe22fb24a1cd0ccd259554dc224d21c"
+        },
+        {
+          "label": "replay-seek-5527",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "19",
+          "run": "2",
+          "tick": "5527",
+          "simulationSteps": "5480",
+          "phase": 1,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "23836",
+            "revision": "23836",
+            "tick": "5527",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 7138.013,
+            "lockWaitUs": 0.958,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "53a4f5aa25ce96f1ea404337fcd049558db184038e901b031648353de91b3f4f",
+          "inspectionPresentationSha256": "867f20f299fdb3a5382260530f27019cf4363923584a5324aa479913e79577cb"
+        },
+        {
+          "label": "replay-seek-197",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "20",
+          "run": "1",
+          "tick": "197",
+          "simulationSteps": "184",
+          "phase": 2,
+          "floor": 0,
+          "health": 110,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": {
+            "fromFloor": 0,
+            "toFloor": 1,
+            "offsetTick": "12",
+            "opacity": 0.20000000298023224
+          },
+          "lastTiming": {
+            "attempt": "23857",
+            "revision": "23857",
+            "tick": "197",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1520.654,
+            "lockWaitUs": 1.0410000000000001,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "7a83c9757af6743874f7674602b3545c79e87f6bdcec3623ed5aa91665c8e62b",
+          "inspectionPresentationSha256": "35c0cf5f775f44c056a2013f7d82b017de001fbaf370e2da7c4edc442a62bbef"
+        },
+        {
+          "label": "replay-step-198",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "20",
+          "run": "1",
+          "tick": "198",
+          "simulationSteps": "185",
+          "phase": 2,
+          "floor": 0,
+          "health": 110,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": {
+            "fromFloor": 0,
+            "toFloor": 1,
+            "offsetTick": "13",
+            "opacity": 0.20000000298023224
+          },
+          "lastTiming": {
+            "attempt": "23858",
+            "revision": "23858",
+            "tick": "198",
+            "outcome": "advanced",
+            "runtimeAdvanced": true,
+            "simulationAdvanced": true,
+            "durationUs": 13306.652,
+            "lockWaitUs": 0.5,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "3d233f84e57e92cf5265848f6dc2c49ccdf4c6bf600cc5a81cfe89e794b417ae",
+          "inspectionPresentationSha256": "cdbc8c564aadac2aa9e373a2563cb821c6bd1226ea6261b4d13fbaa8f8a40174"
+        },
+        {
+          "label": "replay-stop",
+          "sessionId": "1-1788712804546230769",
+          "epoch": "21",
+          "run": "0",
+          "tick": "-1",
+          "simulationSteps": "0",
+          "phase": 0,
+          "floor": 0,
+          "health": 100,
+          "eventCount": 0,
+          "bossCues": [],
+          "floorCue": null,
+          "lastTiming": {
+            "attempt": "23861",
+            "revision": "23861",
+            "tick": "-1",
+            "outcome": "replacement",
+            "runtimeAdvanced": false,
+            "simulationAdvanced": false,
+            "durationUs": 1218.789,
+            "lockWaitUs": 1.708,
+            "durationClamped": false,
+            "lockWaitClamped": false,
+            "overBudget": false
+          },
+          "inspectionStateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "inspectionPresentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089"
+        }
+      ]
+    }
+  },
+  "comparisonScope": "Unity fixture assertions compare complete typed C# state/presentation and player/ring transforms; inspection-only wide strings are parsed exactly before typed comparison. Raw Unity JsonUtility captures are not claimed byte-identical to API JSON.",
+  "reproduction": {
+    "harness": {
+      "path": ".tmp/stage17/unity-tests/run-play.py",
+      "bytes": 2064,
+      "sha256": "ad8ddc4d3a4352a67d2ffe83f7ef1b4a55b7b802fcfa1c816f5ffba39ad65adf"
+    },
+    "environment": {
+      "KITU_ARENA_WS_URL": "ws://127.0.0.1:8795/ws/arena",
+      "KITU_ARENA_REPLAY_ID": "55ac75086a23f373b79340a4addea78cbfad776f948a4b4cc80b0218f05d5540",
+      "KITU_ARENA_ENCODING": "msgpack or json",
+      "KITU_ARENA_INSPECTION_EVIDENCE_DIR": ".tmp/stage17/unity-tests/inspection"
+    },
+    "playModeArguments": [
+      "-batchmode",
+      "-projectPath",
+      "<Unity project>",
+      "-runTests",
+      "-testPlatform",
+      "PlayMode",
+      "-testFilter",
+      "UnityOnlyArena.Tests",
+      "-testResults",
+      "<results.xml>",
+      "-logFile",
+      "<editor.log>"
+    ],
+    "jsonAdditionalArguments": [
+      "-testCategory",
+      "ArenaNetwork"
+    ]
+  }
+}

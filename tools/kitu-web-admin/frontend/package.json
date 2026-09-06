@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "lint": "prettier --check . && eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:inspection": "node --test src/lib/arena-inspection.test.ts"
   },
   "dependencies": {
     "@lucide/svelte": "^1.21.0",

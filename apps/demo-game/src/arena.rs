@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 use crate::DemoRuntime;
 
 pub mod config;
+pub mod geometry;
 pub mod inventory;
 pub mod package;
 pub mod presentation;
@@ -98,7 +99,7 @@ impl Vec2 {
         }
     }
     fn clamp_arena(self, radius: f32) -> Self {
-        let edge = 10.0 - radius;
+        let edge = geometry::HALF_EXTENT - radius;
         Self {
             x: self.x.clamp(-edge, edge),
             y: self.y.clamp(-edge, edge),
@@ -1022,10 +1023,10 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
         }
         Command::ChestOpen if is_safe(session) && session.state.overlay == "none" => {
             let delta = Vec2 {
-                x: session.state.player_position.x + 3.0,
-                y: session.state.player_position.y,
+                x: session.state.player_position.x - geometry::CHEST.x,
+                y: session.state.player_position.y - geometry::CHEST.y,
             };
-            if !session.state.chest_available || delta.length() > 2.0 {
+            if !session.state.chest_available || delta.length() > geometry::CHEST_RANGE {
                 return "out_of_range";
             }
             session.state.overlay = "chest".into();

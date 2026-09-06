@@ -1,0 +1,48 @@
+{
+  "sourceReport": {
+    "path": ".tmp/stage17/runtime-archive.json",
+    "bytes": 2376,
+    "sha256": "ff10371765d80825dbad38231f6709b671901f7a9d6b7340942d5de2e6c94288"
+  },
+  "stage": 17,
+  "sourceRevision": "f8aba416b97f2e670a90689080699596053124b8",
+  "createdAtUtc": "2026-09-06T16:54:25.003651+00:00",
+  "directory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage17-3c9b6af98dad",
+  "artifacts": [
+    {
+      "source": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage17/kitu-demo-game-admin-host",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage17-3c9b6af98dad/linux/kitu-demo-game-admin-host",
+      "sha256": "3c9b6af98dad0cc993715a29c688eecf653bbf5b96f927d90bc9a4bc1be9a321",
+      "bytes": 160928880
+    },
+    {
+      "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage17-3c9b6af98dad/macos/libkitu_demo_game_native.dylib",
+      "sha256": "386bad99afcecaf3dccdb24f7c4ce0afb0d843887f0727f24daee766c3ba503b",
+      "bytes": 30604768
+    },
+    {
+      "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.a",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage17-3c9b6af98dad/macos/libkitu_demo_game_native.a",
+      "sha256": "cf2f23cc5fc13d6b09526397a2f195a31b7b28827b8bb71ff8676c6ce9fe0d30",
+      "bytes": 94220296
+    }
+  ],
+  "players": [
+    {
+      "name": "default",
+      "source": "/private/tmp/kitu-stage17-relocated/KituEndlessArena.app",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage17-3c9b6af98dad/default/KituEndlessArena.app",
+      "files": 343,
+      "manifestSha256": "6900402fd0c562e79d7e56d64ae1197563068979f1155c8eb382bfe272cbd6cf",
+      "signatureVerified": true
+    }
+  ],
+  "sourceDirtyAtCapture": true,
+  "execution": {
+    "package": "0.1.0",
+    "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+    "target": "aarch64-apple-darwin"
+  },
+  "purpose": "Retain verified execution versions and packaged Players for older recordings; records are never relabelled."
+}
