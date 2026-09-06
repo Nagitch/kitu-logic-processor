@@ -4,7 +4,7 @@
 //! C# reference contract. Presentation and transport remain separate adapters.
 
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use kitu_core::{KituError, Result};
 use kitu_ecs::EcsWorld;
@@ -16,10 +16,16 @@ use crate::DemoRuntime;
 
 pub mod config;
 pub mod inventory;
+pub mod script;
 use inventory::Inventory;
 
 /// Stage-independent Arena OSC contract version.
 pub const SCHEMA_VERSION: u32 = 1;
+
+// Operator catalogs own these ID spaces exclusively. The public staging helpers
+// retain their original producer identities for native callers and saved replays.
+pub(crate) const CONTENT_OPERATOR_SOURCE: &str = "host:arena-content-admin";
+pub(crate) const SCRIPT_OPERATOR_SOURCE: &str = "host:arena-script-admin";
 
 /// A ground-plane vector; `y` maps to Unity world Z for reference compatibility.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -113,7 +119,7 @@ struct Controls {
     fire_b: bool,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone)]
 enum Command {
     Start,
     Menu,
@@ -132,6 +138,7 @@ enum Command {
     },
     Use(i32),
     StageConfig(Arc<config::ContentVersion>),
+    StageScript(Arc<script::PreparedScript>),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -166,9 +173,38 @@ struct ArenaSession {
     pending_content: Option<Arc<config::ContentVersion>>,
     active_content: Option<Arc<config::ContentVersion>>,
     run_number: u64,
+    pending_script: Option<Arc<script::PreparedScript>>,
+    active_script: Option<Arc<script::PreparedScript>>,
+    script_fault: Option<script::ScriptFault>,
+    script_pool: Arc<Mutex<HashMap<String, Arc<script::PreparedScript>>>>,
 }
 
-struct ArenaApplication;
+#[derive(Default)]
+struct ArenaApplication {
+    // Admission pins compiled candidates until the entire batch is consumed.
+    // A bounded pool refuses excessive distinct pending versions; it never evicts
+    // a queued program and thus never recompiles from the gameplay tick.
+    scripts: Arc<Mutex<HashMap<String, Arc<script::PreparedScript>>>>,
+}
+impl ArenaApplication {
+    fn admitted_script(
+        &self,
+        version: &script::ScriptVersion,
+    ) -> std::result::Result<Arc<script::PreparedScript>, script::Diagnostic> {
+        self.scripts
+            .lock()
+            .expect("Arena admission pool")
+            .get(&version.hash)
+            .filter(|prepared| prepared.version == *version)
+            .cloned()
+            .ok_or(script::Diagnostic {
+                kind: "unprepared_script".into(),
+                message: "Arena script must be prepared before admission".into(),
+                line: None,
+                column: None,
+            })
+    }
+}
 
 /// Installs Arena state and behavior in an unstarted demo runtime.
 pub fn install(runtime: &mut DemoRuntime) -> Result<()> {
@@ -183,12 +219,42 @@ pub fn install_with_content(
     runtime: &mut DemoRuntime,
     content: config::ContentVersion,
 ) -> Result<()> {
+    let script = script::default_script()
+        .map_err(|_| KituError::InvalidInput("invalid bundled Arena boss script"))?;
+    install_with_versions(runtime, content, script)
+}
+
+/// Installs detached content and boss source before the first tick or recorder.
+/// Both versions are validated before changing the Runtime; no authoring I/O occurs.
+pub fn install_with_versions(
+    runtime: &mut DemoRuntime,
+    content: config::ContentVersion,
+    script: script::ScriptVersion,
+) -> Result<()> {
     content
         .validate()
         .map_err(|_| KituError::InvalidInput("invalid initial Arena content"))?;
-    runtime.install_application(ArenaApplication)?;
+    let prepared = script::prepare(&script)
+        .map_err(|_| KituError::InvalidInput("invalid initial Arena boss script"))?;
+    install_with_prepared_versions(runtime, content, prepared)
+}
+
+pub(crate) fn install_with_prepared_versions(
+    runtime: &mut DemoRuntime,
+    content: config::ContentVersion,
+    prepared: Arc<script::PreparedScript>,
+) -> Result<()> {
+    content
+        .validate()
+        .map_err(|_| KituError::InvalidInput("invalid initial Arena content"))?;
+    let script_pool = Arc::new(Mutex::new(HashMap::new()));
+    runtime.install_application(ArenaApplication {
+        scripts: script_pool.clone(),
+    })?;
     runtime.world_mut().insert_resource(ArenaSession {
         pending_content: Some(Arc::new(content)),
+        pending_script: Some(prepared),
+        script_pool,
         ..ArenaSession::default()
     });
     Ok(())
@@ -204,6 +270,15 @@ pub fn stage_content(
     content: config::ContentVersion,
     id: u64,
 ) -> Result<u64> {
+    stage_content_from(runtime, content, id, "host:arena-content")
+}
+
+pub(crate) fn stage_content_from(
+    runtime: &mut DemoRuntime,
+    content: config::ContentVersion,
+    id: u64,
+    source: &str,
+) -> Result<u64> {
     content
         .validate()
         .map_err(|_| KituError::InvalidInput("invalid evaluated Arena content"))?;
@@ -212,7 +287,7 @@ pub fn stage_content(
     runtime.try_enqueue_input(
         bundle,
         Some(InputMetadata {
-            source: "host:arena-content".into(),
+            source: source.into(),
             message_id: id,
             schema_version: SCHEMA_VERSION,
         }),
@@ -248,14 +323,169 @@ fn content_snapshot(session: &ArenaSession) -> config::ContentSnapshot {
     }
 }
 
+/// Queues detached boss rules for next-run activation through the ordinary input queue.
+/// Invalid source/version/id fails admission without changing active or pending rules.
+pub fn stage_script(
+    runtime: &mut DemoRuntime,
+    version: script::ScriptVersion,
+    id: u64,
+) -> Result<u64> {
+    let prepared = script::prepare_version(&version)
+        .map_err(|_| KituError::InvalidInput("invalid Arena boss script"))?;
+    stage_prepared_script(runtime, prepared, id)
+}
+
+/// Queues a retained program without compilation/probing under the owner lock.
+pub(crate) fn stage_prepared_script(
+    runtime: &mut DemoRuntime,
+    prepared: Arc<script::PreparedScript>,
+    id: u64,
+) -> Result<u64> {
+    stage_prepared_script_from(runtime, prepared, id, "host:arena-script")
+}
+
+pub(crate) fn stage_prepared_script_from(
+    runtime: &mut DemoRuntime,
+    prepared: Arc<script::PreparedScript>,
+    id: u64,
+    source: &str,
+) -> Result<u64> {
+    let bundle = OscBundle {
+        messages: vec![json_message("/input/arena/script", &prepared.version)],
+    };
+    let metadata = InputMetadata {
+        source: source.into(),
+        message_id: id,
+        schema_version: SCHEMA_VERSION,
+    };
+    validate_metadata(&bundle.messages[0], &metadata)?;
+    pin_prepared_script(runtime, prepared)?;
+    runtime.try_enqueue_input(bundle, Some(metadata))
+}
+
+/// Seeds the bounded admission pool using an already prepared immutable program.
+pub(crate) fn pin_prepared_script(
+    runtime: &mut DemoRuntime,
+    prepared: Arc<script::PreparedScript>,
+) -> Result<()> {
+    let session = runtime
+        .world()
+        .resource::<ArenaSession>()
+        .ok_or(KituError::InvalidInput(
+            "Arena application is not installed",
+        ))?;
+    let mut pool = session
+        .script_pool
+        .lock()
+        .map_err(|_| KituError::InvalidInput("Arena script admission pool is unavailable"))?;
+    if !pool.contains_key(&prepared.version.hash) && pool.len() >= 64 {
+        return Err(KituError::InvalidInput(
+            "Arena allows 64 distinct script versions per pending batch",
+        ));
+    }
+    pool.insert(prepared.version.hash.clone(), prepared);
+    Ok(())
+}
+
+/// Checks the reserved envelope and prepares a native host input before locking its Runtime.
+pub(crate) fn prepare_script_input(
+    bundle: &OscBundle,
+    metadata: Option<&InputMetadata>,
+) -> Result<Option<Arc<script::PreparedScript>>> {
+    script_input_version(bundle, metadata)?
+        .map(|version| {
+            script::prepare_version(&version)
+                .map_err(|_| KituError::InvalidInput("invalid Arena boss script"))
+        })
+        .transpose()
+}
+
+pub(crate) fn script_input_version(
+    bundle: &OscBundle,
+    metadata: Option<&InputMetadata>,
+) -> Result<Option<script::ScriptVersion>> {
+    let Some(message) = bundle
+        .messages
+        .iter()
+        .find(|message| message.address == "/input/arena/script")
+    else {
+        return Ok(None);
+    };
+    if bundle.messages.len() != 1 {
+        return Err(KituError::InvalidInput(
+            "Arena envelopes contain exactly one command",
+        ));
+    }
+    let metadata = metadata.ok_or(KituError::InvalidInput(
+        "Arena input requires envelope metadata",
+    ))?;
+    validate_metadata(message, metadata)?;
+    if let [OscArg::Str(json)] = message.args.as_slice() {
+        if json.len() <= script::MAX_VERSION_BYTES {
+            return serde_json::from_str(json)
+                .map(Some)
+                .map_err(|_| KituError::InvalidInput("invalid Arena boss script"));
+        }
+    }
+    Err(KituError::InvalidInput("invalid Arena boss script"))
+}
+
+/// Reads detached pending/active boss rules and any late runtime diagnostic.
+pub fn inspect_script(runtime: &DemoRuntime) -> Result<script::ScriptSnapshot> {
+    runtime
+        .world()
+        .resource::<ArenaSession>()
+        .map(script_snapshot)
+        .ok_or(KituError::InvalidInput(
+            "Arena application is not installed",
+        ))
+}
+
+fn script_snapshot(session: &ArenaSession) -> script::ScriptSnapshot {
+    script::ScriptSnapshot {
+        run: session.run_number,
+        active: session
+            .active_script
+            .as_ref()
+            .map(|script| script.version.clone()),
+        pending: session
+            .pending_script
+            .as_ref()
+            .expect("script installed with Arena")
+            .version
+            .clone(),
+        fault: session.script_fault.clone(),
+    }
+}
+
 /// Validates one Arena envelope before a network adapter admits it to the runtime.
 ///
 /// # Errors
 /// Rejects missing identity/version, malformed payloads and non-finite coordinates.
 pub fn validate_input(message: &OscMessage, metadata: &InputMetadata) -> Result<()> {
-    if message.address == "/input/arena/config" && metadata.source != "host:arena-content" {
+    validate_metadata(message, metadata)?;
+    parse(message).map(|_| ())
+}
+
+fn validate_metadata(message: &OscMessage, metadata: &InputMetadata) -> Result<()> {
+    if message.address == "/input/arena/config"
+        && !matches!(
+            metadata.source.as_str(),
+            "host:arena-content" | CONTENT_OPERATOR_SOURCE
+        )
+    {
         return Err(KituError::InvalidInput(
             "Arena configuration requires the content management producer",
+        ));
+    }
+    if message.address == "/input/arena/script"
+        && !matches!(
+            metadata.source.as_str(),
+            "host:arena-script" | SCRIPT_OPERATOR_SOURCE
+        )
+    {
+        return Err(KituError::InvalidInput(
+            "Arena script requires the script management producer",
         ));
     }
     if metadata.schema_version != SCHEMA_VERSION
@@ -267,11 +497,32 @@ pub fn validate_input(message: &OscMessage, metadata: &InputMetadata) -> Result<
             "invalid Arena envelope identity or schema",
         ));
     }
-    parse(message).map(|_| ())
+    Ok(())
 }
 
 fn parse(message: &OscMessage) -> Result<Command> {
+    parse_with_script(message, script::prepare)
+}
+
+fn parse_with_script(
+    message: &OscMessage,
+    prepare: impl FnOnce(
+        &script::ScriptVersion,
+    ) -> std::result::Result<Arc<script::PreparedScript>, script::Diagnostic>,
+) -> Result<Command> {
     let command = match message.address.as_str() {
+        "/input/arena/script" => {
+            if let [OscArg::Str(json)] = message.args.as_slice() {
+                if json.len() <= script::MAX_VERSION_BYTES {
+                    if let Ok(version) = serde_json::from_str::<script::ScriptVersion>(json) {
+                        if let Ok(prepared) = prepare(&version) {
+                            return Ok(Command::StageScript(prepared));
+                        }
+                    }
+                }
+            }
+            return Err(KituError::InvalidInput("invalid Arena boss script"));
+        }
         "/input/arena/config" => {
             if let [OscArg::Str(json)] = message.args.as_slice() {
                 if json.len() <= 128 * 1024 {
@@ -388,7 +639,8 @@ impl RuntimeApplication for ArenaApplication {
                 let metadata = input.metadata.as_ref().ok_or(KituError::InvalidInput(
                     "Arena input requires envelope metadata",
                 ))?;
-                validate_input(message, metadata)?;
+                validate_metadata(message, metadata)?;
+                parse_with_script(message, |version| self.admitted_script(version))?;
             }
         }
         Ok(())
@@ -405,7 +657,16 @@ impl RuntimeApplication for ArenaApplication {
                     continue;
                 }
                 let meta = input.metadata.as_ref().expect("validated metadata");
-                let command = parse(message).expect("validated command");
+                let command = parse_with_script(message, |version| {
+                    Ok(self
+                        .scripts
+                        .lock()
+                        .expect("Arena admission pool")
+                        .get(&version.hash)
+                        .expect("admitted script remains pinned until batch consumption")
+                        .clone())
+                })
+                .expect("validated command");
                 let key = (meta.source.clone(), meta.message_id);
                 let tick = context.tick.get() as i64;
                 if let Command::Frame(controls) = command {
@@ -469,14 +730,18 @@ impl RuntimeApplication for ArenaApplication {
                     let lifecycle = matches!(command, Command::Start | Command::Menu);
                     let starting = matches!(command, Command::Start);
                     let staging = matches!(command, Command::StageConfig(_));
+                    let staging_script = matches!(command, Command::StageScript(_));
                     let previous_phase = session.state.phase;
                     let code = execute(session, command);
                     if code == "ok" && (starting || staging) {
                         let content = content_snapshot(session);
                         if starting {
-                            output.push(json_message("/game/arena/run",&serde_json::json!({"tick":tick,"order":output.messages.len(),"run":content.run,"content":content.active})));
+                            output.push(json_message("/game/arena/run",&serde_json::json!({"tick":tick,"order":output.messages.len(),"run":content.run,"content":content.active,"script":script_snapshot(session).active})));
                         }
                         output.push(json_message("/ui/arena/content", &content));
+                    }
+                    if code == "ok" && (starting || staging_script) {
+                        output.push(json_message("/ui/arena/script", &script_snapshot(session)));
                     }
                     if lifecycle && code == "ok" && previous_phase != session.state.phase {
                         session.state.emit_phase(previous_phase, tick, &mut output);
@@ -510,17 +775,31 @@ impl RuntimeApplication for ArenaApplication {
             }
         }
         if session.state.phase != 0 && session.state.phase != 5 && session.state.overlay == "none" {
-            session.state.step(
+            let script = session
+                .active_script
+                .as_ref()
+                .expect("run script selected at start");
+            match session.state.step_with_script(
                 session.controls,
                 session.queued_use,
                 context.dt,
                 context.tick.get() as i64,
                 &mut output,
-            );
-            session.state.simulation_steps += 1;
+                script,
+            ) {
+                Ok(()) => session.state.simulation_steps += 1,
+                Err(fault) => {
+                    session.script_fault = Some(fault.clone());
+                    session.state.overlay = "pause".into();
+                    session.controls = Controls::default();
+                    output.push(json_message("/game/arena/script-fault", &fault));
+                    output.push(json_message("/ui/arena/script", &script_snapshot(session)));
+                }
+            }
         }
         session.queued_use = [false; 2];
         session.state.tick = context.tick.get() as i64;
+        self.scripts.lock().expect("Arena admission pool").clear();
         output.push(json_message("/ui/arena/state", &session.state));
         vec![output]
     }
@@ -535,6 +814,7 @@ impl RuntimeApplication for ArenaApplication {
             "/ui/arena/content",
             &content_snapshot(session),
         ));
+        output.push(json_message("/ui/arena/script", &script_snapshot(session)));
         vec![output]
     }
 }
@@ -552,6 +832,8 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
             let mut inventory = Inventory::from_config(&rules);
             inventory.create_chest_with_config(0, &rules);
             session.active_content = Some(content);
+            session.active_script = session.pending_script.clone();
+            session.script_fault = None;
             session.run_number += 1;
             session.state = ArenaState {
                 rules,
@@ -590,7 +872,8 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
         Command::Resume
             if session.state.overlay == "pause"
                 && session.state.phase != 0
-                && session.state.phase != 5 =>
+                && session.state.phase != 5
+                && session.script_fault.is_none() =>
         {
             session.state.overlay = "none".into()
         }
@@ -629,6 +912,10 @@ fn execute(session: &mut ArenaSession, command: Command) -> &'static str {
                 return "invalid_target";
             }
             session.queued_use[(slot - 2) as usize] = true;
+            return "ok";
+        }
+        Command::StageScript(script) => {
+            session.pending_script = Some(script);
             return "ok";
         }
         Command::StageConfig(content) => {

@@ -1,0 +1,86 @@
+{
+  "verifiedAtUtc": "2026-09-06T11:36:44.481925+00:00",
+  "reviewThread": "PRRT_kwDOQfW5Gs6frQ58",
+  "finding": "Native and Admin/Shell shared management producer identities with independently allocated IDs. Native high/MAX IDs prevented subsequent operator stages.",
+  "change": "Separate protected Admin/Shell producer identities for script and content. Preserve native identities and dedup logic; prohibit native/network impersonation.",
+  "devContainer": {
+    "nativeFocusedPassed": 7,
+    "hostPassed": 28,
+    "format": "passed",
+    "clippyAppNativeAllTargetsAllFeatures": "passed",
+    "logSha256": "9412b8a0fdf9f974efa6b679de96b3c5b455558be4d5b5f37d1e261c5a47711c"
+  },
+  "regression": {
+    "reproducedBeforeFix": true,
+    "nativeIds": [
+      1000000,
+      "18446744073709551615"
+    ],
+    "operatorIds": [
+      1,
+      2
+    ],
+    "managedKinds": [
+      "script",
+      "content"
+    ],
+    "mixedSourceReplayInputs": 8,
+    "impersonationRefused": [
+      "native gameplay envelope",
+      "network game envelope"
+    ]
+  },
+  "independentReview": "No additional justified findings; read-only inspection of identity isolation, ordinary dedup and replay queue.",
+  "macNative": {
+    "passedTestsAndDoctests": 16,
+    "suitePassed": 14,
+    "correctedRegressionPassed": 1,
+    "doctestsPassed": 1,
+    "note": "First new regression expectation widened typed f32 via json!; corrected to normal typed wire serialization. Production implementation unchanged after the initial native build.",
+    "logSha256": {
+      "native-tests.log": "1eca7902e11434b831f132903cdb57d65279063bb2c4382a557c058fa38ed4ef",
+      "native-regression.log": "8944ba680ee6b00a92ff8c3a2728e80dd77db24682cb7a61215be66bf2ea4a89",
+      "native-doc.log": "f6e404c422719e9b6cc5f9ceaa06b4a8c35d2e5010bff730999a4edd57fecec8"
+    }
+  },
+  "finalNativeAndPlayer": {
+    "preparation": {
+      "ticks": 28,
+      "matched": true
+    },
+    "stock": {
+      "ticks": 5528,
+      "matched": true
+    },
+    "script": {
+      "ticks": 1800,
+      "matched": true
+    }
+  },
+  "retainedExecution": {
+    "directory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage13-final-e0a73996babc",
+    "artifacts": [
+      {
+        "source": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/target/debug/kitu-demo-game-admin-host",
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage13-final-e0a73996babc/linux/kitu-demo-game-admin-host",
+        "sha256": "e0a73996babcdd39fed0b1972a8a3b69619ce49bb6cbe74b1c0fd51a150126f9",
+        "bytes": 147015160
+      },
+      {
+        "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage13-final-e0a73996babc/macos/libkitu_demo_game_native.dylib",
+        "sha256": "b2f779b50086428c7f4b08deb8e983da85d4408414e194190be256ae203d2ca3",
+        "bytes": 27109808
+      },
+      {
+        "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.a",
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage13-final-e0a73996babc/macos/libkitu_demo_game_native.a",
+        "sha256": "fbed8b4a2ea764e5ac344dc27b977f960b1971f0ba7c3e6e23cbc8ecb8c767e9",
+        "bytes": 85587280
+      }
+    ],
+    "sourceRevisionBase": "54befd3162b71244826e607ebf915633b832b60c",
+    "sourceDiffSha256": "f04fae1af34826f9fb4fd9febfd5cd45fbe4f004bea3875af9dcc4c6b0930a37",
+    "playerFiles": 326
+  }
+}

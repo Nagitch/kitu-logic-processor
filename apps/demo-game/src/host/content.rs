@@ -262,7 +262,12 @@ pub(super) fn stage_candidate(state: &AppState, request: StageRequest) -> Result
         .next_id
         .checked_add(1)
         .context("content command IDs exhausted")?;
-    let sequence = arena::stage_content(&mut game.runtime, candidate, id)?;
+    let sequence = arena::stage_content_from(
+        &mut game.runtime,
+        candidate,
+        id,
+        arena::CONTENT_OPERATOR_SOURCE,
+    )?;
     catalog.next_id = id;
     Ok(StageResponse {
         sequence,

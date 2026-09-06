@@ -23,6 +23,7 @@ namespace UnityOnlyArena
         private ulong inputs;
         private readonly HashSet<string> screenshots = new HashSet<string>();
         private bool deathObserved, retryObserved, finished;
+        private int scriptTelegraphTicks;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -38,8 +39,8 @@ namespace UnityOnlyArena
                 var test = new GameObject("Native Arena Player verification").AddComponent<ArenaNativeSelfTest>();
                 test.tracePath = Path.GetFullPath(trace);
                 test.scenario = Path.GetFileNameWithoutExtension(test.tracePath);
-                if (test.scenario != "preparation" && test.scenario != "stock-eleven-death-retry")
-                    throw new ArgumentException("Native self-test requires a frozen preparation or stock-eleven-death-retry trace");
+                if (test.scenario != "preparation" && test.scenario != "stock-eleven-death-retry" && test.scenario != "rhai-boss")
+                    throw new ArgumentException("Native self-test requires preparation, stock-eleven-death-retry or rhai-boss trace");
                 test.expectedPath = Path.GetFullPath(expected);
                 test.evidenceDirectory = Path.GetFullPath(evidence);
                 Directory.CreateDirectory(test.evidenceDirectory);
@@ -152,9 +153,12 @@ namespace UnityOnlyArena
             bool stock = scenario == "stock-eleven-death-retry";
             if (stock && (ticks != 5528 || inputs != 5581 || !deathObserved || !retryObserved))
                 throw new InvalidOperationException("Stock verification must include all 5528 ticks, 5581 inputs, natural 11F death and retry");
-            if (!stock && (ticks != 28 || inputs != 40))
+            bool script = scenario == "rhai-boss";
+            if (script && (ticks != 1800 || scriptTelegraphTicks != 96))
+                throw new InvalidOperationException("Script verification must include 1800 ticks and exactly 96 telegraph ticks");
+            if (!stock && !script && (ticks != 28 || inputs != 40))
                 throw new InvalidOperationException("Preparation verification must include all 28 ticks and 40 inputs");
-            foreach (string name in stock ? new[] { "chest", "combat", "boss", "death-11f", "retry" } : new[] { "inventory" })
+            foreach (string name in stock ? new[] { "chest", "combat", "boss", "death-11f", "retry" } : script ? new[] { "boss-script" } : new[] { "inventory" })
                 if (!screenshots.Contains(name)) throw new InvalidOperationException("Missing rendered checkpoint " + name);
             Finish(true, null);
         }
@@ -162,6 +166,17 @@ namespace UnityOnlyArena
         private string Checkpoint()
         {
             var state = client.State;
+            if (scenario == "rhai-boss" && state.floor == 5)
+            {
+                var boss = state.enemies.FirstOrDefault(enemy => enemy.Kind == ArenaEnemyKind.Boss && enemy.BossState == ArenaBossState.Telegraph);
+                if (boss != null)
+                {
+                    if (scriptTelegraphTicks == 0 && Mathf.Abs(boss.PhaseRemaining - 1.6f) > 1e-6f)
+                        throw new InvalidOperationException("Edited script telegraph must begin at 1.6 seconds");
+                    scriptTelegraphTicks++;
+                    return "boss-script";
+                }
+            }
             if (scenario == "preparation" && state.overlay == "inventory") return "inventory";
             if (state.overlay == "chest") return "chest";
             if (state.floor == 1 && state.phase == (int)ArenaPhase.Combat) return "combat";

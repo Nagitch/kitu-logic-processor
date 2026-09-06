@@ -1,0 +1,297 @@
+{
+  "reviewedAtUtc": "2026-09-06T11:39:26.939261+00:00",
+  "method": "Fresh direct view_image inspection of all nine original review-build PNGs after all three run reports completed. Hashes and recorded-state timing verified separately.",
+  "result": "pass",
+  "imagesReviewed": 9,
+  "observations": [
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-preparation/inventory.png",
+      "sha256": "27e19d33d1595fabc836277acb3d0c02516addb79923ec9ef3e74e9278371a04",
+      "bytes": 133884,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:36:53.174196+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 1,
+      "observations": [
+        "HUD: 0F Preparing, Enemies 0, HP 100/100, Attack x1.00, Time 0.02.",
+        "Inventory overlay says game paused; all three backpack rows are Empty.",
+        "Weapon A is Blade, 20 damage / 0.5s; Weapon B and Item A/B are Empty.",
+        "Inventory heading, all rows, Unequip and Close controls are readable and inside the image.",
+        "Cyan player, gold chest, green portal and shaded arena are visible."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-stock/boss.png",
+      "sha256": "d5be5258631e4e7ec9fe93896e31d17ff32541ce210ec714133a4b22f4e31671",
+      "bytes": 138402,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:37:04.139965+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 1625,
+      "observations": [
+        "HUD: 5F Combat, Enemies 1, HP 110/110, Time 25.37; instruction says Defeat the boss.",
+        "Large shaded purple boss, complete red warning ring, bright projectiles and cyan player with blue shield ring are visible.",
+        "Boss, player and warning ring lie inside the play area; HUD remains readable."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-stock/chest.png",
+      "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "bytes": 190335,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:36:58.111813+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 75,
+      "observations": [
+        "HUD: 0F Preparing, Enemies 0, HP 100/100, Time 1.25.",
+        "Supply chest overlay says game paused; backpack rows are all Empty and starter Blade remains equipped.",
+        "All eleven chest entries, their Take buttons, and Close are visible without clipped text or controls.",
+        "Weapon variants, Medkit, Grenade, Shield 100, Health Upgrade (+10 HP), Attack Upgrade (+5%) are readable.",
+        "Player, chest and portal render behind the transparent panel."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-stock/combat.png",
+      "sha256": "61fe10d494fa62ab0a1776521607dfb52703598fbf8e636c451c4f137582829c",
+      "bytes": 125534,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:36:58.640390+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 203,
+      "observations": [
+        "HUD: 1F Combat, Enemies 3, HP 110/110, Attack x1.05, Time 2.87.",
+        "Cyan player and blue shield ring are visible; red enemy capsules are visible toward the upper right.",
+        "Power Shooter, Quick Shooter, Shield 110 and Medkit equipment HUD is readable.",
+        "No overlay obstructs the play area; one visible enemy is partly outside the upper camera boundary."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-stock/death-11f.png",
+      "sha256": "f322a81b1e913f415e27d8942c62edbd83c89108c66ee5318bdc47d24ec1bb61",
+      "bytes": 169254,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:37:19.705244+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 5526,
+      "observations": [
+        "HUD: 11F Results, Enemies 12, HP 0/130, Attack x1.15, Time 88.02.",
+        "Game Over panel: reached 11F, cleared 10 floors, defeated 58 enemies including 2 bosses, runtime 88.02s, maximum HP 130.",
+        "Power Shooter, Quick Shooter, Shield and Medkit result rows are visible.",
+        "Try again (R) and Return to menu controls are fully visible; no result text is clipped.",
+        "Cyan player and nearby red/gold enemies are visible behind the result panel."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-stock/retry.png",
+      "sha256": "7ad3badf7dc7194e24a2290921a0285cee48fcb7fd1889bcd7a887b255b4c231",
+      "bytes": 116306,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:37:19.761901+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 5527,
+      "observations": [
+        "HUD resets to 0F Preparing, Enemies 0, HP 100/100, Attack x1.00, Time 0.02.",
+        "Game Over panel is gone; cyan player, gold chest and green portal are visible.",
+        "Equipment resets to Blade, 20 damage / 0.5s; Weapon B and Item A/B are Empty.",
+        "Pause, Inventory, Open chest and Main menu controls and equipment HUD are readable."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-script/boss-script.png",
+      "sha256": "d5be5258631e4e7ec9fe93896e31d17ff32541ce210ec714133a4b22f4e31671",
+      "bytes": 138402,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:37:31.269774+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 1625,
+      "observations": [
+        "Edited-script scenario shows 5F Combat, Enemies 1, HP 110/110, Time 25.37.",
+        "Boss, full red warning ring, cyan player, blue shield ring and projectiles are clearly rendered.",
+        "HUD and equipment are readable with no boss/player clipping.",
+        "This warning-onset image is byte-identical to stock/boss.png; duration must be established from the recorded tick sequence, not this still."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-script/chest.png",
+      "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "bytes": 190335,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:37:25.304098+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 75,
+      "observations": [
+        "Edited-script scenario shows the same preparation supply-chest checkpoint: 0F, HP 100/100, Time 1.25.",
+        "All three Empty backpack rows, starter Blade, eleven chest rows, Take controls and Close are visible and unclipped.",
+        "Cyan player, chest and portal render correctly."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-script/combat.png",
+      "sha256": "61fe10d494fa62ab0a1776521607dfb52703598fbf8e636c451c4f137582829c",
+      "bytes": 125534,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T11:37:25.827220+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "pass": true,
+      "visibleTick": 203,
+      "observations": [
+        "Edited-script scenario shows 1F Combat, Enemies 3, HP 110/110, Time 2.87.",
+        "Player, shield ring, visible red enemies and equipment HUD match the expected first-floor layout."
+      ]
+    }
+  ],
+  "completedRuns": {
+    "player-preparation": {
+      "report": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-preparation/player-verification.json",
+      "reportSha256": "f0f09bdcf55a16adad6dd9e9a328e9eb5b1686941b8ef209e39235b9fe29e700",
+      "verifiedAtUtc": "2026-09-06T11:36:53.848532+00:00",
+      "scenario": "preparation",
+      "sessionId": "96226-1788694612268066000",
+      "ticks": 28,
+      "inputs": 40,
+      "backend": "native",
+      "exactStateAndOutput": true,
+      "traceSha256": "2c764a254771e919c33ca8093322c31093d547443b2c942b061bb9f8072d5362",
+      "expectedSha256": "8e6a5cf0139e9ed47cb61a83e221a2cde7366ea82a239e59a348a25ce188b1fb",
+      "actualSha256": "df43d9ada1fc9d338ec2c1d9d44d3b5dcd1cb25067108b43de0cd9c020334898",
+      "executableSha256": "cc41049fb931a71fac27c0714c6dd11b01b83f2580df28ffde9a3803a471f844",
+      "pluginSha256": "58e8f685d9cb1aef42d7e1eafd5f272e46da10c01099528331e485c8ee2343db",
+      "unsignedPluginSha256": "cde7020ebe994276ee087e6802848bfda5802cca4a678854bd4d004bbccc7014"
+    },
+    "player-stock": {
+      "report": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-stock/player-verification.json",
+      "reportSha256": "4d988dd61c6eb8456c659d80216cb961101a221d065345592f7fa03d9e78baa1",
+      "verifiedAtUtc": "2026-09-06T11:37:20.845499+00:00",
+      "scenario": "stock-eleven-death-retry",
+      "sessionId": "96252-1788694617005658000",
+      "ticks": 5528,
+      "inputs": 5581,
+      "backend": "native",
+      "exactStateAndOutput": true,
+      "traceSha256": "0b14c384ac29e986a51cde1b5c206fc3844472b5dd50fec1793b713ad262d1f8",
+      "expectedSha256": "a1e176f4dbe77c20233761ebd52d4f384f09825510fb53ef61de956448573323",
+      "actualSha256": "fd794524edab8b62c9526a03b65be03a0f903fde921dc5b55e1d1f6b3d48f6d3",
+      "executableSha256": "cc41049fb931a71fac27c0714c6dd11b01b83f2580df28ffde9a3803a471f844",
+      "pluginSha256": "58e8f685d9cb1aef42d7e1eafd5f272e46da10c01099528331e485c8ee2343db",
+      "unsignedPluginSha256": "cde7020ebe994276ee087e6802848bfda5802cca4a678854bd4d004bbccc7014"
+    },
+    "player-script": {
+      "report": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-script/player-verification.json",
+      "reportSha256": "a08e2b64de9166eae55c334270a0b2fb1ac3c9091ea5a9061933ee613e3ddb55",
+      "verifiedAtUtc": "2026-09-06T11:37:32.684403+00:00",
+      "scenario": "rhai-boss",
+      "sessionId": "96303-1788694644107263000",
+      "ticks": 1800,
+      "inputs": 1817,
+      "backend": "native",
+      "exactStateAndOutput": true,
+      "traceSha256": "810b0b3c2adb76b58dbedf065c98cc188e4803e8cb30128db2c4540194c20aee",
+      "expectedSha256": "421819caf73a1cf5980193eeefa20475fdc0c9ad28bae92b29dc28cfb85cd41f",
+      "actualSha256": "f97048c8151a8e3cb36a69433f55400b7605a5614a4493159d17d93f31c971b8",
+      "executableSha256": "cc41049fb931a71fac27c0714c6dd11b01b83f2580df28ffde9a3803a471f844",
+      "pluginSha256": "58e8f685d9cb1aef42d7e1eafd5f272e46da10c01099528331e485c8ee2343db",
+      "unsignedPluginSha256": "cde7020ebe994276ee087e6802848bfda5802cca4a678854bd4d004bbccc7014"
+    }
+  },
+  "detachedScriptSourceVersions": {
+    "player-preparation": [
+      {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      }
+    ],
+    "player-stock": [
+      {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      }
+    ],
+    "player-script": [
+      {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      }
+    ]
+  },
+  "separateTimingEvidence": {
+    "player-stock": {
+      "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-stock/actual.ndjson",
+      "actualSha256": "fd794524edab8b62c9526a03b65be03a0f903fde921dc5b55e1d1f6b3d48f6d3",
+      "bossFloor": 5,
+      "bossState": 1,
+      "spans": [
+        {
+          "firstTick": 1625,
+          "lastTick": 1672,
+          "ticks": 48
+        }
+      ]
+    },
+    "player-script": {
+      "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage13/review/player-script/actual.ndjson",
+      "actualSha256": "f97048c8151a8e3cb36a69433f55400b7605a5614a4493159d17d93f31c971b8",
+      "bossFloor": 5,
+      "bossState": 1,
+      "spans": [
+        {
+          "firstTick": 1625,
+          "lastTick": 1720,
+          "ticks": 96
+        }
+      ]
+    }
+  },
+  "limits": [
+    "The boss-script warning-onset image at tick 1625 is byte-identical to stock/boss.png; 96 versus 48 ticks is established from the new recorded state sequences, not the still.",
+    "Enemy counts are HUD observations; the combat camera does not display every enemy fully.",
+    "Retry inventory is closed, so the retry screenshot does not visually establish backpack contents.",
+    "Screenshots do not independently establish audio, animation continuity, input behavior or deterministic replay; full state/output equality is reported by each completed runner verification."
+  ],
+  "imageFilesModified": false,
+  "publishedOrUploaded": false,
+  "gitCargoOrUnityLaunched": false
+}

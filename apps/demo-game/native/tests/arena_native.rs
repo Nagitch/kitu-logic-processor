@@ -203,6 +203,75 @@ fn preparation_inventory_and_equipment_match_c_abi_and_frozen_csharp_oracle() {
 }
 
 #[test]
+fn edited_boss_duration_matches_server_and_native_for_graphical_verification() {
+    let native = Native::create(&[]);
+    let mut runtime = build_arena_runtime().unwrap();
+    let edited = arena::script::ScriptVersion::from_source(
+        &arena::script::DEFAULT_SOURCE.replace("duration: 0.8", "duration: 1.6"),
+    )
+    .unwrap();
+    arena::stage_script(&mut runtime, edited.clone(), 1).unwrap();
+    let mut evidence = std::env::var_os("KITU_NATIVE_EVIDENCE_DIR").map(|directory| {
+        std::fs::create_dir_all(&directory).unwrap();
+        let path = Path::new(&directory);
+        (
+            File::create(path.join("rhai-boss.trace")).unwrap(),
+            File::create(path.join("rhai-boss.expected.ndjson")).unwrap(),
+        )
+    });
+    let mut telegraph_ticks = 0;
+    let directory = Path::new(env!("CARGO_MANIFEST_DIR")).join(
+        "../../../kitu-integration-runner/scenarios/arena/reference/stock-eleven-death-retry",
+    );
+    support::replay_reference_from_directory(
+        &directory,
+        "stock-eleven-death-retry",
+        1800,
+        |_| {},
+        |reference, _| {
+            for input in reference.committed_input_records() {
+                runtime
+                    .try_enqueue_input(input.bundle.clone(), input.metadata.clone())
+                    .unwrap();
+            }
+            runtime.tick_once().unwrap();
+            let outputs = runtime.drain_output_buffer();
+            for input in runtime.committed_input_records() {
+                let bytes = native.submit(&input.bundle, input.metadata.clone(), input.sequence);
+                if let Some((trace, _)) = &mut evidence {
+                    trace.write_all(b"I").unwrap();
+                    trace.write_all(&bytes).unwrap();
+                    trace.write_all(b"\n").unwrap();
+                }
+            }
+            let result = compare_tick(&native, &runtime, &outputs);
+            let observed = state(&result["state"]);
+            for enemy in observed["enemies"].as_array().unwrap() {
+                if observed["floor"] == 5 && enemy["Kind"] == 3 && enemy["BossState"] == 1 {
+                    if telegraph_ticks == 0 {
+                        assert!((enemy["PhaseRemaining"].as_f64().unwrap() - 1.6).abs() < 1e-6);
+                    }
+                    telegraph_ticks += 1;
+                }
+            }
+            if let Some((trace, expected)) = &mut evidence {
+                trace.write_all(b"T\n").unwrap();
+                serde_json::to_writer(&mut *expected, &result).unwrap();
+                expected.write_all(b"\n").unwrap();
+            }
+        },
+    );
+    assert_eq!(
+        telegraph_ticks, 96,
+        "edited telegraph lasts exactly 1.6 seconds at 60 Hz"
+    );
+    assert_eq!(
+        arena::inspect_script(&runtime).unwrap().active,
+        Some(edited)
+    );
+}
+
+#[test]
 fn native_uses_detached_validated_content_and_refuses_incompatible_configuration() {
     let mut values = arena::config::ArenaConfig::default();
     values.items[0].damage = 37;

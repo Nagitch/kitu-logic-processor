@@ -14,7 +14,7 @@ Status note: some data/content crates are staged entry points. Their responsibil
 | `kitu-osc-ir` | Core OSC/IR message types that travel across transports. | `kitu-core` |
 | `kitu-transport` | Message transport abstraction (local channel, network adapters). | `kitu-core`, `kitu-osc-ir` |
 | `kitu-runtime` | Tick-based orchestrator that wires ECS, transports, and future data/script layers. | `kitu-core`, `kitu-ecs`, `kitu-transport`, `kitu-osc-ir` |
-| `kitu-scripting-rhai` | Rhai integration layer (script hosts, bindings, helpers). | `kitu-core` |
+| `kitu-scripting-rhai` | Bounded pure Rhai execution with copied JSON inputs and structured diagnostics. | `rhai`, `serde_json` |
 | `kitu-data-tmd` | Parser/loader for TMD data definitions. | `kitu-core` |
 | `kitu-data-sqlite` | Bounded, read-only typed SQLite snapshots with consistent schema and ordering. | `rusqlite` |
 | `kitu-tsq1` | TSQ1 timeline AST and playback utilities. | `kitu-core` |
@@ -50,7 +50,6 @@ graph TD
     kitu_runtime --> kitu_ecs
     kitu_runtime --> kitu_transport
     kitu_runtime --> kitu_osc_ir
-    kitu_scripting_rhai --> kitu_core
     kitu_data_tmd --> kitu_core
     kitu_tsq1 --> kitu_core
     kitu_shell --> kitu_core
@@ -87,8 +86,8 @@ graph TD
 - Future extensions will plug in TSQ1 playback, scripting hooks, and data loaders via this crate.
 
 ### `kitu-scripting-rhai`
-- Staged entry point for building the Rhai execution environment and exposing safe bindings for runtime state.
-- Scripts should access gameplay data through APIs defined here instead of touching ECS internals directly.
+- Implements a raw Rhai host with explicit capability, execution and data limits, opaque compiled programs and fresh copied JSON inputs/outputs.
+- Arena owns the [boss context and allowed action contract](specs/arena-boss-scripts.md); scripts receive no ECS mutation access.
 
 ### `kitu-data-tmd`
 - Staged entry point for parsing TMD authoring assets into strongly typed structures ready for validation and loading.

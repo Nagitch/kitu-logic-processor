@@ -1,4 +1,5 @@
 //! Fixed-order combat rules; host I/O and device sampling stay outside this module.
+use super::script::{BossAction, BossDecision, PreparedScript, ScriptFault};
 use super::{
     json_message, ArenaState, Controls, Effect, Enemy, Grenade, Projectile, RunResult, Vec2,
 };
@@ -34,6 +35,7 @@ fn emit(output: &mut OscBundle, tick: i64, address: &str, mut value: serde_json:
 }
 
 impl ArenaState {
+    #[cfg(test)]
     pub(super) fn step(
         &mut self,
         controls: Controls,
@@ -41,6 +43,48 @@ impl ArenaState {
         dt: f32,
         tick: i64,
         output: &mut OscBundle,
+    ) {
+        let prepared = super::script::prepare(&super::script::default_script().unwrap()).unwrap();
+        self.step_with_script(controls, uses, dt, tick, output, &prepared)
+            .unwrap();
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn step_with_script(
+        &mut self,
+        controls: Controls,
+        uses: [bool; 2],
+        dt: f32,
+        tick: i64,
+        output: &mut OscBundle,
+        script: &PreparedScript,
+    ) -> Result<(), ScriptFault> {
+        // Evaluate every copied boss context before any simulation mutation. If a
+        // later conditional path fails, this management tick is consumed exactly
+        // once and the caller pauses without a partial movement, attack or timer.
+        let mut decisions = std::collections::HashMap::new();
+        if self.phase == 3 && dt > 0.0 && dt.is_finite() {
+            for enemy in self
+                .enemies
+                .iter()
+                .filter(|enemy| enemy.kind == 3 && enemy.health > 0)
+            {
+                decisions.insert(enemy.id, script.for_enemy(enemy, self.floor, dt, tick)?);
+            }
+        }
+        self.step_decisions(controls, uses, dt, tick, output, &decisions);
+        Ok(())
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn step_decisions(
+        &mut self,
+        controls: Controls,
+        uses: [bool; 2],
+        dt: f32,
+        tick: i64,
+        output: &mut OscBundle,
+        decisions: &std::collections::HashMap<i32, BossDecision>,
     ) {
         if dt <= 0.0 || !dt.is_finite() || self.phase == 0 || self.phase == 5 {
             return;
@@ -86,7 +130,7 @@ impl ArenaState {
         }
         if self.phase == 3 {
             for index in 0..self.enemies.len() {
-                self.update_enemy(index, dt, &mut damage, tick, output);
+                self.update_enemy(index, dt, &mut damage, tick, output, decisions);
             }
         }
         self.update_projectiles(dt, &mut damage, tick, output);
@@ -401,6 +445,7 @@ impl ArenaState {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn update_enemy(
         &mut self,
         index: usize,
@@ -408,6 +453,7 @@ impl ArenaState {
         pending: &mut DamageQueue,
         tick: i64,
         output: &mut OscBundle,
+        decisions: &std::collections::HashMap<i32, BossDecision>,
     ) {
         let mut enemy = self.enemies[index];
         if enemy.health <= 0 {
@@ -416,14 +462,13 @@ impl ArenaState {
         enemy.attack_cooldown = (enemy.attack_cooldown - dt).max(0.0);
         if enemy.kind == 3 {
             enemy.phase_remaining -= dt;
-            if enemy.boss_state == 0 && enemy.phase_remaining <= 0.00001 {
-                enemy.boss_state = 1;
-                enemy.phase_remaining = 0.8;
-                self.enemies[index] = enemy;
-                return;
-            }
-            if enemy.boss_state == 1 {
-                if enemy.phase_remaining <= 0.00001 {
+            let decision = decisions.get(&enemy.id).expect("boss request preflighted");
+            match decision.action {
+                BossAction::Telegraph => {
+                    enemy.boss_state = 1;
+                    enemy.phase_remaining = decision.duration;
+                }
+                BossAction::Burst => {
                     emit(
                         output,
                         tick,
@@ -447,16 +492,16 @@ impl ArenaState {
                         );
                     }
                     enemy.boss_state = 2;
-                    enemy.phase_remaining = 1.0;
+                    enemy.phase_remaining = decision.duration;
                 }
-                self.enemies[index] = enemy;
-                return;
-            }
-            if enemy.boss_state == 2 {
-                if enemy.phase_remaining <= 0.00001 {
+                BossAction::Recover => {
                     enemy.boss_state = 0;
-                    enemy.phase_remaining = 3.0;
+                    enemy.phase_remaining = decision.duration;
                 }
+                BossAction::Pursue | BossAction::Wait => {}
+            }
+            // Even recovery-to-pursuit returns this tick, as the frozen C# does.
+            if decision.action != BossAction::Pursue {
                 self.enemies[index] = enemy;
                 return;
             }

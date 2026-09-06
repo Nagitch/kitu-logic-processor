@@ -77,9 +77,12 @@ namespace UnityOnlyArena
                         string address = string.IsNullOrEmpty(bridgeOverride) || bridgeOverride == "off" ? NativeBridgeAddress : bridgeOverride;
                         string contentOverride = ArenaLaunchArguments.Value("--arena-content");
                         if (contentOverride != null && !Path.IsPathRooted(contentOverride))
-                            throw new ArgumentException("--arena-content requires an absolute TMD path");
+                            throw new ArgumentException("--arena-content requires an absolute content source path");
+                        string scriptOverride = ArenaLaunchArguments.Value("--arena-script");
+                        if (scriptOverride != null && !Path.IsPathRooted(scriptOverride))
+                            throw new ArgumentException("--arena-script requires an absolute Rhai source path");
                         connection = new ArenaNativeConnection(bridge, address,
-                            Path.Combine(Application.persistentDataPath, "arena"), contentOverride ?? NativeContentPath);
+                            Path.Combine(Application.persistentDataPath, "arena"), contentOverride ?? NativeContentPath, scriptOverride);
                     }
                     NativeConnection.AutomaticTicks = NativeAutomaticTicks;
                 }

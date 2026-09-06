@@ -32,6 +32,12 @@ same `sessionId` used by the CLI catalog. Binding failure rejects creation with
 a diagnostic. Empty/default configuration starts no listener and writes no files.
 An optional absolute `contentPath` chooses the `.tmd`, `.sqlite` or `.arena.json`
 source plan evaluated by Admin through the [shared typed loader](../../../doc/specs/arena-content-sources.md).
+The same configuration accepts an absolute `scriptPath` for editable boss Rhai
+source. Otherwise the storage directory receives `boss.rhai` only when absent.
+CLI/Admin validation and staging apply edits to the next run. Detached `script`
+may accompany detached `content` at creation; these saved versions remain
+authoritative even when authoring files differ. See the
+[boss script contract](../../../doc/specs/arena-boss-scripts.md).
 Otherwise the storage directory receives an editable `arena.tmd` on first use;
 existing documents are preserved. Validation and staging keep next-run semantics.
 

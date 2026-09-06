@@ -44,12 +44,17 @@ The manifest stores:
   when execution semantics change; a package version alone is insufficient.
 - Full evaluated initial Tanu configuration, its semantic/source hashes and the
   evaluator revision. Every later staged configuration is retained in input data.
+- Recording manifest2 additionally requires the full initial boss `ScriptVersion`.
+  Every run and later staged input retains exact source, contract and policy hashes.
+  The execution hash also covers the Rhai host and bundled script; see the
+  [script contract](arena-boss-scripts.md). Older execution versions require their
+  archived executable instead of reinterpretation with current rules.
 - Initial projection hash, completed tick count, a state and ordered-output hash
   for every tick, and each full run-start manifest with frozen evaluated values.
 
-Replay builds the ordinary application with the detached initial content, feeds
+Replay builds the ordinary application with the detached initial content and script, feeds
 its normal validated input queue, calls the same `tick_once`, and compares every
-state/output before continuing. It never consults the current `.tmd` and never
+state/output before continuing. It never consults authoring files and never
 sets HP, actors or clocks from recorded output. Altering the authoring file does
 not affect old recordings. Divergence includes its exact tick in the diagnostic.
 Hashes demand exact reproducibility within a compatible build; the independent

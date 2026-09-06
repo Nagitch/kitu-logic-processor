@@ -1,0 +1,56 @@
+{
+  "createdAtUtc": "2026-09-06T11:00:48.411055+00:00",
+  "target": "aarch64-apple-darwin",
+  "profile": "dev",
+  "cargoCommand": [
+    "cargo",
+    "build",
+    "--locked",
+    "-p",
+    "kitu-demo-game-native",
+    "--target",
+    "aarch64-apple-darwin",
+    "--profile",
+    "dev"
+  ],
+  "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+  "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+  "sdk": "26.5",
+  "sdkPath": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+  "cargoLock": {
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/Cargo.lock",
+    "bytes": 61477,
+    "sha256": "47afacc60227a9cb0433c0eab38e03d2bc9e2c6c62ad6c6a0003f8c46607894d"
+  },
+  "sourceLibrary": {
+    "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+    "bytes": 27109792,
+    "sha256": "c07995309a1776aad2c83496626a77584dfb929dc3d27adf4904ab2120932349"
+  },
+  "plugin": {
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
+    "bytes": 26970304,
+    "sha256": "ca38aa6777ee0490cdc06de004f8e29f0c15d974de53c5c2da1991e506bcb911",
+    "architecture": "arm64",
+    "installName": "@rpath/libkitu_demo_game_native.dylib",
+    "dependencies": [
+      "@rpath/libkitu_demo_game_native.dylib",
+      "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+      "/usr/lib/libiconv.2.dylib",
+      "/usr/lib/libSystem.B.dylib"
+    ],
+    "applicationSymbols": [
+      "kitu_application_abi_version",
+      "kitu_application_create",
+      "kitu_application_destroy",
+      "kitu_application_inspect_host_json",
+      "kitu_application_inspect_json",
+      "kitu_application_last_error",
+      "kitu_application_read_output",
+      "kitu_application_submit_json",
+      "kitu_application_tick"
+    ],
+    "unsignedSha256": "698a25b8f9e2871b4d3047013a0807bee04b3002ab489d1e1f41da43289e93a9",
+    "signatureVerified": true
+  }
+}
