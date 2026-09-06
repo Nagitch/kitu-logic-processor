@@ -4,7 +4,7 @@
   "baseRevision": "db4c0dc303a48006b0a83c2230d08557cf3065f8",
   "sourceSha256": {
     "apps/demo-game/src/bin/admin_host.rs": "4ee1cca5f683f6125d3775ffabe9eeae1db28b4b7e2283f14c5ca170086a1e89",
-    "apps/demo-game/src/bin/admin_host/playback.rs": "e7940df5c99f85ee0d6229f5ac1c64acb8fb234491aa68b69a68b48deeab0c0f",
+    "apps/demo-game/src/bin/admin_host/playback.rs": "2ac16185a8263f17af0efecac3b5efd2e873278d177ae315a82da1dcfaba6b40",
     "apps/demo-game/src/bin/admin_host/content.rs": "ce99c2ab86283b5174442da788f37bec4fe2103bc420920d5b1bf57698302f6a",
     "tools/kitu-web-admin/frontend/src/routes/(project)/arena-replay/+page.svelte": "13ec055bc07f82a6ff205d6f76426af379a38f14465266cdba815e54210b5c99",
     "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/KituArenaClient.cs": "5cc475ec399fef6a461d90b644a41e1a206a7c36957d6c779c37a981694f62de",
@@ -37,7 +37,8 @@
       "failed": "0",
       "skipped": "0",
       "duration": "13.4990239"
-    }
+    },
+    "reviewFix": "PR #145 P2: seek worker now owns completion and its serialization guard across HTTP waiter cancellation. Deterministic barrier test drops the waiter and verifies successful cleanup plus explicit live cancellation winning; final host 13 tests, workspace Clippy and build passed. Prior full workspace/Unity evidence remains applicable; only worker lifetime/cleanup changed."
   },
   "verifiedBehaviors": [
     "Admin save, download, import, verify/load, play, pause, single step, seek and end-of-recording controls were exercised in the browser.",

@@ -292,7 +292,7 @@ pub(super) async fn seek(
     State(state): State<AppState>,
     Json(request): Json<SeekRequest>,
 ) -> Result<Json<Status>, ApiError> {
-    let _operation = OPERATIONS.lock().await;
+    let operation = OPERATIONS.lock().await;
     let (generation, id, session) = {
         let mut game = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
         if game.pending_playback.is_some() {
@@ -310,15 +310,35 @@ pub(super) async fn seek(
         p.seeking = true;
         (generation, p.id.clone(), p.session.clone())
     };
-    let result = tokio::task::spawn_blocking(move || Playback::at(id, session, request.tick))
-        .await
-        .map_err(anyhow::Error::from)
-        .and_then(|result| result);
-    {
-        let mut game = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
-        if game.playback_generation != generation {
-            return Err(ApiError::bad_request("replay changed while seeking"));
-        }
+    // The worker owns both completion and serialization. Dropping the HTTP
+    // future must not strand seeking=true or release the gate while CPU work
+    // still runs. Explicit return-to-live still supersedes it by generation.
+    spawn_seek(state.clone(), generation, operation, move || {
+        Playback::at(id, session, request.tick)
+    })
+    .await
+    .map_err(anyhow::Error::from)??;
+    Ok(Json(inspect(&state)?))
+}
+
+fn spawn_seek(
+    state: AppState,
+    generation: u64,
+    operation: tokio::sync::MutexGuard<'static, ()>,
+    prepare: impl FnOnce() -> Result<Playback> + Send + 'static,
+) -> tokio::task::JoinHandle<Result<()>> {
+    tokio::task::spawn_blocking(move || {
+        let _operation = operation;
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(prepare))
+            .unwrap_or_else(|_| Err(anyhow::anyhow!("replay seek worker panicked")));
+        let mut game = state
+            .inner
+            .lock()
+            .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+        anyhow::ensure!(
+            game.playback_generation == generation,
+            "replay changed while seeking"
+        );
         match result {
             Ok(prepared) => game.playback = Some(prepared),
             Err(error) => {
@@ -326,11 +346,11 @@ pub(super) async fn seek(
                     p.seeking = false;
                     p.error = Some(format!("{error:#}"));
                 }
-                return Err(error.into());
+                return Err(error);
             }
         }
-    }
-    Ok(Json(inspect(&state)?))
+        Ok(())
+    })
 }
 
 #[cfg(test)]
@@ -446,6 +466,54 @@ mod tests {
         assert_eq!(inspect(&state).unwrap().live_tick, 2);
         assert_eq!(inspect(&state).unwrap().state["overlay"], "pause");
         assert_eq!(inspect(&state).unwrap().state["phase"], 1);
+    }
+
+    #[tokio::test]
+    async fn dropped_seek_waiter_finishes_and_live_cancellation_wins() {
+        let state = super::super::tests::test_state();
+        let saved = session();
+        for restore_live in [false, true] {
+            let operation = OPERATIONS.lock().await;
+            let generation = {
+                let mut game = state.inner.lock().unwrap();
+                game.playback_generation += 1;
+                let mut playback = Playback::at("test".into(), saved.clone(), -1).unwrap();
+                playback.seeking = true;
+                game.playback = Some(playback);
+                game.playback_generation
+            };
+            let (release, wait) = std::sync::mpsc::channel();
+            let saved = saved.clone();
+            let worker = spawn_seek(state.clone(), generation, operation, move || {
+                wait.recv().unwrap();
+                Playback::at("test".into(), saved, 17)
+            });
+            // Dropping a request's JoinHandle detaches its already scheduled
+            // worker. Hold it at a deterministic barrier, with seeking set.
+            drop(worker);
+            assert!(inspect(&state).unwrap().mode.seeking);
+            assert!(OPERATIONS.try_lock().is_err());
+            if restore_live {
+                operate(&mut state.inner.lock().unwrap(), "live").unwrap();
+            }
+            release.send(()).unwrap();
+            let _completed =
+                tokio::time::timeout(std::time::Duration::from_secs(5), OPERATIONS.lock())
+                    .await
+                    .unwrap();
+            let status = inspect(&state).unwrap();
+            assert!(!status.mode.seeking);
+            if restore_live {
+                assert!(
+                    !status.mode.active,
+                    "a detached seek cannot resurrect replay"
+                );
+            } else {
+                assert_eq!(status.mode.tick, 17);
+                assert_eq!(status.state["tick"], 17);
+                operate(&mut state.inner.lock().unwrap(), "play").unwrap();
+            }
+        }
     }
 
     #[tokio::test]

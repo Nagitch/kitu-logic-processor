@@ -116,7 +116,8 @@ clock is parked; replay ticks are controlled independently. Return to live resto
 that exact paused run, resumes management ticking, and requires explicit gameplay
 resume. Disconnect/reconnect retains replay mode and resends one coherent mode,
 tick and state snapshot. Live cancels an in-flight load/seek; concurrent seek/load
-work is serialized. During a queued activation, input is already read-only, while
+work is serialized. A seek worker owns its completion and serialization guard,
+so HTTP disconnect/timeout cannot strand the replay in a seeking state. During a queued activation, input is already read-only, while
 status continues to describe the current projection until the next host tick.
 
 Historical run-start events are broadcast for observation, but cannot overwrite
