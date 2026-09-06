@@ -136,6 +136,10 @@ The embedded flow used the relocated Player, with the external Arena WebSocket
 override removed; its executable identity is retained.
 [runtime-archive.json](runtime-archive.json) records eight retained artifacts and
 two signed Players under the ignored `stage18-c6b392508f27` archive.
+Each Player's `manifestSha256` hashes its compact UTF-8 JSON file inventory
+before the saved trailing LF; individual payload hashes cover the actual file
+bytes. All 686 archived Player files were independently checked against that
+inventory.
 [cleanup.json](cleanup.json) records the stopped task-owned processes and released
 ports. Recordings retain their original IDs and execution metadata.
 
