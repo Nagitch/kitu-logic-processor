@@ -1,0 +1,358 @@
+{
+  "native": {
+    "createdAtUtc": "2026-09-06T15:22:28.935517+00:00",
+    "target": "aarch64-apple-darwin",
+    "profile": "dev",
+    "cargoCommand": [
+      "cargo",
+      "build",
+      "--locked",
+      "-p",
+      "kitu-demo-game-native",
+      "--target",
+      "aarch64-apple-darwin",
+      "--profile",
+      "dev"
+    ],
+    "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+    "sdk": "26.5",
+    "sdkPath": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "cargoLock": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/Cargo.lock",
+      "bytes": 61830,
+      "sha256": "7d78bd87d2f659e3bdda9d449ad274a482cf1a46a1d813007c12ba0ceaac41a2"
+    },
+    "sourceLibrary": {
+      "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+      "bytes": 29805168,
+      "sha256": "3db0e598a26af16fa627c6b13a862bbd1fd1ddc33fad47b4e07c0089489a347c"
+    },
+    "plugin": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
+      "bytes": 29650032,
+      "sha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "architecture": "arm64",
+      "installName": "@rpath/libkitu_demo_game_native.dylib",
+      "dependencies": [
+        "@rpath/libkitu_demo_game_native.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "applicationSymbols": [
+        "kitu_application_abi_version",
+        "kitu_application_create",
+        "kitu_application_destroy",
+        "kitu_application_inspect_host_json",
+        "kitu_application_inspect_json",
+        "kitu_application_last_error",
+        "kitu_application_read_output",
+        "kitu_application_submit_json",
+        "kitu_application_tick"
+      ],
+      "unsignedSha256": "86f9d1a6bf30a73f20668f9f2e7de31bb3358990a6da62da37b4f738e8659126",
+      "signatureVerified": true
+    }
+  },
+  "players": {
+    "player-build-default": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-build-default/player-build.json",
+        "bytes": 8160,
+        "sha256": "e7f3893475d75249e17040b40e94362ee0c5696395d83c1a8dea2f127d26c3ed"
+      },
+      "createdAtUtc": "2026-09-06T15:26:26.422935+00:00",
+      "unityBuild": {
+        "unityVersion": "6000.6.0f1",
+        "playerPath": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app",
+        "scene": "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity",
+        "architecture": "arm64",
+        "scriptingBackend": "Mono2x",
+        "pluginPath": "Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
+        "result": "Succeeded",
+        "packageHash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+        "addressablesVersion": "2.11.2",
+        "catalogSha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5",
+        "errors": 0,
+        "warnings": 28,
+        "totalBytes": 216553439,
+        "elapsedSeconds": 16.802080999999998
+      },
+      "executable": {
+        "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "3e58fc7cbc56688a72d611b335181722ec072b6727b59536e914811e9b4458c3"
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "pluginUnsignedSha256": "86f9d1a6bf30a73f20668f9f2e7de31bb3358990a6da62da37b4f738e8659126",
+      "signatureVerified": true,
+      "content": {
+        "package": {
+          "directory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/Resources/Data/StreamingAssets/KituArena",
+          "hash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+          "manifestBytes": 625,
+          "files": [
+            {
+              "path": "unity-assets.json",
+              "bytes": 306,
+              "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+            },
+            {
+              "path": "arena.tmd",
+              "bytes": 49783,
+              "sha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa"
+            },
+            {
+              "path": "boss.rhai",
+              "bytes": 676,
+              "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+            },
+            {
+              "path": "timelines/boss-telegraph.tsq",
+              "bytes": 737,
+              "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+            },
+            {
+              "path": "timelines/floor-transition.tsq",
+              "bytes": 652,
+              "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+            }
+          ],
+          "assets": [
+            {
+              "role": "baseMaterial",
+              "key": "arena/material/base",
+              "type": "Material"
+            },
+            {
+              "role": "cube",
+              "key": "arena/primitive/cube",
+              "type": "GameObject"
+            },
+            {
+              "role": "capsule",
+              "key": "arena/primitive/capsule",
+              "type": "GameObject"
+            },
+            {
+              "role": "sphere",
+              "key": "arena/primitive/sphere",
+              "type": "GameObject"
+            }
+          ]
+        },
+        "addressablesVersion": "2.11.2",
+        "catalogSha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5",
+        "localOnly": true,
+        "artifacts": [
+          {
+            "relativePath": "StandaloneOSX/arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle",
+            "bytes": 259644,
+            "sha256": "31e3b9963b6ba3507034c13bfdcffb122105b8318fcc1edac9a2414905dbf8d3"
+          },
+          {
+            "relativePath": "catalog.bin",
+            "bytes": 2317,
+            "sha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5"
+          },
+          {
+            "relativePath": "catalog.hash",
+            "bytes": 32,
+            "sha256": "8c789eb8ec2b811d4dbb8334267d6488dc86b3e4576142c70f71f347566eeaab"
+          },
+          {
+            "relativePath": "settings.json",
+            "bytes": 858,
+            "sha256": "dd257f5fb77c1fe288f07eb994322c0f83cb6ee855ec37663c2ae51a41adb2aa"
+          }
+        ],
+        "locations": [
+          {
+            "key": "arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle",
+            "type": "UnityEngine.ResourceManagement.ResourceProviders.IAssetBundleResource",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider",
+            "internalId": "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneOSX/arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle"
+          },
+          {
+            "key": "arena/material/base",
+            "type": "UnityEngine.Material",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider",
+            "internalId": "Assets/KituDemoApp/EndlessArena/AddressableContent/ArenaBase.mat"
+          },
+          {
+            "key": "arena/primitive/capsule",
+            "type": "UnityEngine.GameObject",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider",
+            "internalId": "Assets/KituDemoApp/EndlessArena/AddressableContent/Capsule.prefab"
+          },
+          {
+            "key": "arena/primitive/cube",
+            "type": "UnityEngine.GameObject",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider",
+            "internalId": "Assets/KituDemoApp/EndlessArena/AddressableContent/Cube.prefab"
+          },
+          {
+            "key": "arena/primitive/sphere",
+            "type": "UnityEngine.GameObject",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider",
+            "internalId": "Assets/KituDemoApp/EndlessArena/AddressableContent/Sphere.prefab"
+          }
+        ],
+        "runtimeUse": "The separate graphical Player probes verify actual loading and use."
+      }
+    },
+    "player-build-edited-final": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-build-edited-final/player-build.json",
+        "bytes": 7975,
+        "sha256": "ce65c5cbf593fc3003d7db9a234f8e3868db26c8be47f9bba302d9a856866bcd"
+      },
+      "createdAtUtc": "2026-09-06T15:45:50.969983+00:00",
+      "unityBuild": {
+        "unityVersion": "6000.6.0f1",
+        "playerPath": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-edited-final/KituEndlessArena.app",
+        "scene": "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity",
+        "architecture": "arm64",
+        "scriptingBackend": "Mono2x",
+        "pluginPath": "Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
+        "result": "Succeeded",
+        "packageHash": "ed49d3b0010dfedcfeee278f91a580146a8d267bfcf96c6daef1142515af2646",
+        "addressablesVersion": "2.11.2",
+        "catalogSha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5",
+        "errors": 0,
+        "warnings": 10,
+        "totalBytes": 216553525,
+        "elapsedSeconds": 9.163246
+      },
+      "executable": {
+        "path": ".tmp/stage16/player-edited-final/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "ea6eaa485bf63c070392dea6c8033ce51d8e23e7e2a4b1f933011a4927de7860"
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "pluginUnsignedSha256": "86f9d1a6bf30a73f20668f9f2e7de31bb3358990a6da62da37b4f738e8659126",
+      "signatureVerified": true,
+      "content": {
+        "package": {
+          "directory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-edited-final/KituEndlessArena.app/Contents/Resources/Data/StreamingAssets/KituArena",
+          "hash": "ed49d3b0010dfedcfeee278f91a580146a8d267bfcf96c6daef1142515af2646",
+          "manifestBytes": 625,
+          "files": [
+            {
+              "path": "unity-assets.json",
+              "bytes": 306,
+              "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+            },
+            {
+              "path": "arena.tmd",
+              "bytes": 49868,
+              "sha256": "d1f7f78bd1d6f4a337779e34583602d537354717ca92e614457b106d6ae7b8ce"
+            },
+            {
+              "path": "boss.rhai",
+              "bytes": 676,
+              "sha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6"
+            },
+            {
+              "path": "timelines/boss-telegraph.tsq",
+              "bytes": 737,
+              "sha256": "a470838cf9f2ac0b752b97bd95d6038f8bc237673238f88e9fd0620f93202b62"
+            },
+            {
+              "path": "timelines/floor-transition.tsq",
+              "bytes": 652,
+              "sha256": "c1df5a5518de803b5fab01e032594e024a7ef103d74301b042343ef76a0a539c"
+            }
+          ],
+          "assets": [
+            {
+              "role": "baseMaterial",
+              "key": "arena/material/base",
+              "type": "Material"
+            },
+            {
+              "role": "cube",
+              "key": "arena/primitive/cube",
+              "type": "GameObject"
+            },
+            {
+              "role": "capsule",
+              "key": "arena/primitive/capsule",
+              "type": "GameObject"
+            },
+            {
+              "role": "sphere",
+              "key": "arena/primitive/sphere",
+              "type": "GameObject"
+            }
+          ]
+        },
+        "addressablesVersion": "2.11.2",
+        "catalogSha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5",
+        "localOnly": true,
+        "artifacts": [
+          {
+            "relativePath": "StandaloneOSX/arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle",
+            "bytes": 259644,
+            "sha256": "31e3b9963b6ba3507034c13bfdcffb122105b8318fcc1edac9a2414905dbf8d3"
+          },
+          {
+            "relativePath": "catalog.bin",
+            "bytes": 2317,
+            "sha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5"
+          },
+          {
+            "relativePath": "catalog.hash",
+            "bytes": 32,
+            "sha256": "8c789eb8ec2b811d4dbb8334267d6488dc86b3e4576142c70f71f347566eeaab"
+          },
+          {
+            "relativePath": "settings.json",
+            "bytes": 858,
+            "sha256": "dd257f5fb77c1fe288f07eb994322c0f83cb6ee855ec37663c2ae51a41adb2aa"
+          }
+        ],
+        "locations": [
+          {
+            "key": "arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle",
+            "type": "UnityEngine.ResourceManagement.ResourceProviders.IAssetBundleResource",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider",
+            "internalId": "{UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneOSX/arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle"
+          },
+          {
+            "key": "arena/material/base",
+            "type": "UnityEngine.Material",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider",
+            "internalId": "Assets/KituDemoApp/EndlessArena/AddressableContent/ArenaBase.mat"
+          },
+          {
+            "key": "arena/primitive/capsule",
+            "type": "UnityEngine.GameObject",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider",
+            "internalId": "Assets/KituDemoApp/EndlessArena/AddressableContent/Capsule.prefab"
+          },
+          {
+            "key": "arena/primitive/cube",
+            "type": "UnityEngine.GameObject",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider",
+            "internalId": "Assets/KituDemoApp/EndlessArena/AddressableContent/Cube.prefab"
+          },
+          {
+            "key": "arena/primitive/sphere",
+            "type": "UnityEngine.GameObject",
+            "provider": "UnityEngine.ResourceManagement.ResourceProviders.BundledAssetProvider",
+            "internalId": "Assets/KituDemoApp/EndlessArena/AddressableContent/Sphere.prefab"
+          }
+        ],
+        "runtimeUse": "The separate graphical Player probes verify actual loading and use."
+      }
+    }
+  },
+  "note": "The final edited Player corrects only a screenshot checkpoint condition; its native dylib is byte-identical to the default Player. Separate gameplay/startup reports verify both packages.",
+  "nativeSourceReport": {
+    "path": ".tmp/stage16/native-final/native-package.json",
+    "bytes": 2235,
+    "sha256": "bb02687a244ebc512ee26826e6b2fa70aa9ed4617e3901b26a70cb5c6ab51831"
+  }
+}

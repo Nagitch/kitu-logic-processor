@@ -11,3 +11,10 @@
 # Rebuilt locally by tools/build-arena-native-macos.py; import metadata is tracked.
 /kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/Plugins/macOS/*.dylib
 /tools/__pycache__/
+# Generated source package and local Addressables Player build artifacts.
+/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/StreamingAssets/KituArena/
+/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/StreamingAssets/KituArena.meta
+/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/StreamingAssets/aa/
+/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/StreamingAssets/aa.meta
+/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/AddressableAssetsData/OSX/
+/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/AddressableAssetsData/OSX.meta

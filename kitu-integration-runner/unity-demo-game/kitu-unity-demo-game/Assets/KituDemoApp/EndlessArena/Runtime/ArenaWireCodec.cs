@@ -33,6 +33,11 @@ namespace UnityOnlyArena
         public byte[] EncodeServer(JObject value) { Server(value); return Encode(value); }
         public byte[] EncodeInput(JObject value) { Input(value); return Encode(value); }
 
+        // Package metadata uses the same strict UTF-8 JSON grammar and bounded
+        // named maps; it has its own schema and never enters the input queue.
+        internal static JObject ReadPackageObject(byte[] bytes)
+            => new ArenaWireCodec(ArenaWireEncoding.Json, 16384, 1024, 16).Decode(bytes);
+
         public static JObject Compatibility() => new JObject {
             ["appId"] = "endless-arena", ["wireVersion"] = 1, ["schemaVersion"] = 1,
             ["presentationVersion"] = 1, ["tickRate"] = 60,

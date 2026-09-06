@@ -8,6 +8,8 @@ import os
 from pathlib import Path
 import plistlib
 
+from arena_content import stage_package, verify_player_content
+
 from arena_macos import (LIBRARY, PLUGIN, PROJECT, ROOT, artifact,
                          require_closed_editor, require_macos, run,
                          verify_plugin, write_json)
@@ -19,6 +21,8 @@ def main():
     parser.add_argument("--player", type=Path, default=PROJECT / "Builds/KituEndlessArena.app")
     parser.add_argument("--evidence", type=Path, default=ROOT / ".tmp/stage11/player-build")
     parser.add_argument("--timeout", type=float, default=1800)
+    parser.add_argument("--content-source", type=Path, default=ROOT / "apps/demo-game/content",
+                        help="Directory containing the five Arena package sources")
     args = parser.parse_args()
     require_macos()
     require_closed_editor()
@@ -36,9 +40,14 @@ def main():
     evidence.mkdir(parents=True, exist_ok=True)
     editor_report = evidence / "unity-build.json"
     editor_report.unlink(missing_ok=True)
+    content_report = evidence / "content-build.json"
+    content_report.unlink(missing_ok=True)
+    source_package = stage_package(args.content_source, PROJECT / "Assets/StreamingAssets/KituArena")
+    write_json(evidence / "package-staged.json", source_package)
     env = os.environ.copy()
     env["KITU_ARENA_PLAYER_PATH"] = str(player)
     env["KITU_ARENA_BUILD_REPORT"] = str(editor_report)
+    env["KITU_ARENA_CONTENT_BUILD_REPORT"] = str(content_report)
     command = [editor, "-batchmode", "-quit", "-projectPath", PROJECT,
                "-buildTarget", "osxuniversal", "-executeMethod",
                "UnityOnlyArena.Editor.KituArenaSceneBuilder.BuildMac",
@@ -47,6 +56,10 @@ def main():
     report = json.loads(editor_report.read_text())
     if report.get("result") != "Succeeded" or report.get("unityVersion") != version:
         raise RuntimeError(f"Unity build did not verify the pinned Editor and success: {report}")
+    content = json.loads(content_report.read_text())
+    if report.get("packageHash") != source_package["hash"] or report.get("catalogSha256") != content["catalog"]["sha256"]:
+        raise RuntimeError("Unity Player build did not use the staged Arena package/catalog")
+    bundled_content = verify_player_content(player, content, source_package)
     with (player / "Contents/Info.plist").open("rb") as file:
         executable_name = plistlib.load(file)["CFBundleExecutable"]
     if Path(executable_name).name != executable_name:
@@ -66,6 +79,7 @@ def main():
               "unityBuild": report, "sourcePlugin": source_plugin,
               "bundledPlugin": bundled, "signatureVerified": True,
               "nativeLibraryBundled": True,
+              "content": bundled_content,
               "playVerification": "Run run-arena-player-verification.py separately."}
     write_json(evidence / "player-build.json", result)
     print(json.dumps({"player": str(player), "evidence": str(evidence / "player-build.json")}, indent=2))

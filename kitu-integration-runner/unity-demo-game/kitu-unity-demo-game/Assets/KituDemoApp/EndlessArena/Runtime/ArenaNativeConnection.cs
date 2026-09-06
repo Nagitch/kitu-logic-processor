@@ -25,6 +25,7 @@ namespace UnityOnlyArena
         private bool attached, faulted;
         private ulong nextControlId = 1;
         private string sessionId, previousMode;
+        private readonly string expectedPackageHash;
         public bool Connected => handle != IntPtr.Zero && attached && !faulted;
         public string Status { get; private set; } = "Creating embedded Runtime";
         public bool AutomaticTicks { get; set; } = true;
@@ -37,7 +38,8 @@ namespace UnityOnlyArena
         public static int LiveHandleCount => live.Count;
 
         public ArenaNativeConnection(bool bridgeEnabled, string bridgeAddress, string storageDirectory,
-            string contentPath = null, string scriptPath = null, string timelineDirectory = null)
+            string contentPath = null, string scriptPath = null, string timelineDirectory = null, string bundledContentDirectory = null,
+            string expectedBundledContentHash = null)
         {
             if (Application.platform != RuntimePlatform.OSXEditor && Application.platform != RuntimePlatform.OSXPlayer)
                 throw new PlatformNotSupportedException("The embedded Arena library currently supports macOS.");
@@ -49,6 +51,9 @@ namespace UnityOnlyArena
             if (!string.IsNullOrEmpty(contentPath)) config["contentPath"] = contentPath;
             if (!string.IsNullOrEmpty(scriptPath)) config["scriptPath"] = scriptPath;
             if (!string.IsNullOrEmpty(timelineDirectory)) config["timelineDirectory"] = timelineDirectory;
+            if (!string.IsNullOrEmpty(bundledContentDirectory)) config["bundledContentDirectory"] = bundledContentDirectory;
+            if (expectedBundledContentHash != null) config["expectedBundledContentHash"] = expectedBundledContentHash;
+            expectedPackageHash = expectedBundledContentHash;
             byte[] bytes = Encoding.UTF8.GetBytes(config.ToString(Formatting.None));
             var error = new byte[4096];
             int status = Native.Create(1, bytes, Size(bytes.Length), out handle, error, Size(error.Length), out UIntPtr required);
@@ -202,6 +207,13 @@ namespace UnityOnlyArena
             return Read(Native.Inspect);
         }
 
+        public string InspectHostJson()
+        {
+            EnsureOwner();
+            EnsureUsable();
+            return Read(Native.InspectHost);
+        }
+
         private void RefreshHost()
         {
             var bundles = JArray.Parse(Read(Native.InspectHost));
@@ -214,6 +226,8 @@ namespace UnityOnlyArena
                 throw new InvalidOperationException("Missing or incompatible embedded Arena host metadata");
             ArenaWireCodec.CheckCompatibility(status["compatibility"]);
             ArenaWireCodec.ValidateExecution(status["execution"]);
+            if (expectedPackageHash != null && (string)status["package"]?["hash"] != expectedPackageHash)
+                throw new InvalidOperationException("Arena package identity changed during preparation");
             if ((bool?)status["closing"] == true) throw new InvalidOperationException("Embedded Arena host is closing");
             string nextSession = (string)status["sessionId"];
             if (nextSession != sessionId)

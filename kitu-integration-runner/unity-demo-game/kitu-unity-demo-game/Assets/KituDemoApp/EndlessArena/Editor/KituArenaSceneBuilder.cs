@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
@@ -35,6 +37,8 @@ namespace UnityOnlyArena.Editor
         {
             PrepareDefault();
             KituArenaNativePlugin.Configure();
+            KituArenaContentBuilder.Prepare();
+            var addressableSettings = AddressableAssetSettingsDefaultObject.Settings;
             string destination = Environment.GetEnvironmentVariable("KITU_ARENA_PLAYER_PATH");
             if (string.IsNullOrWhiteSpace(destination))
                 destination = Path.Combine(Application.dataPath, "..", "Builds", "KituEndlessArena.app");
@@ -47,12 +51,15 @@ namespace UnityOnlyArena.Editor
             var previousBackend = PlayerSettings.GetScriptingBackend(NamedBuildTarget.Standalone);
             bool previousBackground = PlayerSettings.runInBackground;
             string previousProductName = PlayerSettings.productName;
+            var previousAddressableBuild = addressableSettings.BuildAddressablesWithPlayerBuild;
             try
             {
                 EditorUserBuildSettings.SetPlatformSettings(platform, "Architecture", "ARM64");
                 PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
                 PlayerSettings.runInBackground = true;
                 PlayerSettings.productName = "Kitu Endless Arena";
+                addressableSettings.BuildAddressablesWithPlayerBuild = AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                var content = KituArenaContentBuilder.BuildContent();
                 var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
                     scenes = new[] { ScenePath }, locationPathName = destination,
                     target = BuildTarget.StandaloneOSX, options = BuildOptions.Development,
@@ -64,6 +71,9 @@ namespace UnityOnlyArena.Editor
                     result = report.summary.result.ToString(), errors = report.summary.totalErrors,
                     warnings = report.summary.totalWarnings, totalBytes = report.summary.totalSize,
                     elapsedSeconds = report.summary.totalTime.TotalSeconds,
+                    packageHash = (string)content["package"]["identity"],
+                    addressablesVersion = (string)content["packageVersion"],
+                    catalogSha256 = (string)content["catalog"]["sha256"],
                 };
                 string reportPath = Environment.GetEnvironmentVariable("KITU_ARENA_BUILD_REPORT");
                 if (!string.IsNullOrWhiteSpace(reportPath))
@@ -82,6 +92,8 @@ namespace UnityOnlyArena.Editor
                 PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, previousBackend);
                 PlayerSettings.runInBackground = previousBackground;
                 PlayerSettings.productName = previousProductName;
+                addressableSettings.BuildAddressablesWithPlayerBuild = previousAddressableBuild;
+                EditorUtility.SetDirty(addressableSettings);
                 AssetDatabase.SaveAssets();
             }
         }
@@ -90,6 +102,7 @@ namespace UnityOnlyArena.Editor
         private sealed class NativeBuildEvidence
         {
             public string unityVersion, playerPath, scene, architecture, scriptingBackend, pluginPath, result;
+            public string packageHash, addressablesVersion, catalogSha256;
             public int errors, warnings;
             public ulong totalBytes;
             public double elapsedSeconds;

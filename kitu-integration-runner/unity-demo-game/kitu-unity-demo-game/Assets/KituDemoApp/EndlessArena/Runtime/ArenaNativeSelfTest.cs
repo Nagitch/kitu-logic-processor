@@ -17,7 +17,7 @@ namespace UnityOnlyArena
     /// </summary>
     public sealed class ArenaNativeSelfTest : MonoBehaviour
     {
-        private string tracePath, expectedPath, evidenceDirectory, scenario;
+        private string tracePath, expectedPath, evidenceDirectory, scenario, initialExpectedPath;
         private KituArenaClient client;
         private long ticks;
         private ulong inputs;
@@ -25,6 +25,7 @@ namespace UnityOnlyArena
         private bool deathObserved, retryObserved, finished;
         private int scriptTelegraphTicks;
         private int timelinePausedTicks;
+        private JObject initialReport;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -40,8 +41,11 @@ namespace UnityOnlyArena
                 var test = new GameObject("Native Arena Player verification").AddComponent<ArenaNativeSelfTest>();
                 test.tracePath = Path.GetFullPath(trace);
                 test.scenario = Path.GetFileNameWithoutExtension(test.tracePath);
-                if (test.scenario != "preparation" && test.scenario != "stock-eleven-death-retry" && test.scenario != "rhai-boss" && test.scenario != "timeline-cues")
-                    throw new ArgumentException("Native self-test requires preparation, stock-eleven-death-retry, rhai-boss or timeline-cues trace");
+                if (test.scenario != "preparation" && test.scenario != "stock-eleven-death-retry" && test.scenario != "rhai-boss" && test.scenario != "timeline-cues" && test.scenario != "bundled-edited")
+                    throw new ArgumentException("Unknown native Arena self-test scenario");
+                test.initialExpectedPath = ArenaLaunchArguments.Value("--arena-initial-expected");
+                if (test.scenario == "bundled-edited" && string.IsNullOrEmpty(test.initialExpectedPath))
+                    throw new ArgumentException("Bundled source proof requires --arena-initial-expected");
                 test.expectedPath = Path.GetFullPath(expected);
                 test.evidenceDirectory = Path.GetFullPath(evidence);
                 Directory.CreateDirectory(test.evidenceDirectory);
@@ -107,6 +111,18 @@ namespace UnityOnlyArena
                 throw new InvalidOperationException("Self-test must start on an unadvanced embedded Runtime with its bridge disabled");
             if (FindAnyObjectByType<ArenaGame>() != null)
                 throw new InvalidOperationException("Unity-only game logic must not run in the Kitu scene");
+            if (!client.AssetsReady || ((JArray)client.AssetReport["loaded"]).Count != 4)
+                throw new InvalidOperationException("Player must use all four actual Addressable assets");
+            JObject host = null;
+            foreach (JObject bundle in JArray.Parse(native.InspectHostJson()))
+                foreach (JObject message in (JArray)bundle["messages"])
+                    if ((string)message["address"] == "/host/arena/status") host = JObject.Parse((string)message["args"][0]["value"]);
+            if (host?["package"] == null || (string)host["package"]["hash"] != (string)client.AssetReport["package"]["identity"])
+                throw new InvalidOperationException("Player game and assets must use the same bundled package");
+            initialReport = new JObject { ["state"] = JArray.Parse(native.InspectStateJson()), ["package"] = host["package"].DeepClone() };
+            if (initialExpectedPath != null && !JToken.DeepEquals(JObject.Parse(File.ReadAllText(initialExpectedPath)), initialReport))
+                throw new InvalidOperationException("Packaged initial state or source versions differ before tick0");
+            File.WriteAllText(Path.Combine(evidenceDirectory, "initial.json"), initialReport.ToString(Formatting.Indented));
             using (var trace = new StreamReader(tracePath))
             using (var expected = new StreamReader(expectedPath))
             using (var actual = new StreamWriter(Path.Combine(evidenceDirectory, "actual.ndjson")))
@@ -157,13 +173,14 @@ namespace UnityOnlyArena
                 throw new InvalidOperationException("Stock verification must include all 5528 ticks, 5581 inputs, natural 11F death and retry");
             bool script = scenario == "rhai-boss";
             bool timeline = scenario == "timeline-cues";
-            if (script && (ticks != 1800 || scriptTelegraphTicks != 96))
+            bool bundled = scenario == "bundled-edited";
+            if ((script || bundled) && (ticks != 1800 || scriptTelegraphTicks != 96))
                 throw new InvalidOperationException("Script verification must include 1800 ticks and exactly 96 telegraph ticks");
             if (timeline && (ticks != 1830 || inputs != 1819 || timelinePausedTicks != 30))
                 throw new InvalidOperationException("Timeline verification requires 1830 ticks, 1819 inputs and 30 frozen cue ticks");
-            if (!stock && !script && !timeline && (ticks != 28 || inputs != 40))
+            if (!stock && !script && !timeline && !bundled && (ticks != 28 || inputs != 40))
                 throw new InvalidOperationException("Preparation verification must include all 28 ticks and 40 inputs");
-            foreach (string name in stock ? new[] { "chest", "combat", "boss", "death-11f", "retry" } : script ? new[] { "boss-script" } : timeline ? new[] { "timeline-floor", "timeline-boss", "timeline-paused" } : new[] { "inventory" })
+            foreach (string name in stock ? new[] { "chest", "combat", "boss", "death-11f", "retry" } : script ? new[] { "boss-script" } : timeline ? new[] { "timeline-floor", "timeline-boss", "timeline-paused" } : bundled ? new[] { "bundled-weapon", "bundled-floor", "bundled-boss" } : new[] { "inventory" })
                 if (!screenshots.Contains(name)) throw new InvalidOperationException("Missing rendered checkpoint " + name);
             Finish(true, null);
         }
@@ -171,6 +188,32 @@ namespace UnityOnlyArena
         private string Checkpoint()
         {
             var state = client.State;
+            if (scenario == "bundled-edited")
+            {
+                var boss = state.enemies.FirstOrDefault(enemy => enemy.Kind == ArenaEnemyKind.Boss && enemy.BossState == ArenaBossState.Telegraph);
+                if (boss != null)
+                {
+                    if (scriptTelegraphTicks == 0 && Mathf.Abs(boss.PhaseRemaining - 1.6f) > 1e-6f)
+                        throw new InvalidOperationException("Bundled Rhai must govern the first boss telegraph");
+                    scriptTelegraphTicks++;
+                }
+                if (state.inventory.equipment.Any(item => item.kind == 0 && item.damage == 32))
+                {
+                    if (!screenshots.Contains("bundled-weapon")) return "bundled-weapon";
+                }
+                if (client.Presentation.floor != null && client.Presentation.floor.offsetTick == 12)
+                {
+                    if (Mathf.Abs(client.Presentation.floor.opacity - .85f) > 1e-6f) throw new InvalidOperationException("Bundled floor cue was not applied");
+                    return "bundled-floor";
+                }
+                var cue = client.Presentation.bosses.FirstOrDefault(value => value.offsetTick == 24);
+                if (cue != null)
+                {
+                    if (Mathf.Abs(cue.radius - 4.5f) > 1e-6f) throw new InvalidOperationException("Bundled boss cue was not applied");
+                    return "bundled-boss";
+                }
+                return null;
+            }
             if (scenario == "timeline-cues")
             {
                 var presentation = client.Presentation;
@@ -298,6 +341,7 @@ namespace UnityOnlyArena
                 ["sessionId"] = client?.SessionId, ["deathObserved"] = deathObserved, ["retryObserved"] = retryObserved,
                 ["screenshots"] = new JArray(screenshots.OrderBy(name => name).Select(name => name + ".png")),
                 ["error"] = error,
+                ["initial"] = initialReport, ["assets"] = client?.AssetReport?.DeepClone(),
             };
             File.WriteAllText(Path.Combine(evidenceDirectory, "result.json"), result.ToString(Formatting.Indented));
             if (matched) Debug.Log("Native Arena Player verification passed: " + result.ToString(Formatting.None));
