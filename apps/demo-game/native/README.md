@@ -30,7 +30,8 @@ Only literal loopback addresses are accepted. Port `0` allocates a free port;
 `kitu_application_inspect_host_json` reports the actual `bridgeEndpoint` and the
 same `sessionId` used by the CLI catalog. Binding failure rejects creation with
 a diagnostic. Empty/default configuration starts no listener and writes no files.
-An optional absolute `contentPath` chooses the document evaluated by Admin.
+An optional absolute `contentPath` chooses the `.tmd`, `.sqlite` or `.arena.json`
+source plan evaluated by Admin through the [shared typed loader](../../../doc/specs/arena-content-sources.md).
 Otherwise the storage directory receives an editable `arena.tmd` on first use;
 existing documents are preserved. Validation and staging keep next-run semantics.
 

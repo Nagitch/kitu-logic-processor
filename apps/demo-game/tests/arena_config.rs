@@ -156,7 +156,7 @@ fn content_contract_rejects_untrusted_producers_versions_and_forged_hashes() {
     )
     .is_err());
     let mut forged = candidate.clone();
-    forged.tanu_revision = "unknown".into();
+    forged.tanu_revision = Some("unknown".into());
     assert!(forged.validate().is_err());
     let mut forged = candidate;
     forged.hash = "0".repeat(64);

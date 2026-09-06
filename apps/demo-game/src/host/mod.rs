@@ -48,7 +48,7 @@ mod work;
 pub struct HostOptions {
     /// Reserve gameplay control for the embedding caller; websocket clients observe.
     pub external_controller: bool,
-    /// Editable Tanu source, only loaded when explicitly validating a candidate.
+    /// Editable TMD, SQLite database or source plan; loaded only on explicit validation.
     pub content_path: PathBuf,
     /// Destination for immutable run manifests.
     pub run_directory: PathBuf,
@@ -201,7 +201,8 @@ pub async fn serve_from_environment() -> Result<()> {
         .with_context(|| format!("invalid bind address: {bind}"))?;
     let listener = tokio::net::TcpListener::bind(addr).await?;
     let options = HostOptions {
-        content_path: env::var_os("KITU_ARENA_TMD")
+        content_path: env::var_os("KITU_ARENA_CONTENT")
+            .or_else(|| env::var_os("KITU_ARENA_TMD"))
             .map(PathBuf::from)
             .unwrap_or_else(|| HostOptions::default().content_path),
         run_directory: env::var_os("KITU_ARENA_RUN_DIRECTORY")

@@ -73,9 +73,18 @@ identities and frozen content through the normal Runtime queue (stage 7; see
 [the replay contract](specs/arena-replay.md)). Admin play/pause/step/seek and Unity
 replay projection are implemented in stage 8, including a parked paused live run
 and read-only input/configuration guards. [Live CLI/browser Shell](specs/live-shell.md) is implemented in stage 9 with
-shared commands, idempotent results and normal tick admission. The full-game
-FFI/native player path remains subsequent work, not implied by the movement-only FFI or the other
-placeholder data adapters described below.
+shared commands, idempotent results and normal tick admission. Stages 10–11 add the
+full-game C ABI and an actual macOS Unity standalone, with an optional shared
+CLI/Admin bridge. See the [embedded host contract](specs/arena-embedded-host.md).
+
+Stage 12 replaces the SQLite placeholder with a read-only, bounded, consistent
+typed snapshot API. Arena owns its SQL table schema and sparse override rules;
+Tanu retains document and Formula evaluation. Both sources pass the same typed
+configuration validation, in fixed base/difficulty/event/debug order. Admin shows
+source hashes, winning field layers and active/pending differences; only explicit
+Runtime input stages detached values for the next run. Replays retain their saved
+values/provenance independently of authoring paths. See the
+[content source contract](specs/arena-content-sources.md).
 
 ### P0 — Execution Semantics
 

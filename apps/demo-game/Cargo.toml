@@ -22,6 +22,8 @@ kitu-runtime = { path = "../../crates/kitu-runtime" }
 kitu-core = { path = "../../crates/kitu-core" }
 kitu-ecs = { path = "../../crates/kitu-ecs" }
 kitu-data-tmd = { path = "../../crates/kitu-data-tmd" }
+kitu-data-sqlite = { path = "../../crates/kitu-data-sqlite" }
+rusqlite = { version = "=0.40.2", features = ["bundled"] }
 kitu-tsq1 = { path = "../../crates/kitu-tsq1" }
 sha2 = "0.11"
 hex = "0.4"

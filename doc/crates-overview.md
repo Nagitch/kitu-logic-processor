@@ -16,7 +16,7 @@ Status note: some data/content crates are staged entry points. Their responsibil
 | `kitu-runtime` | Tick-based orchestrator that wires ECS, transports, and future data/script layers. | `kitu-core`, `kitu-ecs`, `kitu-transport`, `kitu-osc-ir` |
 | `kitu-scripting-rhai` | Rhai integration layer (script hosts, bindings, helpers). | `kitu-core` |
 | `kitu-data-tmd` | Parser/loader for TMD data definitions. | `kitu-core` |
-| `kitu-data-sqlite` | SQLite-backed data store utilities and schema helpers. | `kitu-core` |
+| `kitu-data-sqlite` | Bounded, read-only typed SQLite snapshots with consistent schema and ordering. | `rusqlite` |
 | `kitu-tsq1` | TSQ1 timeline AST and playback utilities. | `kitu-core` |
 | `kitu-shell` | CLI shell primitives for driving the runtime during development. | `kitu-core` |
 | `kitu-web-admin-backend` | Backend pieces for the browser-based admin (HTTP/WS glue). | `kitu-core` |
@@ -52,7 +52,6 @@ graph TD
     kitu_runtime --> kitu_osc_ir
     kitu_scripting_rhai --> kitu_core
     kitu_data_tmd --> kitu_core
-    kitu_data_sqlite --> kitu_core
     kitu_tsq1 --> kitu_core
     kitu_shell --> kitu_core
     kitu_web_admin_backend --> kitu_core
@@ -96,8 +95,9 @@ graph TD
 - Keep transformations and schema evolution logic here to isolate game/runtime code from raw TMD layout changes.
 
 ### `kitu-data-sqlite`
-- Staged entry point for SQLite schema management, migrations, and query helpers.
-- Designed to be shared by build pipelines and runtime code that consume the same data store.
+- Implemented read-only snapshots cover schema and all requested tables in one transaction, including WAL data.
+- Explicit table specifications, native scalar types, unique ordering keys, cancellation and resource limits produce detached values; no client-supplied SQL is exposed.
+- Applications own their table schemas, authoring, domain validation and activation. Arena uses the [shared TMD/SQLite layered contract](specs/arena-content-sources.md).
 
 ### `kitu-tsq1`
 - Staged entry point for the TSQ1 timeline model and playback helpers for driving presentation events.
