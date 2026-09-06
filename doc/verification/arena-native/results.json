@@ -1,0 +1,60 @@
+{
+  "stage": 10,
+  "issue": 148,
+  "baseRevision": "04e5dc17313b0ffd83c9d348ef2a7c2f4466e588",
+  "sourceSha256": {
+    "Cargo.toml": "21ae4f4266b7411bab485b6213fc5684c5834241156b99fb3943794654cbd232",
+    "Cargo.lock": "b36d7b33d28345048be788f1d60432aa5ff19d8a16cc6df4960364b6e9428865",
+    "crates/kitu-transport/src/wire.rs": "5c2bbe011b3eaf640c1d28d31a36be388b852aa87b4ef075981dba4b49351771",
+    "crates/kitu-unity-ffi/src/application.rs": "374ab0d84f190905114f36ed51af3e7026445c248457c66e464573fa279a1eb6",
+    "crates/kitu-unity-ffi/include/kitu_application.h": "7cee12f5de127ad359c01f016d9908b7151c7e70305725087ee5882381bf04f9",
+    "apps/demo-game/native/src/lib.rs": "15d2f42ab352087e470b0539d5362c1f9c56acea206d42e0d442a6ad044a5c69",
+    "apps/demo-game/native/tests/arena_native.rs": "0151b0155d65b828d411818d31981c3580e8a733d88a47349ac9a98a4711d573",
+    "apps/demo-game/native/tests/c_abi.c": "620e7a7b813c0d8a95adc7469e8dc69f536b1fd4864f51a9a44f7c4426105511",
+    "apps/demo-game/tests/support/mod.rs": "32fc4fe20e1bdee6eb334bf4a736c48dc3a3a6032ce1b20447c44e2cf60e3f92",
+    "tools/verify-arena-native.py": "755b4ede4ff51018b3b8bb623f4c8a4cb8e7c30a999c7ca916655121ae3498a9"
+  },
+  "validation": {
+    "devContainer": {
+      "testsAndDoctests": 203,
+      "failures": 0,
+      "checks": [
+        "workspace all features tests",
+        "all targets/all features Clippy warnings denied",
+        "rustfmt",
+        "workspace rustdoc warnings denied",
+        "transport/FFI/native internal package lists",
+        "frozen C# source and fixture integrity"
+      ]
+    },
+    "native": {
+      "platform": "macOS arm64",
+      "integrationTests": 5,
+      "doctests": 1,
+      "cCallerScenarios": [
+        {
+          "scenario": "preparation",
+          "ticks": 28,
+          "inputs": 40
+        },
+        {
+          "scenario": "stock-eleven-death-retry",
+          "ticks": 5528,
+          "inputs": 5581
+        }
+      ],
+      "comparison": "Exact same-target complete state and ordered outputs at every tick; shared C# checkpoint tolerance1e-4 and exact discrete outcomes/order",
+      "artifacts": "macos.json"
+    }
+  },
+  "review": {
+    "independentAppAndOracleReview": "No correctness finding; destroy documentation clarified ownership consumption on OK or PANIC. Original oracle fixture hashes and all comparison rules preserved.",
+    "independentAbiSafetyReview": "No actionable finding; ownership, pointer checks, panic containment, queue/output bounds and typed conversion reviewed."
+  },
+  "limits": [
+    "The caller schedules one60Hz tick loop; this library starts no server or clock.",
+    "Unity bundling and the shared Admin/CLI bridge remain stage11.",
+    "Native macOS dylib currently has Cargo absolute install name; set@rpath on the packaged copy before signing in stage11.",
+    "Parent workspace pointer publication remains separately blocked by GitHub integration write access403."
+  ]
+}

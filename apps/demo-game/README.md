@@ -183,3 +183,13 @@ Run `kitu-cli help`, `app action run arena.start`, `inspect application` or
 available in **Kitu general → Shell**. Their JSON results include actual applied
 ticks or refusal reasons. `replay load <id>`, `replay seek 5526` and `replay step`
 control the connected Unity replay.
+
+## Native application library
+
+The complete Arena application can also run through the C ABI in
+[`native`](native/README.md). The application factory uses the same Runtime and
+embedded TMD as the server; typed input, tick, complete output and state inspection
+are verified against all stock scenario states/events and the frozen C# oracle.
+The [native ABI contract](../../doc/specs/arena-native-abi.md) includes macOS build
+and actual C-caller commands. Unity standalone packaging and the local Admin/CLI
+bridge follow in stage 11.

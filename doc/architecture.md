@@ -580,3 +580,15 @@ This list tracks scenario coverage and should remain aligned with runtime and to
 5. **Persistence model**: Save/load snapshot granularity and schema evolution policy.
 6. **Web admin security**: Authentication/authorization model for remote operations.
 7. **Unity package layout**: Final package boundaries and release/versioning strategy under `unity-packages/`.
+
+### Full application native boundary
+
+`kitu-unity-ffi::application` owns the versioned driver/handle/buffer contract;
+`kitu-transport::wire` supplies a shared typed OSC Serde representation. The
+application-owned `kitu-demo-game-native` factory creates the same complete Arena
+Runtime as the server and exports C wrappers as a dynamic/static library. It
+starts no timer or network host. The embedder owns one tick scheduler and must
+retrieve complete output batches before advancing. The later development bridge
+must reuse the existing application host state, queue, recording and playback;
+creating a second Runtime for Admin would observe a different run. See
+[`specs/arena-native-abi.md`](specs/arena-native-abi.md).

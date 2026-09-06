@@ -1,0 +1,6 @@
+{
+  "ticks": 5528,
+  "stateAndOutput": "exact match",
+  "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/stock-eleven-death-retry.expected.ndjson",
+  "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/stock-eleven-death-retry.actual.ndjson"
+}

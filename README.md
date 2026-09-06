@@ -306,3 +306,10 @@ A detailed, versioned roadmap will be published once the core architecture and w
 
 
 Kitu is intended as a long‑term foundation for building modern, data‑driven games with Rust and Unity. This README provides a high‑level architectural overview; individual crates, packages, and tools should provide more detailed API‑level documentation.
+
+The full Endless Arena native C ABI is implemented in
+[`apps/demo-game/native`](apps/demo-game/native/README.md). It builds a dynamic or
+static library around the same application Runtime, with typed ordered inputs,
+complete outputs, inspection, bounded caller-owned buffers and explicit lifecycle.
+See the [ABI contract and native verification](doc/specs/arena-native-abi.md).
+Unity standalone packaging and the development tooling bridge are the next stage.

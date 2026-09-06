@@ -77,12 +77,22 @@ pub fn replay_reference_observing(
 pub fn replay_reference_observing_ticks(
     name: &str,
     limit: usize,
-    mut observe: impl FnMut(&OscMessage),
-    mut on_tick: impl FnMut(&DemoRuntime, &[OscBundle]),
+    observe: impl FnMut(&OscMessage),
+    on_tick: impl FnMut(&DemoRuntime, &[OscBundle]),
 ) -> (usize, usize) {
     let directory = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../kitu-integration-runner/scenarios/arena/reference")
         .join(name);
+    replay_reference_from_directory(&directory, name, limit, observe, on_tick)
+}
+
+pub fn replay_reference_from_directory(
+    directory: &std::path::Path,
+    name: &str,
+    limit: usize,
+    mut observe: impl FnMut(&OscMessage),
+    mut on_tick: impl FnMut(&DemoRuntime, &[OscBundle]),
+) -> (usize, usize) {
     let scenario: Value =
         serde_json::from_str(&std::fs::read_to_string(directory.join("scenario.json")).unwrap())
             .unwrap();

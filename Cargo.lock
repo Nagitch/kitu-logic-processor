@@ -931,6 +931,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "kitu-demo-game-native"
+version = "0.1.0"
+dependencies = [
+ "kitu-demo-game",
+ "kitu-osc-ir",
+ "kitu-runtime",
+ "kitu-transport",
+ "kitu-unity-ffi",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "kitu-ecs"
 version = "0.1.0"
 dependencies = [
@@ -1007,6 +1020,7 @@ dependencies = [
  "rmp-serde",
  "serde",
  "serde_bytes",
+ "serde_json",
  "thiserror",
 ]
 
@@ -1031,6 +1045,8 @@ dependencies = [
  "kitu-osc-ir",
  "kitu-runtime",
  "kitu-transport",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

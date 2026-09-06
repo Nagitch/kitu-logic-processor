@@ -9,6 +9,8 @@
 //! This crate wraps the runtime (`kitu-runtime`) and transports (`kitu-transport`) behind a
 //! Unity-friendly API. See `doc/crates-overview.md` for how the FFI sits atop the core runtime.
 
+pub mod application;
+
 use std::{
     collections::VecDeque,
     ffi::CStr,
