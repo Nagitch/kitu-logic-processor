@@ -7,7 +7,7 @@ input fixtures and comparison tolerances remain unchanged.
 
 | Check | Result | Evidence |
 |---|---|---|
-| Dev Container Rust | 248 tests/doctests; format, Clippy and rustdoc passed | [Results](results.json) |
+| Dev Container Rust | 250 tests/doctests; format, Clippy and rustdoc passed | [Results](results.json) |
 | SQLite semantics | Native types, ordering, bounds, cancellation, WAL changes and concurrent snapshot consistency | `crates/kitu-data-sqlite/src/tests.rs` |
 | Arena source contract | Mixed sources, four-layer precedence, strict patches, origins, stale tokens, detached stock replay after source deletion | `apps/demo-game/tests/arena_sources.rs` and host/native tests |
 | Actual Admin | Active 20 retained while staging 32; next start adopted Debug 32, then SQLite Event 37; invalid -1 retained 37; recovered 39 stayed unapplied | [Browser](browser.json) |
@@ -18,6 +18,16 @@ input fixtures and comparison tolerances remain unchanged.
 | Unity | 50 EditMode and 21 PlayMode tests, no failures/skips | [Unity tests](unity-tests.json) |
 | Graphical standalone | Preparation and entire stock run matched every native state/output; six rendered checkpoints visually checked | [Preparation](player-preparation.json), [stock](player-stock.json), [visual QA](visual-qa.json) |
 | Native/player packaging | Actual ARM64 library and Mono Player; matching bundled code and signatures, 0 build errors / 4 existing warnings | [Native package](native-package.json), [Player build](player-build.json) |
+
+PR review exposed source tables that shadowed SQLite's table-valued metadata
+pragmas. Two regressions failed before the fix; direct PRAGMA statements now
+inspect the real schema. The [review regression](review-regression.json) also
+records an actual authoring CLI rejection of a forged source inventory and
+unchanged typed values/hashes/provenance for the legitimate layered candidate.
+All Rust checks, native tests, C comparisons, native packaging, Player build and
+complete graphical fixtures were refreshed after this fix. The unchanged Unity
+and browser/CLI suites retain their earlier results; the six final Player PNGs
+are byte-identical to the visually inspected originals.
 
 The browser used four generated source files. TMD/SQLite layers applied in fixed
 order, and removing the Debug slot exposed the edited SQLite Event value. Candidate

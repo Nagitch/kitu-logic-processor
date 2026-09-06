@@ -1,0 +1,10 @@
+{
+  "reviewComment": 3943620494,
+  "fixedCommit": "12555225a55c8b85a2899e3afac566a69725fd0d",
+  "preFixRegression": "Both crate regressions failed: hidden extra accepted; ordinary pragma_table_xinfo blocked a valid table.",
+  "postFixCrateTests": 12,
+  "postFixCrateDoctests": 1,
+  "actualAuthoringCli": "Valid layered candidate retains identical f32 bits, discrete values, hash and provenance; shadowing database rejected.",
+  "comparisonNote": "Direct ContentVersion JSON uses shortest f32 decimals; Shell JSON Value widens some floats. Compared game f32 bits and exact discrete/hash/provenance fields after observing this serialization-only difference.",
+  "diagnostic": "Error: Base source /workspaces/kitu-logic-processor/.tmp/stage12/review-shadow/shadow.sqlite\n\nCaused by:\n    invalid SQLite schema: unexpected table: pragma_table_list\n"
+}

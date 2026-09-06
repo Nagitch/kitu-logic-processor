@@ -1,20 +1,21 @@
 {
   "rust": {
     "suites": 51,
-    "passed": 248,
+    "passed": 250,
     "failed": 0,
     "ignored": 0,
-    "logSha256": "8f466155df367d855b2ea3496fd336454cf3d012db992123546b5d8354ec3ee8"
+    "logSha256": "f33b579fe49b06e1aa448a60c3246c1a5dd9c048cdf59aa492909483cab3bd94"
   },
   "macNative": {
     "suites": 4,
     "passed": 12,
     "failed": 0,
     "ignored": 0,
-    "logSha256": "23da8e1ecbf6ecc35bfc07806e4f4eb70b5e86e6e14ccd7ede1f23cf74b12b1f"
+    "logSha256": "613780d734af4a6aeaf2608fa77e8034787eeb759af496297a98c89034882947"
   },
   "fmt": "passed",
   "clippy": "passed",
   "rustdocWarningsDenied": "passed",
-  "frozenReference": "unchanged hashes; preparation28/12/12 and stock5528/550/53 verified"
+  "frozenReference": "unchanged hashes; preparation28/12/12 and stock5528/550/53 verified",
+  "sourceRevision": "12555225a55c8b85a2899e3afac566a69725fd0d"
 }

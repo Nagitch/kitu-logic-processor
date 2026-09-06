@@ -1,10 +1,10 @@
 {
-  "createdAtUtc": "2026-09-06T09:46:31.273325+00:00",
+  "createdAtUtc": "2026-09-06T10:14:24.417658+00:00",
   "player": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app",
   "executable": {
     "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
     "bytes": 35172,
-    "sha256": "3c499846581938ad406d0111596ec1e5d4f54e3d73fe160546acfca9c37bbc15"
+    "sha256": "79603e2e643d0fd037441224d1735be4020290e1782ad3e03f084ebb5dc64f6a"
   },
   "unityBuild": {
     "unityVersion": "6000.6.0f1",
@@ -16,13 +16,13 @@
     "result": "Succeeded",
     "errors": 0,
     "warnings": 4,
-    "totalBytes": 212295491,
-    "elapsedSeconds": 5.485183999999999
+    "totalBytes": 212295043,
+    "elapsedSeconds": 5.535079
   },
   "sourcePlugin": {
     "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
-    "bytes": 26204176,
-    "sha256": "600850f020545932f4acd60e5c133a888af707ebc98cde75c31251e1d235ce5a",
+    "bytes": 26203728,
+    "sha256": "0b296deaad4304472ed665e20c1254638d9448a9416ab711a4a3e3b35e91c8c0",
     "architecture": "arm64",
     "installName": "@rpath/libkitu_demo_game_native.dylib",
     "dependencies": [
@@ -42,13 +42,13 @@
       "kitu_application_submit_json",
       "kitu_application_tick"
     ],
-    "unsignedSha256": "c8b1c9efe85cf415024863aa2c0df620e87fba170d2dc507e3db8b2910c5a2b9",
+    "unsignedSha256": "441e9db6e413de480ad432e1760658848bc9df1f0dbf44768edf383f06339416",
     "signatureVerified": true
   },
   "bundledPlugin": {
     "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/PlugIns/ARM64/libkitu_demo_game_native.dylib",
-    "bytes": 26204176,
-    "sha256": "600850f020545932f4acd60e5c133a888af707ebc98cde75c31251e1d235ce5a",
+    "bytes": 26203728,
+    "sha256": "0b296deaad4304472ed665e20c1254638d9448a9416ab711a4a3e3b35e91c8c0",
     "architecture": "arm64",
     "installName": "@rpath/libkitu_demo_game_native.dylib",
     "dependencies": [
@@ -68,7 +68,7 @@
       "kitu_application_submit_json",
       "kitu_application_tick"
     ],
-    "unsignedSha256": "c8b1c9efe85cf415024863aa2c0df620e87fba170d2dc507e3db8b2910c5a2b9",
+    "unsignedSha256": "441e9db6e413de480ad432e1760658848bc9df1f0dbf44768edf383f06339416",
     "signatureVerified": true
   },
   "signatureVerified": true,

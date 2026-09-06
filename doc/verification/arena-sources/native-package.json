@@ -1,5 +1,5 @@
 {
-  "createdAtUtc": "2026-09-06T09:44:00.738183+00:00",
+  "createdAtUtc": "2026-09-06T10:13:00.026839+00:00",
   "target": "aarch64-apple-darwin",
   "profile": "dev",
   "cargoCommand": [
@@ -24,13 +24,13 @@
   },
   "sourceLibrary": {
     "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
-    "bytes": 26339152,
-    "sha256": "ee98e88fc5f801fde13ef078b9b49bb5dc97e025f741ede57dd6d414a310c42a"
+    "bytes": 26338704,
+    "sha256": "7bdffdb63610d77a7ddf47d116ecdb57b3f0f6f68ae33f7be77b207c4f210154"
   },
   "plugin": {
     "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
-    "bytes": 26204176,
-    "sha256": "600850f020545932f4acd60e5c133a888af707ebc98cde75c31251e1d235ce5a",
+    "bytes": 26203728,
+    "sha256": "0b296deaad4304472ed665e20c1254638d9448a9416ab711a4a3e3b35e91c8c0",
     "architecture": "arm64",
     "installName": "@rpath/libkitu_demo_game_native.dylib",
     "dependencies": [
@@ -50,7 +50,7 @@
       "kitu_application_submit_json",
       "kitu_application_tick"
     ],
-    "unsignedSha256": "c8b1c9efe85cf415024863aa2c0df620e87fba170d2dc507e3db8b2910c5a2b9",
+    "unsignedSha256": "441e9db6e413de480ad432e1760658848bc9df1f0dbf44768edf383f06339416",
     "signatureVerified": true
   }
 }

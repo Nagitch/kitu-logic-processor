@@ -1,6 +1,6 @@
 {
   "ticks": 5528,
   "stateAndOutput": "exact match",
-  "expected": ".tmp/stage12/reference/stock-eleven-death-retry.expected.ndjson",
-  "actual": ".tmp/stage12/reference/stock-eleven-death-retry.actual.ndjson"
+  "expected": ".tmp/stage12/review-reference/stock-eleven-death-retry.expected.ndjson",
+  "actual": ".tmp/stage12/review-reference/stock-eleven-death-retry.actual.ndjson"
 }
