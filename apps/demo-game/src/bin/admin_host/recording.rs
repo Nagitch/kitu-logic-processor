@@ -103,7 +103,7 @@ pub(super) async fn list() -> Result<Json<serde_json::Value>, ApiError> {
     entries.sort_by(|a, b| a["id"].as_str().cmp(&b["id"].as_str()));
     Ok(Json(serde_json::Value::Array(entries)))
 }
-async fn read(id: &str) -> Result<Vec<u8>> {
+pub(super) async fn read(id: &str) -> Result<Vec<u8>> {
     use tokio::io::AsyncReadExt;
     let mut bytes = Vec::new();
     tokio::fs::File::open(path(id)?)

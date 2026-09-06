@@ -87,9 +87,47 @@ checks proofs. Invalid files cannot mutate the live run. CPU verification is
 serialized. These are local development endpoints under the existing host's
 loopback default; production remote operation is outside the approved scope.
 
-Admin playback, stop, step, seek and Unity replay projection are stage 8. Live
-CLI commands are stage 9. Stage 7 supplies the real recorder, persistence and
-re-execution core they will use.
+## Interactive Admin and Unity playback
+
+Stage 8 adds **Project → Arena Replay**: save/import/download recordings, verify
+and load, play, pause, step one tick, stop and seek. Loading checks every state
+and event proof before making a recording available. Unity projects the same
+verified state and blocks device/command input during replay. Game Parameters
+shows the recorded configuration and refuses next-run staging until live mode.
+
+| Endpoint | Request and result |
+| --- | --- |
+| `GET /arena/playback` | Mode, last applied tick, full state, parked live tick, execution/content version |
+| `POST /arena/playback/load` | `{id}`; verify a saved recording and queue activation |
+| `POST /arena/playback/command` | `{action}`: `play`, `pause`, `step`, `stop`, `live` |
+| `POST /arena/playback/seek` | `{tick}`; fast re-execution from the initial state, then pause |
+
+Tick **-1** is the initial state; tick 0 is the first applied input tick. Stop
+returns to -1. At the last recorded tick, play/step reject further advancement.
+A step request queues work for the host's single 60 Hz owner; HTTP handlers never
+advance the active Runtime. Continuous playback also uses that owner and the
+ordinary recorded input queue. Seek uses a fresh Runtime outside the state lock,
+then installs its verified projection atomically. Invalid targets leave position
+unchanged. A divergence stops playback and retains the last verified projection.
+
+On first activation, a normal pause input is committed and recorded in the live
+Runtime before it is parked. The host remains responsive while its live Runtime
+clock is parked; replay ticks are controlled independently. Return to live restores
+that exact paused run, resumes management ticking, and requires explicit gameplay
+resume. Disconnect/reconnect retains replay mode and resends one coherent mode,
+tick and state snapshot. Live cancels an in-flight load/seek; concurrent seek/load
+work is serialized. During a queued activation, input is already read-only, while
+status continues to describe the current projection until the next host tick.
+
+Historical run-start events are broadcast for observation, but cannot overwrite
+live run manifests. Live starts committed on an activation tick are still saved.
+Paused replay repeatedly publishes state without repeating domain events. Files
+and seeks are bounded by the stage 7 recorder limits; seeking starts at the
+beginning, so its cost grows with target tick. There are no snapshot/branch edits.
+
+[Stage 8 evidence](../verification/arena-playback/results.json) includes Admin
+screenshots and real Unity state equality at the stock 11F death/retry ticks.
+Live CLI commands are stage 9.
 
 ## Reproduce the stock artifact
 

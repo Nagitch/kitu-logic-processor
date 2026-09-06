@@ -33,6 +33,8 @@ const KEP_ROUTE_SERVER_EVENT: &str = "/server/event";
 
 #[path = "admin_host/content.rs"]
 mod content;
+#[path = "admin_host/playback.rs"]
+mod playback;
 #[path = "admin_host/recording.rs"]
 mod recording;
 
@@ -47,6 +49,10 @@ struct GameState {
     runtime: DemoRuntime,
     recorder: kitu_demo_game::replay::Recorder,
     recording_error: Option<String>,
+    playback: Option<playback::Playback>,
+    pending_playback: Option<playback::Playback>,
+    playback_generation: u64,
+    run_events: Vec<ServerEvent>,
     next_log_id: u64,
     logs: Vec<DebugLogEntry>,
     runtime_id: String,
@@ -62,6 +68,10 @@ impl GameState {
             runtime,
             recorder,
             recording_error: None,
+            playback: None,
+            pending_playback: None,
+            playback_generation: 0,
+            run_events: Vec::new(),
             next_log_id: 1,
             logs: Vec::new(),
             runtime_id: format!(
@@ -77,6 +87,9 @@ impl GameState {
     }
 
     fn snapshot(&self) -> WorldSnapshot {
+        if let Some(playback) = &self.playback {
+            return playback.world.clone();
+        }
         let runtime_snapshot = self.runtime.inspect_world_state();
         WorldSnapshot {
             tick: self.runtime.current_tick().get(),
@@ -86,6 +99,27 @@ impl GameState {
                 .map(WorldObject::from_runtime)
                 .collect(),
         }
+    }
+
+    fn ensure_live_input(&self) -> Result<()> {
+        anyhow::ensure!(
+            self.playback.is_none() && self.pending_playback.is_none(),
+            "replay is read-only; return to live mode before sending game inputs"
+        );
+        Ok(())
+    }
+
+    fn observed_runtime(&self) -> &DemoRuntime {
+        self.playback
+            .as_ref()
+            .map_or(&self.runtime, |playback| &playback.runtime)
+    }
+
+    fn application_projection(&self) -> Vec<kitu_osc_ir::OscBundle> {
+        self.playback.as_ref().map_or_else(
+            || self.runtime.inspect_application(),
+            |playback| playback.projection.clone(),
+        )
     }
 
     fn push_log(
@@ -193,6 +227,9 @@ struct ActionRunResponse {
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 enum ServerEvent {
+    Replay {
+        mode: playback::Mode,
+    },
     ArenaSession {
         id: String,
         #[serde(rename = "schemaVersion")]
@@ -245,8 +282,15 @@ async fn main() -> Result<()> {
             interval.tick().await;
             match advance_runtime_tick(&clock_state) {
                 Ok(events) => {
-                    for event in events {
+                    let run_events = clock_state
+                        .inner
+                        .lock()
+                        .map(|mut game| std::mem::take(&mut game.run_events))
+                        .unwrap_or_default();
+                    for event in run_events {
                         content::save_run_event(&clock_state, &event);
+                    }
+                    for event in events {
                         let _ = clock_state.events.send(event);
                     }
                 }
@@ -271,6 +315,10 @@ async fn main() -> Result<()> {
         .route("/arena/recordings/import", post(recording::import))
         .route("/arena/recordings/{id}", get(recording::download))
         .route("/arena/recordings/{id}/verify", post(recording::verify))
+        .route("/arena/playback", get(playback::status))
+        .route("/arena/playback/load", post(playback::load))
+        .route("/arena/playback/command", post(playback::command))
+        .route("/arena/playback/seek", post(playback::seek))
         .layer(axum::extract::DefaultBodyLimit::max(
             kitu_tsq1::recording::MAX_BYTES,
         ))
@@ -510,6 +558,7 @@ fn enqueue_arena_request(
         envelope.session_id == guard.runtime_id,
         "Arena runtime session changed; synchronize before sending input"
     );
+    guard.ensure_live_input()?;
     if let Some((owner, source)) = &guard.controller {
         anyhow::ensure!(
             *owner == connection_id && source == &envelope.client_id,
@@ -581,63 +630,28 @@ async fn send_initial_runtime_state(
     state: &AppState,
     mode: WsOutputMode,
 ) -> Result<()> {
-    let tick = {
-        let guard = state
+    // Take one coherent snapshot before any socket await: a concurrent seek or
+    // live/replay switch must not mix mode, tick and projection from different runs.
+    let initial = {
+        let game = state
             .inner
             .lock()
             .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
-        guard.runtime.current_tick().get()
+        let mut events = vec![
+            ServerEvent::Connected {
+                protocol: "kitu-runtime-osc-ir-json-v1",
+                tick: game.snapshot().tick,
+            },
+            ServerEvent::ArenaSession {
+                id: game.runtime_id.clone(),
+                schema_version: arena::SCHEMA_VERSION,
+            },
+        ];
+        events.extend(playback::events(&game, game.application_projection()));
+        events
     };
-
-    send_event_with_mode(
-        socket,
-        &ServerEvent::Connected {
-            protocol: "kitu-runtime-osc-ir-json-v1",
-            tick,
-        },
-        mode,
-    )
-    .await?;
-    send_event_with_mode(
-        socket,
-        &ServerEvent::State {
-            snapshot: snapshot(state)?,
-        },
-        mode,
-    )
-    .await?;
-
-    let (session_id, projection) = {
-        let guard = state
-            .inner
-            .lock()
-            .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
-        (
-            guard.runtime_id.clone(),
-            guard.runtime.inspect_application(),
-        )
-    };
-    send_event_with_mode(
-        socket,
-        &ServerEvent::ArenaSession {
-            id: session_id,
-            schema_version: arena::SCHEMA_VERSION,
-        },
-        mode,
-    )
-    .await?;
-    for bundle in projection {
-        for message in bundle.messages {
-            send_event_with_mode(
-                socket,
-                &ServerEvent::Osc {
-                    address: message.address,
-                    args: message.args.into_iter().map(JsonOscArg::from).collect(),
-                },
-                mode,
-            )
-            .await?;
-        }
+    for event in initial {
+        send_event_with_mode(socket, &event, mode).await?;
     }
     Ok(())
 }
@@ -709,6 +723,7 @@ fn run_runtime_osc_request(state: &AppState, osc_message: OscMessage) -> Result<
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
     let mut outgoing_events = Vec::new();
 
+    guard.ensure_live_input()?;
     guard.runtime.try_enqueue_input(bundle, None)?;
     outgoing_events.push(ServerEvent::Log {
         entry: guard.push_log(
@@ -726,6 +741,27 @@ fn advance_runtime_tick(state: &AppState) -> Result<Vec<ServerEvent>> {
         .inner
         .lock()
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
+    if let Some(ready) = guard.pending_playback.take() {
+        if guard.playback.is_none() {
+            // Only this fixed-tick owner commits the queued live pause before replay.
+            advance_live_tick(&mut guard)?;
+        }
+        guard.playback = Some(ready);
+    } else if let Some(playback) = guard.playback.as_mut() {
+        playback.advance();
+    } else {
+        let outputs = advance_live_tick(&mut guard)?;
+        return Ok(playback::events(&guard, outputs));
+    }
+    let output = guard
+        .playback
+        .as_mut()
+        .map(|p| p.take_outputs())
+        .unwrap_or_default();
+    Ok(playback::events(&guard, output))
+}
+
+fn advance_live_tick(guard: &mut GameState) -> Result<Vec<kitu_osc_ir::OscBundle>> {
     guard.runtime.tick_once().context("tick Kitu runtime")?;
     let outputs = guard.runtime.drain_output_buffer();
     if guard.recording_error.is_none() {
@@ -736,19 +772,24 @@ fn advance_runtime_tick(state: &AppState) -> Result<Vec<ServerEvent>> {
             guard.recording_error = Some(format!("{error:#}"));
         }
     }
-    let mut events = Vec::new();
-    for bundle in outputs {
-        for message in bundle.messages {
-            events.push(ServerEvent::Osc {
-                address: message.address,
-                args: message.args.into_iter().map(JsonOscArg::from).collect(),
-            });
-        }
+    // Persist live starts even when this tick activates replay; historical run
+    // events are presentation output and must never overwrite live manifests.
+    for message in outputs
+        .iter()
+        .flat_map(|bundle| &bundle.messages)
+        .filter(|message| message.address == "/game/arena/run")
+    {
+        guard.run_events.push(ServerEvent::Osc {
+            address: message.address.clone(),
+            args: message
+                .args
+                .clone()
+                .into_iter()
+                .map(JsonOscArg::from)
+                .collect(),
+        });
     }
-    events.push(ServerEvent::State {
-        snapshot: guard.snapshot(),
-    });
-    Ok(events)
+    Ok(outputs)
 }
 
 fn decode_kep_osc_message(bytes: &[u8]) -> Result<OscMessage> {
@@ -780,6 +821,7 @@ fn run_app_action_request(
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
     let mut outgoing_events = Vec::new();
 
+    guard.ensure_live_input()?;
     let outcome = guard
         .runtime
         .run_app_action(&action_id, &inputs)

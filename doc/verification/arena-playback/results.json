@@ -1,0 +1,65 @@
+{
+  "stage": 8,
+  "issue": 144,
+  "baseRevision": "db4c0dc303a48006b0a83c2230d08557cf3065f8",
+  "sourceSha256": {
+    "apps/demo-game/src/bin/admin_host.rs": "4ee1cca5f683f6125d3775ffabe9eeae1db28b4b7e2283f14c5ca170086a1e89",
+    "apps/demo-game/src/bin/admin_host/playback.rs": "e7940df5c99f85ee0d6229f5ac1c64acb8fb234491aa68b69a68b48deeab0c0f",
+    "apps/demo-game/src/bin/admin_host/content.rs": "ce99c2ab86283b5174442da788f37bec4fe2103bc420920d5b1bf57698302f6a",
+    "tools/kitu-web-admin/frontend/src/routes/(project)/arena-replay/+page.svelte": "13ec055bc07f82a6ff205d6f76426af379a38f14465266cdba815e54210b5c99",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/KituArenaClient.cs": "5cc475ec399fef6a461d90b644a41e1a206a7c36957d6c779c37a981694f62de",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/KituArenaConnectionTests.cs": "1d7872ad6330b89666b6d44aa4ddf5912ce6b40eaeda35a101c5ac7f260a7228"
+  },
+  "validation": {
+    "rustTestsAndDoctests": 171,
+    "devContainer": "Workspace tests and rustdoc passed; final host 12 tests, all-target/all-feature Clippy and build passed after atomic initial-sync adjustment. fmt and frozen C# reference integrity passed.",
+    "frontend": "Prettier, svelte-check (0 errors/warnings), lint and production build passed. Actual browser had no runtime errors.",
+    "unityEditMode": {
+      "result": "Passed",
+      "total": "47",
+      "passed": "47",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "0.397245"
+    },
+    "unityPlayMode": {
+      "result": "Passed",
+      "total": "16",
+      "passed": "16",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "114.8349162"
+    },
+    "unityFinalInitialSyncReplay": {
+      "result": "Passed",
+      "total": "1",
+      "passed": "1",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "13.4990239"
+    }
+  },
+  "verifiedBehaviors": [
+    "Admin save, download, import, verify/load, play, pause, single step, seek and end-of-recording controls were exercised in the browser.",
+    "Stock recording tick 5526: phase Results, 11F, HP 0/130; step 5527: Preparing, HP 100/100. Full-page screenshots are attached.",
+    "Real Unity scene projected exactly the complete Admin state at death; step/play/pause/seek/stop/reconnect and paused live restoration passed.",
+    "Playback blocks Unity inputs and server-side OSC/app/config mutation; Game Parameters displays a read-only banner and disabled staging.",
+    "Host owner parks the live Runtime after recording a normal pause; HTTP requests do not tick the active instance. Last verified state is cached; invalid seek leaves position intact.",
+    "Run persistence uses only live events, including starts committed on replay activation; historical replay run events cannot overwrite live manifests.",
+    "Initial WebSocket mode, tick and projection are captured under one lock; pending activation still reports the current projection."
+  ],
+  "browserSavedRecording": {
+    "id": "b8ef8315f0029a3a10df3140ed1544a071994aae4e8168147b407cabd222d6e4",
+    "bytes": 719797,
+    "ticks": 4655,
+    "inputs": 6,
+    "runs": 1,
+    "verification": "All state/output proofs and run manifests matched after browser download and re-import."
+  },
+  "stockRecordingId": "da420d2d7df0dc0ce3f4e4528c87071b0a2655d79dffbe5df525f0ff77d56434",
+  "limits": [
+    "Seek re-executes from the beginning; cost grows with target tick. No checkpoint acceleration or state editing.",
+    "Recordings retain stage 7 build compatibility and 216000 tick / 64 MiB limits.",
+    "Parent workspace pointer publication remains blocked by GitHub integration write access (403); local pointer commits are prepared separately."
+  ]
+}

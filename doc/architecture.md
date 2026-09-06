@@ -70,9 +70,10 @@ invalid edits preserve the last valid version. See the
 
 Real TSQ1 recording and deterministic re-execution now preserve exact input ticks,
 identities and frozen content through the normal Runtime queue (stage 7; see
-[the replay contract](specs/arena-replay.md)). Admin playback controls, live command
-tooling and the full-game FFI/native player
-path remain subsequent stages, not implied by the movement-only FFI or the other
+[the replay contract](specs/arena-replay.md)). Admin play/pause/step/seek and Unity
+replay projection are implemented in stage 8, including a parked paused live run
+and read-only input/configuration guards. Live command tooling and the full-game
+FFI/native player path remain subsequent stages, not implied by the movement-only FFI or the other
 placeholder data adapters described below.
 
 ### P0 — Execution Semantics

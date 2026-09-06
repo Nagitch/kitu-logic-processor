@@ -103,6 +103,10 @@
         Edit and save the Tanu tables in VS Code, validate the file here, then
         apply the evaluated values to the next run.
       </p>
+      {#if status?.readOnly}<p class="text-amber-700">
+          Replay inspection is read-only. Return to the live run before applying
+          parameters.
+        </p>{/if}
       {#if status}<p class="break-all font-mono text-xs">{status.path}</p>{/if}
       <div class="flex flex-wrap gap-2">
         <Button onclick={validate} disabled={busy}
@@ -111,8 +115,10 @@
         <Button
           variant="secondary"
           onclick={apply}
-          disabled={busy || !status?.candidate || alreadyStaged}
-          ><Check size={16} /> Apply to next run</Button
+          disabled={busy ||
+            status?.readOnly ||
+            !status?.candidate ||
+            alreadyStaged}><Check size={16} /> Apply to next run</Button
         >
         <Button variant="ghost" onclick={refresh} disabled={busy}
           ><RefreshCw size={16} /> Refresh</Button

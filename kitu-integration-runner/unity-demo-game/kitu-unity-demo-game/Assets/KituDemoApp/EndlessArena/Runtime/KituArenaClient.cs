@@ -23,6 +23,8 @@ namespace UnityOnlyArena
         public ArenaSettings Settings { get; private set; }
         public ArenaSettings DraftSettings { get; private set; }
         public bool SettingsOpen => DraftSettings != null;
+        public bool ReplayActive { get; private set; }
+        public bool ReplayPlaying { get; private set; }
         public string SessionId { get; private set; }
         public ArenaReferenceState State { get; private set; }
         public string Message { get; private set; } = "";
@@ -45,6 +47,7 @@ namespace UnityOnlyArena
             connection?.Dispose();
             SessionId = null;
             synchronized = false;
+            ReplayActive = false;
             BlockGameplayButtons();
             connection = new ArenaConnection(Endpoint);
         }
@@ -68,7 +71,7 @@ namespace UnityOnlyArena
         private static JObject Arg(string type, object value) => new JObject { ["type"] = type, ["value"] = JToken.FromObject(value) };
         private bool Send(string address, JArray args)
         {
-            if (!Connected) return false;
+            if (!Connected || ReplayActive) return false;
             var envelope = new JObject { ["schemaVersion"] = 1, ["sessionId"] = SessionId,
                 ["clientId"] = clientId, ["messageId"] = nextMessageId++, ["address"] = address, ["args"] = args };
             return connection.Send(envelope.ToString(Newtonsoft.Json.Formatting.None));
@@ -84,6 +87,12 @@ namespace UnityOnlyArena
                     var message = JObject.Parse(json);
                     switch ((string)message["type"])
                     {
+                        case "replay":
+                            bool active = (bool)message["mode"]["active"];
+                            if (active != ReplayActive) { BlockGameplayButtons(); DraftSettings = null; }
+                            ReplayActive = active;
+                            ReplayPlaying = (bool)message["mode"]["playing"];
+                            break;
                         case "arenaSession":
                             if ((int)message["schemaVersion"] != 1) throw new InvalidOperationException("Incompatible Arena contract");
                             SessionId = (string)message["id"];
@@ -118,7 +127,7 @@ namespace UnityOnlyArena
                 catch (Exception error) { Message = error.Message; Disconnect(); break; }
             }
             if (!Connected) { BlockGameplayButtons(); return; }
-            if (DeviceInput) ReadInput();
+            if (DeviceInput && !ReplayActive) ReadInput();
         }
 
         private void ReadInput()
@@ -243,6 +252,7 @@ namespace UnityOnlyArena
 
         public void OpenSettings()
         {
+            if (ReplayActive) return;
             if (State.phase != 0 && State.overlay != "pause") return;
             DraftSettings = Settings.Copy();
             BlockGameplayButtons();
@@ -304,7 +314,7 @@ namespace UnityOnlyArena
             GUILayout.Label($"{(Connected ? "Connected" : connection?.Status ?? "Disconnected")}  |  Tick {State.tick}  |  Time {State.elapsed:F2}  |  {State.overlay}  {Message}");
             GUILayout.BeginHorizontal();
             if (!Connected) { if (GUILayout.Button("Connect", GUILayout.Width(140))) Connect(); }
-            else if (!SettingsOpen)
+            else if (!SettingsOpen && !ReplayActive)
             {
                 if (State.phase == 0 || State.phase == 5) { if (GUILayout.Button("Start run", GUILayout.Width(140))) Command("start"); }
                 else if (GUILayout.Button(State.overlay == "pause" ? "Resume" : "Pause", GUILayout.Width(140))) Command(State.overlay == "pause" ? "resume" : "pause");
@@ -318,7 +328,8 @@ namespace UnityOnlyArena
                 if (State.phase == 0 && GUILayout.Button("Quit", GUILayout.Width(80))) Application.Quit();
             }
             GUILayout.EndHorizontal();
-            GUILayout.Label("WASD: move · Mouse: aim/fire A/B · Z/X: items · Tab/I: inventory · E: chest · Escape: close/pause");
+            GUILayout.Label(ReplayActive ? "REPLAY · Read-only · Control playback and return to the live run from Admin" :
+                "WASD: move · Mouse: aim/fire A/B · Z/X: items · Tab/I: inventory · E: chest · Escape: close/pause");
             if (State.inventory != null) GUILayout.Label($"HP {State.inventory.health}/{State.inventory.maxHealth} · Attack ×{State.inventory.attackMultiplier:F2}");
             string objective = State.phase == 1 ? "Prepare at the chest, then enter the portal" :
                 State.phase == 3 ? (State.floor % 5 == 0 ? "Defeat the boss" : "Defeat every enemy") :
@@ -326,6 +337,8 @@ namespace UnityOnlyArena
             GUILayout.Label(objective);
             GUILayout.EndArea();
             if (SettingsOpen) { DrawSettings(); return; }
+            bool previousEnabled = GUI.enabled;
+            if (ReplayActive) GUI.enabled = false;
             if (State.phase == 5) DrawResults();
             if (State.overlay == "none" && State.phase != 0 && State.phase != 5 && State.inventory != null)
             {
@@ -335,6 +348,7 @@ namespace UnityOnlyArena
                 GUILayout.EndArea();
             }
             if ((State.overlay == "inventory" || State.overlay == "chest") && State.inventory != null) DrawInventory();
+            GUI.enabled = previousEnabled;
         }
     }
 }

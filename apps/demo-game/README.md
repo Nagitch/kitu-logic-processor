@@ -158,5 +158,24 @@ one hour of management ticks and 64 MiB per encoded file; start a new host sessi
 for a fresh recording. Invalid/incompatible files return a diagnostic.
 
 See the [full file/version/endpoint contract](../../doc/specs/arena-replay.md).
-Admin playback/seek controls follow in stage 8; these endpoints already save,
-load and re-execute real TSQ1. No standalone live CLI is implied by the curl examples.
+Open **Project → Arena Replay** in Admin to save the live session or import a
+`.tsq`. Choose **Verify and load**, then use Play, Pause, Step one tick, Stop or
+Seek. The loaded recording starts at tick -1; Stop returns there. The connected
+Unity scene becomes a read-only replay view. Return to live restores the parked
+paused run; resume explicitly in Unity. Game Parameters cannot apply edits while
+replaying. The full status JSON exposes the recording's state and content hash.
+
+To repeat the real-scene replay test, regenerate/import the stock recording for
+the current build (see the contract), then add its ID to the PlayMode environment:
+
+```sh
+KITU_ARENA_WS_URL=ws://127.0.0.1:8787/ws/runtime \
+KITU_ARENA_REPLAY_ID=<imported-stock-content-id> \
+  <Unity-editor> -batchmode -projectPath <isolated-unity-project> \
+  -runTests -testPlatform PlayMode -assemblyNames UnityOnlyArena.PlayModeTests \
+  -testResults <results.xml> -logFile <editor.log>
+```
+
+The test checks step/play/pause, 11F death at tick 5526, retry at 5527, complete
+Admin/Unity state equality, stop/reconnect and paused live restoration. No
+standalone live CLI is implied by these curl examples; that is stage 9.

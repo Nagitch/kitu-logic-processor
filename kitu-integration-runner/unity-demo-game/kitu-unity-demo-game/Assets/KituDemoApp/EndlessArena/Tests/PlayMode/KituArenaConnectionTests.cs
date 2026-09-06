@@ -8,6 +8,8 @@ using UnityEngine.InputSystem.LowLevel;
 using System.Linq;
 using UnityEngine.TestTools;
 using UnityEngine.TestTools.Utils;
+using UnityEngine.Networking;
+using System.Text;
 
 namespace UnityOnlyArena.Tests
 {
@@ -37,6 +39,83 @@ namespace UnityOnlyArena.Tests
                 inputConfigured = false;
             }
             yield return null;
+        }
+
+        [UnityTest, Category("ArenaNetwork")]
+        public IEnumerator LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun()
+        {
+            string endpoint = Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
+            string recording = Environment.GetEnvironmentVariable("KITU_ARENA_REPLAY_ID");
+            if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(recording))
+                Assert.Ignore("Set KITU_ARENA_WS_URL and KITU_ARENA_REPLAY_ID to the stock TSQ1 recording on an isolated host.");
+            var api = new UriBuilder(endpoint) { Scheme = endpoint.StartsWith("wss:") ? "https" : "http", Path = "", Query = "" }.Uri.ToString().TrimEnd('/');
+#if UNITY_EDITOR
+            yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
+                "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity", new LoadSceneParameters(LoadSceneMode.Single));
+#else
+            yield return SceneManager.LoadSceneAsync("KituEndlessArena", LoadSceneMode.Single);
+#endif
+            var client = UnityEngine.Object.FindFirstObjectByType<KituArenaClient>();
+            root = client.gameObject; client.DeviceInput = false; client.Endpoint = endpoint; client.Connect();
+            yield return Until(() => client.Connected, "replay client synchronization");
+            client.Command("menu"); yield return Until(() => client.State.phase == 0, "live opening before replay");
+            client.Command("start"); yield return Until(() => client.State.phase == 1, "live preparing before replay");
+            yield return ReplayRequest(api, "/load", JsonUtility.ToJson(new ReplayLoad { id = recording }));
+            yield return Until(() => client.ReplayActive && client.State.tick == -1, "initial replay projection");
+            Assert.That(client.Frame(Vector2.up, Vector2.up), Is.False);
+            Assert.That(client.Command("start"), Is.False);
+            client.OpenSettings(); Assert.That(client.SettingsOpen, Is.False);
+            yield return ReplayRequest(api, "/command", "{\"action\":\"step\"}");
+            yield return Until(() => client.State.tick == 0, "single replay tick");
+            yield return ReplayRequest(api, "/command", "{\"action\":\"play\"}");
+            yield return Until(() => client.State.tick >= 4, "continuous replay");
+            yield return ReplayRequest(api, "/command", "{\"action\":\"pause\"}");
+            yield return Until(() => !client.ReplayPlaying, "replay paused");
+            long pausedTick = client.State.tick;
+            yield return new WaitForSecondsRealtime(.15f);
+            Assert.That(client.State.tick, Is.EqualTo(pausedTick));
+            yield return ReplayRequest(api, "/seek", "{\"tick\":5526}");
+            yield return Until(() => client.State.tick == 5526, "seek to natural death");
+            Assert.That(client.State.phase, Is.EqualTo(5));
+            Assert.That(client.State.floor, Is.EqualTo(11));
+            Assert.That(client.State.inventory.health, Is.EqualTo(0));
+            Assert.That(client.State.result.present, Is.True);
+            ReplayInspection inspected = null;
+            yield return ReplayRequest(api, "", null, value => inspected = value);
+            var admin = inspected.state;
+            Assert.That(JsonUtility.ToJson(client.State), Is.EqualTo(JsonUtility.ToJson(admin)), "Admin and Unity show the same complete state");
+            yield return ReplayRequest(api, "/command", "{\"action\":\"step\"}");
+            yield return Until(() => client.State.tick == 5527, "recorded retry tick");
+            Assert.That(client.State.phase, Is.EqualTo(1));
+            Assert.That(client.State.inventory.maxHealth, Is.EqualTo(100));
+            yield return ReplayRequest(api, "/command", "{\"action\":\"stop\"}");
+            yield return Until(() => client.State.tick == -1, "stop returns initial projection");
+            client.Disconnect(); client.Connect();
+            yield return Until(() => client.Connected && client.ReplayActive && client.State.tick == -1, "reconnect while replay is stopped");
+            yield return ReplayRequest(api, "/command", "{\"action\":\"live\"}");
+            yield return Until(() => !client.ReplayActive && client.State.phase == 1 && client.State.overlay == "pause", "return to paused live run");
+            float elapsed = client.State.elapsed; long tick = client.State.tick;
+            yield return Until(() => client.State.tick > tick + 8, "live management ticks resume");
+            Assert.That(client.State.elapsed, Is.EqualTo(elapsed));
+            Assert.That(client.Command("resume"), Is.True);
+            yield return Until(() => client.State.overlay == "none" && client.State.elapsed > elapsed, "explicit live resume");
+            Debug.Log("Replay verified in Unity: initial / step / play / pause / seek 5526 death / step 5527 retry / stop / reconnect / paused live return.");
+        }
+
+        [Serializable] private sealed class ReplayLoad { public string id; }
+        [Serializable] private sealed class ReplayInspection { public ArenaReferenceState state; }
+
+        private static IEnumerator ReplayRequest(string api, string path, string body, Action<ReplayInspection> receive = null)
+        {
+            using (var request = new UnityWebRequest(api + "/arena/playback" + path, body == null ? "GET" : "POST"))
+            {
+                request.downloadHandler = new DownloadHandlerBuffer();
+                if (body != null) { request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body)); request.SetRequestHeader("Content-Type", "application/json"); }
+                request.timeout = 60;
+                yield return request.SendWebRequest();
+                Assert.That(request.result, Is.EqualTo(UnityWebRequest.Result.Success), request.downloadHandler.text);
+                receive?.Invoke(JsonUtility.FromJson<ReplayInspection>(request.downloadHandler.text));
+            }
         }
 
         [UnityTest, Category("ArenaNetwork")]

@@ -32,6 +32,7 @@ export type ContentVersion = {
 
 export type ContentStatus = {
   path: string;
+  readOnly: boolean;
   runtime: {
     run: number;
     active: ContentVersion | null;
