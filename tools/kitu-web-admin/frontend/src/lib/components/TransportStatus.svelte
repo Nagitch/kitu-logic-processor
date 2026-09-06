@@ -27,11 +27,13 @@
     idle: "bg-muted text-muted-foreground",
     pending: "bg-secondary text-secondary-foreground",
     sent: "bg-accent text-accent-foreground",
+    applied: "bg-accent text-accent-foreground",
     fallback: "bg-secondary text-secondary-foreground",
     failed: "bg-destructive text-destructive-foreground",
   };
 
   const sendPathLabel = {
+    http: "HTTP",
     none: "none",
     webtransport: "wt",
     "websocket-fallback": "ws fallback",

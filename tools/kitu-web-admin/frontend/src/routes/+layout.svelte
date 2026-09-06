@@ -11,6 +11,7 @@
     ScrollText,
     SlidersHorizontal,
     Play,
+    Terminal,
   } from "@lucide/svelte";
   import {
     connectAdminSocket,
@@ -29,6 +30,7 @@
         { href: "/", label: "Overview", icon: Activity },
         { href: "/world", label: "World", icon: Boxes },
         { href: "/logs", label: "Logs", icon: ScrollText },
+        { href: "/shell", label: "Shell", icon: Terminal },
       ],
     },
     {

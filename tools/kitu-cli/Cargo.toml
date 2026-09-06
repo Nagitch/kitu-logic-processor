@@ -5,8 +5,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
+kitu-shell = { path = "../../crates/kitu-shell" }
+serde_json = "1"
+ureq = { version = "3", default-features = false, features = ["json"] }
 anyhow = { workspace = true }
-kitu-app-actions = { path = "../../crates/kitu-app-actions" }
-kitu-osc-ir = { path = "../../crates/kitu-osc-ir" }
-kitu-runtime = { path = "../../crates/kitu-runtime" }
-kitu-transport = { path = "../../crates/kitu-transport" }

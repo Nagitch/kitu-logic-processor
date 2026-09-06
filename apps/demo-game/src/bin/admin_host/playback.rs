@@ -178,7 +178,7 @@ pub(super) async fn status(State(state): State<AppState>) -> Result<Json<Status>
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct LoadRequest {
-    id: String,
+    pub(super) id: String,
 }
 fn queue_loaded(game: &mut GameState, prepared: Playback) -> Result<()> {
     anyhow::ensure!(
@@ -231,7 +231,7 @@ pub(super) async fn load(
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct CommandRequest {
-    action: String,
+    pub(super) action: String,
 }
 fn operate(game: &mut GameState, action: &str) -> Result<()> {
     if action == "live" {
@@ -286,7 +286,7 @@ pub(super) async fn command(
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct SeekRequest {
-    tick: i64,
+    pub(super) tick: i64,
 }
 pub(super) async fn seek(
     State(state): State<AppState>,
@@ -424,6 +424,16 @@ mod tests {
             state.inner.lock().unwrap().run_events.len(),
             1,
             "live start queued for persistence during replay activation"
+        );
+        assert!(
+            state
+                .inner
+                .lock()
+                .unwrap()
+                .live_receipts
+                .values()
+                .any(|r| r["source"] == "live" && r["accepted"] == true),
+            "command waiters retain live outcomes even when display switches to replay"
         );
         {
             let mut game = state.inner.lock().unwrap();

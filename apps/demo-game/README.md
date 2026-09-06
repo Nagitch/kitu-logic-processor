@@ -177,5 +177,9 @@ KITU_ARENA_REPLAY_ID=<imported-stock-content-id> \
 ```
 
 The test checks step/play/pause, 11F death at tick 5526, retry at 5527, complete
-Admin/Unity state equality, stop/reconnect and paused live restoration. No
-standalone live CLI is implied by these curl examples; that is stage 9.
+Admin/Unity state equality, stop/reconnect and paused live restoration. Stage 9 adds the [live CLI and browser Shell](../../doc/specs/live-shell.md).
+Run `kitu-cli help`, `app action run arena.start`, `inspect application` or
+`scenario run preparation-smoke` against this host; the same commands are
+available in **Kitu general → Shell**. Their JSON results include actual applied
+ticks or refusal reasons. `replay load <id>`, `replay seek 5526` and `replay step`
+control the connected Unity replay.

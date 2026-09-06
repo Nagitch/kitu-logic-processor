@@ -72,8 +72,9 @@ Real TSQ1 recording and deterministic re-execution now preserve exact input tick
 identities and frozen content through the normal Runtime queue (stage 7; see
 [the replay contract](specs/arena-replay.md)). Admin play/pause/step/seek and Unity
 replay projection are implemented in stage 8, including a parked paused live run
-and read-only input/configuration guards. Live command tooling and the full-game
-FFI/native player path remain subsequent stages, not implied by the movement-only FFI or the other
+and read-only input/configuration guards. [Live CLI/browser Shell](specs/live-shell.md) is implemented in stage 9 with
+shared commands, idempotent results and normal tick admission. The full-game
+FFI/native player path remains subsequent work, not implied by the movement-only FFI or the other
 placeholder data adapters described below.
 
 ### P0 — Execution Semantics

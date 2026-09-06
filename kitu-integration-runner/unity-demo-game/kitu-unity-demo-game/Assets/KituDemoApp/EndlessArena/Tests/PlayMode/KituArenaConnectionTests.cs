@@ -42,6 +42,73 @@ namespace UnityOnlyArena.Tests
         }
 
         [UnityTest, Category("ArenaNetwork")]
+        public IEnumerator LiveCliAndBrowserShellControlTheProjectedUnityRun()
+        {
+            string endpoint = Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
+            if (string.IsNullOrEmpty(endpoint) || string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KITU_ARENA_CLI_EXECUTABLE")))
+                Assert.Ignore("Set KITU_ARENA_WS_URL and KITU_ARENA_CLI_EXECUTABLE / KITU_ARENA_CLI_ARGUMENTS for the isolated live CLI.");
+            var api = new UriBuilder(endpoint) { Scheme = endpoint.StartsWith("wss:") ? "https" : "http", Path = "", Query = "" }.Uri.ToString().TrimEnd('/');
+#if UNITY_EDITOR
+            yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
+                "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity", new LoadSceneParameters(LoadSceneMode.Single));
+#else
+            yield return SceneManager.LoadSceneAsync("KituEndlessArena", LoadSceneMode.Single);
+#endif
+            var client = UnityEngine.Object.FindFirstObjectByType<KituArenaClient>();
+            root = client.gameObject; client.DeviceInput = false; client.Endpoint = endpoint; client.Connect();
+            yield return Until(() => client.Connected, "CLI client synchronization");
+            client.Command("menu"); yield return Until(() => client.State.phase == 0, "CLI initial menu");
+            yield return RunCli("app action run arena.start");
+            yield return Until(() => client.State.phase == 1, "CLI started the real Unity run");
+            yield return RunCli("app action run arena.start", 1);
+            Assert.That(client.State.phase, Is.EqualTo(1), "rejected start preserves the current run");
+            yield return RunCli("app action run arena.pause");
+            yield return Until(() => client.State.overlay == "pause", "CLI paused the real run");
+            float elapsed = client.State.elapsed; long tick = client.State.tick;
+            yield return Until(() => client.State.tick > tick + 6, "CLI pause keeps management ticking");
+            Assert.That(client.State.elapsed, Is.EqualTo(elapsed));
+            HostInspection catalog = null, response = null;
+            string shellClientId = "unity-shell-" + Guid.NewGuid().ToString("N");
+            yield return HostRequest(api, "/shell/catalog", null, value => catalog = value);
+            yield return HostRequest(api, "/shell/line", JsonUtility.ToJson(new ShellLine {
+                sessionId = catalog.sessionId, clientId = shellClientId, id = 1, line = "app action run arena.resume"
+            }), value => response = value);
+            Assert.That(response.ok, Is.True, response.error);
+            yield return Until(() => client.State.overlay == "none" && client.State.elapsed > elapsed, "browser Shell path resumed Unity");
+            yield return HostRequest(api, "/shell/line", JsonUtility.ToJson(new ShellLine {
+                sessionId = catalog.sessionId, clientId = shellClientId, id = 2, line = "app action run arena.start"
+            }), value => response = value);
+            Assert.That(response.ok, Is.False); Assert.That(response.error, Is.Not.Empty);
+            yield return RunCli("scenario run preparation-smoke");
+            yield return Until(() => client.State.phase == 1 && client.State.overlay == "none", "CLI scenario applied");
+            float y = client.State.playerPosition.y;
+            yield return RunCli("osc send /input/arena/frame f:0 f:1 b:true f:0 f:1 b:false b:false");
+            yield return Until(() => client.State.playerPosition.y > y + .1f, "CLI OSC moves the rendered player");
+            yield return RunCli("app action run arena.pause");
+            yield return Until(() => client.State.overlay == "pause", "CLI movement stopped");
+            Debug.Log("Live CLI and shared browser Shell verified in Unity: start, refusal, pause, resume, scenario, typed OSC movement.");
+        }
+
+        private static IEnumerator RunCli(string command, int expectedExit = 0)
+        {
+            var options = new System.Diagnostics.ProcessStartInfo {
+                FileName = Environment.GetEnvironmentVariable("KITU_ARENA_CLI_EXECUTABLE"),
+                Arguments = (Environment.GetEnvironmentVariable("KITU_ARENA_CLI_ARGUMENTS") ?? "") + " " + command,
+                UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true
+            };
+            using (var process = System.Diagnostics.Process.Start(options))
+            {
+                Assert.That(process, Is.Not.Null);
+                var output = process.StandardOutput.ReadToEndAsync();
+                var error = process.StandardError.ReadToEndAsync();
+                yield return Until(() => process.HasExited && output.IsCompleted && error.IsCompleted, "CLI process " + command);
+                Assert.That(process.ExitCode, Is.EqualTo(expectedExit), error.Result + output.Result);
+                var result = JsonUtility.FromJson<HostInspection>(output.Result);
+                Assert.That(result.ok, Is.EqualTo(expectedExit == 0), result.error);
+            }
+        }
+
+        [UnityTest, Category("ArenaNetwork")]
         public IEnumerator LiveReplayProjectsExactDeathRetryTicksAndRestoresPausedLiveRun()
         {
             string endpoint = Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
@@ -80,7 +147,7 @@ namespace UnityOnlyArena.Tests
             Assert.That(client.State.floor, Is.EqualTo(11));
             Assert.That(client.State.inventory.health, Is.EqualTo(0));
             Assert.That(client.State.result.present, Is.True);
-            ReplayInspection inspected = null;
+            HostInspection inspected = null;
             yield return ReplayRequest(api, "", null, value => inspected = value);
             var admin = inspected.state;
             Assert.That(JsonUtility.ToJson(client.State), Is.EqualTo(JsonUtility.ToJson(admin)), "Admin and Unity show the same complete state");
@@ -103,18 +170,24 @@ namespace UnityOnlyArena.Tests
         }
 
         [Serializable] private sealed class ReplayLoad { public string id; }
-        [Serializable] private sealed class ReplayInspection { public ArenaReferenceState state; }
+        [Serializable] private sealed class HostInspection { public ArenaReferenceState state; public string sessionId; public bool ok; public string error; }
+        [Serializable] private sealed class ShellLine { public int version = 1; public string sessionId; public string clientId = "unity-shell-test"; public int id; public string line; }
 
-        private static IEnumerator ReplayRequest(string api, string path, string body, Action<ReplayInspection> receive = null)
+        private static IEnumerator ReplayRequest(string api, string path, string body, Action<HostInspection> receive = null)
         {
-            using (var request = new UnityWebRequest(api + "/arena/playback" + path, body == null ? "GET" : "POST"))
+            yield return HostRequest(api, "/arena/playback" + path, body, receive);
+        }
+
+        private static IEnumerator HostRequest(string api, string path, string body, Action<HostInspection> receive = null)
+        {
+            using (var request = new UnityWebRequest(api + path, body == null ? "GET" : "POST"))
             {
                 request.downloadHandler = new DownloadHandlerBuffer();
                 if (body != null) { request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body)); request.SetRequestHeader("Content-Type", "application/json"); }
                 request.timeout = 60;
                 yield return request.SendWebRequest();
                 Assert.That(request.result, Is.EqualTo(UnityWebRequest.Result.Success), request.downloadHandler.text);
-                receive?.Invoke(JsonUtility.FromJson<ReplayInspection>(request.downloadHandler.text));
+                receive?.Invoke(JsonUtility.FromJson<HostInspection>(request.downloadHandler.text));
             }
         }
 
