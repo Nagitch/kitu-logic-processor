@@ -1,0 +1,12 @@
+[
+  {
+    "id": "preparation-smoke",
+    "description": "Return to the menu, start, pause and explicitly resume the live Arena; end in Preparing.",
+    "steps": [
+      { "action": "arena.menu" },
+      { "action": "arena.start", "waitTicks": 6 },
+      { "action": "arena.pause", "waitTicks": 6 },
+      { "action": "arena.resume" }
+    ]
+  }
+]

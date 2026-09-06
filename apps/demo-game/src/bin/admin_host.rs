@@ -37,12 +37,15 @@ mod content;
 mod playback;
 #[path = "admin_host/recording.rs"]
 mod recording;
+#[path = "admin_host/shell.rs"]
+mod shell;
 
 #[derive(Clone)]
 struct AppState {
     inner: Arc<Mutex<GameState>>,
     events: broadcast::Sender<ServerEvent>,
     content: Arc<content::Service>,
+    shell: Arc<shell::Service>,
 }
 
 struct GameState {
@@ -53,6 +56,7 @@ struct GameState {
     pending_playback: Option<playback::Playback>,
     playback_generation: u64,
     run_events: Vec<ServerEvent>,
+    live_receipts: std::collections::BTreeMap<u64, serde_json::Value>,
     next_log_id: u64,
     logs: Vec<DebugLogEntry>,
     runtime_id: String,
@@ -72,6 +76,7 @@ impl GameState {
             pending_playback: None,
             playback_generation: 0,
             run_events: Vec::new(),
+            live_receipts: std::collections::BTreeMap::new(),
             next_log_id: 1,
             logs: Vec::new(),
             runtime_id: format!(
@@ -271,6 +276,7 @@ async fn main() -> Result<()> {
         inner: Arc::new(Mutex::new(GameState::new()?)),
         events,
         content: Arc::new(content::Service::from_environment()),
+        shell: Arc::new(shell::Service::default()),
     };
 
     let clock_state = state.clone();
@@ -303,6 +309,9 @@ async fn main() -> Result<()> {
 
     let app = Router::new()
         .route("/health", get(health))
+        .route("/shell/catalog", get(shell::catalog))
+        .route("/shell/execute", post(shell::execute))
+        .route("/shell/line", post(shell::line))
         .route("/state", get(state_snapshot))
         .route("/logs", get(logs_snapshot))
         .route("/arena/content", get(content::inspect))
@@ -386,11 +395,26 @@ async fn run_app_action(
     State(state): State<AppState>,
     Json(request): Json<ActionRunRequest>,
 ) -> Result<Json<ActionRunResponse>, ApiError> {
-    Ok(Json(run_app_action_request(
-        &state,
+    let message = {
+        let game = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
+        game.runtime
+            .app_action_catalog()
+            .materialize_message(&action_id, &request.inputs)
+            .map_err(anyhow::Error::from)?
+    };
+    let result = shell::action(&state, message.clone()).await?;
+    if result["receipt"]["accepted"] == false {
+        return Err(ApiError::bad_request(
+            result["receipt"]["code"]
+                .as_str()
+                .unwrap_or("action rejected"),
+        ));
+    }
+    Ok(Json(ActionRunResponse {
         action_id,
-        request.inputs,
-    )?))
+        osc: ClientOscMessage::from(message),
+        snapshot: snapshot(&state)?,
+    }))
 }
 
 async fn ws_upgrade(ws: WebSocketUpgrade, State(state): State<AppState>) -> impl IntoResponse {
@@ -772,6 +796,7 @@ fn advance_live_tick(guard: &mut GameState) -> Result<Vec<kitu_osc_ir::OscBundle
             guard.recording_error = Some(format!("{error:#}"));
         }
     }
+    shell::capture_receipts(guard, &outputs);
     // Persist live starts even when this tick activates replay; historical run
     // events are presentation output and must never overwrite live manifests.
     for message in outputs
@@ -822,6 +847,14 @@ fn run_app_action_request(
     let mut outgoing_events = Vec::new();
 
     guard.ensure_live_input()?;
+    let message = guard
+        .runtime
+        .app_action_catalog()
+        .materialize_message(&action_id, &inputs)?;
+    anyhow::ensure!(
+        !message.address.starts_with("/input/arena/"),
+        "Arena actions require the versioned Shell or HTTP action endpoint"
+    );
     let outcome = guard
         .runtime
         .run_app_action(&action_id, &inputs)
@@ -1056,6 +1089,7 @@ mod tests {
             inner: Arc::new(Mutex::new(GameState::new().unwrap())),
             events,
             content: Arc::new(content::Service::from_environment()),
+            shell: Arc::new(shell::Service::default()),
         }
     }
 

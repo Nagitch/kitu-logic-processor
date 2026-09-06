@@ -1,4 +1,4 @@
-//! CLI shell skeleton for driving the runtime.
+//! Shared live-command contracts and reusable shell dispatch primitives.
 //!
 //! # Responsibilities
 //! - Provide reusable shell commands and dispatch helpers for local runtime control.
@@ -87,3 +87,6 @@ mod tests {
         assert!(matches!(err, KituError::InvalidInput("unknown command")));
     }
 }
+
+mod live;
+pub use live::*;

@@ -13,6 +13,7 @@ name = "kitu-demo-game-admin-host"
 path = "src/bin/admin_host.rs"
 
 [dependencies]
+kitu-shell = { path = "../../crates/kitu-shell" }
 anyhow = { workspace = true }
 axum = { version = "0.8", features = ["ws"] }
 kitu-app-actions = { path = "../../crates/kitu-app-actions" }

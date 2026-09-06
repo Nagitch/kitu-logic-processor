@@ -1,0 +1,3008 @@
+[
+  {
+    "args": [
+      "replay",
+      "load",
+      "a6d985f5256d9a81d51dc9449fbae75e7b1fa69a5cbdde40baf2546df99e7a4f"
+    ],
+    "exitCode": 0,
+    "response": {
+      "id": 1,
+      "ok": true,
+      "data": {
+        "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "execution": {
+          "package": "0.1.0",
+          "sourceHash": "b0700181609fd0ebff14f2f51d30d520265cc2233cc9df73c98816c90d7a2a73",
+          "target": "aarch64-unknown-linux-gnu"
+        },
+        "liveTick": 23142,
+        "mode": {
+          "active": true,
+          "error": null,
+          "playing": false,
+          "recordingId": "a6d985f5256d9a81d51dc9449fbae75e7b1fa69a5cbdde40baf2546df99e7a4f",
+          "seeking": false,
+          "tick": -1,
+          "totalTicks": 5528
+        },
+        "state": {
+          "aimDirection": {
+            "x": 0.0,
+            "y": 1.0
+          },
+          "bossesDefeated": 0,
+          "chestAvailable": false,
+          "effects": [],
+          "elapsed": 0.0,
+          "enemies": [],
+          "enemiesDefeated": 0,
+          "floor": 0,
+          "floorsCleared": 0,
+          "grenades": [],
+          "inventory": {
+            "attackMultiplier": 1.0,
+            "attackUpgrades": 0,
+            "backpack": [
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "chest": [],
+            "damagedThisUpdate": false,
+            "equipment": [
+              {
+                "damage": 20,
+                "id": 1,
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "health": 100,
+            "maxHealth": 100,
+            "nextItemId": 1,
+            "shieldDelayRemaining": 0.0
+          },
+          "nextEntityId": 1,
+          "overlay": "none",
+          "phase": 0,
+          "playerPosition": {
+            "x": 0.0,
+            "y": 0.0
+          },
+          "portalArmed": false,
+          "portalAvailable": false,
+          "projectiles": [],
+          "result": {
+            "attackMultiplier": 0.0,
+            "bossesDefeated": 0,
+            "elapsed": 0.0,
+            "enemiesDefeated": 0,
+            "equipmentNames": [],
+            "floor": 0,
+            "floorsCleared": 0,
+            "maxHealth": 0,
+            "present": false
+          },
+          "simulationSteps": 0,
+          "tick": -1,
+          "transitionRemaining": 0.0,
+          "weaponCooldowns": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "error": null
+    },
+    "identity": "session=1-1788659688781355480 client=cli-72-1788660072194449200 id=1"
+  },
+  {
+    "args": [
+      "replay",
+      "seek",
+      "5526"
+    ],
+    "exitCode": 0,
+    "response": {
+      "id": 1,
+      "ok": true,
+      "data": {
+        "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "execution": {
+          "package": "0.1.0",
+          "sourceHash": "b0700181609fd0ebff14f2f51d30d520265cc2233cc9df73c98816c90d7a2a73",
+          "target": "aarch64-unknown-linux-gnu"
+        },
+        "liveTick": 23142,
+        "mode": {
+          "active": true,
+          "error": null,
+          "playing": false,
+          "recordingId": "a6d985f5256d9a81d51dc9449fbae75e7b1fa69a5cbdde40baf2546df99e7a4f",
+          "seeking": false,
+          "tick": 5526,
+          "totalTicks": 5528
+        },
+        "state": {
+          "aimDirection": {
+            "x": 0.0,
+            "y": 1.0
+          },
+          "bossesDefeated": 2,
+          "chestAvailable": false,
+          "effects": [],
+          "elapsed": 88.02099,
+          "enemies": [
+            {
+              "AttackCooldown": 0.5000005,
+              "AttackInterval": 1.0,
+              "AttackRange": 1.5,
+              "BossState": 0,
+              "Damage": 18,
+              "Health": 88,
+              "Id": 811,
+              "Kind": 0,
+              "MaxHealth": 88,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": -0.7495834,
+                "y": -5.7007213
+              },
+              "Radius": 0.5,
+              "Speed": 2.5
+            },
+            {
+              "AttackCooldown": 1.0,
+              "AttackInterval": 1.0,
+              "AttackRange": 1.5,
+              "BossState": 0,
+              "Damage": 18,
+              "Health": 88,
+              "Id": 812,
+              "Kind": 0,
+              "MaxHealth": 88,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": -0.4906642,
+                "y": -5.5825205
+              },
+              "Radius": 0.5,
+              "Speed": 2.5
+            },
+            {
+              "AttackCooldown": 0.7333336,
+              "AttackInterval": 1.0,
+              "AttackRange": 1.5,
+              "BossState": 0,
+              "Damage": 18,
+              "Health": 88,
+              "Id": 813,
+              "Kind": 0,
+              "MaxHealth": 88,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": -0.17193604,
+                "y": -5.5098867
+              },
+              "Radius": 0.5,
+              "Speed": 2.5
+            },
+            {
+              "AttackCooldown": 0.7333336,
+              "AttackInterval": 1.0,
+              "AttackRange": 1.5,
+              "BossState": 0,
+              "Damage": 18,
+              "Health": 88,
+              "Id": 814,
+              "Kind": 0,
+              "MaxHealth": 88,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": 0.17193604,
+                "y": -5.5098867
+              },
+              "Radius": 0.5,
+              "Speed": 2.5
+            },
+            {
+              "AttackCooldown": 1.0,
+              "AttackInterval": 1.0,
+              "AttackRange": 1.5,
+              "BossState": 0,
+              "Damage": 18,
+              "Health": 88,
+              "Id": 815,
+              "Kind": 0,
+              "MaxHealth": 88,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": 0.4906642,
+                "y": -5.5825205
+              },
+              "Radius": 0.5,
+              "Speed": 2.5
+            },
+            {
+              "AttackCooldown": 0.100000754,
+              "AttackInterval": 1.5,
+              "AttackRange": 6.0,
+              "BossState": 0,
+              "Damage": 14,
+              "Health": 66,
+              "Id": 816,
+              "Kind": 1,
+              "MaxHealth": 66,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": 2.9983451,
+                "y": -1.8028926
+              },
+              "Radius": 0.5,
+              "Speed": 2.0
+            },
+            {
+              "AttackCooldown": 0.15000075,
+              "AttackInterval": 1.5,
+              "AttackRange": 6.0,
+              "BossState": 0,
+              "Damage": 14,
+              "Health": 66,
+              "Id": 817,
+              "Kind": 1,
+              "MaxHealth": 66,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": -3.7178774,
+                "y": -2.290713
+              },
+              "Radius": 0.5,
+              "Speed": 2.0
+            },
+            {
+              "AttackCooldown": 0.8500006,
+              "AttackInterval": 1.5,
+              "AttackRange": 6.0,
+              "BossState": 0,
+              "Damage": 14,
+              "Health": 66,
+              "Id": 818,
+              "Kind": 1,
+              "MaxHealth": 66,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": -2.5685194,
+                "y": -1.5775734
+              },
+              "Radius": 0.5,
+              "Speed": 2.0
+            },
+            {
+              "AttackCooldown": 0.40000087,
+              "AttackInterval": 1.5,
+              "AttackRange": 6.0,
+              "BossState": 0,
+              "Damage": 14,
+              "Health": 66,
+              "Id": 819,
+              "Kind": 1,
+              "MaxHealth": 66,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": -0.9357785,
+                "y": -1.0734228
+              },
+              "Radius": 0.5,
+              "Speed": 2.0
+            },
+            {
+              "AttackCooldown": 0.0,
+              "AttackInterval": 1.5,
+              "AttackRange": 1.8,
+              "BossState": 0,
+              "Damage": 36,
+              "Health": 220,
+              "Id": 820,
+              "Kind": 2,
+              "MaxHealth": 220,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": 0.38954604,
+                "y": -4.5328856
+              },
+              "Radius": 0.7,
+              "Speed": 1.2
+            },
+            {
+              "AttackCooldown": 0.0,
+              "AttackInterval": 1.5,
+              "AttackRange": 1.8,
+              "BossState": 0,
+              "Damage": 36,
+              "Health": 220,
+              "Id": 821,
+              "Kind": 2,
+              "MaxHealth": 220,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": 1.4520262,
+                "y": -3.9346116
+              },
+              "Radius": 0.7,
+              "Speed": 1.2
+            },
+            {
+              "AttackCooldown": 0.0,
+              "AttackInterval": 1.5,
+              "AttackRange": 1.8,
+              "BossState": 0,
+              "Damage": 36,
+              "Health": 220,
+              "Id": 822,
+              "Kind": 2,
+              "MaxHealth": 220,
+              "PhaseRemaining": 0.0,
+              "Position": {
+                "x": 3.0881104,
+                "y": -3.0883803
+              },
+              "Radius": 0.7,
+              "Speed": 1.2
+            }
+          ],
+          "enemiesDefeated": 58,
+          "floor": 11,
+          "floorsCleared": 10,
+          "grenades": [],
+          "inventory": {
+            "attackMultiplier": 1.15,
+            "attackUpgrades": 3,
+            "backpack": [
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "chest": [],
+            "damagedThisUpdate": false,
+            "equipment": [
+              {
+                "damage": 24,
+                "id": 27,
+                "interval": 0.45,
+                "kind": 1,
+                "name": "Power Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 15,
+                "id": 26,
+                "interval": 0.25,
+                "kind": 1,
+                "name": "Quick Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 32,
+                "interval": 0.0,
+                "kind": 5,
+                "name": "Shield",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 30,
+                "interval": 0.0,
+                "kind": 3,
+                "name": "Medkit",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "health": 0,
+            "maxHealth": 130,
+            "nextItemId": 34,
+            "shieldDelayRemaining": 3.0
+          },
+          "nextEntityId": 849,
+          "overlay": "none",
+          "phase": 5,
+          "playerPosition": {
+            "x": 0.0,
+            "y": -7.0
+          },
+          "portalArmed": false,
+          "portalAvailable": false,
+          "projectiles": [],
+          "result": {
+            "attackMultiplier": 1.15,
+            "bossesDefeated": 2,
+            "elapsed": 88.02099,
+            "enemiesDefeated": 58,
+            "equipmentNames": [
+              "Power Shooter",
+              "Quick Shooter",
+              "Shield",
+              "Medkit"
+            ],
+            "floor": 11,
+            "floorsCleared": 10,
+            "maxHealth": 130,
+            "present": true
+          },
+          "simulationSteps": 5479,
+          "tick": 5526,
+          "transitionRemaining": -3.7252903e-09,
+          "weaponCooldowns": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "error": null
+    },
+    "identity": "session=1-1788659688781355480 client=cli-81-1788660079252314380 id=1"
+  },
+  {
+    "args": [
+      "app",
+      "action",
+      "run",
+      "arena.start"
+    ],
+    "exitCode": 1,
+    "response": {
+      "id": 1,
+      "ok": false,
+      "data": null,
+      "error": "replay is read-only; return to live mode before sending game inputs"
+    },
+    "identity": "session=1-1788659688781355480 client=cli-88-1788660083065195067 id=1"
+  },
+  {
+    "args": [
+      "replay",
+      "step"
+    ],
+    "exitCode": 0,
+    "response": {
+      "id": 1,
+      "ok": true,
+      "data": {
+        "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "execution": {
+          "package": "0.1.0",
+          "sourceHash": "b0700181609fd0ebff14f2f51d30d520265cc2233cc9df73c98816c90d7a2a73",
+          "target": "aarch64-unknown-linux-gnu"
+        },
+        "liveTick": 23142,
+        "mode": {
+          "active": true,
+          "error": null,
+          "playing": false,
+          "recordingId": "a6d985f5256d9a81d51dc9449fbae75e7b1fa69a5cbdde40baf2546df99e7a4f",
+          "seeking": false,
+          "tick": 5527,
+          "totalTicks": 5528
+        },
+        "state": {
+          "aimDirection": {
+            "x": 0.0,
+            "y": 1.0
+          },
+          "bossesDefeated": 0,
+          "chestAvailable": true,
+          "effects": [],
+          "elapsed": 0.016666668,
+          "enemies": [],
+          "enemiesDefeated": 0,
+          "floor": 0,
+          "floorsCleared": 0,
+          "grenades": [],
+          "inventory": {
+            "attackMultiplier": 1.0,
+            "attackUpgrades": 0,
+            "backpack": [
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "chest": [
+              {
+                "damage": 20,
+                "id": 2,
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Quick Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 30,
+                "id": 3,
+                "interval": 0.8,
+                "kind": 0,
+                "name": "Power Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 12,
+                "id": 4,
+                "interval": 0.25,
+                "kind": 1,
+                "name": "Quick Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 20,
+                "id": 5,
+                "interval": 0.45,
+                "kind": 1,
+                "name": "Power Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 50,
+                "id": 6,
+                "interval": 1.0,
+                "kind": 2,
+                "name": "Quick Heavy Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 75,
+                "id": 7,
+                "interval": 1.5,
+                "kind": 2,
+                "name": "Power Heavy Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 8,
+                "interval": 0.0,
+                "kind": 3,
+                "name": "Medkit",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 100,
+                "id": 9,
+                "interval": 0.0,
+                "kind": 4,
+                "name": "Grenade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 10,
+                "interval": 0.0,
+                "kind": 5,
+                "name": "Shield",
+                "shield": 100,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 11,
+                "interval": 0.0,
+                "kind": 6,
+                "name": "Health Upgrade (+10 HP)",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 12,
+                "interval": 0.0,
+                "kind": 7,
+                "name": "Attack Upgrade (+5%)",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "damagedThisUpdate": false,
+            "equipment": [
+              {
+                "damage": 20,
+                "id": 1,
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "health": 100,
+            "maxHealth": 100,
+            "nextItemId": 12,
+            "shieldDelayRemaining": 0.0
+          },
+          "nextEntityId": 1,
+          "overlay": "none",
+          "phase": 1,
+          "playerPosition": {
+            "x": 0.0,
+            "y": -7.0
+          },
+          "portalArmed": true,
+          "portalAvailable": true,
+          "projectiles": [],
+          "result": {
+            "attackMultiplier": 0.0,
+            "bossesDefeated": 0,
+            "elapsed": 0.0,
+            "enemiesDefeated": 0,
+            "equipmentNames": [],
+            "floor": 0,
+            "floorsCleared": 0,
+            "maxHealth": 0,
+            "present": false
+          },
+          "simulationSteps": 5480,
+          "tick": 5527,
+          "transitionRemaining": -3.7252903e-09,
+          "weaponCooldowns": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "error": null
+    },
+    "identity": "session=1-1788659688781355480 client=cli-95-1788660083109481524 id=1"
+  },
+  {
+    "args": [
+      "replay",
+      "live"
+    ],
+    "exitCode": 0,
+    "response": {
+      "id": 1,
+      "ok": true,
+      "data": {
+        "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "execution": {
+          "package": "0.1.0",
+          "sourceHash": "b0700181609fd0ebff14f2f51d30d520265cc2233cc9df73c98816c90d7a2a73",
+          "target": "aarch64-unknown-linux-gnu"
+        },
+        "liveTick": 23142,
+        "mode": {
+          "active": false,
+          "error": null,
+          "playing": false,
+          "recordingId": null,
+          "seeking": false,
+          "tick": 23141,
+          "totalTicks": 0
+        },
+        "state": {
+          "aimDirection": {
+            "x": -0.4997235,
+            "y": 0.866185
+          },
+          "bossesDefeated": 0,
+          "chestAvailable": false,
+          "effects": [],
+          "elapsed": 6.7166996,
+          "enemies": [],
+          "enemiesDefeated": 3,
+          "floor": 1,
+          "floorsCleared": 1,
+          "grenades": [],
+          "inventory": {
+            "attackMultiplier": 1.0,
+            "attackUpgrades": 0,
+            "backpack": [
+              {
+                "damage": 20,
+                "id": 1,
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "chest": [],
+            "damagedThisUpdate": false,
+            "equipment": [
+              {
+                "damage": 20,
+                "id": 5,
+                "interval": 0.45,
+                "kind": 1,
+                "name": "Power Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 12,
+                "id": 4,
+                "interval": 0.25,
+                "kind": 1,
+                "name": "Quick Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 10,
+                "interval": 0.0,
+                "kind": 5,
+                "name": "Shield",
+                "shield": 110,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "health": 110,
+            "maxHealth": 110,
+            "nextItemId": 12,
+            "shieldDelayRemaining": 0.0
+          },
+          "nextEntityId": 34,
+          "overlay": "pause",
+          "phase": 4,
+          "playerPosition": {
+            "x": 0.0,
+            "y": -7.0
+          },
+          "portalArmed": true,
+          "portalAvailable": true,
+          "projectiles": [],
+          "result": {
+            "attackMultiplier": 0.0,
+            "bossesDefeated": 0,
+            "elapsed": 0.0,
+            "enemiesDefeated": 0,
+            "equipmentNames": [],
+            "floor": 0,
+            "floorsCleared": 0,
+            "maxHealth": 0,
+            "present": false
+          },
+          "simulationSteps": 10952,
+          "tick": 23141,
+          "transitionRemaining": -3.7252903e-09,
+          "weaponCooldowns": [
+            0.11666651,
+            0.050000012
+          ]
+        }
+      },
+      "error": null
+    },
+    "identity": "session=1-1788659688781355480 client=cli-102-1788660083172001440 id=1"
+  },
+  {
+    "args": [
+      "content",
+      "validate"
+    ],
+    "exitCode": 0,
+    "response": {
+      "id": 1,
+      "ok": true,
+      "data": {
+        "candidate": {
+          "hash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+          "sourceSha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa",
+          "tanuRevision": "194358e8791f1391492abcb60d8cfcc37bbb383a",
+          "values": {
+            "chests": [
+              {
+                "itemId": "quick-blade",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "power-blade",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "quick-shooter",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "power-shooter",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "quick-heavy",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "power-heavy",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "medkit",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "grenade",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "shield",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "health-upgrade",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "attack-upgrade",
+                "phase": "preparing"
+              },
+              {
+                "itemId": "quick-blade",
+                "phase": "boss"
+              },
+              {
+                "itemId": "power-blade",
+                "phase": "boss"
+              },
+              {
+                "itemId": "quick-shooter",
+                "phase": "boss"
+              },
+              {
+                "itemId": "power-shooter",
+                "phase": "boss"
+              },
+              {
+                "itemId": "quick-heavy",
+                "phase": "boss"
+              },
+              {
+                "itemId": "power-heavy",
+                "phase": "boss"
+              },
+              {
+                "itemId": "medkit",
+                "phase": "boss"
+              },
+              {
+                "itemId": "grenade",
+                "phase": "boss"
+              },
+              {
+                "itemId": "shield",
+                "phase": "boss"
+              },
+              {
+                "itemId": "health-upgrade",
+                "phase": "boss"
+              },
+              {
+                "itemId": "attack-upgrade",
+                "phase": "boss"
+              }
+            ],
+            "difficulty": {
+              "damageGrowth": 0.07999999821186066,
+              "healthGrowth": 0.119999997317791
+            },
+            "enemies": [
+              {
+                "damage": 10,
+                "health": 40,
+                "interval": 1.0,
+                "kind": 0,
+                "radius": 0.5,
+                "range": 1.5,
+                "speed": 2.5
+              },
+              {
+                "damage": 8,
+                "health": 30,
+                "interval": 1.5,
+                "kind": 1,
+                "radius": 0.5,
+                "range": 6.0,
+                "speed": 2.0
+              },
+              {
+                "damage": 20,
+                "health": 100,
+                "interval": 1.5,
+                "kind": 2,
+                "radius": 0.699999988079071,
+                "range": 1.7999999523162842,
+                "speed": 1.2000000476837158
+              },
+              {
+                "damage": 20,
+                "health": 300,
+                "interval": 1.5,
+                "kind": 3,
+                "radius": 1.0,
+                "range": 2.0,
+                "speed": 1.5
+              }
+            ],
+            "items": [
+              {
+                "bossDamage": 20,
+                "damage": 20,
+                "id": "starter",
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Blade"
+              },
+              {
+                "bossDamage": 24,
+                "damage": 20,
+                "id": "quick-blade",
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Quick Blade"
+              },
+              {
+                "bossDamage": 36,
+                "damage": 30,
+                "id": "power-blade",
+                "interval": 0.800000011920929,
+                "kind": 0,
+                "name": "Power Blade"
+              },
+              {
+                "bossDamage": 15,
+                "damage": 12,
+                "id": "quick-shooter",
+                "interval": 0.25,
+                "kind": 1,
+                "name": "Quick Shooter"
+              },
+              {
+                "bossDamage": 24,
+                "damage": 20,
+                "id": "power-shooter",
+                "interval": 0.44999998807907104,
+                "kind": 1,
+                "name": "Power Shooter"
+              },
+              {
+                "bossDamage": 60,
+                "damage": 50,
+                "id": "quick-heavy",
+                "interval": 1.0,
+                "kind": 2,
+                "name": "Quick Heavy Shooter"
+              },
+              {
+                "bossDamage": 90,
+                "damage": 75,
+                "id": "power-heavy",
+                "interval": 1.5,
+                "kind": 2,
+                "name": "Power Heavy Shooter"
+              },
+              {
+                "bossDamage": 0,
+                "damage": 0,
+                "id": "medkit",
+                "interval": 0.0,
+                "kind": 3,
+                "name": "Medkit"
+              },
+              {
+                "bossDamage": 100,
+                "damage": 100,
+                "id": "grenade",
+                "interval": 0.0,
+                "kind": 4,
+                "name": "Grenade"
+              },
+              {
+                "bossDamage": 0,
+                "damage": 0,
+                "id": "shield",
+                "interval": 0.0,
+                "kind": 5,
+                "name": "Shield"
+              },
+              {
+                "bossDamage": 0,
+                "damage": 0,
+                "id": "health-upgrade",
+                "interval": 0.0,
+                "kind": 6,
+                "name": "Health Upgrade (+10 HP)"
+              },
+              {
+                "bossDamage": 0,
+                "damage": 0,
+                "id": "attack-upgrade",
+                "interval": 0.0,
+                "kind": 7,
+                "name": "Attack Upgrade (+5%)"
+              }
+            ],
+            "schemaVersion": 1
+          }
+        },
+        "diagnostics": [],
+        "path": "apps/demo-game/content/arena.tmd",
+        "persistenceError": null,
+        "readOnly": false,
+        "runtime": {
+          "active": {
+            "hash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+            "sourceSha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa",
+            "tanuRevision": "194358e8791f1391492abcb60d8cfcc37bbb383a",
+            "values": {
+              "chests": [
+                {
+                  "itemId": "quick-blade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "power-blade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "quick-shooter",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "power-shooter",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "quick-heavy",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "power-heavy",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "medkit",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "grenade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "shield",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "health-upgrade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "attack-upgrade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "quick-blade",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "power-blade",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "quick-shooter",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "power-shooter",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "quick-heavy",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "power-heavy",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "medkit",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "grenade",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "shield",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "health-upgrade",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "attack-upgrade",
+                  "phase": "boss"
+                }
+              ],
+              "difficulty": {
+                "damageGrowth": 0.07999999821186066,
+                "healthGrowth": 0.119999997317791
+              },
+              "enemies": [
+                {
+                  "damage": 10,
+                  "health": 40,
+                  "interval": 1.0,
+                  "kind": 0,
+                  "radius": 0.5,
+                  "range": 1.5,
+                  "speed": 2.5
+                },
+                {
+                  "damage": 8,
+                  "health": 30,
+                  "interval": 1.5,
+                  "kind": 1,
+                  "radius": 0.5,
+                  "range": 6.0,
+                  "speed": 2.0
+                },
+                {
+                  "damage": 20,
+                  "health": 100,
+                  "interval": 1.5,
+                  "kind": 2,
+                  "radius": 0.699999988079071,
+                  "range": 1.7999999523162842,
+                  "speed": 1.2000000476837158
+                },
+                {
+                  "damage": 20,
+                  "health": 300,
+                  "interval": 1.5,
+                  "kind": 3,
+                  "radius": 1.0,
+                  "range": 2.0,
+                  "speed": 1.5
+                }
+              ],
+              "items": [
+                {
+                  "bossDamage": 20,
+                  "damage": 20,
+                  "id": "starter",
+                  "interval": 0.5,
+                  "kind": 0,
+                  "name": "Blade"
+                },
+                {
+                  "bossDamage": 24,
+                  "damage": 20,
+                  "id": "quick-blade",
+                  "interval": 0.5,
+                  "kind": 0,
+                  "name": "Quick Blade"
+                },
+                {
+                  "bossDamage": 36,
+                  "damage": 30,
+                  "id": "power-blade",
+                  "interval": 0.800000011920929,
+                  "kind": 0,
+                  "name": "Power Blade"
+                },
+                {
+                  "bossDamage": 15,
+                  "damage": 12,
+                  "id": "quick-shooter",
+                  "interval": 0.25,
+                  "kind": 1,
+                  "name": "Quick Shooter"
+                },
+                {
+                  "bossDamage": 24,
+                  "damage": 20,
+                  "id": "power-shooter",
+                  "interval": 0.44999998807907104,
+                  "kind": 1,
+                  "name": "Power Shooter"
+                },
+                {
+                  "bossDamage": 60,
+                  "damage": 50,
+                  "id": "quick-heavy",
+                  "interval": 1.0,
+                  "kind": 2,
+                  "name": "Quick Heavy Shooter"
+                },
+                {
+                  "bossDamage": 90,
+                  "damage": 75,
+                  "id": "power-heavy",
+                  "interval": 1.5,
+                  "kind": 2,
+                  "name": "Power Heavy Shooter"
+                },
+                {
+                  "bossDamage": 0,
+                  "damage": 0,
+                  "id": "medkit",
+                  "interval": 0.0,
+                  "kind": 3,
+                  "name": "Medkit"
+                },
+                {
+                  "bossDamage": 100,
+                  "damage": 100,
+                  "id": "grenade",
+                  "interval": 0.0,
+                  "kind": 4,
+                  "name": "Grenade"
+                },
+                {
+                  "bossDamage": 0,
+                  "damage": 0,
+                  "id": "shield",
+                  "interval": 0.0,
+                  "kind": 5,
+                  "name": "Shield"
+                },
+                {
+                  "bossDamage": 0,
+                  "damage": 0,
+                  "id": "health-upgrade",
+                  "interval": 0.0,
+                  "kind": 6,
+                  "name": "Health Upgrade (+10 HP)"
+                },
+                {
+                  "bossDamage": 0,
+                  "damage": 0,
+                  "id": "attack-upgrade",
+                  "interval": 0.0,
+                  "kind": 7,
+                  "name": "Attack Upgrade (+5%)"
+                }
+              ],
+              "schemaVersion": 1
+            }
+          },
+          "pending": {
+            "hash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+            "sourceSha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa",
+            "tanuRevision": "194358e8791f1391492abcb60d8cfcc37bbb383a",
+            "values": {
+              "chests": [
+                {
+                  "itemId": "quick-blade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "power-blade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "quick-shooter",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "power-shooter",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "quick-heavy",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "power-heavy",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "medkit",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "grenade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "shield",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "health-upgrade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "attack-upgrade",
+                  "phase": "preparing"
+                },
+                {
+                  "itemId": "quick-blade",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "power-blade",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "quick-shooter",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "power-shooter",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "quick-heavy",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "power-heavy",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "medkit",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "grenade",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "shield",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "health-upgrade",
+                  "phase": "boss"
+                },
+                {
+                  "itemId": "attack-upgrade",
+                  "phase": "boss"
+                }
+              ],
+              "difficulty": {
+                "damageGrowth": 0.07999999821186066,
+                "healthGrowth": 0.119999997317791
+              },
+              "enemies": [
+                {
+                  "damage": 10,
+                  "health": 40,
+                  "interval": 1.0,
+                  "kind": 0,
+                  "radius": 0.5,
+                  "range": 1.5,
+                  "speed": 2.5
+                },
+                {
+                  "damage": 8,
+                  "health": 30,
+                  "interval": 1.5,
+                  "kind": 1,
+                  "radius": 0.5,
+                  "range": 6.0,
+                  "speed": 2.0
+                },
+                {
+                  "damage": 20,
+                  "health": 100,
+                  "interval": 1.5,
+                  "kind": 2,
+                  "radius": 0.699999988079071,
+                  "range": 1.7999999523162842,
+                  "speed": 1.2000000476837158
+                },
+                {
+                  "damage": 20,
+                  "health": 300,
+                  "interval": 1.5,
+                  "kind": 3,
+                  "radius": 1.0,
+                  "range": 2.0,
+                  "speed": 1.5
+                }
+              ],
+              "items": [
+                {
+                  "bossDamage": 20,
+                  "damage": 20,
+                  "id": "starter",
+                  "interval": 0.5,
+                  "kind": 0,
+                  "name": "Blade"
+                },
+                {
+                  "bossDamage": 24,
+                  "damage": 20,
+                  "id": "quick-blade",
+                  "interval": 0.5,
+                  "kind": 0,
+                  "name": "Quick Blade"
+                },
+                {
+                  "bossDamage": 36,
+                  "damage": 30,
+                  "id": "power-blade",
+                  "interval": 0.800000011920929,
+                  "kind": 0,
+                  "name": "Power Blade"
+                },
+                {
+                  "bossDamage": 15,
+                  "damage": 12,
+                  "id": "quick-shooter",
+                  "interval": 0.25,
+                  "kind": 1,
+                  "name": "Quick Shooter"
+                },
+                {
+                  "bossDamage": 24,
+                  "damage": 20,
+                  "id": "power-shooter",
+                  "interval": 0.44999998807907104,
+                  "kind": 1,
+                  "name": "Power Shooter"
+                },
+                {
+                  "bossDamage": 60,
+                  "damage": 50,
+                  "id": "quick-heavy",
+                  "interval": 1.0,
+                  "kind": 2,
+                  "name": "Quick Heavy Shooter"
+                },
+                {
+                  "bossDamage": 90,
+                  "damage": 75,
+                  "id": "power-heavy",
+                  "interval": 1.5,
+                  "kind": 2,
+                  "name": "Power Heavy Shooter"
+                },
+                {
+                  "bossDamage": 0,
+                  "damage": 0,
+                  "id": "medkit",
+                  "interval": 0.0,
+                  "kind": 3,
+                  "name": "Medkit"
+                },
+                {
+                  "bossDamage": 100,
+                  "damage": 100,
+                  "id": "grenade",
+                  "interval": 0.0,
+                  "kind": 4,
+                  "name": "Grenade"
+                },
+                {
+                  "bossDamage": 0,
+                  "damage": 0,
+                  "id": "shield",
+                  "interval": 0.0,
+                  "kind": 5,
+                  "name": "Shield"
+                },
+                {
+                  "bossDamage": 0,
+                  "damage": 0,
+                  "id": "health-upgrade",
+                  "interval": 0.0,
+                  "kind": 6,
+                  "name": "Health Upgrade (+10 HP)"
+                },
+                {
+                  "bossDamage": 0,
+                  "damage": 0,
+                  "id": "attack-upgrade",
+                  "interval": 0.0,
+                  "kind": 7,
+                  "name": "Attack Upgrade (+5%)"
+                }
+              ],
+              "schemaVersion": 1
+            }
+          },
+          "run": 9
+        },
+        "savedRun": 9
+      },
+      "error": null
+    },
+    "identity": "session=1-1788659688781355480 client=cli-109-1788660083218565981 id=1"
+  },
+  {
+    "args": [
+      "scenario",
+      "run",
+      "preparation-smoke"
+    ],
+    "exitCode": 0,
+    "response": {
+      "id": 1,
+      "ok": true,
+      "data": {
+        "description": "Return to the menu, start, pause and explicitly resume the live Arena; end in Preparing.",
+        "id": "preparation-smoke",
+        "state": {
+          "aimDirection": {
+            "x": 0.0,
+            "y": 1.0
+          },
+          "bossesDefeated": 0,
+          "chestAvailable": true,
+          "effects": [],
+          "elapsed": 0.13333334,
+          "enemies": [],
+          "enemiesDefeated": 0,
+          "floor": 0,
+          "floorsCleared": 0,
+          "grenades": [],
+          "inventory": {
+            "attackMultiplier": 1.0,
+            "attackUpgrades": 0,
+            "backpack": [
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "chest": [
+              {
+                "damage": 20,
+                "id": 2,
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Quick Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 30,
+                "id": 3,
+                "interval": 0.8,
+                "kind": 0,
+                "name": "Power Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 12,
+                "id": 4,
+                "interval": 0.25,
+                "kind": 1,
+                "name": "Quick Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 20,
+                "id": 5,
+                "interval": 0.45,
+                "kind": 1,
+                "name": "Power Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 50,
+                "id": 6,
+                "interval": 1.0,
+                "kind": 2,
+                "name": "Quick Heavy Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 75,
+                "id": 7,
+                "interval": 1.5,
+                "kind": 2,
+                "name": "Power Heavy Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 8,
+                "interval": 0.0,
+                "kind": 3,
+                "name": "Medkit",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 100,
+                "id": 9,
+                "interval": 0.0,
+                "kind": 4,
+                "name": "Grenade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 10,
+                "interval": 0.0,
+                "kind": 5,
+                "name": "Shield",
+                "shield": 100,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 11,
+                "interval": 0.0,
+                "kind": 6,
+                "name": "Health Upgrade (+10 HP)",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 12,
+                "interval": 0.0,
+                "kind": 7,
+                "name": "Attack Upgrade (+5%)",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "damagedThisUpdate": false,
+            "equipment": [
+              {
+                "damage": 20,
+                "id": 1,
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "health": 100,
+            "maxHealth": 100,
+            "nextItemId": 12,
+            "shieldDelayRemaining": 0.0
+          },
+          "nextEntityId": 1,
+          "overlay": "none",
+          "phase": 1,
+          "playerPosition": {
+            "x": 0.0,
+            "y": -7.0
+          },
+          "portalArmed": true,
+          "portalAvailable": true,
+          "projectiles": [],
+          "result": {
+            "attackMultiplier": 0.0,
+            "bossesDefeated": 0,
+            "elapsed": 0.0,
+            "enemiesDefeated": 0,
+            "equipmentNames": [],
+            "floor": 0,
+            "floorsCleared": 0,
+            "maxHealth": 0,
+            "present": false
+          },
+          "simulationSteps": 10960,
+          "tick": 23164,
+          "transitionRemaining": -3.7252903e-09,
+          "weaponCooldowns": [
+            0.0,
+            0.0
+          ]
+        },
+        "steps": [
+          {
+            "receipt": {
+              "accepted": true,
+              "appliedTick": 23149,
+              "code": "ok",
+              "duplicate": false,
+              "id": 1,
+              "sequence": 30637,
+              "source": "shell:cli-116-1788660083282686748:1",
+              "tick": 23149
+            },
+            "state": {
+              "aimDirection": {
+                "x": 0.0,
+                "y": 1.0
+              },
+              "bossesDefeated": 0,
+              "chestAvailable": false,
+              "effects": [],
+              "elapsed": 0.0,
+              "enemies": [],
+              "enemiesDefeated": 0,
+              "floor": 0,
+              "floorsCleared": 0,
+              "grenades": [],
+              "inventory": {
+                "attackMultiplier": 1.0,
+                "attackUpgrades": 0,
+                "backpack": [
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "chest": [],
+                "damagedThisUpdate": false,
+                "equipment": [
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "health": 100,
+                "maxHealth": 100,
+                "nextItemId": 1,
+                "shieldDelayRemaining": 0.0
+              },
+              "nextEntityId": 34,
+              "overlay": "none",
+              "phase": 0,
+              "playerPosition": {
+                "x": 0.0,
+                "y": -7.0
+              },
+              "portalArmed": false,
+              "portalAvailable": false,
+              "projectiles": [],
+              "result": {
+                "attackMultiplier": 0.0,
+                "bossesDefeated": 0,
+                "elapsed": 0.0,
+                "enemiesDefeated": 0,
+                "equipmentNames": [],
+                "floor": 0,
+                "floorsCleared": 0,
+                "maxHealth": 0,
+                "present": false
+              },
+              "simulationSteps": 10952,
+              "tick": 23149,
+              "transitionRemaining": -3.7252903e-09,
+              "weaponCooldowns": [
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "receipt": {
+              "accepted": true,
+              "appliedTick": 23150,
+              "code": "ok",
+              "duplicate": false,
+              "id": 2,
+              "sequence": 30638,
+              "source": "shell:cli-116-1788660083282686748:1",
+              "tick": 23150
+            },
+            "state": {
+              "aimDirection": {
+                "x": 0.0,
+                "y": 1.0
+              },
+              "bossesDefeated": 0,
+              "chestAvailable": true,
+              "effects": [],
+              "elapsed": 0.016666668,
+              "enemies": [],
+              "enemiesDefeated": 0,
+              "floor": 0,
+              "floorsCleared": 0,
+              "grenades": [],
+              "inventory": {
+                "attackMultiplier": 1.0,
+                "attackUpgrades": 0,
+                "backpack": [
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "chest": [
+                  {
+                    "damage": 20,
+                    "id": 2,
+                    "interval": 0.5,
+                    "kind": 0,
+                    "name": "Quick Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 30,
+                    "id": 3,
+                    "interval": 0.8,
+                    "kind": 0,
+                    "name": "Power Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 12,
+                    "id": 4,
+                    "interval": 0.25,
+                    "kind": 1,
+                    "name": "Quick Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 20,
+                    "id": 5,
+                    "interval": 0.45,
+                    "kind": 1,
+                    "name": "Power Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 50,
+                    "id": 6,
+                    "interval": 1.0,
+                    "kind": 2,
+                    "name": "Quick Heavy Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 75,
+                    "id": 7,
+                    "interval": 1.5,
+                    "kind": 2,
+                    "name": "Power Heavy Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 8,
+                    "interval": 0.0,
+                    "kind": 3,
+                    "name": "Medkit",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 100,
+                    "id": 9,
+                    "interval": 0.0,
+                    "kind": 4,
+                    "name": "Grenade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 10,
+                    "interval": 0.0,
+                    "kind": 5,
+                    "name": "Shield",
+                    "shield": 100,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 11,
+                    "interval": 0.0,
+                    "kind": 6,
+                    "name": "Health Upgrade (+10 HP)",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 12,
+                    "interval": 0.0,
+                    "kind": 7,
+                    "name": "Attack Upgrade (+5%)",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "damagedThisUpdate": false,
+                "equipment": [
+                  {
+                    "damage": 20,
+                    "id": 1,
+                    "interval": 0.5,
+                    "kind": 0,
+                    "name": "Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "health": 100,
+                "maxHealth": 100,
+                "nextItemId": 12,
+                "shieldDelayRemaining": 0.0
+              },
+              "nextEntityId": 1,
+              "overlay": "none",
+              "phase": 1,
+              "playerPosition": {
+                "x": 0.0,
+                "y": -7.0
+              },
+              "portalArmed": true,
+              "portalAvailable": true,
+              "projectiles": [],
+              "result": {
+                "attackMultiplier": 0.0,
+                "bossesDefeated": 0,
+                "elapsed": 0.0,
+                "enemiesDefeated": 0,
+                "equipmentNames": [],
+                "floor": 0,
+                "floorsCleared": 0,
+                "maxHealth": 0,
+                "present": false
+              },
+              "simulationSteps": 10953,
+              "tick": 23150,
+              "transitionRemaining": -3.7252903e-09,
+              "weaponCooldowns": [
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "receipt": {
+              "accepted": true,
+              "appliedTick": 23157,
+              "code": "ok",
+              "duplicate": false,
+              "id": 3,
+              "sequence": 30639,
+              "source": "shell:cli-116-1788660083282686748:1",
+              "tick": 23157
+            },
+            "state": {
+              "aimDirection": {
+                "x": 0.0,
+                "y": 1.0
+              },
+              "bossesDefeated": 0,
+              "chestAvailable": true,
+              "effects": [],
+              "elapsed": 0.11666667,
+              "enemies": [],
+              "enemiesDefeated": 0,
+              "floor": 0,
+              "floorsCleared": 0,
+              "grenades": [],
+              "inventory": {
+                "attackMultiplier": 1.0,
+                "attackUpgrades": 0,
+                "backpack": [
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "chest": [
+                  {
+                    "damage": 20,
+                    "id": 2,
+                    "interval": 0.5,
+                    "kind": 0,
+                    "name": "Quick Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 30,
+                    "id": 3,
+                    "interval": 0.8,
+                    "kind": 0,
+                    "name": "Power Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 12,
+                    "id": 4,
+                    "interval": 0.25,
+                    "kind": 1,
+                    "name": "Quick Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 20,
+                    "id": 5,
+                    "interval": 0.45,
+                    "kind": 1,
+                    "name": "Power Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 50,
+                    "id": 6,
+                    "interval": 1.0,
+                    "kind": 2,
+                    "name": "Quick Heavy Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 75,
+                    "id": 7,
+                    "interval": 1.5,
+                    "kind": 2,
+                    "name": "Power Heavy Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 8,
+                    "interval": 0.0,
+                    "kind": 3,
+                    "name": "Medkit",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 100,
+                    "id": 9,
+                    "interval": 0.0,
+                    "kind": 4,
+                    "name": "Grenade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 10,
+                    "interval": 0.0,
+                    "kind": 5,
+                    "name": "Shield",
+                    "shield": 100,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 11,
+                    "interval": 0.0,
+                    "kind": 6,
+                    "name": "Health Upgrade (+10 HP)",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 12,
+                    "interval": 0.0,
+                    "kind": 7,
+                    "name": "Attack Upgrade (+5%)",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "damagedThisUpdate": false,
+                "equipment": [
+                  {
+                    "damage": 20,
+                    "id": 1,
+                    "interval": 0.5,
+                    "kind": 0,
+                    "name": "Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "health": 100,
+                "maxHealth": 100,
+                "nextItemId": 12,
+                "shieldDelayRemaining": 0.0
+              },
+              "nextEntityId": 1,
+              "overlay": "pause",
+              "phase": 1,
+              "playerPosition": {
+                "x": 0.0,
+                "y": -7.0
+              },
+              "portalArmed": true,
+              "portalAvailable": true,
+              "projectiles": [],
+              "result": {
+                "attackMultiplier": 0.0,
+                "bossesDefeated": 0,
+                "elapsed": 0.0,
+                "enemiesDefeated": 0,
+                "equipmentNames": [],
+                "floor": 0,
+                "floorsCleared": 0,
+                "maxHealth": 0,
+                "present": false
+              },
+              "simulationSteps": 10959,
+              "tick": 23157,
+              "transitionRemaining": -3.7252903e-09,
+              "weaponCooldowns": [
+                0.0,
+                0.0
+              ]
+            }
+          },
+          {
+            "receipt": {
+              "accepted": true,
+              "appliedTick": 23164,
+              "code": "ok",
+              "duplicate": false,
+              "id": 4,
+              "sequence": 30640,
+              "source": "shell:cli-116-1788660083282686748:1",
+              "tick": 23164
+            },
+            "state": {
+              "aimDirection": {
+                "x": 0.0,
+                "y": 1.0
+              },
+              "bossesDefeated": 0,
+              "chestAvailable": true,
+              "effects": [],
+              "elapsed": 0.13333334,
+              "enemies": [],
+              "enemiesDefeated": 0,
+              "floor": 0,
+              "floorsCleared": 0,
+              "grenades": [],
+              "inventory": {
+                "attackMultiplier": 1.0,
+                "attackUpgrades": 0,
+                "backpack": [
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "chest": [
+                  {
+                    "damage": 20,
+                    "id": 2,
+                    "interval": 0.5,
+                    "kind": 0,
+                    "name": "Quick Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 30,
+                    "id": 3,
+                    "interval": 0.8,
+                    "kind": 0,
+                    "name": "Power Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 12,
+                    "id": 4,
+                    "interval": 0.25,
+                    "kind": 1,
+                    "name": "Quick Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 20,
+                    "id": 5,
+                    "interval": 0.45,
+                    "kind": 1,
+                    "name": "Power Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 50,
+                    "id": 6,
+                    "interval": 1.0,
+                    "kind": 2,
+                    "name": "Quick Heavy Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 75,
+                    "id": 7,
+                    "interval": 1.5,
+                    "kind": 2,
+                    "name": "Power Heavy Shooter",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 8,
+                    "interval": 0.0,
+                    "kind": 3,
+                    "name": "Medkit",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 100,
+                    "id": 9,
+                    "interval": 0.0,
+                    "kind": 4,
+                    "name": "Grenade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 10,
+                    "interval": 0.0,
+                    "kind": 5,
+                    "name": "Shield",
+                    "shield": 100,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 11,
+                    "interval": 0.0,
+                    "kind": 6,
+                    "name": "Health Upgrade (+10 HP)",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 12,
+                    "interval": 0.0,
+                    "kind": 7,
+                    "name": "Attack Upgrade (+5%)",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "damagedThisUpdate": false,
+                "equipment": [
+                  {
+                    "damage": 20,
+                    "id": 1,
+                    "interval": 0.5,
+                    "kind": 0,
+                    "name": "Blade",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  },
+                  {
+                    "damage": 0,
+                    "id": 0,
+                    "interval": 0.0,
+                    "kind": 0,
+                    "name": "",
+                    "shield": 0,
+                    "shieldFraction": 0.0
+                  }
+                ],
+                "health": 100,
+                "maxHealth": 100,
+                "nextItemId": 12,
+                "shieldDelayRemaining": 0.0
+              },
+              "nextEntityId": 1,
+              "overlay": "none",
+              "phase": 1,
+              "playerPosition": {
+                "x": 0.0,
+                "y": -7.0
+              },
+              "portalArmed": true,
+              "portalAvailable": true,
+              "projectiles": [],
+              "result": {
+                "attackMultiplier": 0.0,
+                "bossesDefeated": 0,
+                "elapsed": 0.0,
+                "enemiesDefeated": 0,
+                "equipmentNames": [],
+                "floor": 0,
+                "floorsCleared": 0,
+                "maxHealth": 0,
+                "present": false
+              },
+              "simulationSteps": 10960,
+              "tick": 23164,
+              "transitionRemaining": -3.7252903e-09,
+              "weaponCooldowns": [
+                0.0,
+                0.0
+              ]
+            }
+          }
+        ]
+      },
+      "error": null
+    },
+    "identity": "session=1-1788659688781355480 client=cli-116-1788660083282686748 id=1"
+  },
+  {
+    "args": [
+      "replay",
+      "save"
+    ],
+    "exitCode": 0,
+    "response": {
+      "id": 1,
+      "ok": true,
+      "data": {
+        "bytes": 14131731,
+        "id": "912766e1edf60daef3d256380b4ebb7419495e7502cce73064e60e457ecc9273",
+        "path": "apps/demo-game/.arena/recordings/912766e1edf60daef3d256380b4ebb7419495e7502cce73064e60e457ecc9273.tsq"
+      },
+      "error": null
+    },
+    "identity": "session=1-1788659688781355480 client=cli-123-1788660083650240888 id=1"
+  },
+  {
+    "args": [
+      "replay",
+      "verify",
+      "912766e1edf60daef3d256380b4ebb7419495e7502cce73064e60e457ecc9273"
+    ],
+    "exitCode": 0,
+    "response": {
+      "id": 1,
+      "ok": true,
+      "data": {
+        "inputs": 30641,
+        "runs": 10,
+        "state": {
+          "aimDirection": {
+            "x": 0.0,
+            "y": 1.0
+          },
+          "bossesDefeated": 0,
+          "chestAvailable": true,
+          "effects": [],
+          "elapsed": 0.23333333,
+          "enemies": [],
+          "enemiesDefeated": 0,
+          "floor": 0,
+          "floorsCleared": 0,
+          "grenades": [],
+          "inventory": {
+            "attackMultiplier": 1.0,
+            "attackUpgrades": 0,
+            "backpack": [
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "chest": [
+              {
+                "damage": 20,
+                "id": 2,
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Quick Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 30,
+                "id": 3,
+                "interval": 0.8,
+                "kind": 0,
+                "name": "Power Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 12,
+                "id": 4,
+                "interval": 0.25,
+                "kind": 1,
+                "name": "Quick Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 20,
+                "id": 5,
+                "interval": 0.45,
+                "kind": 1,
+                "name": "Power Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 50,
+                "id": 6,
+                "interval": 1.0,
+                "kind": 2,
+                "name": "Quick Heavy Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 75,
+                "id": 7,
+                "interval": 1.5,
+                "kind": 2,
+                "name": "Power Heavy Shooter",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 8,
+                "interval": 0.0,
+                "kind": 3,
+                "name": "Medkit",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 100,
+                "id": 9,
+                "interval": 0.0,
+                "kind": 4,
+                "name": "Grenade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 10,
+                "interval": 0.0,
+                "kind": 5,
+                "name": "Shield",
+                "shield": 100,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 11,
+                "interval": 0.0,
+                "kind": 6,
+                "name": "Health Upgrade (+10 HP)",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 12,
+                "interval": 0.0,
+                "kind": 7,
+                "name": "Attack Upgrade (+5%)",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "damagedThisUpdate": false,
+            "equipment": [
+              {
+                "damage": 20,
+                "id": 1,
+                "interval": 0.5,
+                "kind": 0,
+                "name": "Blade",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              },
+              {
+                "damage": 0,
+                "id": 0,
+                "interval": 0.0,
+                "kind": 0,
+                "name": "",
+                "shield": 0,
+                "shieldFraction": 0.0
+              }
+            ],
+            "health": 100,
+            "maxHealth": 100,
+            "nextItemId": 12,
+            "shieldDelayRemaining": 0.0
+          },
+          "nextEntityId": 1,
+          "overlay": "none",
+          "phase": 1,
+          "playerPosition": {
+            "x": 0.0,
+            "y": -7.0
+          },
+          "portalArmed": true,
+          "portalAvailable": true,
+          "projectiles": [],
+          "result": {
+            "attackMultiplier": 0.0,
+            "bossesDefeated": 0,
+            "elapsed": 0.0,
+            "enemiesDefeated": 0,
+            "equipmentNames": [],
+            "floor": 0,
+            "floorsCleared": 0,
+            "maxHealth": 0,
+            "present": false
+          },
+          "simulationSteps": 10966,
+          "tick": 23170,
+          "transitionRemaining": -3.7252903e-09,
+          "weaponCooldowns": [
+            0.0,
+            0.0
+          ]
+        },
+        "ticks": 23171
+      },
+      "error": null
+    },
+    "identity": "session=1-1788659688781355480 client=cli-130-1788660084604952677 id=1"
+  }
+]

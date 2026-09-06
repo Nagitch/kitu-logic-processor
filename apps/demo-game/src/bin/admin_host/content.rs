@@ -128,8 +128,8 @@ fn read_candidate(path: PathBuf) -> Result<ContentVersion> {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub(super) struct StageRequest {
-    hash: String,
-    source_sha256: String,
+    pub(super) hash: String,
+    pub(super) source_sha256: String,
 }
 
 #[derive(Serialize)]
@@ -151,7 +151,7 @@ pub(super) async fn stage(
     })
 }
 
-fn stage_candidate(state: &AppState, request: StageRequest) -> Result<StageResponse> {
+pub(super) fn stage_candidate(state: &AppState, request: StageRequest) -> Result<StageResponse> {
     let mut catalog = state
         .content
         .catalog

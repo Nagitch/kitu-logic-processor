@@ -2,6 +2,13 @@
 
 CLI shell primitives for driving and inspecting the Kitu runtime during development.
 
+The shared live catalog, command quoting, typed OSC conversion and wire contracts
+are used by `kitu-cli` and the Admin browser Shell. Commands execute against the
+connected host; application actions/scenarios stay application-owned. See the
+[live command contract](../../doc/specs/live-shell.md) for usage, outcomes,
+idempotent retry and initial bounds. The legacy in-process registry remains
+available for embedders.
+
 ## Responsibilities
 - Offer developer-focused commands for diagnostics, replay, and scripting entry points.
 - Stay thin, delegating core logic to runtime crates while providing ergonomic wrappers.

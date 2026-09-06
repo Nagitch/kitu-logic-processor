@@ -25,6 +25,7 @@ pub use kitu_ecs::{WorldObject, WorldSnapshot, WorldTransform};
 use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
 use kitu_transport::{Transport, TransportEvent};
 
+mod admin_input;
 mod application;
 pub use application::{ApplicationTick, InputMetadata, RuntimeApplication, RuntimeInput};
 
@@ -345,6 +346,7 @@ impl<T: Transport> Runtime<T> {
         metadata: Option<InputMetadata>,
     ) -> Result<u64> {
         for message in &bundle.messages {
+            admin_input::validate(message)?;
             if message.address == "/input/move" {
                 parse_move_input(message)?;
             }
@@ -570,6 +572,7 @@ impl<T: Transport> Runtime<T> {
             }
         }
         self.world.dispatch(self.tick)?;
+        self.apply_queued_world_actions(&application_inputs);
         self.apply_player_move_slice(parsed_moves)?;
 
         if let Some(application) = self.application.as_mut() {

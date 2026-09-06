@@ -1,0 +1,75 @@
+{
+  "stage": 9,
+  "issue": 146,
+  "baseRevision": "1399bf07d7452cf79e7fb44e121530977086e60b",
+  "sourceSha256": {
+    "Cargo.lock": "60e4527e6fb7c0d879a51ca80ab154d845fa747b0aff3c55c1f0c99240d64471",
+    "crates/kitu-shell/src/live.rs": "978f79bccfdee7326e2c0f9cbf5b0e20cd784498d9ef9237a51d843f25240ceb",
+    "crates/kitu-runtime/src/admin_input.rs": "b715b76df0ca81fd751bfb96a993f603ae7c712c80092612cb06ad9534606a2c",
+    "crates/kitu-runtime/src/lib.rs": "44b1993ffed293aee4f327d7fedf132ebe21ba4f7659c84362f9246fc0eb5235",
+    "apps/demo-game/src/bin/admin_host.rs": "621a6d3c49d1cce33f3a27afb44c6d1d2e76106a469ee9cff2c1de16f53c47be",
+    "apps/demo-game/src/bin/admin_host/shell.rs": "91d77bc6c5c58a12ba1491abb61f440ced626013e672b8e6e737129957d0306d",
+    "apps/demo-game/kitu-app-actions.toml": "ed7bc08144ee2f840f3d440ed8f764a596e6abb0b111383dadbb45a1df9b4216",
+    "tools/kitu-cli/src/main.rs": "cbbae29694678161edba231d8e8f350a693a8e0ec98dcf1b77dc0c1a2946f589",
+    "tools/kitu-web-admin/frontend/src/routes/(kitu-general)/shell/+page.svelte": "1cbf173910adbc26ad59b79a80b79502c2964eeb85f6e0b17cec314d81d7c887",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/KituArenaConnectionTests.cs": "69d771d5046abb41f3f19869b25749503045d9f225d1b75cba536900d8ca8308"
+  },
+  "validation": {
+    "rustWorkspaceTestsAndDoctests": 179,
+    "additionalCatalogRegression": 1,
+    "devContainer": "Workspace all-feature tests, all-target/all-feature Clippy, fmt, rustdoc warnings denied, CLI/host builds, internal crate package lists and frozen C# reference integrity passed. After final catalog/superseded-load checks, affected library/host tests and Clippy/build passed.",
+    "frontend": "Prettier, svelte-check (0 errors/warnings), lint and production build passed; actual browser Shell had no runtime errors.",
+    "unityEditMode": {
+      "result": "Passed",
+      "total": "47",
+      "passed": "47",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "0.4093367"
+    },
+    "unityPlayMode": {
+      "result": "Passed",
+      "total": "17",
+      "passed": "17",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "115.7871716"
+    }
+  },
+  "verifiedBehaviors": [
+    "Actual CLI processes started, paused, resumed and moved the player projected in the macOS Unity scene; invalid starts were refused. The same scene used the browser Shell line endpoint and the CLI preparation scenario.",
+    "The browser showed shared live command definitions, a successful start receipt with its tick, and invalid_state refusal for the next start. Screenshots are attached.",
+    "Terminal commands loaded the real TSQ1 stock recording, sought 5526 (11F, HP 0), refused live mutation while replaying, stepped to retry at 5527, and restored live mode.",
+    "CLI validated Tanu, ran the live preparation scenario, saved the resulting real session and verified all 23171 ticks, 30641 inputs and ten run manifests.",
+    "The same --session/client/id returned exactly the original command result; changed arguments were refused. Piped REPL executed two inspection commands successfully.",
+    "Shared parser tests preserve literal quoting, i32/i64/f32/boolean/string types and negative zero; malformed arguments are rejected.",
+    "Queued World commands emit effects directly instead of generating additional input. Host tests reproduce their exact state/events and final World state through TSQ1.",
+    "Final HTTP action forms started Arena, opened Inventory and closed it through the same applied-result queue. All declared Arena actions are structurally checked against the authoritative input contract.",
+    "The old real Unity file still verified every tick/input/run with its archived execution version, despite newer Runtime code and a new execution ID."
+  ],
+  "execution": {
+    "sourceHash": "b0700181609fd0ebff14f2f51d30d520265cc2233cc9df73c98816c90d7a2a73",
+    "target": "aarch64-unknown-linux-gnu",
+    "stockRecording": "a6d985f5256d9a81d51dc9449fbae75e7b1fa69a5cbdde40baf2546df99e7a4f"
+  },
+  "recordedCliUnitySession": {
+    "id": "912766e1edf60daef3d256380b4ebb7419495e7502cce73064e60e457ecc9273",
+    "ticks": 23171,
+    "inputs": 30641,
+    "runs": 10
+  },
+  "archivedExecution": {
+    "sourceRevision": "28f366e01db3ead81835ff67b98268f055ca040b",
+    "sourceHash": "e410f19439c2eb7d683a7eb53bafb4257ca19f1ea5ef486050b66c03ac6ea090",
+    "binarySha256": "09ba7b1bff2b74a00b6931959f080ff013b2db449b28d2149f81c7e9e0ac87c3",
+    "verifiedTicks": 10122,
+    "verifiedInputs": 30144,
+    "verifiedRuns": 5
+  },
+  "limits": [
+    "Development Shell retains 512 command identities per host lifetime and 1024 live receipts; fresh host required after command capacity.",
+    "Scenarios allow 32 steps and 600 waiting ticks; earlier applied effects are retained if later steps are refused. Concurrent input is recorded in its real order.",
+    "CLI supports local HTTP development and has a 90-second request deadline. Remote production authentication/TLS is outside this plan.",
+    "Parent workspace publication remains blocked by GitHub integration write access (403); local per-stage pointer commits are prepared."
+  ]
+}

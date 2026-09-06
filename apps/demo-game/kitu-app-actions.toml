@@ -68,3 +68,193 @@ default = "town"
 [actions.output]
 address = "/game/map/fast-travel"
 args = ["$destination"]
+
+[[actions]]
+id = "arena.start"
+label = "Arena Start"
+description = "Apply start through the authoritative Arena input queue."
+[actions.cli]
+command = "arena start"
+[actions.output]
+address = "/input/arena/start"
+args = []
+
+[[actions]]
+id = "arena.menu"
+label = "Arena Menu"
+description = "Apply menu through the authoritative Arena input queue."
+[actions.cli]
+command = "arena menu"
+[actions.output]
+address = "/input/arena/menu"
+args = []
+
+[[actions]]
+id = "arena.pause"
+label = "Arena Pause"
+description = "Apply pause through the authoritative Arena input queue."
+[actions.cli]
+command = "arena pause"
+[actions.output]
+address = "/input/arena/pause"
+args = []
+
+[[actions]]
+id = "arena.resume"
+label = "Arena Resume"
+description = "Apply resume through the authoritative Arena input queue."
+[actions.cli]
+command = "arena resume"
+[actions.output]
+address = "/input/arena/resume"
+args = []
+
+[[actions]]
+id = "arena.chest"
+label = "Arena Chest"
+description = "Apply chest through the authoritative Arena input queue."
+[actions.cli]
+command = "arena chest"
+[actions.output]
+address = "/input/arena/chest"
+args = []
+
+[[actions]]
+id = "arena.close"
+label = "Arena Close"
+description = "Apply close through the authoritative Arena input queue."
+[actions.cli]
+command = "arena close"
+[actions.output]
+address = "/input/arena/close"
+args = []
+
+[[actions]]
+id = "arena.inventory"
+label = "Arena Inventory"
+description = "Apply inventory through the authoritative Arena input queue."
+[actions.cli]
+command = "arena inventory"
+[actions.output]
+address = "/input/arena/inventory"
+args = []
+
+[[actions]]
+id = "arena.take"
+label = "Arena Take"
+description = "Apply take through the authoritative Arena input queue."
+[actions.cli]
+command = "arena take"
+[[actions.inputs]]
+name = "item_id"
+label = "Item Id"
+type = "int"
+required = true
+[[actions.inputs]]
+name = "index"
+label = "Index"
+type = "int"
+required = true
+[actions.output]
+address = "/input/arena/take"
+args = ["$item_id", "$index"]
+
+[[actions]]
+id = "arena.discard"
+label = "Arena Discard"
+description = "Apply discard through the authoritative Arena input queue."
+[actions.cli]
+command = "arena discard"
+[[actions.inputs]]
+name = "item_id"
+label = "Item Id"
+type = "int"
+required = true
+[[actions.inputs]]
+name = "index"
+label = "Index"
+type = "int"
+required = true
+[actions.output]
+address = "/input/arena/discard"
+args = ["$item_id", "$index"]
+
+[[actions]]
+id = "arena.upgrade"
+label = "Arena Upgrade"
+description = "Apply upgrade through the authoritative Arena input queue."
+[actions.cli]
+command = "arena upgrade"
+[[actions.inputs]]
+name = "item_id"
+label = "Item Id"
+type = "int"
+required = true
+[[actions.inputs]]
+name = "index"
+label = "Index"
+type = "int"
+required = true
+[actions.output]
+address = "/input/arena/upgrade"
+args = ["$item_id", "$index"]
+
+[[actions]]
+id = "arena.unequip"
+label = "Arena Unequip"
+description = "Apply unequip through the authoritative Arena input queue."
+[actions.cli]
+command = "arena unequip"
+[[actions.inputs]]
+name = "item_id"
+label = "Item Id"
+type = "int"
+required = true
+[[actions.inputs]]
+name = "slot"
+label = "Slot"
+type = "int"
+required = true
+[actions.output]
+address = "/input/arena/unequip"
+args = ["$item_id", "$slot"]
+
+[[actions]]
+id = "arena.equip"
+label = "Arena Equip"
+description = "Apply equip through the authoritative Arena input queue."
+[actions.cli]
+command = "arena equip"
+[[actions.inputs]]
+name = "item_id"
+label = "Item Id"
+type = "int"
+required = true
+[[actions.inputs]]
+name = "index"
+label = "Index"
+type = "int"
+required = true
+[[actions.inputs]]
+name = "slot"
+label = "Slot"
+type = "int"
+required = true
+[actions.output]
+address = "/input/arena/equip"
+args = ["$item_id", "$index", "$slot"]
+
+[[actions]]
+id = "arena.use"
+label = "Arena Use"
+description = "Apply use through the authoritative Arena input queue."
+[actions.cli]
+command = "arena use"
+[[actions.inputs]]
+name = "slot"
+label = "Slot"
+type = "int"
+required = true
+[actions.output]
+address = "/input/arena/use"
+args = ["$slot"]

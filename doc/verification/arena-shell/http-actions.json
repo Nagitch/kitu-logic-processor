@@ -1,0 +1,50 @@
+[
+  {
+    "action": "arena.start",
+    "response": {
+      "actionId": "arena.start",
+      "osc": {
+        "address": "/input/arena/start",
+        "args": []
+      },
+      "snapshot": {
+        "tick": 4063,
+        "objects": []
+      }
+    },
+    "phase": 1,
+    "overlay": "none"
+  },
+  {
+    "action": "arena.inventory",
+    "response": {
+      "actionId": "arena.inventory",
+      "osc": {
+        "address": "/input/arena/inventory",
+        "args": []
+      },
+      "snapshot": {
+        "tick": 4065,
+        "objects": []
+      }
+    },
+    "phase": 1,
+    "overlay": "inventory"
+  },
+  {
+    "action": "arena.close",
+    "response": {
+      "actionId": "arena.close",
+      "osc": {
+        "address": "/input/arena/close",
+        "args": []
+      },
+      "snapshot": {
+        "tick": 4066,
+        "objects": []
+      }
+    },
+    "phase": 1,
+    "overlay": "none"
+  }
+]
