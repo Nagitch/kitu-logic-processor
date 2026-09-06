@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -15,6 +16,8 @@ namespace UnityOnlyArena
         public bool NativeBridgeEnabled = true;
         public string NativeBridgeAddress = "127.0.0.1:8789";
         public string NativeContentPath = "";
+        public string NativeStorageDirectory = "";
+        public string BundledContentDirectory = "";
         public bool NativeAutomaticTicks = true;
         public bool ConnectOnStart = true;
         public bool DeviceInput = true;
@@ -25,6 +28,11 @@ namespace UnityOnlyArena
         private string knownServerSession;
         private IArenaConnection connection;
         private ArenaWorldView world;
+        private ArenaAddressableAssets assets;
+        private ArenaContentPackage contentPackage;
+        private Coroutine preparation;
+        private bool connectRequested;
+        private int preparationGeneration;
         private readonly ArenaProjectionBuffer projection = new ArenaProjectionBuffer();
         private float nextFrame;
         private readonly bool[] requireRelease = { true, true, true, true };
@@ -48,6 +56,9 @@ namespace UnityOnlyArena
         public string Message { get; private set; } = "";
         public bool Connected => connection != null && connection.Connected && synchronized;
         public Camera GameCamera => world == null ? null : world.GameCamera;
+        public bool AssetsReady => assets != null && assets.Ready;
+        public JObject AssetReport => assets?.Report;
+        public string PreparationError { get; private set; }
 
         private void Awake()
         {
@@ -57,15 +68,70 @@ namespace UnityOnlyArena
             State = new ArenaReferenceState { tick = -1, aimDirection = Vector2.up, overlay = "none" };
             world = gameObject.AddComponent<ArenaWorldView>();
             world.UseTimelinePresentation();
-            world.Initialize(State);
         }
 
         private void Start() { started = true; if (ConnectOnStart) Connect(); }
-        private void OnEnable() { if (started && ConnectOnStart) Connect(); }
+        private void OnEnable()
+        {
+            BeginPreparation();
+            if (started && ConnectOnStart) Connect();
+        }
+
+        private void BeginPreparation()
+        {
+            if (preparation != null || AssetsReady || !isActiveAndEnabled) return;
+            PreparationError = null;
+            preparation = StartCoroutine(Prepare(++preparationGeneration));
+        }
+
+        private IEnumerator Prepare(int generation)
+        {
+            // Scene bootstrap/tests can configure backend and manual ticking
+            // before an early Connect request creates its single native owner.
+            yield return null;
+            try
+            {
+                string directory = ArenaLaunchArguments.Value("--arena-package") ?? BundledContentDirectory;
+                if (string.IsNullOrEmpty(directory)) directory = Path.Combine(Application.streamingAssetsPath, "KituArena");
+                contentPackage = ArenaContentPackage.Load(directory);
+                assets = new ArenaAddressableAssets();
+                Message = "Loading Arena assets";
+            }
+            catch (Exception error) { FailPreparation(error.Message); yield break; }
+            var loading = assets.Load(contentPackage);
+            while (true)
+            {
+                bool more = false; object value = null; string error = null;
+                try { more = loading.MoveNext(); if (more) value = loading.Current; }
+                catch (Exception failure) { error = failure.Message; }
+                if (error != null) { FailPreparation(error); yield break; }
+                if (!more) break;
+                yield return value;
+                if (generation != preparationGeneration || !isActiveAndEnabled) yield break;
+            }
+            if (!assets.Ready) { FailPreparation(assets.Error ?? "Arena assets did not load"); yield break; }
+            try { world.Initialize(State, assets); }
+            catch (Exception error) { FailPreparation(error.Message); yield break; }
+            preparation = null;
+            Message = "";
+            if (connectRequested) Connect();
+        }
+
+        private void FailPreparation(string error)
+        {
+            PreparationError = error; Message = "Arena preparation failed: " + error;
+            preparation = null;
+            world.ReleasePresentation();
+            assets?.ReleaseAfterViewDestroyed(); assets = null; contentPackage = null;
+            Debug.LogError(Message);
+        }
 
         public void Connect(bool acceptNewSession = false)
         {
             if (acceptNewSession) knownServerSession = null;
+            connectRequested = true;
+            if (!isActiveAndEnabled || !AssetsReady) { BeginPreparation(); return; }
+            connectRequested = false;
             string expectedSession = knownServerSession;
             SessionId = null;
             projection.Reset();
@@ -74,6 +140,7 @@ namespace UnityOnlyArena
             Presentation = null;
             world.SyncPresentation(State, null);
             BlockGameplayButtons();
+            bool nativeSelected = false;
             try
             {
                 string serverOverride = ArenaLaunchArguments.Value("--arena-server") ?? Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
@@ -81,6 +148,7 @@ namespace UnityOnlyArena
                     && (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer));
                 if (native)
                 {
+                    nativeSelected = true;
                     var existing = connection as ArenaNativeConnection;
                     if (existing != null && !existing.IsDisposed) existing.Reconnect();
                     else
@@ -98,8 +166,12 @@ namespace UnityOnlyArena
                         string timelineOverride = ArenaLaunchArguments.Value("--arena-timeline");
                         if (timelineOverride != null && !Path.IsPathRooted(timelineOverride))
                             throw new ArgumentException("--arena-timeline requires an absolute TSQ1 directory");
+                        string storage = ArenaLaunchArguments.Value("--arena-storage") ?? NativeStorageDirectory;
+                        if (string.IsNullOrEmpty(storage)) storage = Path.Combine(Application.persistentDataPath, "arena");
+                        if (!Path.IsPathRooted(storage)) throw new ArgumentException("--arena-storage requires an absolute directory");
                         connection = new ArenaNativeConnection(bridge, address,
-                            Path.Combine(Application.persistentDataPath, "arena"), contentOverride ?? NativeContentPath, scriptOverride, timelineOverride);
+                            storage, contentOverride ?? NativeContentPath, scriptOverride, timelineOverride,
+                            contentPackage.Directory, contentPackage.Identity);
                     }
                     NativeConnection.AutomaticTicks = NativeAutomaticTicks;
                 }
@@ -116,10 +188,18 @@ namespace UnityOnlyArena
                 }
                 previousClock = Time.realtimeSinceStartupAsDouble;
             }
-            catch (Exception error) { Message = error.Message; Debug.LogError("Arena connection failed: " + error.Message); }
+            catch (Exception error)
+            {
+                if (nativeSelected)
+                {
+                    connection?.Dispose(); connection = null;
+                    FailPreparation(error.Message);
+                }
+                else { Message = error.Message; Debug.LogError("Arena connection failed: " + error.Message); }
+            }
         }
 
-        public void Disconnect() { connection?.Disconnect(); synchronized = false; }
+        public void Disconnect() { connectRequested = false; connection?.Disconnect(); synchronized = false; }
 
         public bool Command(string suffix, params int[] values)
         {
@@ -291,8 +371,18 @@ namespace UnityOnlyArena
 
         private void OnApplicationFocus(bool focused) { if (!focused && PauseOnFocusLoss) { Command("pause"); BlockGameplayButtons(); } }
         private void OnApplicationPause(bool paused) { if (paused && PauseOnFocusLoss) { Command("pause"); BlockGameplayButtons(); } }
-        private void OnDisable() { connection?.Dispose(); connection = null; synchronized = false; }
-        private void OnDestroy() { connection?.Dispose(); connection = null; }
+        private void OnDisable() { ReleaseOwner(); }
+        private void OnDestroy() { ReleaseOwner(); }
+
+        private void ReleaseOwner()
+        {
+            ++preparationGeneration;
+            if (preparation != null) StopCoroutine(preparation);
+            preparation = null; connectRequested = false;
+            connection?.Dispose(); connection = null; synchronized = false;
+            world?.ReleasePresentation();
+            assets?.ReleaseAfterViewDestroyed(); assets = null; contentPackage = null;
+        }
 
         private static string ItemText(ArenaItemState item)
         {

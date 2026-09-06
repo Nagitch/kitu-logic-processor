@@ -7,10 +7,11 @@ use std::{
 };
 
 use kitu_demo_game::{
+    arena::package::{LoadedPackage, PackageIdentity},
     host::{ArenaHost, HostOptions},
     DemoRuntime,
 };
-use kitu_osc_ir::OscBundle;
+use kitu_osc_ir::{OscArg, OscBundle};
 use kitu_runtime::InputMetadata;
 use kitu_unity_ffi::application::ApplicationDriver;
 use serde::Deserialize;
@@ -27,6 +28,7 @@ pub(super) struct BridgeConfig {
 
 pub(super) struct EmbeddedDriver {
     host: ArenaHost,
+    package: Option<PackageIdentity>,
     io_runtime: Option<Runtime>,
     stop: Option<oneshot::Sender<()>>,
     server: Option<JoinHandle<Result<(), std::io::Error>>>,
@@ -40,6 +42,7 @@ impl EmbeddedDriver {
         content_path: Option<PathBuf>,
         script_path: Option<PathBuf>,
         timeline_directory: Option<PathBuf>,
+        package: Option<LoadedPackage>,
     ) -> Result<Self, String> {
         // Parse and bind before creating files. Only literal loopback addresses
         // are allowed; this development surface does not offer remote auth.
@@ -102,7 +105,11 @@ impl EmbeddedDriver {
                     .open(source)
                 {
                     Ok(mut file) => file
-                        .write_all(include_bytes!("../../content/arena.tmd"))
+                        .write_all(selected_source(
+                            package.as_ref(),
+                            "arena.tmd",
+                            include_bytes!("../../content/arena.tmd"),
+                        ))
                         .map_err(|error| format!("seed Arena TMD: {error}"))?,
                     Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
                     Err(error) => return Err(format!("create Arena TMD: {error}")),
@@ -117,7 +124,11 @@ impl EmbeddedDriver {
                     .open(source)
                 {
                     Ok(mut file) => file
-                        .write_all(include_bytes!("../../content/boss.rhai"))
+                        .write_all(selected_source(
+                            package.as_ref(),
+                            "boss.rhai",
+                            include_bytes!("../../content/boss.rhai"),
+                        ))
                         .map_err(|error| format!("seed Arena script: {error}"))?,
                     Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
                     Err(error) => return Err(format!("create Arena script: {error}")),
@@ -131,11 +142,19 @@ impl EmbeddedDriver {
                 for (name, bytes) in [
                     (
                         "boss-telegraph.tsq",
-                        include_bytes!("../../content/timelines/boss-telegraph.tsq").as_slice(),
+                        selected_source(
+                            package.as_ref(),
+                            "timelines/boss-telegraph.tsq",
+                            include_bytes!("../../content/timelines/boss-telegraph.tsq"),
+                        ),
                     ),
                     (
                         "floor-transition.tsq",
-                        include_bytes!("../../content/timelines/floor-transition.tsq").as_slice(),
+                        selected_source(
+                            package.as_ref(),
+                            "timelines/floor-transition.tsq",
+                            include_bytes!("../../content/timelines/floor-transition.tsq"),
+                        ),
                     ),
                 ] {
                     match std::fs::OpenOptions::new()
@@ -188,6 +207,7 @@ impl EmbeddedDriver {
         };
         let mut driver = Self {
             host,
+            package: package.map(|package| package.identity),
             io_runtime: Some(io_runtime),
             stop: None,
             server: None,
@@ -213,6 +233,21 @@ impl EmbeddedDriver {
     }
 }
 
+// A validated package owns every allowlisted source. An explicit package never
+// falls back to compiled bytes, including when seeding later authoring copies.
+fn selected_source<'a>(
+    package: Option<&'a LoadedPackage>,
+    path: &str,
+    default: &'static [u8],
+) -> &'a [u8] {
+    match package {
+        Some(package) => package
+            .source_bytes(path)
+            .expect("validated package source allowlist"),
+        None => default,
+    }
+}
+
 impl ApplicationDriver for EmbeddedDriver {
     fn submit(
         &mut self,
@@ -230,7 +265,28 @@ impl ApplicationDriver for EmbeddedDriver {
         self.host.inspect().map_err(|error| error.to_string())
     }
     fn inspect_host(&self) -> Result<Vec<OscBundle>, String> {
-        self.host.inspect_host().map_err(|error| error.to_string())
+        let mut output = self
+            .host
+            .inspect_host()
+            .map_err(|error| error.to_string())?;
+        for message in output.iter_mut().flat_map(|bundle| &mut bundle.messages) {
+            if message.address == "/host/arena/status" {
+                let [OscArg::Str(json)] = message.args.as_mut_slice() else {
+                    return Err("native host status must contain one JSON string".into());
+                };
+                let mut status: serde_json::Value =
+                    serde_json::from_str(json).map_err(|error| error.to_string())?;
+                let object = status
+                    .as_object_mut()
+                    .ok_or("native host status must be an object")?;
+                object.insert(
+                    "package".into(),
+                    serde_json::to_value(&self.package).map_err(|error| error.to_string())?,
+                );
+                *json = serde_json::to_string(&status).map_err(|error| error.to_string())?;
+            }
+        }
+        Ok(output)
     }
 }
 

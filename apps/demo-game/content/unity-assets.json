@@ -1,0 +1,1 @@
+{"schemaVersion":1,"assets":[{"role":"baseMaterial","key":"arena/material/base","type":"Material"},{"role":"cube","key":"arena/primitive/cube","type":"GameObject"},{"role":"capsule","key":"arena/primitive/capsule","type":"GameObject"},{"role":"sphere","key":"arena/primitive/sphere","type":"GameObject"}]}

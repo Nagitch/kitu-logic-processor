@@ -1,0 +1,465 @@
+{
+  "sameDylibAcrossPackages": true,
+  "proofs": {
+    "player-content-default": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-content-default/content-player-verification.json",
+        "bytes": 30538,
+        "sha256": "93451f1836d300acab5da2a8f0112c384bf64af3fb342640d8e9f26e127ba1aa"
+      },
+      "verifiedAtUtc": "2026-09-06T15:27:14.598698+00:00",
+      "player": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app",
+      "relocated": true,
+      "command": [
+        "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "-screen-fullscreen",
+        "0",
+        "-screen-width",
+        "1100",
+        "-screen-height",
+        "720",
+        "-logFile",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/player.log",
+        "--arena-content-self-test",
+        "--arena-content-evidence",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default",
+        "--arena-storage",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring"
+      ],
+      "workingDirectory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/launch-cwd",
+      "result": {
+        "matched": true,
+        "prepared": true,
+        "connected": true,
+        "tick": -1,
+        "nativeHandles": 1,
+        "assetHandles": 4,
+        "nativeHandlePeak": 1,
+        "assetHandlePeak": 4,
+        "referenceGameCount": 0,
+        "presentationCount": 1,
+        "nativeHandlesAfterDisable": 0,
+        "nativeHandlesAfterCleanup": 0,
+        "assetHandlesAfterCleanup": 0
+      },
+      "execution": {
+        "package": "0.1.0",
+        "sourceHash": "bb32df1ce508afbfc52676ce61df27a4e52e8d3d4b87948fd24f468a1be58260",
+        "target": "aarch64-apple-darwin"
+      },
+      "package": {
+        "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "files": [
+          {
+            "bytes": 306,
+            "path": "unity-assets.json",
+            "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+          },
+          {
+            "bytes": 49783,
+            "path": "arena.tmd",
+            "sha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa"
+          },
+          {
+            "bytes": 676,
+            "path": "boss.rhai",
+            "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+          },
+          {
+            "bytes": 737,
+            "path": "timelines/boss-telegraph.tsq",
+            "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+          },
+          {
+            "bytes": 652,
+            "path": "timelines/floor-transition.tsq",
+            "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+          }
+        ],
+        "hash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+        "schemaVersion": 1,
+        "scriptHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "timelineHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82"
+      },
+      "configuredAtTickMinusOne": {
+        "starterDamage": 20,
+        "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "scriptHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "timelineHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+        "note": "These are pending initial versions before the first start; pre-start inventory is not asserted to have adopted them."
+      },
+      "loadedAssets": [
+        {
+          "role": "baseMaterial",
+          "key": "arena/material/base",
+          "type": "Material"
+        },
+        {
+          "role": "cube",
+          "key": "arena/primitive/cube",
+          "type": "GameObject"
+        },
+        {
+          "role": "capsule",
+          "key": "arena/primitive/capsule",
+          "type": "GameObject"
+        },
+        {
+          "role": "sphere",
+          "key": "arena/primitive/sphere",
+          "type": "GameObject"
+        }
+      ],
+      "runtimeBundles": [
+        {
+          "path": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/Resources/Data/StreamingAssets/aa/StandaloneOSX/arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle",
+          "bytes": 259644,
+          "sha256": "31e3b9963b6ba3507034c13bfdcffb122105b8318fcc1edac9a2414905dbf8d3"
+        }
+      ],
+      "authoringBefore": {},
+      "authoringAfter": {
+        "arena.tmd": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/arena.tmd",
+          "bytes": 49783,
+          "sha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa"
+        },
+        "boss.rhai": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/boss.rhai",
+          "bytes": 676,
+          "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+        },
+        "timelines/boss-telegraph.tsq": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/timelines/boss-telegraph.tsq",
+          "bytes": 737,
+          "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+        },
+        "timelines/floor-transition.tsq": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/timelines/floor-transition.tsq",
+          "bytes": 652,
+          "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+        }
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "executable": {
+        "path": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "3e58fc7cbc56688a72d611b335181722ec072b6727b59536e914811e9b4458c3"
+      }
+    },
+    "player-content-edited-final": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-content-edited-final/content-player-verification.json",
+        "bytes": 30622,
+        "sha256": "86a25a3d0c8c043dda87aad14c64d6b3bc87d86fa3fec2b2a04da3e8cff174e8"
+      },
+      "verifiedAtUtc": "2026-09-06T15:46:48.588110+00:00",
+      "player": "/private/tmp/kitu-stage16-relocated/KituArenaEditedFinal.app",
+      "relocated": true,
+      "command": [
+        "/private/tmp/kitu-stage16-relocated/KituArenaEditedFinal.app/Contents/MacOS/Kitu Endless Arena",
+        "-screen-fullscreen",
+        "0",
+        "-screen-width",
+        "1100",
+        "-screen-height",
+        "720",
+        "-logFile",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-edited-final/player.log",
+        "--arena-content-self-test",
+        "--arena-content-evidence",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-edited-final",
+        "--arena-storage",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-edited-final/authoring"
+      ],
+      "workingDirectory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-edited-final/launch-cwd",
+      "result": {
+        "matched": true,
+        "prepared": true,
+        "connected": true,
+        "tick": -1,
+        "nativeHandles": 1,
+        "assetHandles": 4,
+        "nativeHandlePeak": 1,
+        "assetHandlePeak": 4,
+        "referenceGameCount": 0,
+        "presentationCount": 1,
+        "nativeHandlesAfterDisable": 0,
+        "nativeHandlesAfterCleanup": 0,
+        "assetHandlesAfterCleanup": 0
+      },
+      "execution": {
+        "package": "0.1.0",
+        "sourceHash": "bb32df1ce508afbfc52676ce61df27a4e52e8d3d4b87948fd24f468a1be58260",
+        "target": "aarch64-apple-darwin"
+      },
+      "package": {
+        "contentHash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "files": [
+          {
+            "bytes": 306,
+            "path": "unity-assets.json",
+            "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+          },
+          {
+            "bytes": 49868,
+            "path": "arena.tmd",
+            "sha256": "d1f7f78bd1d6f4a337779e34583602d537354717ca92e614457b106d6ae7b8ce"
+          },
+          {
+            "bytes": 676,
+            "path": "boss.rhai",
+            "sha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6"
+          },
+          {
+            "bytes": 737,
+            "path": "timelines/boss-telegraph.tsq",
+            "sha256": "a470838cf9f2ac0b752b97bd95d6038f8bc237673238f88e9fd0620f93202b62"
+          },
+          {
+            "bytes": 652,
+            "path": "timelines/floor-transition.tsq",
+            "sha256": "c1df5a5518de803b5fab01e032594e024a7ef103d74301b042343ef76a0a539c"
+          }
+        ],
+        "hash": "ed49d3b0010dfedcfeee278f91a580146a8d267bfcf96c6daef1142515af2646",
+        "schemaVersion": 1,
+        "scriptHash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "timelineHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e"
+      },
+      "configuredAtTickMinusOne": {
+        "starterDamage": 32,
+        "contentHash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+        "scriptHash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "timelineHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+        "note": "Pending initial versions before first start; pre-start inventory has not yet adopted these values."
+      },
+      "loadedAssets": [
+        {
+          "role": "baseMaterial",
+          "key": "arena/material/base",
+          "type": "Material"
+        },
+        {
+          "role": "cube",
+          "key": "arena/primitive/cube",
+          "type": "GameObject"
+        },
+        {
+          "role": "capsule",
+          "key": "arena/primitive/capsule",
+          "type": "GameObject"
+        },
+        {
+          "role": "sphere",
+          "key": "arena/primitive/sphere",
+          "type": "GameObject"
+        }
+      ],
+      "runtimeBundles": [
+        {
+          "path": "/private/tmp/kitu-stage16-relocated/KituArenaEditedFinal.app/Contents/Resources/Data/StreamingAssets/aa/StandaloneOSX/arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle",
+          "bytes": 259644,
+          "sha256": "31e3b9963b6ba3507034c13bfdcffb122105b8318fcc1edac9a2414905dbf8d3"
+        }
+      ],
+      "authoringBefore": {},
+      "authoringAfter": {
+        "arena.tmd": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-edited-final/authoring/arena.tmd",
+          "bytes": 49868,
+          "sha256": "d1f7f78bd1d6f4a337779e34583602d537354717ca92e614457b106d6ae7b8ce"
+        },
+        "boss.rhai": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-edited-final/authoring/boss.rhai",
+          "bytes": 676,
+          "sha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6"
+        },
+        "timelines/boss-telegraph.tsq": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-edited-final/authoring/timelines/boss-telegraph.tsq",
+          "bytes": 737,
+          "sha256": "a470838cf9f2ac0b752b97bd95d6038f8bc237673238f88e9fd0620f93202b62"
+        },
+        "timelines/floor-transition.tsq": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-edited-final/authoring/timelines/floor-transition.tsq",
+          "bytes": 652,
+          "sha256": "c1df5a5518de803b5fab01e032594e024a7ef103d74301b042343ef76a0a539c"
+        }
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "executable": {
+        "path": "/private/tmp/kitu-stage16-relocated/KituArenaEditedFinal.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "ea6eaa485bf63c070392dea6c8033ce51d8e23e7e2a4b1f933011a4927de7860"
+      }
+    },
+    "player-content-preserved": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-content-preserved/content-player-verification.json",
+        "bytes": 31621,
+        "sha256": "8653a6397bf041f2ab6cde6bcfb2e9c86310dc235d7b2f78ca660b718b9df752"
+      },
+      "verifiedAtUtc": "2026-09-06T15:47:13.029581+00:00",
+      "player": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app",
+      "relocated": false,
+      "command": [
+        "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "-screen-fullscreen",
+        "0",
+        "-screen-width",
+        "1100",
+        "-screen-height",
+        "720",
+        "-logFile",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-preserved/player.log",
+        "--arena-content-self-test",
+        "--arena-content-evidence",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-preserved",
+        "--arena-storage",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring"
+      ],
+      "workingDirectory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-preserved/launch-cwd",
+      "result": {
+        "matched": true,
+        "prepared": true,
+        "connected": true,
+        "tick": -1,
+        "nativeHandles": 1,
+        "assetHandles": 4,
+        "nativeHandlePeak": 1,
+        "assetHandlePeak": 4,
+        "referenceGameCount": 0,
+        "presentationCount": 1,
+        "nativeHandlesAfterDisable": 0,
+        "nativeHandlesAfterCleanup": 0,
+        "assetHandlesAfterCleanup": 0
+      },
+      "execution": {
+        "package": "0.1.0",
+        "sourceHash": "bb32df1ce508afbfc52676ce61df27a4e52e8d3d4b87948fd24f468a1be58260",
+        "target": "aarch64-apple-darwin"
+      },
+      "package": {
+        "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "files": [
+          {
+            "bytes": 306,
+            "path": "unity-assets.json",
+            "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+          },
+          {
+            "bytes": 49783,
+            "path": "arena.tmd",
+            "sha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa"
+          },
+          {
+            "bytes": 676,
+            "path": "boss.rhai",
+            "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+          },
+          {
+            "bytes": 737,
+            "path": "timelines/boss-telegraph.tsq",
+            "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+          },
+          {
+            "bytes": 652,
+            "path": "timelines/floor-transition.tsq",
+            "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+          }
+        ],
+        "hash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+        "schemaVersion": 1,
+        "scriptHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "timelineHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82"
+      },
+      "configuredAtTickMinusOne": {
+        "starterDamage": 20,
+        "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+        "scriptHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "timelineHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+        "note": "Pending initial versions before first start; pre-start inventory has not yet adopted these values."
+      },
+      "loadedAssets": [
+        {
+          "role": "baseMaterial",
+          "key": "arena/material/base",
+          "type": "Material"
+        },
+        {
+          "role": "cube",
+          "key": "arena/primitive/cube",
+          "type": "GameObject"
+        },
+        {
+          "role": "capsule",
+          "key": "arena/primitive/capsule",
+          "type": "GameObject"
+        },
+        {
+          "role": "sphere",
+          "key": "arena/primitive/sphere",
+          "type": "GameObject"
+        }
+      ],
+      "runtimeBundles": [
+        {
+          "path": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/Resources/Data/StreamingAssets/aa/StandaloneOSX/arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle",
+          "bytes": 259644,
+          "sha256": "31e3b9963b6ba3507034c13bfdcffb122105b8318fcc1edac9a2414905dbf8d3"
+        }
+      ],
+      "authoringBefore": {
+        "arena.tmd": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/arena.tmd",
+          "bytes": 49868,
+          "sha256": "d1f7f78bd1d6f4a337779e34583602d537354717ca92e614457b106d6ae7b8ce"
+        },
+        "boss.rhai": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/boss.rhai",
+          "bytes": 676,
+          "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+        },
+        "timelines/boss-telegraph.tsq": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/timelines/boss-telegraph.tsq",
+          "bytes": 737,
+          "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+        },
+        "timelines/floor-transition.tsq": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/timelines/floor-transition.tsq",
+          "bytes": 652,
+          "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+        }
+      },
+      "authoringAfter": {
+        "arena.tmd": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/arena.tmd",
+          "bytes": 49868,
+          "sha256": "d1f7f78bd1d6f4a337779e34583602d537354717ca92e614457b106d6ae7b8ce"
+        },
+        "boss.rhai": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/boss.rhai",
+          "bytes": 676,
+          "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+        },
+        "timelines/boss-telegraph.tsq": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/timelines/boss-telegraph.tsq",
+          "bytes": 737,
+          "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+        },
+        "timelines/floor-transition.tsq": {
+          "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-content-default/authoring/timelines/floor-transition.tsq",
+          "bytes": 652,
+          "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+        }
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "executable": {
+        "path": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "3e58fc7cbc56688a72d611b335181722ec072b6727b59536e914811e9b4458c3"
+      },
+      "existingFilesByteIdentical": true
+    }
+  }
+}

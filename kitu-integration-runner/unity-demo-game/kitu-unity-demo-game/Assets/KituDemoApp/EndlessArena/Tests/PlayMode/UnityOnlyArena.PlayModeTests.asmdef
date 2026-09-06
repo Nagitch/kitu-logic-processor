@@ -2,7 +2,9 @@
   "name": "UnityOnlyArena.PlayModeTests",
   "references": [
     "UnityOnlyArena",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.Addressables",
+    "Unity.ResourceManager"
   ],
   "overrideReferences": true,
   "precompiledReferences": [

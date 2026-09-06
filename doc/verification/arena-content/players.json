@@ -1,0 +1,444 @@
+{
+  "comparisonPolicy": "Complete parsed JSON state/output equality at every tick; raw NDJSON serialization and pixels are separate.",
+  "scenarios": {
+    "player-preparation": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-preparation/player-verification.json",
+        "bytes": 25011,
+        "sha256": "68315ae8dbad0ca71843bec662f6f81cd06b14b1682106b1995553c723ddd9e5"
+      },
+      "verifiedAtUtc": "2026-09-06T15:28:30.688561+00:00",
+      "result": {
+        "backend": "native",
+        "scenario": "preparation",
+        "matched": true,
+        "ticks": 28,
+        "inputs": 40,
+        "sessionId": "17052-1788708509185768000",
+        "deathObserved": false,
+        "retryObserved": false,
+        "error": null
+      },
+      "comparison": {
+        "ticks": 28,
+        "stateAndOutput": "exact match",
+        "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/preparation.expected.ndjson",
+        "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-preparation/actual.ndjson"
+      },
+      "trace": {
+        "path": ".tmp/stage15/reference/preparation.trace",
+        "bytes": 11733,
+        "sha256": "2c764a254771e919c33ca8093322c31093d547443b2c942b061bb9f8072d5362"
+      },
+      "expected": {
+        "path": ".tmp/stage15/reference/preparation.expected.ndjson",
+        "bytes": 757602,
+        "sha256": "0f77464a53cd4cf60ab0aa4ba98ef379fea474319eeb1002ea465632180c6ca4"
+      },
+      "actual": {
+        "path": ".tmp/stage16/player-preparation/actual.ndjson",
+        "bytes": 757602,
+        "sha256": "64f02cccd7b4a48a69a420f222166f85447ce1aff2f59d59761c920eed415859"
+      },
+      "executable": {
+        "path": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "3e58fc7cbc56688a72d611b335181722ec072b6727b59536e914811e9b4458c3"
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "screenshots": [
+        {
+          "path": ".tmp/stage16/player-preparation/inventory.png",
+          "bytes": 134009,
+          "sha256": "aa34127eaee125fba2b44da705c26b302dffd0b5b054bac2451f3d3519717fc3"
+        }
+      ],
+      "command": [
+        "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "-screen-fullscreen",
+        "0",
+        "-screen-width",
+        "1100",
+        "-screen-height",
+        "720",
+        "-logFile",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-preparation/player.log",
+        "--arena-storage",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-preparation/authoring",
+        "--arena-self-test",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/preparation.trace",
+        "--arena-expected",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/preparation.expected.ndjson",
+        "--arena-evidence",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-preparation"
+      ],
+      "elapsedSeconds": 5.036296129226685,
+      "externalWebSocketOverrideRemoved": true
+    },
+    "player-stock": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-stock/player-verification.json",
+        "bytes": 26117,
+        "sha256": "d907f1afd2fcb553c2e1e49b3dde9967fb6199baa12ebd7a6da6c981ba81911f"
+      },
+      "verifiedAtUtc": "2026-09-06T15:29:19.918013+00:00",
+      "result": {
+        "backend": "native",
+        "scenario": "stock-eleven-death-retry",
+        "matched": true,
+        "ticks": 5528,
+        "inputs": 5581,
+        "sessionId": "17082-1788708514678618000",
+        "deathObserved": true,
+        "retryObserved": true,
+        "error": null
+      },
+      "comparison": {
+        "ticks": 5528,
+        "stateAndOutput": "exact match",
+        "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/stock-eleven-death-retry.expected.ndjson",
+        "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-stock/actual.ndjson"
+      },
+      "trace": {
+        "path": ".tmp/stage15/reference/stock-eleven-death-retry.trace",
+        "bytes": 2209146,
+        "sha256": "0b14c384ac29e986a51cde1b5c206fc3844472b5dd50fec1793b713ad262d1f8"
+      },
+      "expected": {
+        "path": ".tmp/stage15/reference/stock-eleven-death-retry.expected.ndjson",
+        "bytes": 148824260,
+        "sha256": "24024fc71133c07d3cd2a7299b4c4edaf0a9c404e49eb86bce46f8106a329b94"
+      },
+      "actual": {
+        "path": ".tmp/stage16/player-stock/actual.ndjson",
+        "bytes": 148824260,
+        "sha256": "57068061e89a88442f0b293287ccb1e24412acacdbbac6d73e243a83ccee4dbd"
+      },
+      "executable": {
+        "path": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "3e58fc7cbc56688a72d611b335181722ec072b6727b59536e914811e9b4458c3"
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "screenshots": [
+        {
+          "path": ".tmp/stage16/player-stock/boss.png",
+          "bytes": 138475,
+          "sha256": "c9d95593af0cf78f6a9526ee26c1cdfcc97ec59cadf047396f348e9243feb8a1"
+        },
+        {
+          "path": ".tmp/stage16/player-stock/chest.png",
+          "bytes": 190360,
+          "sha256": "513e4c26718bd218dcdef315293cddb0ff3f0668837dfd6daa0c3eacf99d1068"
+        },
+        {
+          "path": ".tmp/stage16/player-stock/combat.png",
+          "bytes": 121367,
+          "sha256": "83829ca8d3a31bf1a85e9590cf3ddfab03d1010848dd642fada8c54e9a0ba748"
+        },
+        {
+          "path": ".tmp/stage16/player-stock/death-11f.png",
+          "bytes": 169483,
+          "sha256": "ebb79319bfb895f69a28b876f7eed766d2d2751161f8c1c734f90f80e2e58e31"
+        },
+        {
+          "path": ".tmp/stage16/player-stock/retry.png",
+          "bytes": 116005,
+          "sha256": "6d3c57a678fe7c22c5898aabc4cd4b7b2950ca5b812736639751e5b79512baf8"
+        }
+      ],
+      "command": [
+        "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "-screen-fullscreen",
+        "0",
+        "-screen-width",
+        "1100",
+        "-screen-height",
+        "720",
+        "-logFile",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-stock/player.log",
+        "--arena-storage",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-stock/authoring",
+        "--arena-self-test",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/stock-eleven-death-retry.trace",
+        "--arena-expected",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/stock-eleven-death-retry.expected.ndjson",
+        "--arena-evidence",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-stock"
+      ],
+      "elapsedSeconds": 48.77058982849121,
+      "externalWebSocketOverrideRemoved": true
+    },
+    "player-script": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-script/player-verification.json",
+        "bytes": 25515,
+        "sha256": "cbe30e95cbb1293f4e79b6e3f5c307223efaf4df8aaca2b4832e90c4ddfb1dbd"
+      },
+      "verifiedAtUtc": "2026-09-06T15:29:39.240928+00:00",
+      "result": {
+        "backend": "native",
+        "scenario": "rhai-boss",
+        "matched": true,
+        "ticks": 1800,
+        "inputs": 1817,
+        "sessionId": "17118-1788708563993607000",
+        "deathObserved": false,
+        "retryObserved": false,
+        "error": null
+      },
+      "comparison": {
+        "ticks": 1800,
+        "stateAndOutput": "exact match",
+        "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/rhai-boss.expected.ndjson",
+        "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-script/actual.ndjson"
+      },
+      "trace": {
+        "path": ".tmp/stage15/reference/rhai-boss.trace",
+        "bytes": 722470,
+        "sha256": "810b0b3c2adb76b58dbedf065c98cc188e4803e8cb30128db2c4540194c20aee"
+      },
+      "expected": {
+        "path": ".tmp/stage15/reference/rhai-boss.expected.ndjson",
+        "bytes": 47055542,
+        "sha256": "c691a83f59bac194557190a1a62e97d7071d3496316cd1f11aae73de6a7ed8e2"
+      },
+      "actual": {
+        "path": ".tmp/stage16/player-script/actual.ndjson",
+        "bytes": 47055542,
+        "sha256": "ef7d3b02e0a9ef5f7c68e1ecece2b99e7dae0782652786b53d812b90f56336df"
+      },
+      "executable": {
+        "path": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "3e58fc7cbc56688a72d611b335181722ec072b6727b59536e914811e9b4458c3"
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "screenshots": [
+        {
+          "path": ".tmp/stage16/player-script/boss-script.png",
+          "bytes": 138146,
+          "sha256": "8aab43577492bac3dc63a553b4092ecba44e57d6b305c0e484453c7ed675b3ab"
+        },
+        {
+          "path": ".tmp/stage16/player-script/chest.png",
+          "bytes": 190238,
+          "sha256": "97d0970f682eea1c81cdd87bef15ff7764bbaa9a08d57211fdccb3a5337ba8ee"
+        },
+        {
+          "path": ".tmp/stage16/player-script/combat.png",
+          "bytes": 121266,
+          "sha256": "ac6acc9a12c1073473d2d21be70e878dffe41c6c1d1ef28e78ae479421a9b54f"
+        }
+      ],
+      "command": [
+        "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "-screen-fullscreen",
+        "0",
+        "-screen-width",
+        "1100",
+        "-screen-height",
+        "720",
+        "-logFile",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-script/player.log",
+        "--arena-storage",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-script/authoring",
+        "--arena-self-test",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/rhai-boss.trace",
+        "--arena-expected",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/rhai-boss.expected.ndjson",
+        "--arena-evidence",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-script"
+      ],
+      "elapsedSeconds": 18.791286945343018,
+      "externalWebSocketOverrideRemoved": true
+    },
+    "player-timeline": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-timeline/player-verification.json",
+        "bytes": 26391,
+        "sha256": "5b0b3e2649bbb012977630e30a0bbb341c0ea3db1710b5d5eec9d185aea053f0"
+      },
+      "verifiedAtUtc": "2026-09-06T15:30:00.132476+00:00",
+      "result": {
+        "backend": "native",
+        "scenario": "timeline-cues",
+        "matched": true,
+        "ticks": 1830,
+        "inputs": 1819,
+        "sessionId": "17148-1788708583841449000",
+        "deathObserved": false,
+        "retryObserved": false,
+        "error": null
+      },
+      "comparison": {
+        "ticks": 1830,
+        "stateAndOutput": "exact match",
+        "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/timeline-cues.expected.ndjson",
+        "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-timeline/actual.ndjson"
+      },
+      "trace": {
+        "path": ".tmp/stage15/reference/timeline-cues.trace",
+        "bytes": 727131,
+        "sha256": "3e10813b369cdcdcac93ba36a833a0f6124d7f2e0a6eb91f0c52542790331837"
+      },
+      "expected": {
+        "path": ".tmp/stage15/reference/timeline-cues.expected.ndjson",
+        "bytes": 47961482,
+        "sha256": "ead5e666557e254b72aa6c027717b03cddc0f3068ed63837dd7415703fae2a5c"
+      },
+      "actual": {
+        "path": ".tmp/stage16/player-timeline/actual.ndjson",
+        "bytes": 47961482,
+        "sha256": "6f91a159c6a6a0a76cc7687f46019adf3eb3211a25fa070832283e709792f0cf"
+      },
+      "executable": {
+        "path": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "3e58fc7cbc56688a72d611b335181722ec072b6727b59536e914811e9b4458c3"
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "screenshots": [
+        {
+          "path": ".tmp/stage16/player-timeline/boss.png",
+          "bytes": 140244,
+          "sha256": "8961790af9bed6bbbf7e82208dc85e84efca7aeca9489763eeda32663dc32bcb"
+        },
+        {
+          "path": ".tmp/stage16/player-timeline/chest.png",
+          "bytes": 190211,
+          "sha256": "6a05ac537518be07bcef75f6632b67c6270df70ea53bc428f73df95a08309db7"
+        },
+        {
+          "path": ".tmp/stage16/player-timeline/combat.png",
+          "bytes": 97735,
+          "sha256": "435ddd16ca8fbec9c80e3a7dea4782308ba6198c0c451ea6c7d97c87625cd381"
+        },
+        {
+          "path": ".tmp/stage16/player-timeline/timeline-boss.png",
+          "bytes": 145594,
+          "sha256": "55445dfaef28fa1ee1238f542800e455954f194a1858a6c43e979b882a7c1af1"
+        },
+        {
+          "path": ".tmp/stage16/player-timeline/timeline-floor.png",
+          "bytes": 92308,
+          "sha256": "fc70ebed5e52b8ab760f6dcc37bbe87b6062e739f177d65bd9fc0b330252691b"
+        },
+        {
+          "path": ".tmp/stage16/player-timeline/timeline-paused.png",
+          "bytes": 135141,
+          "sha256": "9869c96d07be33a356970126b8493e95f8f7f89f8474dab1532be872675f67de"
+        }
+      ],
+      "command": [
+        "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+        "-screen-fullscreen",
+        "0",
+        "-screen-width",
+        "1100",
+        "-screen-height",
+        "720",
+        "-logFile",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-timeline/player.log",
+        "--arena-storage",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-timeline/authoring",
+        "--arena-self-test",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/timeline-cues.trace",
+        "--arena-expected",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage15/reference/timeline-cues.expected.ndjson",
+        "--arena-evidence",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-timeline"
+      ],
+      "elapsedSeconds": 20.278857946395874,
+      "externalWebSocketOverrideRemoved": true
+    },
+    "player-bundled-edited-final": {
+      "sourceReport": {
+        "path": ".tmp/stage16/player-bundled-edited-final/player-verification.json",
+        "bytes": 25926,
+        "sha256": "6bc942f5c5cb18e5d33ef759ec8b1e2237c6006b033c1bf6fbcbedf55f49edee"
+      },
+      "verifiedAtUtc": "2026-09-06T15:47:07.994725+00:00",
+      "result": {
+        "backend": "native",
+        "scenario": "bundled-edited",
+        "matched": true,
+        "ticks": 1800,
+        "inputs": 1816,
+        "sessionId": "18257-1788709612671481000",
+        "deathObserved": false,
+        "retryObserved": false,
+        "error": null
+      },
+      "comparison": {
+        "ticks": 1800,
+        "stateAndOutput": "exact match",
+        "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/package-proof/bundled-edited.expected.ndjson",
+        "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-bundled-edited-final/actual.ndjson"
+      },
+      "trace": {
+        "path": ".tmp/stage16/package-proof/bundled-edited.trace",
+        "bytes": 721278,
+        "sha256": "13a20b14d4ca1839be2106fa193b6807956bfddf51df5633abd5c5673e8e279d"
+      },
+      "expected": {
+        "path": ".tmp/stage16/package-proof/bundled-edited.expected.ndjson",
+        "bytes": 47061572,
+        "sha256": "4d71e734002323fa5f7c31adae3ab8be24b6b8ce756539a415fc2847ba860ef6"
+      },
+      "actual": {
+        "path": ".tmp/stage16/player-bundled-edited-final/actual.ndjson",
+        "bytes": 47061572,
+        "sha256": "862d460925159b47d70ac2450facc9dae475b0e9f2168a0c3954cb6de684b2eb"
+      },
+      "executable": {
+        "path": "/private/tmp/kitu-stage16-relocated/KituArenaEditedFinal.app/Contents/MacOS/Kitu Endless Arena",
+        "bytes": 35172,
+        "sha256": "ea6eaa485bf63c070392dea6c8033ce51d8e23e7e2a4b1f933011a4927de7860"
+      },
+      "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+      "screenshots": [
+        {
+          "path": ".tmp/stage16/player-bundled-edited-final/bundled-boss.png",
+          "bytes": 146110,
+          "sha256": "e8ce66d0349c67d7927a4231f2ea01afecfeb277ba510336d7643d0d9732715f"
+        },
+        {
+          "path": ".tmp/stage16/player-bundled-edited-final/bundled-floor.png",
+          "bytes": 92210,
+          "sha256": "c95367abdba192ff5f5521f899a4f6e98472ab5985e08b7ae4dc60e0af7530e4"
+        },
+        {
+          "path": ".tmp/stage16/player-bundled-edited-final/bundled-weapon.png",
+          "bytes": 115800,
+          "sha256": "9702e7df323d81c30dd4bc0712e6e22484a7dc05bf18fc9ccfd53c654d78b354"
+        }
+      ],
+      "command": [
+        "/private/tmp/kitu-stage16-relocated/KituArenaEditedFinal.app/Contents/MacOS/Kitu Endless Arena",
+        "-screen-fullscreen",
+        "0",
+        "-screen-width",
+        "1100",
+        "-screen-height",
+        "720",
+        "-logFile",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-bundled-edited-final/player.log",
+        "--arena-initial-expected",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/package-proof/bundled-edited.initial.json",
+        "--arena-storage",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-bundled-edited-final/authoring",
+        "--arena-self-test",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/package-proof/bundled-edited.trace",
+        "--arena-expected",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/package-proof/bundled-edited.expected.ndjson",
+        "--arena-evidence",
+        "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage16/player-bundled-edited-final"
+      ],
+      "elapsedSeconds": 18.898030996322632,
+      "externalWebSocketOverrideRemoved": true,
+      "stagingInputs": 0,
+      "packageHash": "ed49d3b0010dfedcfeee278f91a580146a8d267bfcf96c6daef1142515af2646"
+    }
+  }
+}

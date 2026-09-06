@@ -16,6 +16,7 @@ use crate::DemoRuntime;
 
 pub mod config;
 pub mod inventory;
+pub mod package;
 pub mod presentation;
 pub mod script;
 use inventory::Inventory;

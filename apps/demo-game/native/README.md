@@ -10,6 +10,18 @@ Alternatively pass `{"contractVersion":1,"content":<ContentVersion>}` with a
 previously evaluated, hashed configuration. Invalid values, hashes, unknown
 fields and incompatible contracts are rejected before returning a handle.
 
+Unity's packaged Player instead supplies an absolute `bundledContentDirectory`.
+Its five-file source package initializes evaluated Tanu configuration, Rhai
+boss rules and TSQ1 clips before tick 0. It cannot accompany detached `content`,
+`script` or `timeline` initializers, and an explicit invalid package never falls
+back to compiled defaults. Optional `expectedBundledContentHash` binds creation
+to a previously reviewed manifest: Unity sends it automatically to reject
+replacement during asynchronous asset loading, before Runtime or storage
+creation. Native host inspection reports the captured `package` identity
+separately from game state. See the
+[packaged content contract](../../../doc/specs/arena-packaged-content.md) for
+schema, byte limits, hashing and reproducible Addressables/Player builds.
+
 The caller owns the one 60 Hz scheduler, submits typed input without advancing
 time, ticks once and retrieves the complete output batch. Inspect is read-only.
 A short read does not consume output; the next tick is refused until the previous
@@ -48,6 +60,14 @@ edits only on the next run; saved bytes reproduce presentation after deletion.
 See the [TSQ1 presentation contract](../../../doc/specs/arena-presentation-timelines.md).
 Otherwise the storage directory receives an editable `arena.tmd` on first use;
 existing documents are preserved. Validation and staging keep next-run semantics.
+
+With package initialization, absent default authoring files are seeded from
+the package's captured bytes; existing edits are never overwritten. Authoring
+files do not replace the package's initial versions until explicitly validated
+and staged for a later run. A Unity Player can select a different complete
+package with `--arena-package /absolute/package-directory` and separate writable
+storage with `--arena-storage /absolute/directory`. Saved replays keep their
+detached versions after package or authoring changes.
 
 The bridge never advances the clock. Unity/another native owner continues calling
 tick while paused or detached, allowing operator receipts and replay controls to

@@ -36,6 +36,10 @@ struct NativeConfig {
     script_path: Option<PathBuf>,
     #[serde(default)]
     timeline_directory: Option<PathBuf>,
+    #[serde(default)]
+    bundled_content_directory: Option<PathBuf>,
+    #[serde(default)]
+    expected_bundled_content_hash: Option<String>,
 }
 fn contract_version() -> u32 {
     arena::SCHEMA_VERSION
@@ -50,10 +54,53 @@ fn factory(bytes: &[u8]) -> Result<Box<dyn ApplicationDriver>, String> {
             arena::SCHEMA_VERSION
         ));
     }
-    let runtime = if config.content.is_some()
-        || config.script.is_some()
-        || config.timeline.is_some()
+    if config.bundled_content_directory.is_some()
+        && (config.content.is_some() || config.script.is_some() || config.timeline.is_some())
     {
+        return Err(
+            "bundledContentDirectory cannot be combined with detached content, script or timeline"
+                .into(),
+        );
+    }
+    if let Some(hash) = &config.expected_bundled_content_hash {
+        if config.bundled_content_directory.is_none() {
+            return Err("expectedBundledContentHash requires bundledContentDirectory".into());
+        }
+        if hash.len() != 64
+            || !hash
+                .bytes()
+                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+        {
+            return Err(
+                "expectedBundledContentHash must be 64 lowercase hexadecimal characters".into(),
+            );
+        }
+    }
+    let package = config
+        .bundled_content_directory
+        .as_deref()
+        .map(arena::package::load_package)
+        .transpose()
+        .map_err(|error| format!("invalid bundled Arena content: {error:#}"))?;
+    if let (Some(expected), Some(package)) = (&config.expected_bundled_content_hash, &package) {
+        if expected != &package.identity.hash {
+            return Err(
+                "bundled Arena content changed after visual preparation: package hash mismatch"
+                    .into(),
+            );
+        }
+    }
+    let runtime = if let Some(package) = &package {
+        let mut runtime = build_demo_runtime().map_err(|error| error.to_string())?;
+        arena::install_with_all_versions(
+            &mut runtime,
+            package.content.clone(),
+            package.script.clone(),
+            package.timeline.clone(),
+        )
+        .map_err(|error| error.to_string())?;
+        runtime
+    } else if config.content.is_some() || config.script.is_some() || config.timeline.is_some() {
         let content = match config.content {
             Some(content) => content,
             None => {
@@ -84,6 +131,7 @@ fn factory(bytes: &[u8]) -> Result<Box<dyn ApplicationDriver>, String> {
         config.content_path,
         config.script_path,
         config.timeline_directory,
+        package,
     )?))
 }
 
@@ -98,7 +146,7 @@ pub extern "C" fn kitu_application_abi_version() -> u32 {
     ffi::ABI_VERSION
 }
 
-/// Creates an unstarted Arena, using embedded TMD or detached validated content.
+/// Creates an unstarted Arena from defaults, detached versions, or a verified package.
 /// Empty configuration means defaults. Failures return no handle and report the
 /// required diagnostic length without truncating into short buffers.
 ///

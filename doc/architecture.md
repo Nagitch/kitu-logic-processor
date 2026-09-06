@@ -94,6 +94,17 @@ pause with diagnostics before gameplay mutation. Replay saves exact script sourc
 and policy, independently of authoring files. See the
 [boss script contract](specs/arena-boss-scripts.md).
 
+Stages 14–15 add Runtime-driven TSQ1 presentation cues and versioned JSON/
+MessagePack application connections, with complete-batch parity through the
+native C ABI. Stage 16 packages the actual Tanu, Rhai and TSQ1 source bytes with
+four typed visual keys. Unity loads local Addressable material/prefabs before
+creating the native Runtime, which independently validates the same package
+identity before installing its source versions. Persistent authoring files are
+seeded only when absent and still require explicit next-run adoption. The
+Unity-only procedural reference remains available. See the
+[packaged content contract](specs/arena-packaged-content.md) and
+[relocated Player evidence](verification/arena-content/README.md).
+
 ### P0 — Execution Semantics
 
 status: implemented

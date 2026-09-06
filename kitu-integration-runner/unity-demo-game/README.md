@@ -151,8 +151,8 @@ and [Unity CLI and Pipeline overview](https://unity.com/blog/meet-the-unity-cli)
 
 Open `Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity`, the first enabled
 build scene. On macOS, inspector `Backend = Automatic` selects the embedded
-native library. Build the plugin with the command below before entering Play
-Mode. Preparation, inventory/equipment, combat, endless floors, bosses/rewards,
+native library. Prepare the plugin, source package and Addressables as described
+below before entering Play Mode. Preparation, inventory/equipment, combat, endless floors, bosses/rewards,
 results and retry all run through the same Kitu application as the server.
 
 Set `Backend = Server`, supply `--arena-server ws://127.0.0.1:8787/ws/arena`,
@@ -193,8 +193,10 @@ checkpoints and 53 receipts. See [evidence](../../doc/verification/arena-progres
 **Kitu > Prepare Endless Arena (Kitu)** restores the default build entry without
 replacing an existing scene. **Kitu > Build Endless Arena (Kitu, macOS)** builds
 the embedded ARM64 scene to `Builds/KituEndlessArena.app` after validating plugin
-import settings. The build temporarily selects Mono, ARM64 and background
-execution, then restores the Editor's prior build settings.
+import settings and the staged content package. The build creates a local packed
+Addressables catalog and bundle, temporarily selects Mono, ARM64 and background
+execution, and restores the previous build settings. The Python build tool below
+stages the required source package automatically.
 The original build menu below remains an explicit reference-only choice.
 
 ### Reproduce the embedded macOS build
@@ -205,8 +207,8 @@ frontend checks remain in the Dev Container; these commands use the Apple SDK.
 Close the Editor for this checkout, then run from the repository root:
 
 ```sh
-python3 tools/build-arena-native-macos.py
-python3 tools/build-arena-player-macos.py
+python3 tools/build-arena-native-macos.py --evidence .tmp/stage16/native
+python3 tools/build-arena-player-macos.py --evidence .tmp/stage16/player-build
 ```
 
 The first command runs a locked Cargo build for `aarch64-apple-darwin`, installs
@@ -219,11 +221,25 @@ selects an optimized native build. Cargo/toolchain settings supplied in the
 invoking environment are preserved; the default development build disables
 incremental compilation and debug information to limit disk use.
 
-The second command selects the pinned Editor, builds the graphical Player and
-checks its executable architecture, embedded plugin, signatures and plugin code
-identity. `--editor`, `--player`, `--evidence` and `--timeout` override explicit
-paths or limits. Build reports and native SHA-256 values are written under
-`.tmp/stage11/`; a successful build alone does not claim gameplay verification.
+The second command stages `apps/demo-game/content/`, selects the pinned Editor,
+builds real local Addressables content and the graphical Player, then checks
+architecture, embedded plugin/signatures, source package, catalog and bundle
+hashes. Addressables `2.11.2` supplies the stable material/cube/capsule/sphere
+addresses; the Kitu view loads these assets before connecting. Missing content
+fails preparation instead of starting a procedural fallback. The Unity-only
+reference keeps its original Resources material and primitive creation.
+`--content-source /absolute/source-directory` builds different package data with
+the same native plugin. `--editor`, `--player`, `--evidence` and `--timeout`
+override paths or limits. The commands above write reports under `.tmp/stage16/`;
+a successful build alone does not claim gameplay verification.
+
+For a fresh checkout used only in Editor Play Mode, run the native build above
+and `python3 tools/package-arena-content.py`, open the Unity project, finish
+package import, then choose **Kitu > Prepare Arena Addressables**. The normal
+Player build already performs that preparation. Source assets, metadata and
+Addressables settings are tracked; packages, binaries and generated bundles are
+rebuilt locally. See the [packaged content contract](../../doc/specs/arena-packaged-content.md)
+for the fixed source files, limits, batch preparation and lifetime rules.
 
 Launch `Builds/KituEndlessArena.app` normally to play without an external Kitu
 server. Its development bridge defaults to `http://127.0.0.1:8789` and observes
@@ -241,6 +257,29 @@ not start a second game clock. Inspector fields `NativeBridgeEnabled`,
 Use `--arena-content /absolute/path/to/arena.tmd` to select an existing authoring
 document in a standalone run; validate and stage it through Admin for next-run
 application.
+
+The Player normally initializes from its shipped package. For development,
+`--arena-package /absolute/package-directory` selects another complete source
+package, and `--arena-storage /absolute/directory` selects writable authoring and
+recording storage. Without the latter, storage is `arena/` under Unity's
+`Application.persistentDataPath`. Missing authoring files are copied from the
+selected package once; existing files are preserved. Editing those files never
+changes the initial/current run automatically: validate and stage through Admin
+for the next start/retry. Saved replay versions remain independent of later
+package or authoring edits. Both overrides are optional for ordinary play.
+
+Verify actual package startup and handle cleanup separately from gameplay:
+
+```sh
+python3 tools/verify-arena-packaged-player.py \
+  --player kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app \
+  --evidence .tmp/stage16/player-content
+```
+
+This graphical probe checks loaded keys and bundle paths, matching Unity/native
+package identities and released handles. `--relocate-to /absolute/unused.app`
+also launches a copy outside the checkout. It covers local macOS ARM64 content;
+CDN delivery and other platforms are outside this stage.
 
 ### Verify the built Player with the frozen scenarios
 

@@ -14,14 +14,26 @@ namespace UnityOnlyArena
         private readonly HashSet<string> live = new HashSet<string>();
         private readonly List<string> obsolete = new List<string>();
         private Material baseMaterial;
+        private ArenaAddressableAssets assets;
+        private GameObject lightObject;
         private Transform stage, player, chest, portal;
         private LineRenderer shield;
         private bool timelineDriven;
         private ArenaPresentationState presentation;
         public Camera GameCamera { get; private set; }
 
-        public void Initialize(ArenaSimulation model) => Initialize(new ReferenceView(model));
-        public void Initialize(ArenaReferenceState state) => Initialize(new ProjectionView(state));
+        public void Initialize(ArenaSimulation model)
+        {
+            baseMaterial = Resources.Load<Material>("ArenaBase");
+            Initialize(new ReferenceView(model));
+        }
+        public void Initialize(ArenaReferenceState state, ArenaAddressableAssets loadedAssets)
+        {
+            if (loadedAssets == null || !loadedAssets.Ready) throw new System.InvalidOperationException("Arena view requires loaded Addressables");
+            assets = loadedAssets;
+            baseMaterial = assets.BaseMaterial;
+            Initialize(new ProjectionView(state));
+        }
         public void Sync(ArenaSimulation model) => Sync(new ReferenceView(model));
         public void Sync(ArenaReferenceState state) => Sync(new ProjectionView(state));
         public void UseTimelinePresentation() { timelineDriven = true; }
@@ -33,7 +45,7 @@ namespace UnityOnlyArena
 
         private void Initialize(IView model)
         {
-            baseMaterial = Resources.Load<Material>("ArenaBase");
+            if (stage != null) throw new System.InvalidOperationException("Arena view is already initialized");
             stage = new GameObject("Arena presentation").transform;
             stage.SetParent(transform);
             Primitive("Floor", PrimitiveType.Cube, new Vector3(0, -.2f, 0), new Vector3(20, .4f, 20), new Color(.10f, .15f, .21f));
@@ -60,6 +72,7 @@ namespace UnityOnlyArena
             GameCamera.backgroundColor = new Color(.035f, .055f, .085f);
             GameCamera.nearClipPlane = .1f;
             var sun = new GameObject("Arena Light", typeof(Light));
+            lightObject = sun;
             sun.transform.SetParent(transform);
             sun.transform.rotation = Quaternion.Euler(65, -25, 0);
             sun.GetComponent<Light>().type = LightType.Directional;
@@ -225,12 +238,12 @@ namespace UnityOnlyArena
 
         private GameObject Primitive(string name, PrimitiveType type, Vector3 position, Vector3 scale, Color color)
         {
-            var obj = GameObject.CreatePrimitive(type);
+            var obj = assets == null ? GameObject.CreatePrimitive(type) : assets.Instantiate(type);
             obj.name = name;
             obj.transform.SetParent(stage);
             obj.transform.position = position;
             obj.transform.localScale = scale;
-            Destroy(obj.GetComponent<Collider>());
+            if (assets == null) Destroy(obj.GetComponent<Collider>());
             obj.GetComponent<Renderer>().sharedMaterial = Material(color);
             return obj;
         }
@@ -270,9 +283,17 @@ namespace UnityOnlyArena
 
         public static Vector3 Point(Vector2 value, float height) => new Vector3(value.x, height, value.y);
 
-        private void OnDestroy()
+        public void ReleasePresentation()
         {
+            if (stage != null) { stage.gameObject.SetActive(false); Destroy(stage.gameObject); }
+            if (GameCamera != null) { GameCamera.gameObject.SetActive(false); Destroy(GameCamera.gameObject); }
+            if (lightObject != null) { lightObject.SetActive(false); Destroy(lightObject); }
             foreach (var material in materials.Values) Destroy(material);
+            materials.Clear(); objects.Clear(); live.Clear(); obsolete.Clear();
+            stage = player = chest = portal = null; shield = null;
+            GameCamera = null; lightObject = null; baseMaterial = null; assets = null; presentation = null;
         }
+
+        private void OnDestroy() { ReleasePresentation(); }
     }
 }

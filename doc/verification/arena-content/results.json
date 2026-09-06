@@ -1,0 +1,114 @@
+{
+  "stage": 16,
+  "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/160",
+  "implementationRevision": "a210bd97fd2b245a051f0061bc5a71c7ad8c0f21",
+  "capturedAtUtc": "2026-09-06T15:50:09.175705+00:00",
+  "status": "local_verification_complete",
+  "execution": {
+    "package": "0.1.0",
+    "sourceHash": "bb32df1ce508afbfc52676ce61df27a4e52e8d3d4b87948fd24f468a1be58260",
+    "target": "aarch64-apple-darwin"
+  },
+  "packageHashes": {
+    "default": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+    "edited": "ed49d3b0010dfedcfeee278f91a580146a8d267bfcf96c6daef1142515af2646"
+  },
+  "pluginSha256": "0fd76742589ebeb0ee13566dfd32de5359c3b5146071d5b90a2e556c8b2db206",
+  "reports": {
+    "builds": "builds.json",
+    "defaultGameplay": "players.json",
+    "relocatedBootstrap": "bootstrap.json",
+    "invalidPlayerStartup": "failures.json",
+    "rust": "rust.json",
+    "unity": "unity-tests.json",
+    "visuals": "visuals.json",
+    "runtimeArchive": "runtime-archive.json"
+  },
+  "completed": {
+    "defaultPlayerScenarios": 4,
+    "defaultPlayerTicks": 9186,
+    "defaultPlayerInputs": 9257,
+    "relocatedBootstraps": 2,
+    "invalidPlayerStartupCases": 6,
+    "editMode": 143,
+    "scopedAddressablesPlayMode": 7,
+    "editedPackagePlayerScenarios": 1,
+    "editedPackagePlayerTicks": 1800,
+    "editedPackagePlayerInputs": 1816,
+    "authoringPreservationBootstraps": 1,
+    "fullMessagePackPlayMode": 29,
+    "jsonNetworkPlayMode": 6
+  },
+  "editedPackageNativeOracle": {
+    "sourceReport": {
+      "path": ".tmp/stage16/package-proof/bundled-edited.result.json",
+      "bytes": 1468,
+      "sha256": "48cc1c0b7e6d053afc18cf17e280b81471f5e94deae249a4298dcb6a6f86362b"
+    },
+    "bossRadius": 4.5,
+    "completeOutputAndStateMatched": true,
+    "floorOpacity": 0.85,
+    "initialInspectionTick": -1,
+    "inputs": 1816,
+    "package": {
+      "contentHash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+      "files": [
+        {
+          "bytes": 306,
+          "path": "unity-assets.json",
+          "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+        },
+        {
+          "bytes": 49868,
+          "path": "arena.tmd",
+          "sha256": "d1f7f78bd1d6f4a337779e34583602d537354717ca92e614457b106d6ae7b8ce"
+        },
+        {
+          "bytes": 676,
+          "path": "boss.rhai",
+          "sha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6"
+        },
+        {
+          "bytes": 737,
+          "path": "timelines/boss-telegraph.tsq",
+          "sha256": "a470838cf9f2ac0b752b97bd95d6038f8bc237673238f88e9fd0620f93202b62"
+        },
+        {
+          "bytes": 652,
+          "path": "timelines/floor-transition.tsq",
+          "sha256": "c1df5a5518de803b5fab01e032594e024a7ef103d74301b042343ef76a0a539c"
+        }
+      ],
+      "hash": "ed49d3b0010dfedcfeee278f91a580146a8d267bfcf96c6daef1142515af2646",
+      "schemaVersion": 1,
+      "scriptHash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+      "timelineHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e"
+    },
+    "replayVerified": true,
+    "stagingInputs": 0,
+    "telegraphTicks": 96,
+    "ticks": 1800,
+    "weaponDamage": 32
+  },
+  "pending": [
+    {
+      "check": "ci_review_merge_and_parent_pointer",
+      "status": "pending"
+    }
+  ],
+  "scope": "macOS ARM64 local content; no CDN/remote catalog or other-platform claim; no PNG publication.",
+  "resolvedDuringVerification": [
+    {
+      "check": "edited_package_graphical_gameplay",
+      "initialAttempt": {
+        "path": ".tmp/stage16/player-bundled-edited/result.json",
+        "bytes": 21392,
+        "sha256": "005ee431c6b1b398e5b2575140992b1aaf257e8357287bd4ff8b9f46227f72a9"
+      },
+      "finding": "The required bundled-weapon image checked the chest instead of the equipped starter. The corrected checkpoint observes the same unmodified trace.",
+      "finalReport": "players.json#player-bundled-edited-final",
+      "result": "1800 ticks and 1816 inputs match complete state/output; all three required rendered checkpoints exist."
+    }
+  ],
+  "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/161"
+}
