@@ -16,12 +16,20 @@ namespace UnityOnlyArena
         private Material baseMaterial;
         private Transform stage, player, chest, portal;
         private LineRenderer shield;
+        private bool timelineDriven;
+        private ArenaPresentationState presentation;
         public Camera GameCamera { get; private set; }
 
         public void Initialize(ArenaSimulation model) => Initialize(new ReferenceView(model));
         public void Initialize(ArenaReferenceState state) => Initialize(new ProjectionView(state));
         public void Sync(ArenaSimulation model) => Sync(new ReferenceView(model));
         public void Sync(ArenaReferenceState state) => Sync(new ProjectionView(state));
+        public void UseTimelinePresentation() { timelineDriven = true; }
+        public void SyncPresentation(ArenaReferenceState state, ArenaPresentationState value)
+        {
+            presentation = value;
+            Sync(state);
+        }
 
         private void Initialize(IView model)
         {
@@ -92,9 +100,14 @@ namespace UnityOnlyArena
                 obj.transform.localScale = new Vector3(enemy.Radius * 2, enemy.Kind == ArenaEnemyKind.Boss ? 1f : .6f, enemy.Radius * 2);
                 if (enemy.Kind == ArenaEnemyKind.Boss && enemy.BossState == ArenaBossState.Telegraph)
                 {
-                    var tell = DynamicRing("tell-" + enemy.Id, new Color(1f, .2f, .4f));
-                    tell.transform.position = Point(enemy.Position, .15f);
-                    SetRing(tell, 3f);
+                    var cue = timelineDriven ? presentation?.Boss(enemy.Id) : null;
+                    if (!timelineDriven || (cue != null && cue.intensity > 0))
+                    {
+                        var tell = DynamicRing("tell-" + enemy.Id, new Color(1f, .2f, .4f));
+                        tell.transform.position = Point(enemy.Position, .15f);
+                        tell.startWidth = tell.endWidth = timelineDriven ? .025f + cue.intensity * .1f : .075f;
+                        SetRing(tell, timelineDriven ? cue.radius : 3f);
+                    }
                 }
             }
             foreach (var bullet in model.Projectiles)

@@ -141,12 +141,40 @@ namespace UnityOnlyArena.Tests
             long pausedTick = client.State.tick;
             yield return new WaitForSecondsRealtime(.15f);
             Assert.That(client.State.tick, Is.EqualTo(pausedTick));
+            // The pinned stock trace enters its first transition at185 and the
+            // first boss telegraph at1625. TSQ1 offsets remain exact after seek.
+            yield return ReplayRequest(api, "/seek", "{\"tick\":197}");
+            yield return Until(() => client.Presentation != null && client.Presentation.tick == 197, "floor timeline seek");
+            Assert.That(client.Presentation.floor.offsetTick, Is.EqualTo(12));
+            Assert.That(client.Presentation.floor.toFloor, Is.EqualTo(1));
+            HostInspection timeline = null;
+            yield return HostRequest(api, "/arena/timeline", null, value => timeline = value);
+            Assert.That(JsonUtility.ToJson(client.Presentation), Is.EqualTo(JsonUtility.ToJson(timeline.runtime.presentation)), "Admin and Unity show the same floor cue");
+            yield return ReplayRequest(api, "/seek", "{\"tick\":1649}");
+            yield return Until(() => client.Presentation.tick == 1649, "boss timeline seek");
+            var bossCue = client.Presentation.bosses.Single();
+            Assert.That(bossCue.offsetTick, Is.EqualTo(24));
+            var ring = root.transform.Find("Arena presentation/tell-" + bossCue.entityId).GetComponent<LineRenderer>();
+            Assert.That(ring.GetPosition(0).magnitude, Is.EqualTo(bossCue.radius).Within(1e-4f));
+            yield return HostRequest(api, "/arena/timeline", null, value => timeline = value);
+            string pausedPresentation = JsonUtility.ToJson(client.Presentation);
+            Assert.That(pausedPresentation, Is.EqualTo(JsonUtility.ToJson(timeline.runtime.presentation)), "Admin and Unity show the same boss cue");
+            yield return new WaitForSecondsRealtime(.15f);
+            Assert.That(JsonUtility.ToJson(client.Presentation), Is.EqualTo(pausedPresentation), "paused replay does not advance presentation");
+            client.Disconnect(); client.Connect();
+            yield return Until(() => client.Connected && client.ReplayActive && client.Presentation != null && client.Presentation.tick == 1649, "reconnect restores exact boss cue");
+            Assert.That(JsonUtility.ToJson(client.Presentation), Is.EqualTo(pausedPresentation));
+            yield return ReplayRequest(api, "/command", "{\"action\":\"step\"}");
+            yield return Until(() => client.Presentation.tick == 1650, "single presentation step");
+            Assert.That(client.Presentation.bosses.Single().offsetTick, Is.EqualTo(25));
             yield return ReplayRequest(api, "/seek", "{\"tick\":5526}");
             yield return Until(() => client.State.tick == 5526, "seek to natural death");
             Assert.That(client.State.phase, Is.EqualTo(5));
             Assert.That(client.State.floor, Is.EqualTo(11));
             Assert.That(client.State.inventory.health, Is.EqualTo(0));
             Assert.That(client.State.result.present, Is.True);
+            Assert.That(client.Presentation.bosses, Is.Empty);
+            Assert.That(client.Presentation.floor, Is.Null);
             HostInspection inspected = null;
             yield return ReplayRequest(api, "", null, value => inspected = value);
             var admin = inspected.state;
@@ -170,7 +198,8 @@ namespace UnityOnlyArena.Tests
         }
 
         [Serializable] private sealed class ReplayLoad { public string id; }
-        [Serializable] private sealed class HostInspection { public ArenaReferenceState state; public string sessionId; public bool ok; public string error; }
+        [Serializable] private sealed class TimelineInspection { public ArenaPresentationState presentation; }
+        [Serializable] private sealed class HostInspection { public ArenaReferenceState state; public TimelineInspection runtime; public string sessionId; public bool ok; public string error; }
         [Serializable] private sealed class ShellLine { public int version = 1; public string sessionId; public string clientId = "unity-shell-test"; public int id; public string line; }
 
         private static IEnumerator ReplayRequest(string api, string path, string body, Action<HostInspection> receive = null)
@@ -187,7 +216,13 @@ namespace UnityOnlyArena.Tests
                 request.timeout = 60;
                 yield return request.SendWebRequest();
                 Assert.That(request.result, Is.EqualTo(UnityWebRequest.Result.Success), request.downloadHandler.text);
-                receive?.Invoke(JsonUtility.FromJson<HostInspection>(request.downloadHandler.text));
+                var inspection = JsonUtility.FromJson<HostInspection>(request.downloadHandler.text);
+                if (path == "/arena/timeline")
+                {
+                    var presentation = Newtonsoft.Json.Linq.JObject.Parse(request.downloadHandler.text)["runtime"]["presentation"];
+                    inspection.runtime.presentation = ArenaPresentationState.FromJson(presentation.ToString());
+                }
+                receive?.Invoke(inspection);
             }
         }
 

@@ -1,0 +1,61 @@
+{
+  "environment": "Dev Container, Linux, Rust 1.96.0",
+  "passed": 303,
+  "failed": 0,
+  "ignored": 0,
+  "suites": 54,
+  "checks": [
+    {
+      "path": ".tmp/stage14/rust-tests.log",
+      "bytes": 34654,
+      "sha256": "d43be91a5cb4e1f86342f1b50283c100c61cf13cf25ce8a5e3c57ce782700337"
+    },
+    {
+      "path": ".tmp/stage14/fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".tmp/stage14/clippy.log",
+      "bytes": 501,
+      "sha256": "3f5d9a3378d879990d7627b83ed906fd373aadb4b86898f2f33280da74f1bfa5"
+    },
+    {
+      "path": ".tmp/stage14/rustdoc.log",
+      "bytes": 856,
+      "sha256": "9cb6b42d3dec6015b851875535b420f6795e70790c1b06950b87669fdb81b5ec"
+    },
+    {
+      "path": ".tmp/stage14/bridge-recheck.log",
+      "bytes": 553,
+      "sha256": "a005b8e2da154c7a3affbf7b8398d497192f98390c46a6c1e805a92b7b805d24"
+    }
+  ],
+  "nativeMac": {
+    "passed": 19,
+    "coverage": "7 application tests + 11 native HTTP/WS/lifetime tests + 1 doctest",
+    "testSchedulingCorrection": "The timeline bridge replay/load HTTP acknowledgement queues activation; a subsequent explicit native owner tick precedes assertions, matching existing script tests. Initial 10 bridge cases passed and the corrected single case passed separately.",
+    "logs": [
+      {
+        "path": ".tmp/stage14/native-arena.log",
+        "bytes": 1520,
+        "sha256": "0b11561f6b37fbe9fa1d5a1dd474cdf01f05ec15fccbcc8d64a60bdb0f0b98d4"
+      },
+      {
+        "path": ".tmp/stage14/native-bridge.log",
+        "bytes": 37918,
+        "sha256": "70021f55bd4386f400dd0233bf8710d4bb6f26fba721da4bc490b3ce086704a9"
+      },
+      {
+        "path": ".tmp/stage14/native-bridge-recheck.log",
+        "bytes": 550,
+        "sha256": "222c7c09d69cee11fcdb33c9471f9b1625a287196fea1549c6b825c0ba10c340"
+      },
+      {
+        "path": ".tmp/stage14/native-doc.log",
+        "bytes": 294,
+        "sha256": "9a3c9cf987dd189209a0f4b1f3e31035a820d0ad67926e5b5b458908bbc26f63"
+      }
+    ]
+  }
+}

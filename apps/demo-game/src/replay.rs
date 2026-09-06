@@ -22,7 +22,9 @@ use std::{
 
 /// Maximum session duration accepted by the initial in-memory recorder (one hour).
 pub const MAX_TICKS: u64 = 216_000;
-const RECORDING_VERSION: u32 = 2;
+const RECORDING_VERSION: u32 = 3;
+/// Maximum distinct presentation source versions retained by one recording.
+pub const MAX_TIMELINE_VERSIONS: usize = 64;
 /// Maximum distinct source versions, including the initial program, in one recording.
 /// This bound applies identically while capturing and loading retained programs.
 pub const MAX_SCRIPT_VERSIONS: usize = 64;
@@ -77,6 +79,8 @@ pub struct Manifest {
     pub initial_content: ContentVersion,
     /// Detached boss source and sandbox policy present before the first tick.
     pub initial_script: arena::script::ScriptVersion,
+    /// Detached presentation clips present before the first tick.
+    pub initial_timeline: arena::presentation::TimelineVersion,
     /// Projection before execution; protects initial-condition compatibility.
     pub initial_state: String,
     /// Total completed management ticks, including pauses and empty input ticks.
@@ -101,6 +105,7 @@ pub struct Recorder {
     inputs: Vec<TimedBundle>,
     encoded_size_bound: usize,
     script_versions: HashSet<String>,
+    timeline_versions: HashSet<String>,
 }
 impl Recorder {
     /// Captures initial conditions without advancing or changing the Runtime.
@@ -127,6 +132,8 @@ impl Recorder {
         );
         let initial_script = arena::inspect_script(runtime)?.pending;
         let script_versions = HashSet::from([initial_script.hash.clone()]);
+        let initial_timeline = arena::inspect_timeline(runtime)?.pending;
+        let timeline_versions = HashSet::from([initial_timeline.hash.clone()]);
         let mut recorder = Self {
             manifest: Manifest {
                 version: RECORDING_VERSION,
@@ -136,6 +143,7 @@ impl Recorder {
                 tick_rate: runtime.config().tick_rate_hz,
                 initial_content: initial.pending,
                 initial_script,
+                initial_timeline,
                 initial_state: hash_bundles(&runtime.inspect_application())?,
                 ticks: 0,
                 proofs: Vec::new(),
@@ -144,6 +152,7 @@ impl Recorder {
             inputs: Vec::new(),
             encoded_size_bound: 0,
             script_versions,
+            timeline_versions,
         };
         // Reserve growth from the initial one-digit tick count to any u64.
         recorder.encoded_size_bound = recorder.encode()?.len() + 20;
@@ -181,6 +190,7 @@ impl Recorder {
             })
             .collect::<Result<Vec<_>>>()?;
         let mut new_script_versions = HashSet::new();
+        let mut new_timeline_versions = HashSet::new();
         for entry in &entries {
             let identity: InputIdentity = serde_json::from_value(entry.metadata.clone())?;
             if let Some(version) =
@@ -194,6 +204,20 @@ impl Recorder {
         ensure!(
             self.script_versions.len() + new_script_versions.len() <= MAX_SCRIPT_VERSIONS,
             "recording reached 64 script versions; start a new session"
+        );
+        for entry in &entries {
+            let identity: InputIdentity = serde_json::from_value(entry.metadata.clone())?;
+            if let Some(version) =
+                arena::timeline_input_version(&entry.bundle, identity.identity.as_ref())?
+            {
+                if !self.timeline_versions.contains(&version.hash) {
+                    new_timeline_versions.insert(version.hash);
+                }
+            }
+        }
+        ensure!(
+            self.timeline_versions.len() + new_timeline_versions.len() <= MAX_TIMELINE_VERSIONS,
+            "recording reached 64 timeline versions; start a new session"
         );
         let proof = proof(runtime, outputs)?;
         let mut runs = Vec::new();
@@ -232,6 +256,7 @@ impl Recorder {
         );
         self.encoded_size_bound = size;
         self.script_versions.extend(new_script_versions);
+        self.timeline_versions.extend(new_timeline_versions);
         self.inputs.extend(entries);
         self.manifest.proofs.push(proof);
         self.manifest.runs.extend(runs);
@@ -258,6 +283,7 @@ pub struct Session {
     manifest: Manifest,
     inputs: Vec<TimedBundle>,
     scripts: HashMap<String, Arc<arena::script::PreparedScript>>,
+    timelines: HashMap<String, Arc<arena::presentation::PreparedTimeline>>,
 }
 
 /// Result of a complete deterministic re-execution.
@@ -297,6 +323,9 @@ impl Session {
         manifest.initial_content.validate()?;
         let initial_script = arena::script::prepare_version(&manifest.initial_script)?;
         let mut scripts = HashMap::from([(manifest.initial_script.hash.clone(), initial_script)]);
+        let initial_timeline = arena::presentation::prepare_version(&manifest.initial_timeline)?;
+        let mut timelines =
+            HashMap::from([(manifest.initial_timeline.hash.clone(), initial_timeline)]);
         ensure!(
             valid_hash(&manifest.initial_state)
                 && manifest
@@ -334,11 +363,31 @@ impl Session {
                     );
                 }
             }
+            if let Some(version) =
+                arena::timeline_input_version(&entry.bundle, identity.identity.as_ref())?
+            {
+                if let Some(prepared) = timelines.get(&version.hash) {
+                    ensure!(
+                        prepared.version == version,
+                        "recorded timeline identity conflicts with its source"
+                    );
+                } else {
+                    ensure!(
+                        timelines.len() < MAX_TIMELINE_VERSIONS,
+                        "recording exceeds 64 timeline versions"
+                    );
+                    timelines.insert(
+                        version.hash.clone(),
+                        arena::presentation::prepare_version(&version)?,
+                    );
+                }
+            }
         }
         Ok(Self {
             manifest,
             inputs: document.entries,
             scripts,
+            timelines,
         })
     }
     /// Returns saved metadata, including all detached run configurations.
@@ -354,6 +403,10 @@ impl Session {
             self.scripts
                 .get(&self.manifest.initial_script.hash)
                 .expect("initial program prepared during decode")
+                .clone(),
+            self.timelines
+                .get(&self.manifest.initial_timeline.hash)
+                .expect("initial timeline prepared during decode")
                 .clone(),
         )?;
         ensure!(
@@ -385,6 +438,15 @@ impl Session {
                     .get(&version.hash)
                     .context("recorded script was not prepared during decode")?;
                 arena::pin_prepared_script(runtime, prepared.clone())?;
+            }
+            if let Some(version) =
+                arena::timeline_input_version(&entry.bundle, identity.identity.as_ref())?
+            {
+                let prepared = self
+                    .timelines
+                    .get(&version.hash)
+                    .context("recorded timeline was not prepared during decode")?;
+                arena::pin_prepared_timeline(runtime, prepared.clone())?;
             }
             let sequence = runtime
                 .try_enqueue_input(entry.bundle.clone(), identity.identity)

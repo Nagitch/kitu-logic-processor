@@ -55,6 +55,9 @@ Use `help` for the authoritative catalog. The initial command families are:
 | `inspect script` | Observed active/pending source versions, candidate and structured diagnostics |
 | `script validate` | Bounded compilation and boss-action probes; invalid diagnostics produce a refusal |
 | `script stage <hash>` | Reviewed source/policy for the next run, with its applied receipt |
+| `inspect timeline` | Observed clip versions and authoritative cue positions/values |
+| `timeline validate` | Real TSQ1 decode and bounded presentation-contract validation |
+| `timeline stage <hash>` | Reviewed detached clips for the next run, with the applied receipt |
 | `replay list/save/verify/load/play/pause/step/stop/seek/live` | Existing TSQ1 and playback operations; step returns after advancement |
 | `scenario list/run` | Application-owned bounded action sequences on the live Runtime |
 

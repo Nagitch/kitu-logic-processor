@@ -1,0 +1,92 @@
+[
+  {
+    "path": ".tmp/stage14/review/player-preparation/inventory.png",
+    "sha256": "27e19d33d1595fabc836277acb3d0c02516addb79923ec9ef3e74e9278371a04",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-preparation/inventory.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-stock/boss.png",
+    "sha256": "f457204b562e4b7b63ee260902249bd24b3b692e9ea3c76509b1251513d34aad",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-stock/boss.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-stock/chest.png",
+    "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-stock/chest.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-stock/combat.png",
+    "sha256": "b2c6212ff2efb75b141525c522afcc54138a3895278239d07230e94d0aefedaa",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-stock/combat.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-stock/death-11f.png",
+    "sha256": "f322a81b1e913f415e27d8942c62edbd83c89108c66ee5318bdc47d24ec1bb61",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-stock/death-11f.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-stock/retry.png",
+    "sha256": "7ad3badf7dc7194e24a2290921a0285cee48fcb7fd1889bcd7a887b255b4c231",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-stock/retry.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-script/boss-script.png",
+    "sha256": "f457204b562e4b7b63ee260902249bd24b3b692e9ea3c76509b1251513d34aad",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-script/boss-script.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-script/chest.png",
+    "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-script/chest.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-script/combat.png",
+    "sha256": "b2c6212ff2efb75b141525c522afcc54138a3895278239d07230e94d0aefedaa",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-script/combat.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-timeline/boss.png",
+    "sha256": "df3ad8f82ed255a462fd8e92ca024ab2da16307ed7f58b4bd3f7e5d9b2237cca",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-timeline/boss.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-timeline/chest.png",
+    "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-timeline/chest.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-timeline/combat.png",
+    "sha256": "7668a0898f748417ff72656a1b9621d0357b6b9d68a9a1bd0c6dac9d025a9ac4",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-timeline/combat.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-timeline/timeline-boss.png",
+    "sha256": "350836923cfbf34fdf236eb973189d4657cc00852a50beda990e5bbb072bc6d4",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-timeline/timeline-boss.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-timeline/timeline-floor.png",
+    "sha256": "0c0ea2690da455989005249f8c7ef9c3b811d9e7ef613fb1e3700095d5c86baa",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-timeline/timeline-floor.png"
+  },
+  {
+    "path": ".tmp/stage14/review/player-timeline/timeline-paused.png",
+    "sha256": "99e1e2ef063ad51ab619c54f768d9c956b44217490b5a859f49a9a2dd23fb508",
+    "matchesPreviouslyViewedImage": true,
+    "previouslyViewedPath": ".tmp/stage14/player-timeline/timeline-paused.png"
+  }
+]

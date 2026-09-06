@@ -1,0 +1,46 @@
+{
+  "pullRequest": 157,
+  "reviewThread": "PRRT_kwDOQfW5Gs6fr0im",
+  "commentId": 3943999021,
+  "replyId": 3944027247,
+  "implementationRevision": "9b87cbb",
+  "finding": "Accepted start/stage captured the detailed timeline before the gameplay/presentation step but emitted it after that step.",
+  "reproducedBefore": [
+    {
+      "case": "start",
+      "staleSimulationStep": 0,
+      "committedSimulationStep": 1
+    },
+    {
+      "case": "stage during active floor cue at tick197",
+      "staleOffsetTick": 11,
+      "committedOffsetTick": 12,
+      "staleOpacity": 0,
+      "committedOpacity": 0.2
+    }
+  ],
+  "fix": "Coalesce the requested full update and construct it after synchronization and due cue events. Input receipts, recorded sources and each accepted start manifest remain distinct.",
+  "focusedTests": {
+    "passed": 6,
+    "failed": 0,
+    "includes": "both regressions and the complete5528-tick frozen oracle/replay"
+  },
+  "independentReview": "No additional issue in command receipts, intermediate source versions, game-event order or same-path replay.",
+  "logs": [
+    {
+      "path": ".tmp/stage14/review-timeline-stale-before.log",
+      "bytes": 2243,
+      "sha256": "dbd600633d435b928534d9e61b5c93b568bb6431ba668d1d5ff2860b356d48f0"
+    },
+    {
+      "path": ".tmp/stage14/review-timeline-stale-after.log",
+      "bytes": 836,
+      "sha256": "7ce9065c736c7290eeca90f378e80c27459bcc228d48476d86e2177e28388082"
+    },
+    {
+      "path": ".tmp/stage14/review-timeline-stale-clippy.log",
+      "bytes": 157,
+      "sha256": "512194e1a3b686b0450cc9cdd67822b919a91ac324cbda07568b154fca694e36"
+    }
+  ]
+}

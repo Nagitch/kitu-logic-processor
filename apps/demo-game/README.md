@@ -237,5 +237,20 @@ The complete Arena application can also run through the C ABI in
 embedded TMD as the server; typed input, tick, complete output and state inspection
 are verified against all stock scenario states/events and the frozen C# oracle.
 The [native ABI contract](../../doc/specs/arena-native-abi.md) includes macOS build
-and actual C-caller commands. Unity standalone packaging and the local Admin/CLI
-bridge follow in stage 11.
+and actual C-caller commands. The macOS standalone embeds this library and exposes
+an optional local Admin/CLI bridge driven by Unity's single clock owner.
+
+## TSQ1 presentation authoring
+
+Boss warnings and floor transitions use the real files in `content/timelines/`.
+Generate editable copies with `cargo run --locked -p kitu-demo-game --bin
+arena-timelines -- /absolute/clip-directory`, then set
+`KITU_ARENA_TIMELINE_DIRECTORY` on the server or pass `--arena-timeline` to Unity.
+Use **Story Sequencing** or `timeline validate` / `timeline stage <hash>` to adopt
+reviewed edits on the next run. `inspect timeline` shows the observed run's clip
+versions and exact cue positions. The [presentation contract](../../doc/specs/arena-presentation-timelines.md)
+documents binary authoring options, bounds, trigger rules and detached replay.
+
+The scene replay test also seeks the first floor cue at tick197 and a boss warning
+at1649, compares Admin/Unity presentation, verifies pause and reattachment, then
+steps the same warning and continues to the existing death/retry checks.

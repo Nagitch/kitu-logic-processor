@@ -271,6 +271,134 @@ fn edited_boss_duration_matches_server_and_native_for_graphical_verification() {
     );
 }
 
+// The custom visual trace uses authored TSQ1 through the same queue. It never
+// substitutes for the frozen stock comparison above.
+#[test]
+fn authored_timeline_cues_match_native_and_pause_without_a_second_clock() {
+    use kitu_tsq1::presentation::Clip;
+    let default = arena::presentation::default_timeline().unwrap();
+    let mut boss = Clip::decode(&default.clips[0].bytes).unwrap();
+    for event in &mut boss.events {
+        for message in &mut event.bundle.messages {
+            message.args[0] = OscArg::Float(4.5);
+        }
+    }
+    let mut floor = Clip::decode(&default.clips[1].bytes).unwrap();
+    for event in &mut floor.events {
+        if event.offset_tick == 12 {
+            for message in &mut event.bundle.messages {
+                message.args[0] = OscArg::Float(0.85);
+            }
+        }
+    }
+    let edited = arena::presentation::TimelineVersion::from_sources(
+        &boss.encode().unwrap(),
+        &floor.encode().unwrap(),
+    )
+    .unwrap();
+    let native = Native::create(&[]);
+    let mut runtime = build_arena_runtime().unwrap();
+    arena::stage_timeline(&mut runtime, edited.clone(), 1).unwrap();
+    let mut recorder = kitu_demo_game::replay::Recorder::new(&runtime).unwrap();
+    let mut evidence = std::env::var_os("KITU_NATIVE_EVIDENCE_DIR").map(|directory| {
+        std::fs::create_dir_all(&directory).unwrap();
+        let path = Path::new(&directory);
+        (
+            File::create(path.join("timeline-cues.trace")).unwrap(),
+            File::create(path.join("timeline-cues.expected.ndjson")).unwrap(),
+        )
+    });
+    fn advance(
+        native: &Native,
+        runtime: &mut DemoRuntime,
+        recorder: &mut kitu_demo_game::replay::Recorder,
+        evidence: &mut Option<(File, File)>,
+    ) {
+        runtime.tick_once().unwrap();
+        let outputs = runtime.drain_output_buffer();
+        recorder.capture(runtime, &outputs).unwrap();
+        for input in runtime.committed_input_records() {
+            let bytes = native.submit(&input.bundle, input.metadata.clone(), input.sequence);
+            if let Some((trace, _)) = evidence {
+                trace.write_all(b"I").unwrap();
+                trace.write_all(&bytes).unwrap();
+                trace.write_all(b"\n").unwrap();
+            }
+        }
+        let result = compare_tick(native, runtime, &outputs);
+        if let Some((trace, expected)) = evidence {
+            trace.write_all(b"T\n").unwrap();
+            serde_json::to_writer(&mut *expected, &result).unwrap();
+            expected.write_all(b"\n").unwrap();
+        }
+    }
+    fn control(runtime: &mut DemoRuntime, id: u64, suffix: &str) {
+        runtime
+            .try_enqueue_input(
+                OscBundle {
+                    messages: vec![kitu_osc_ir::OscMessage::new(format!(
+                        "/input/arena/{suffix}"
+                    ))],
+                },
+                Some(InputMetadata {
+                    source: "timeline-proof".into(),
+                    message_id: id,
+                    schema_version: 1,
+                }),
+            )
+            .unwrap();
+    }
+    let directory = Path::new(env!("CARGO_MANIFEST_DIR")).join(
+        "../../../kitu-integration-runner/scenarios/arena/reference/stock-eleven-death-retry",
+    );
+    let mut paused = false;
+    let mut floor_observed = false;
+    support::replay_reference_from_directory(
+        &directory,
+        "stock-eleven-death-retry",
+        1800,
+        |_| {},
+        |reference, _| {
+            for input in reference.committed_input_records() {
+                runtime
+                    .try_enqueue_input(input.bundle.clone(), input.metadata.clone())
+                    .unwrap();
+            }
+            advance(&native, &mut runtime, &mut recorder, &mut evidence);
+            let presentation = arena::inspect_timeline(&runtime).unwrap().presentation;
+            floor_observed |= presentation
+                .floor
+                .as_ref()
+                .is_some_and(|cue| cue.offset_tick == 12);
+            if !paused && presentation.bosses.iter().any(|cue| cue.offset_tick == 24) {
+                assert_eq!(presentation.bosses[0].radius, 4.5);
+                control(&mut runtime, 1, "pause");
+                for _ in 0..30 {
+                    advance(&native, &mut runtime, &mut recorder, &mut evidence);
+                    let observed = arena::inspect_timeline(&runtime).unwrap().presentation;
+                    assert_eq!(observed.simulation_step, presentation.simulation_step);
+                    assert_eq!(observed.bosses, presentation.bosses);
+                    assert_eq!(observed.floor, presentation.floor);
+                }
+                control(&mut runtime, 2, "resume");
+                paused = true;
+            }
+        },
+    );
+    assert!(paused && floor_observed);
+    assert_eq!(runtime.current_tick().get(), 1830);
+    assert_eq!(
+        arena::inspect_timeline(&runtime).unwrap().active,
+        Some(edited)
+    );
+    let bytes = recorder.encode().unwrap();
+    let session = kitu_demo_game::replay::Session::decode(&bytes).unwrap();
+    assert_eq!(session.verify().unwrap().ticks, 1830);
+    if let Some(directory) = std::env::var_os("KITU_NATIVE_EVIDENCE_DIR") {
+        std::fs::write(Path::new(&directory).join("timeline-cues.tsq"), bytes).unwrap();
+    }
+}
+
 #[test]
 fn native_uses_detached_validated_content_and_refuses_incompatible_configuration() {
     let mut values = arena::config::ArenaConfig::default();

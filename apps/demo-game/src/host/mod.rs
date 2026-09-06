@@ -42,6 +42,7 @@ mod playback;
 mod recording;
 mod script;
 mod shell;
+mod timeline;
 mod work;
 
 /// Per-instance storage, connection ownership and background I/O configuration.
@@ -53,6 +54,8 @@ pub struct HostOptions {
     pub content_path: PathBuf,
     /// Editable Rhai source loaded on explicit validation; `None` uses the bundled script.
     pub script_path: Option<PathBuf>,
+    /// Directory containing editable boss-telegraph.tsq and floor-transition.tsq clips.
+    pub timeline_directory: Option<PathBuf>,
     /// Destination for immutable run manifests.
     pub run_directory: PathBuf,
     /// Destination for TSQ1 recordings owned by this host.
@@ -71,6 +74,7 @@ impl Default for HostOptions {
             external_controller: false,
             content_path: "apps/demo-game/content/arena.tmd".into(),
             script_path: None,
+            timeline_directory: None,
             run_directory: "apps/demo-game/.arena/runs".into(),
             recording_directory: "apps/demo-game/.arena/recordings".into(),
             persist_runs: false,
@@ -111,6 +115,7 @@ impl ArenaHost {
                     options.run_directory.clone(),
                 )),
                 script: Arc::new(script::Service::new(options.script_path.clone())),
+                timeline: Arc::new(timeline::Service::new(options.timeline_directory.clone())),
                 shell: Arc::new(shell::Service::default()),
                 work: Arc::new(work::Work::default()),
                 playback_operations: Arc::new(tokio::sync::Mutex::new(())),
@@ -127,13 +132,16 @@ impl ArenaHost {
         anyhow::ensure!(
             !metadata.as_ref().is_some_and(|metadata| matches!(
                 metadata.source.as_str(),
-                arena::SCRIPT_OPERATOR_SOURCE | arena::CONTENT_OPERATOR_SOURCE
+                arena::SCRIPT_OPERATOR_SOURCE
+                    | arena::CONTENT_OPERATOR_SOURCE
+                    | arena::TIMELINE_OPERATOR_SOURCE
             )),
             "Admin/Shell management producer identities are reserved from native inputs"
         );
         // Native owners can supply detached management source. Compile/probe it
         // before taking the host clock lock, then use ordinary queue validation.
         let script = arena::prepare_script_input(&bundle, metadata.as_ref())?;
+        let timeline = arena::prepare_timeline_input(&bundle, metadata.as_ref())?;
         let mut game = self
             .state
             .inner
@@ -142,6 +150,9 @@ impl ArenaHost {
         game.ensure_live_input()?;
         if let Some(script) = script {
             arena::pin_prepared_script(&mut game.runtime, script)?;
+        }
+        if let Some(timeline) = timeline {
+            arena::pin_prepared_timeline(&mut game.runtime, timeline)?;
         }
         game.runtime
             .try_enqueue_input(bundle, metadata)
@@ -220,6 +231,7 @@ pub async fn serve_from_environment() -> Result<()> {
     let listener = tokio::net::TcpListener::bind(addr).await?;
     let options = HostOptions {
         script_path: env::var_os("KITU_ARENA_SCRIPT").map(PathBuf::from),
+        timeline_directory: env::var_os("KITU_ARENA_TIMELINE_DIRECTORY").map(PathBuf::from),
         content_path: env::var_os("KITU_ARENA_CONTENT")
             .or_else(|| env::var_os("KITU_ARENA_TMD"))
             .map(PathBuf::from)
@@ -258,6 +270,7 @@ struct AppState {
     events: broadcast::Sender<ServerEvent>,
     content: Arc<content::Service>,
     script: Arc<script::Service>,
+    timeline: Arc<timeline::Service>,
     shell: Arc<shell::Service>,
     work: Arc<work::Work>,
     playback_operations: Arc<tokio::sync::Mutex<()>>,
@@ -501,6 +514,9 @@ fn router(state: AppState) -> Router {
         .route("/arena/script", get(script::inspect))
         .route("/arena/script/validate", post(script::validate))
         .route("/arena/script/stage", post(script::stage))
+        .route("/arena/timeline", get(timeline::inspect))
+        .route("/arena/timeline/validate", post(timeline::validate))
+        .route("/arena/timeline/stage", post(timeline::stage))
         .route("/arena/recording", get(recording::status))
         .route("/arena/recording/export", get(recording::export))
         .route("/arena/recording/save", post(recording::save))

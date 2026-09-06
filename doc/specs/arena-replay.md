@@ -51,8 +51,12 @@ The manifest stores:
   archived executable instead of reinterpretation with current rules.
 - Initial projection hash, completed tick count, a state and ordered-output hash
   for every tick, and each full run-start manifest with frozen evaluated values.
+- Recording manifest3 also requires `initialTimeline`: exact TSQ1 clip bytes and
+  hashes. Later staged clips and run manifests retain them. The shared clip codec
+  and bundled sources are included in the execution fingerprint; see the
+  [presentation contract](arena-presentation-timelines.md).
 
-Replay builds the ordinary application with the detached initial content and script, feeds
+Replay builds the ordinary application with detached initial content, script and clips, feeds
 its normal validated input queue, calls the same `tick_once`, and compares every
 state/output before continuing. It never consults authoring files and never
 sets HP, actors or clocks from recorded output. Altering the authoring file does

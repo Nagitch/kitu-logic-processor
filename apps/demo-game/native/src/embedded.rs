@@ -39,6 +39,7 @@ impl EmbeddedDriver {
         storage_directory: Option<PathBuf>,
         content_path: Option<PathBuf>,
         script_path: Option<PathBuf>,
+        timeline_directory: Option<PathBuf>,
     ) -> Result<Self, String> {
         // Parse and bind before creating files. Only literal loopback addresses
         // are allowed; this development surface does not offer remote auth.
@@ -55,6 +56,7 @@ impl EmbeddedDriver {
             ("storageDirectory", &storage_directory),
             ("contentPath", &content_path),
             ("scriptPath", &script_path),
+            ("timelineDirectory", &timeline_directory),
         ] {
             if path.as_ref().is_some_and(|path| !path.is_absolute()) {
                 return Err(format!("{name} must be an absolute path"));
@@ -84,6 +86,8 @@ impl EmbeddedDriver {
             content_path.or_else(|| storage_directory.as_ref().map(|dir| dir.join("arena.tmd")));
         let script_source =
             script_path.or_else(|| storage_directory.as_ref().map(|dir| dir.join("boss.rhai")));
+        let timeline_source = timeline_directory
+            .or_else(|| storage_directory.as_ref().map(|dir| dir.join("timelines")));
         if let Some(directory) = &storage_directory {
             std::fs::create_dir_all(directory)
                 .map_err(|error| format!("create Arena storage: {error}"))?;
@@ -120,6 +124,34 @@ impl EmbeddedDriver {
                 }
             }
         }
+        if let (Some(directory), Some(source)) = (&storage_directory, &timeline_source) {
+            if source == &directory.join("timelines") {
+                std::fs::create_dir_all(source)
+                    .map_err(|error| format!("create Arena timelines: {error}"))?;
+                for (name, bytes) in [
+                    (
+                        "boss-telegraph.tsq",
+                        include_bytes!("../../content/timelines/boss-telegraph.tsq").as_slice(),
+                    ),
+                    (
+                        "floor-transition.tsq",
+                        include_bytes!("../../content/timelines/floor-transition.tsq").as_slice(),
+                    ),
+                ] {
+                    match std::fs::OpenOptions::new()
+                        .write(true)
+                        .create_new(true)
+                        .open(source.join(name))
+                    {
+                        Ok(mut file) => file
+                            .write_all(bytes)
+                            .map_err(|error| format!("seed Arena timeline {name}: {error}"))?,
+                        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+                        Err(error) => return Err(format!("create Arena timeline {name}: {error}")),
+                    }
+                }
+            }
+        }
         let io_runtime = tokio::runtime::Builder::new_multi_thread()
             .worker_threads(2)
             .thread_name("arena-native-io")
@@ -130,6 +162,7 @@ impl EmbeddedDriver {
             external_controller: true,
             content_path: source.unwrap_or_default(),
             script_path: script_source,
+            timeline_directory: timeline_source,
             run_directory: storage_directory
                 .as_ref()
                 .map(|dir| dir.join("runs"))

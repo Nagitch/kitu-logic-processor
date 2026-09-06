@@ -37,7 +37,7 @@ namespace UnityOnlyArena
         public static int LiveHandleCount => live.Count;
 
         public ArenaNativeConnection(bool bridgeEnabled, string bridgeAddress, string storageDirectory,
-            string contentPath = null, string scriptPath = null)
+            string contentPath = null, string scriptPath = null, string timelineDirectory = null)
         {
             if (Application.platform != RuntimePlatform.OSXEditor && Application.platform != RuntimePlatform.OSXPlayer)
                 throw new PlatformNotSupportedException("The embedded Arena library currently supports macOS.");
@@ -48,6 +48,7 @@ namespace UnityOnlyArena
             if (!string.IsNullOrEmpty(storageDirectory)) config["storageDirectory"] = storageDirectory;
             if (!string.IsNullOrEmpty(contentPath)) config["contentPath"] = contentPath;
             if (!string.IsNullOrEmpty(scriptPath)) config["scriptPath"] = scriptPath;
+            if (!string.IsNullOrEmpty(timelineDirectory)) config["timelineDirectory"] = timelineDirectory;
             byte[] bytes = Encoding.UTF8.GetBytes(config.ToString(Formatting.None));
             var error = new byte[4096];
             int status = Native.Create(1, bytes, Size(bytes.Length), out handle, error, Size(error.Length), out UIntPtr required);

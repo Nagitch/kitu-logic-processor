@@ -21,6 +21,9 @@ fn main() {
         root.join("apps/demo-game/Cargo.toml"),
         root.join("apps/demo-game/content/arena-default.json"),
         root.join("apps/demo-game/content/boss.rhai"),
+        root.join("apps/demo-game/content/timelines/boss-telegraph.tsq"),
+        root.join("apps/demo-game/content/timelines/floor-transition.tsq"),
+        root.join("crates/kitu-tsq1/Cargo.toml"),
         root.join("crates/kitu-scripting-rhai/Cargo.toml"),
         root.join("apps/demo-game/src/arena.rs"),
     ];
@@ -32,6 +35,7 @@ fn main() {
         "kitu-osc-ir",
         "kitu-transport",
         "kitu-scripting-rhai",
+        "kitu-tsq1",
     ] {
         files(&root.join("crates").join(name).join("src"), &mut paths);
     }

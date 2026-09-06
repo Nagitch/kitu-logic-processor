@@ -38,6 +38,14 @@ CLI/Admin validation and staging apply edits to the next run. Detached `script`
 may accompany detached `content` at creation; these saved versions remain
 authoritative even when authoring files differ. See the
 [boss script contract](../../../doc/specs/arena-boss-scripts.md).
+
+`timeline` optionally supplies a detached validated presentation version;
+`timelineDirectory` selects an absolute authoring directory containing fixed
+`boss-telegraph.tsq` and `floor-transition.tsq` files. Embedded storage seeds
+default editable copies in `timelines/` only if absent. External directories and
+detached factory clips are not replaced. CLI/Admin validation and staging adopt
+edits only on the next run; saved bytes reproduce presentation after deletion.
+See the [TSQ1 presentation contract](../../../doc/specs/arena-presentation-timelines.md).
 Otherwise the storage directory receives an editable `arena.tmd` on first use;
 existing documents are preserved. Validation and staging keep next-run semantics.
 

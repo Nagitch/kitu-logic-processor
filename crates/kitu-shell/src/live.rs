@@ -35,7 +35,7 @@ pub fn command_catalog() -> Vec<CommandSpec> {
         ),
         (
             "inspect",
-            "inspect <application|world|content|script|recording|replay>",
+            "inspect <application|world|content|script|timeline|recording|replay>",
             "Inspect the active host and observed run",
             false,
         ),
@@ -85,6 +85,18 @@ pub fn command_catalog() -> Vec<CommandSpec> {
             "script stage",
             "script stage <hash>",
             "Stage the reviewed script source and policy for the next run",
+            true,
+        ),
+        (
+            "timeline validate",
+            "timeline validate",
+            "Validate presentation clips without changing the current run",
+            true,
+        ),
+        (
+            "timeline stage",
+            "timeline stage <hash>",
+            "Stage the reviewed presentation clips for the next run",
             true,
         ),
         (

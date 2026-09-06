@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-09-06T11:57:14.371397+00:00",
+  "scope": "Story Sequencing TSQ1 presentation frontend",
+  "environment": "kitu-e19c-development: /workspaces/kitu-logic-processor/tools/kitu-web-admin/frontend",
+  "checks": [
+    {
+      "command": "pnpm check",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm exec vite build",
+      "exitCode": 0,
+      "vite": "8.1.0",
+      "notes": [
+        "Direct frontend build; Rust/WASM prebuild coordinated by root.",
+        "Existing large chunk / empty env chunk build notices."
+      ]
+    }
+  ],
+  "browser": {
+    "status": "passed",
+    "report": ".tmp/stage14/browser-proof/results.json",
+    "sha256": "ddc15deaca48aa8449b7c3a10deb30ebddd3216bd2150bab12b88961817d894e",
+    "screenshots": "local only"
+  },
+  "contract": {
+    "clipFiles": {
+      "boss-telegraph": "boss-telegraph.tsq",
+      "floor-transition": "floor-transition.tsq"
+    },
+    "cueId": "string",
+    "tickRate": 60,
+    "pollIntervalMs": 1500
+  },
+  "files": {
+    "tools/kitu-web-admin/frontend/src/lib/arena-timeline.ts": "6f075b22fea59894a9f243f27b2db73cdf7e45802d84fdc6c5887bbbc331b1fe",
+    "tools/kitu-web-admin/frontend/src/routes/(project)/story-sequencing/+page.svelte": "8a4ef332132d546e7e129efecbb7ed794fa5be601bf40d42426491e6100e834f"
+  },
+  "fullBuild": {
+    "command": "pnpm build",
+    "result": "passed, including Rust/WASM build and adapter-node",
+    "log": {
+      "path": ".tmp/stage14/frontend-full-build.log",
+      "sha256": "dddac21deecd03645949a43ae972b916c140401f582e542c6d93a4ee35c5d939"
+    }
+  }
+}
