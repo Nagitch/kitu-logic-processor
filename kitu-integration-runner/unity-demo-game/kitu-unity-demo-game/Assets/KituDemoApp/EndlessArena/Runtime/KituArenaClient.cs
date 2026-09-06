@@ -166,7 +166,7 @@ namespace UnityOnlyArena
                             }
                             else if ((string)message["address"] == "/render/arena/presentation" && SessionId != null)
                             {
-                                var presentation = JsonUtility.FromJson<ArenaPresentationState>((string)message["args"][0]["value"]);
+                                var presentation = ArenaPresentationState.FromJson((string)message["args"][0]["value"]);
                                 if (presentation.contractVersion != 1) throw new InvalidOperationException("Incompatible Arena presentation contract");
                                 projection.PushPresentation(presentation);
                                 CommitProjection();

@@ -5,6 +5,16 @@ namespace UnityOnlyArena.Tests
     public sealed class ArenaProjectionBufferTests
     {
         [Test]
+        public void AbsentCueRemainsNullAfterWireDeserialization()
+        {
+            var state = ArenaPresentationState.FromJson(
+                "{\"contractVersion\":1,\"run\":1,\"tick\":5526,\"simulationStep\":5300,\"bosses\":[],\"floor\":null}");
+            Assert.That(state.tick, Is.EqualTo(5526));
+            Assert.That(state.bosses, Is.Empty);
+            Assert.That(state.floor, Is.Null);
+        }
+
+        [Test]
         public void SegmentedDeliveryPublishesOnlyTheCompletePair()
         {
             var buffer = new ArenaProjectionBuffer();

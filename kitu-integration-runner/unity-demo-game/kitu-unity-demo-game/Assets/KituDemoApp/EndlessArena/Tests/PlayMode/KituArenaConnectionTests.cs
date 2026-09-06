@@ -216,7 +216,13 @@ namespace UnityOnlyArena.Tests
                 request.timeout = 60;
                 yield return request.SendWebRequest();
                 Assert.That(request.result, Is.EqualTo(UnityWebRequest.Result.Success), request.downloadHandler.text);
-                receive?.Invoke(JsonUtility.FromJson<HostInspection>(request.downloadHandler.text));
+                var inspection = JsonUtility.FromJson<HostInspection>(request.downloadHandler.text);
+                if (path == "/arena/timeline")
+                {
+                    var presentation = Newtonsoft.Json.Linq.JObject.Parse(request.downloadHandler.text)["runtime"]["presentation"];
+                    inspection.runtime.presentation = ArenaPresentationState.FromJson(presentation.ToString());
+                }
+                receive?.Invoke(inspection);
             }
         }
 

@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace UnityOnlyArena
 {
@@ -10,6 +11,11 @@ namespace UnityOnlyArena
         public long run, tick, simulationStep;
         public ArenaBossCue[] bosses;
         public ArenaFloorCue floor;
+
+        // JsonUtility constructs a default class for a JSON null field. Cue absence
+        // is authoritative, so retain null with the transport's JSON serializer.
+        public static ArenaPresentationState FromJson(string json) =>
+            JsonConvert.DeserializeObject<ArenaPresentationState>(json);
 
         public ArenaBossCue Boss(int entityId)
         {
