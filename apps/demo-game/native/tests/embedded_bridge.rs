@@ -68,6 +68,17 @@ impl Native {
         )
         .unwrap()
     }
+    fn projection(&self, address: &str) -> Value {
+        let output = self.read(kitu_application_inspect_json);
+        let message = output
+            .as_array()
+            .unwrap()
+            .iter()
+            .flat_map(|bundle| bundle["messages"].as_array().unwrap())
+            .find(|message| message["address"] == address)
+            .unwrap_or_else(|| panic!("missing projection {address}"));
+        serde_json::from_str(message["args"][0]["value"].as_str().unwrap()).unwrap()
+    }
     fn tick(&self) -> Value {
         assert_eq!(unsafe { kitu_application_tick(self.0) }, OK);
         self.read(kitu_application_read_output)
@@ -125,15 +136,21 @@ fn native_management_ids_do_not_exhaust_admin_or_shell_staging() {
     let mut edited = ArenaConfig::default();
     edited.items[0].damage += 3;
     std::fs::write(storage.0.join("arena.tmd"), edited.to_tmd().unwrap()).unwrap();
+    let native_timeline = edited_timeline(3.0, 0.35);
+    write_timeline(&storage.0.join("timelines"), &edited_timeline(4.5, 0.85));
 
-    for (kind, address, detached) in [
+    for (kind_index, (kind, address, detached)) in [
         ("script", "/input/arena/script", json!(native_script)),
         (
             "content",
             "/input/arena/config",
             serde_json::from_str(&serde_json::to_string(&native_content).unwrap()).unwrap(),
         ),
-    ] {
+        ("timeline", "/input/arena/timeline", json!(native_timeline)),
+    ]
+    .into_iter()
+    .enumerate()
+    {
         let status_path = format!("/arena/{kind}");
         let validated = native.complete(post(
             endpoint,
@@ -160,7 +177,7 @@ fn native_management_ids_do_not_exhaust_admin_or_shell_staging() {
                 post(
                     endpoint,
                     &format!("{status_path}/stage"),
-                    if kind == "script" {
+                    if kind != "content" {
                         json!({"hash":candidate["hash"]})
                     } else {
                         json!({"hash":candidate["hash"],"sourceSha256":candidate["sourceSha256"]})
@@ -191,7 +208,7 @@ fn native_management_ids_do_not_exhaust_admin_or_shell_staging() {
                 let staged = native.complete(shell(
                     endpoint,
                     &metadata["sessionId"],
-                    if kind == "script" { 1 } else { 2 },
+                    kind_index as u64 + 1,
                     &args,
                 ));
                 assert_eq!(staged["ok"], true, "{staged}");
@@ -217,13 +234,17 @@ fn native_management_ids_do_not_exhaust_admin_or_shell_staging() {
         &format!("/arena/recordings/{}/verify", saved["id"].as_str().unwrap()),
         json!({}),
     ));
-    assert_eq!(verified["inputs"], 8);
+    assert_eq!(verified["inputs"], 12);
 }
 
 #[test]
 fn native_inputs_cannot_impersonate_admin_management_producers() {
     let native = Native::create(json!({}));
-    for source in ["host:arena-script-admin", "host:arena-content-admin"] {
+    for source in [
+        "host:arena-script-admin",
+        "host:arena-content-admin",
+        "host:arena-timeline-admin",
+    ] {
         // Even an ordinary gameplay command would poison the source high-water.
         assert_eq!(
             native.submit("/input/arena/start", source, u64::MAX, json!([])),
@@ -290,6 +311,282 @@ fn shell(endpoint: &str, session: &Value, id: u64, args: &[&str]) -> thread::Joi
         "/shell/execute",
         json!({"version":1,"sessionId":session,"clientId":"native-integration","id":id,"args":args}),
     )
+}
+
+fn edited_timeline(
+    radius: f32,
+    opacity: f32,
+) -> kitu_demo_game::arena::presentation::TimelineVersion {
+    use kitu_demo_game::arena::presentation::{default_timeline, TimelineVersion};
+    use kitu_osc_ir::OscArg;
+    use kitu_tsq1::presentation::Clip;
+    let defaults = default_timeline().unwrap();
+    let mut boss = Clip::decode(&defaults.clips[0].bytes).unwrap();
+    for event in &mut boss.events {
+        for message in &mut event.bundle.messages {
+            message.args[0] = OscArg::Float(radius);
+        }
+    }
+    let mut floor = Clip::decode(&defaults.clips[1].bytes).unwrap();
+    for event in &mut floor.events {
+        if event.offset_tick == 12 {
+            for message in &mut event.bundle.messages {
+                message.args[0] = OscArg::Float(opacity);
+            }
+        }
+    }
+    TimelineVersion::from_sources(&boss.encode().unwrap(), &floor.encode().unwrap()).unwrap()
+}
+
+fn write_timeline(
+    directory: &std::path::Path,
+    version: &kitu_demo_game::arena::presentation::TimelineVersion,
+) {
+    std::fs::create_dir_all(directory).unwrap();
+    for clip in &version.clips {
+        std::fs::write(directory.join(format!("{}.tsq", clip.id)), &clip.bytes).unwrap();
+    }
+}
+
+#[test]
+fn timeline_authoring_reloads_next_run_and_replays_live_cues_without_source_files() {
+    use kitu_demo_game::arena::presentation::default_timeline;
+
+    let storage = Storage::new();
+    let detached = edited_timeline(3.0, 0.35);
+    let native = Native::create(json!({
+        "bridge": {"enabled":true,"address":"127.0.0.1:0"},
+        "storageDirectory":storage.0, "timeline":detached,
+    }));
+    let metadata = native.metadata();
+    let endpoint = metadata["bridgeEndpoint"].as_str().unwrap();
+    let directory = storage.0.join("timelines");
+    for clip in default_timeline().unwrap().clips {
+        assert_eq!(
+            std::fs::read(directory.join(format!("{}.tsq", clip.id))).unwrap(),
+            clip.bytes
+        );
+    }
+    assert_eq!(
+        get(endpoint, "/arena/timeline")["runtime"]["pending"],
+        json!(detached),
+        "seeding editable clips must preserve detached factory rules"
+    );
+    assert_eq!(native.command("/input/arena/start", 1), OK);
+    native.tick();
+
+    let authored = edited_timeline(4.5, 0.85);
+    write_timeline(&directory, &authored);
+    let valid = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        1,
+        &["timeline", "validate"],
+    ));
+    assert_eq!(valid["ok"], true, "{valid}");
+    assert_eq!(valid["data"]["candidate"], json!(authored));
+    let staged = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        2,
+        &["timeline", "stage", &authored.hash],
+    ));
+    assert_eq!(staged["ok"], true, "{staged}");
+    let pending = get(endpoint, "/arena/timeline");
+    assert_eq!(pending["runtime"]["active"], json!(detached));
+    assert_eq!(pending["runtime"]["pending"], json!(authored));
+    assert_eq!(native.command("/input/arena/menu", 2), OK);
+    native.tick();
+    assert_eq!(native.command("/input/arena/start", 3), OK);
+    native.tick();
+    assert_eq!(
+        get(endpoint, "/arena/timeline")["runtime"]["active"],
+        json!(authored)
+    );
+
+    // Walk the real starter weapon through the preparation portal. No test-only
+    // state setter creates the floor cue or changes its authored cursor.
+    assert_eq!(
+        native.submit(
+            "/input/arena/frame",
+            "timeline-walk",
+            1,
+            json!([
+                {"type":"float","value":0.0},{"type":"float","value":1.0},
+                {"type":"bool","value":false},{"type":"float","value":0.0},
+                {"type":"float","value":0.0},{"type":"bool","value":false},
+                {"type":"bool","value":false},
+            ])
+        ),
+        OK
+    );
+    let mut cue_observed = false;
+    for _ in 0..240 {
+        native.tick();
+        let presentation = native.projection("/render/arena/presentation");
+        if presentation["floor"]["offsetTick"] == 12 {
+            assert_eq!(presentation["floor"]["opacity"], 0.85);
+            cue_observed = true;
+            break;
+        }
+    }
+    assert!(
+        cue_observed,
+        "authored floor cue must be reached through gameplay"
+    );
+    assert_eq!(native.command("/input/arena/pause", 4), OK);
+    native.tick();
+    let saved_presentation = native.projection("/render/arena/presentation");
+    let saved_state = native.state();
+    assert_eq!(saved_state["overlay"], "pause");
+    assert_eq!(saved_presentation["floor"]["offsetTick"], 12);
+    assert_eq!(
+        get(endpoint, "/arena/timeline")["runtime"]["presentation"],
+        saved_presentation
+    );
+    // Saving needs background I/O, not a new owner tick. Preserve the exact final
+    // presentation (including its management tick) as an independent seek oracle.
+    let saved = post(endpoint, "/arena/recording/save", json!({}))
+        .join()
+        .unwrap();
+    assert_eq!(
+        native.projection("/render/arena/presentation"),
+        saved_presentation
+    );
+
+    std::fs::write(directory.join("boss-telegraph.tsq"), b"not TSQ1").unwrap();
+    let invalid = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        3,
+        &["timeline", "validate"],
+    ));
+    assert_eq!(invalid["ok"], false);
+    assert!(invalid["data"]["candidate"].is_null());
+    assert_eq!(invalid["data"]["runtime"]["active"], json!(authored));
+    assert_eq!(invalid["data"]["runtime"]["pending"], json!(authored));
+    write_timeline(&directory, &authored);
+    std::fs::remove_file(directory.join("floor-transition.tsq")).unwrap();
+    let missing = native.complete(post(endpoint, "/arena/timeline/validate", json!({})));
+    assert!(!missing["diagnostics"].as_array().unwrap().is_empty());
+    assert!(missing["candidate"].is_null());
+    assert_eq!(missing["runtime"]["active"], json!(authored));
+    assert_eq!(missing["runtime"]["pending"], json!(authored));
+
+    // Hold a different valid candidate, then remove both files. Old replay
+    // behavior must come from recorded bytes, and replay staging must fail for
+    // read-only admission rather than merely a missing/invalid candidate.
+    let next = edited_timeline(6.0, 0.25);
+    write_timeline(&directory, &next);
+    let validated = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        4,
+        &["timeline", "validate"],
+    ));
+    assert_eq!(validated["ok"], true);
+    assert_eq!(validated["data"]["candidate"], json!(next));
+    std::fs::remove_dir_all(&directory).unwrap();
+    let id = saved["id"].as_str().unwrap();
+    let verified = post(
+        endpoint,
+        &format!("/arena/recordings/{id}/verify"),
+        json!({}),
+    )
+    .join()
+    .unwrap();
+    assert_eq!(verified["runs"], 2);
+    assert_eq!(verified["state"], saved_state);
+    let last_tick = verified["ticks"].as_i64().unwrap() - 1;
+    native.complete(post(endpoint, "/arena/playback/load", json!({"id":id})));
+    // HTTP acknowledges the prepared replay; activation belongs to the next
+    // native owner tick even if the request finishes between complete() polls.
+    native.tick();
+    assert_eq!(
+        get(endpoint, "/arena/timeline")["runtime"]["pending"],
+        json!(detached)
+    );
+    native.complete(post(
+        endpoint,
+        "/arena/playback/command",
+        json!({"action":"step"}),
+    ));
+    assert_eq!(
+        get(endpoint, "/arena/timeline")["runtime"]["active"],
+        json!(detached)
+    );
+    native.complete(post(
+        endpoint,
+        "/arena/playback/seek",
+        json!({"tick":last_tick}),
+    ));
+    assert_eq!(native.state(), saved_state);
+    assert_eq!(
+        native.projection("/render/arena/presentation"),
+        saved_presentation
+    );
+    let replay = get(endpoint, "/arena/timeline");
+    assert_eq!(replay["readOnly"], true);
+    assert_eq!(replay["runtime"]["active"], json!(authored));
+    assert_eq!(replay["runtime"]["presentation"], saved_presentation);
+    assert_eq!(replay["candidate"], json!(next));
+    let refused = native.complete(shell(
+        endpoint,
+        &metadata["sessionId"],
+        5,
+        &["timeline", "stage", &next.hash],
+    ));
+    assert_eq!(refused["ok"], false);
+    assert!(
+        refused["error"]
+            .as_str()
+            .unwrap()
+            .contains("replay is read-only"),
+        "{refused}"
+    );
+    native.complete(post(
+        endpoint,
+        "/arena/playback/command",
+        json!({"action":"live"}),
+    ));
+    assert_eq!(native.state()["overlay"], "pause");
+    assert_eq!(
+        get(endpoint, "/arena/timeline")["runtime"]["active"],
+        json!(authored)
+    );
+    write_timeline(&directory, &next);
+}
+
+#[test]
+fn explicit_timeline_authoring_directories_are_never_seeded_or_replaced() {
+    let storage = Storage::new();
+    let external = Storage::new();
+    let authored = edited_timeline(5.0, 0.75);
+    write_timeline(&external.0, &authored);
+    let native = Native::create(json!({
+        "storageDirectory":storage.0,"timelineDirectory":external.0,
+    }));
+    for clip in &authored.clips {
+        assert_eq!(
+            std::fs::read(external.0.join(format!("{}.tsq", clip.id))).unwrap(),
+            clip.bytes
+        );
+    }
+    assert!(!storage.0.join("timelines").exists());
+    assert_ne!(
+        native.projection("/ui/arena/timeline")["pending"],
+        json!(authored),
+        "authoring files are only read by explicit validation"
+    );
+    drop(native);
+    let missing = external.0.join("missing");
+    let _native = Native::create(json!({
+        "storageDirectory":storage.0,"timelineDirectory":missing,
+    }));
+    assert!(
+        !missing.exists(),
+        "an external source directory is never created"
+    );
 }
 
 #[test]
@@ -675,6 +972,7 @@ fn bridge_configuration_rejects_remote_addresses_and_occupied_ports_without_a_ha
         json!({"bridge":{"enabled":true,"address":listener.local_addr().unwrap().to_string()}}),
         json!({"storageDirectory":"relative-path"}),
         json!({"scriptPath":"relative-script.rhai"}),
+        json!({"timelineDirectory":"relative-timelines"}),
     ] {
         let bytes = serde_json::to_vec(&config).unwrap();
         let (mut handle, mut needed) = (ptr::null_mut(), 0);

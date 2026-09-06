@@ -80,6 +80,8 @@ def main():
         required = {"chest.png", "combat.png", "boss.png", "death-11f.png", "retry.png"}
     elif trace.stem == "rhai-boss":
         required = {"boss-script.png"}
+    elif trace.stem == "timeline-cues":
+        required = {"timeline-floor.png", "timeline-boss.png", "timeline-paused.png"}
     captured = {Path(record["path"]).name for record in screenshots}
     if not required.issubset(captured):
         raise RuntimeError(f"Missing rendered checkpoints: {sorted(required - captured)}")

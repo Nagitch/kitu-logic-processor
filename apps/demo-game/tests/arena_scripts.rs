@@ -39,7 +39,7 @@ fn saved_initial_and_staged_sources_replay_after_authoring_edit_and_deletion() {
     let bytes = recorder.encode().unwrap();
     std::fs::remove_file(&path).unwrap();
     let session = Session::decode(&bytes).unwrap();
-    assert_eq!(session.manifest().version, 2);
+    assert_eq!(session.manifest().version, 3);
     assert_eq!(session.manifest().initial_script, initial);
     assert_eq!(session.manifest().runs[0]["script"]["source"], first);
     assert_eq!(session.manifest().runs[1]["script"]["source"], second);

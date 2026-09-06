@@ -117,6 +117,7 @@ async fn handle(state: AppState, request: CommandRequest) -> Result<CommandRespo
                             .map(|r| r["code"].as_str().unwrap_or("command rejected").to_owned());
                         if request.args == ["content", "validate"]
                             || request.args == ["script", "validate"]
+                            || request.args == ["timeline", "validate"]
                         {
                             if let Some(diagnostics) =
                                 data["diagnostics"].as_array().filter(|d| !d.is_empty())
@@ -204,6 +205,11 @@ async fn run(state: &AppState, args: &[String], source: &str) -> Result<Value> {
                         .await
                         .map_err(|e| e.0)?,
                 ),
+                "timeline" => value(
+                    timeline::inspect(State(state.clone()))
+                        .await
+                        .map_err(|e| e.0)?,
+                ),
                 "recording" => value(
                     recording::status(State(state.clone()))
                         .await
@@ -279,6 +285,28 @@ async fn run(state: &AppState, args: &[String], source: &str) -> Result<Value> {
             let response = script::stage_candidate(
                 state,
                 script::StageRequest {
+                    hash: rest[0].clone(),
+                },
+            )?;
+            let result = serde_json::to_value(response)?;
+            let sequence = result["sequence"]
+                .as_u64()
+                .context("missing input sequence")?;
+            wait_receipt(state, sequence, true).await
+        }
+        "timeline validate" => {
+            exactly(rest, 0, &spec.usage)?;
+            value(
+                timeline::validate(State(state.clone()))
+                    .await
+                    .map_err(|e| e.0)?,
+            )
+        }
+        "timeline stage" => {
+            exactly(rest, 1, &spec.usage)?;
+            let response = timeline::stage_candidate(
+                state,
+                timeline::StageRequest {
                     hash: rest[0].clone(),
                 },
             )?;

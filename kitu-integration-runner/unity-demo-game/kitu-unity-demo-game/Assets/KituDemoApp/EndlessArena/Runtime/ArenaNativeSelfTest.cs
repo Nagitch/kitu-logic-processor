@@ -24,6 +24,7 @@ namespace UnityOnlyArena
         private readonly HashSet<string> screenshots = new HashSet<string>();
         private bool deathObserved, retryObserved, finished;
         private int scriptTelegraphTicks;
+        private int timelinePausedTicks;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Bootstrap()
@@ -39,8 +40,8 @@ namespace UnityOnlyArena
                 var test = new GameObject("Native Arena Player verification").AddComponent<ArenaNativeSelfTest>();
                 test.tracePath = Path.GetFullPath(trace);
                 test.scenario = Path.GetFileNameWithoutExtension(test.tracePath);
-                if (test.scenario != "preparation" && test.scenario != "stock-eleven-death-retry" && test.scenario != "rhai-boss")
-                    throw new ArgumentException("Native self-test requires preparation, stock-eleven-death-retry or rhai-boss trace");
+                if (test.scenario != "preparation" && test.scenario != "stock-eleven-death-retry" && test.scenario != "rhai-boss" && test.scenario != "timeline-cues")
+                    throw new ArgumentException("Native self-test requires preparation, stock-eleven-death-retry, rhai-boss or timeline-cues trace");
                 test.expectedPath = Path.GetFullPath(expected);
                 test.evidenceDirectory = Path.GetFullPath(evidence);
                 Directory.CreateDirectory(test.evidenceDirectory);
@@ -144,6 +145,7 @@ namespace UnityOnlyArena
                     if (client.State.tick != ticks)
                         throw new InvalidOperationException("Unity projection has not received native tick " + ticks);
                     AssertRenderedPlayer();
+                    AssertRenderedPresentation();
                     string checkpoint = Checkpoint();
                     if (checkpoint != null && !screenshots.Contains(checkpoint)) yield return Capture(checkpoint);
                     ticks++;
@@ -154,11 +156,14 @@ namespace UnityOnlyArena
             if (stock && (ticks != 5528 || inputs != 5581 || !deathObserved || !retryObserved))
                 throw new InvalidOperationException("Stock verification must include all 5528 ticks, 5581 inputs, natural 11F death and retry");
             bool script = scenario == "rhai-boss";
+            bool timeline = scenario == "timeline-cues";
             if (script && (ticks != 1800 || scriptTelegraphTicks != 96))
                 throw new InvalidOperationException("Script verification must include 1800 ticks and exactly 96 telegraph ticks");
-            if (!stock && !script && (ticks != 28 || inputs != 40))
+            if (timeline && (ticks != 1830 || inputs != 1819 || timelinePausedTicks != 30))
+                throw new InvalidOperationException("Timeline verification requires 1830 ticks, 1819 inputs and 30 frozen cue ticks");
+            if (!stock && !script && !timeline && (ticks != 28 || inputs != 40))
                 throw new InvalidOperationException("Preparation verification must include all 28 ticks and 40 inputs");
-            foreach (string name in stock ? new[] { "chest", "combat", "boss", "death-11f", "retry" } : script ? new[] { "boss-script" } : new[] { "inventory" })
+            foreach (string name in stock ? new[] { "chest", "combat", "boss", "death-11f", "retry" } : script ? new[] { "boss-script" } : timeline ? new[] { "timeline-floor", "timeline-boss", "timeline-paused" } : new[] { "inventory" })
                 if (!screenshots.Contains(name)) throw new InvalidOperationException("Missing rendered checkpoint " + name);
             Finish(true, null);
         }
@@ -166,6 +171,24 @@ namespace UnityOnlyArena
         private string Checkpoint()
         {
             var state = client.State;
+            if (scenario == "timeline-cues")
+            {
+                var presentation = client.Presentation;
+                if (presentation.floor != null && presentation.floor.toFloor == 1 && presentation.floor.offsetTick == 12)
+                {
+                    if (Mathf.Abs(presentation.floor.opacity - .85f) > 1e-6f)
+                        throw new InvalidOperationException("Edited floor timeline opacity did not reach the renderer");
+                    return "timeline-floor";
+                }
+                var cue = presentation.bosses.FirstOrDefault(value => value.offsetTick == 24);
+                if (cue != null)
+                {
+                    if (Mathf.Abs(cue.radius - 4.5f) > 1e-6f)
+                        throw new InvalidOperationException("Edited boss timeline radius did not reach the renderer");
+                    if (state.overlay == "pause") { timelinePausedTicks++; return "timeline-paused"; }
+                    return "timeline-boss";
+                }
+            }
             if (scenario == "rhai-boss" && state.floor == 5)
             {
                 var boss = state.enemies.FirstOrDefault(enemy => enemy.Kind == ArenaEnemyKind.Boss && enemy.BossState == ArenaBossState.Telegraph);
@@ -212,6 +235,24 @@ namespace UnityOnlyArena
             if (Mathf.Abs(position.x - client.State.playerPosition.x) > 1e-4f ||
                 Mathf.Abs(position.z - client.State.playerPosition.y) > 1e-4f)
                 throw new InvalidOperationException("Rendered player differs from the native projection");
+        }
+
+        private void AssertRenderedPresentation()
+        {
+            var presentation = client.Presentation;
+            if (presentation == null || presentation.contractVersion != 1 || presentation.tick != client.State.tick)
+                throw new InvalidOperationException("Unity has not received the matching Runtime presentation snapshot");
+            foreach (var cue in presentation.bosses)
+            {
+                var tell = client.transform.Find("Arena presentation/tell-" + cue.entityId);
+                if (cue.intensity <= 0) continue;
+                if (tell == null || !tell.gameObject.activeInHierarchy)
+                    throw new InvalidOperationException("Timeline boss cue has no visible ring");
+                var ring = tell.GetComponent<LineRenderer>();
+                if (Mathf.Abs(ring.GetPosition(0).magnitude - cue.radius) > 1e-4f ||
+                    Mathf.Abs(ring.startWidth - (.025f + cue.intensity * .1f)) > 1e-6f)
+                    throw new InvalidOperationException("Rendered boss cue differs from the Runtime timeline values");
+            }
         }
 
         private IEnumerator Capture(string name)

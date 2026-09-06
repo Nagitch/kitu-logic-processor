@@ -13,6 +13,7 @@ use std::collections::VecDeque;
 
 use kitu_core::{KituError, Result, Tick};
 
+pub mod presentation;
 pub mod recording;
 
 /// A single timeline step.

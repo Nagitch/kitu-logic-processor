@@ -44,11 +44,12 @@ with `/host/arena/status` and a single `str` argument containing this JSON objec
 This information is inspected under the same host lock. Session identities and
 tooling state do not enter deterministic game projections or replay proof hashes.
 
-Admin/Shell content and script staging own separate reserved producers,
-`host:arena-content-admin` and `host:arena-script-admin`. Their catalogs allocate
-IDs independently from native producers `host:arena-content` and
-`host:arena-script`, so even a native `u64::MAX` ID cannot disable operator
-staging. Native admission refuses either operator identity for every command;
+Admin/Shell content, script and timeline staging own separate reserved producers,
+`host:arena-content-admin`, `host:arena-script-admin` and
+`host:arena-timeline-admin`. Their catalogs allocate IDs independently from native
+producers `host:arena-content`, `host:arena-script` and `host:arena-timeline`, so
+even a native `u64::MAX` ID cannot disable operator staging. Native admission
+refuses every operator identity for every command;
 network controllers already refuse all `host:` identities. Native metadata and
 existing replay identities remain unchanged, and replay accepts recorded
 operator identities through the ordinary Runtime queue. Deduplication still
@@ -69,6 +70,14 @@ startup. An explicit `contentPath` selects a separate authoring document.
 Source documents are evaluated only through the existing validate/stage flow;
 the current run retains its pinned content. Saved detached configuration passed
 to the factory remains authoritative for that initial Runtime.
+
+`scriptPath` and `timelineDirectory` also require absolute paths. Storage seeds
+editable `boss.rhai` and `timelines/{boss-telegraph,floor-transition}.tsq` only
+when absent. Separate caller-owned paths are not created or overwritten. Detached
+factory `script` and `timeline` versions remain authoritative; validation and
+next-run staging never replace an active run. See the
+[presentation contract](arena-presentation-timelines.md) for exact clip timing,
+Unity rendering and source-independent replay.
 
 ## Detach and shutdown
 

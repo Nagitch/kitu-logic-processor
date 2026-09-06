@@ -22,6 +22,7 @@ namespace UnityOnlyArena
         private long nextMessageId = 1;
         private IArenaConnection connection;
         private ArenaWorldView world;
+        private readonly ArenaProjectionBuffer projection = new ArenaProjectionBuffer();
         private float nextFrame;
         private readonly bool[] requireRelease = { true, true, true, true };
         private bool synchronized;
@@ -29,6 +30,7 @@ namespace UnityOnlyArena
         private Vector2 inventoryScroll;
         private double previousClock;
         private bool started;
+        private GUIStyle floorCueStyle;
         public ArenaNativeConnection NativeConnection => connection as ArenaNativeConnection;
         public ArenaSettings Settings { get; private set; }
         public ArenaSettings DraftSettings { get; private set; }
@@ -37,6 +39,7 @@ namespace UnityOnlyArena
         public bool ReplayPlaying { get; private set; }
         public string SessionId { get; private set; }
         public ArenaReferenceState State { get; private set; }
+        public ArenaPresentationState Presentation { get; private set; }
         public string Message { get; private set; } = "";
         public bool Connected => connection != null && connection.Connected && synchronized;
         public Camera GameCamera => world == null ? null : world.GameCamera;
@@ -48,6 +51,7 @@ namespace UnityOnlyArena
             Application.runInBackground = true;
             State = new ArenaReferenceState { tick = -1, aimDirection = Vector2.up, overlay = "none" };
             world = gameObject.AddComponent<ArenaWorldView>();
+            world.UseTimelinePresentation();
             world.Initialize(State);
         }
 
@@ -57,8 +61,11 @@ namespace UnityOnlyArena
         public void Connect()
         {
             SessionId = null;
+            projection.Reset();
             synchronized = false;
             ReplayActive = false;
+            Presentation = null;
+            world.SyncPresentation(State, null);
             BlockGameplayButtons();
             try
             {
@@ -81,8 +88,11 @@ namespace UnityOnlyArena
                         string scriptOverride = ArenaLaunchArguments.Value("--arena-script");
                         if (scriptOverride != null && !Path.IsPathRooted(scriptOverride))
                             throw new ArgumentException("--arena-script requires an absolute Rhai source path");
+                        string timelineOverride = ArenaLaunchArguments.Value("--arena-timeline");
+                        if (timelineOverride != null && !Path.IsPathRooted(timelineOverride))
+                            throw new ArgumentException("--arena-timeline requires an absolute TSQ1 directory");
                         connection = new ArenaNativeConnection(bridge, address,
-                            Path.Combine(Application.persistentDataPath, "arena"), contentOverride ?? NativeContentPath, scriptOverride);
+                            Path.Combine(Application.persistentDataPath, "arena"), contentOverride ?? NativeContentPath, scriptOverride, timelineOverride);
                     }
                     NativeConnection.AutomaticTicks = NativeAutomaticTicks;
                 }
@@ -144,19 +154,22 @@ namespace UnityOnlyArena
                         case "arenaSession":
                             if ((int)message["schemaVersion"] != 1) throw new InvalidOperationException("Incompatible Arena contract");
                             SessionId = (string)message["id"];
+                            projection.Reset();
                             synchronized = false;
                             break;
                         case "osc":
                             if ((string)message["address"] == "/ui/arena/state" && SessionId != null)
                             {
                                 var state = JsonUtility.FromJson<ArenaReferenceState>((string)message["args"][0]["value"]);
-                                if (state.overlay != State.overlay ||
-                                    (state.phase != State.phase && (state.phase == 0 || state.phase == 5 || State.phase == 0 || State.phase == 5)))
-                                    BlockGameplayButtons();
-                                if (SettingsOpen && state.phase != 0 && state.overlay != "pause") DraftSettings = null;
-                                State = state;
-                                synchronized = true;
-                                world.Sync(State);
+                                projection.PushState(state);
+                                CommitProjection();
+                            }
+                            else if ((string)message["address"] == "/render/arena/presentation" && SessionId != null)
+                            {
+                                var presentation = JsonUtility.FromJson<ArenaPresentationState>((string)message["args"][0]["value"]);
+                                if (presentation.contractVersion != 1) throw new InvalidOperationException("Incompatible Arena presentation contract");
+                                projection.PushPresentation(presentation);
+                                CommitProjection();
                             }
                             else if ((string)message["address"] == "/ui/arena/use")
                             {
@@ -176,6 +189,19 @@ namespace UnityOnlyArena
             }
             if (!Connected) { BlockGameplayButtons(); return; }
             if (DeviceInput && !ReplayActive) ReadInput();
+        }
+
+        private void CommitProjection()
+        {
+            if (!projection.TryTake(out var state, out var presentation)) return;
+            if (state.overlay != State.overlay ||
+                (state.phase != State.phase && (state.phase == 0 || state.phase == 5 || State.phase == 0 || State.phase == 5)))
+                BlockGameplayButtons();
+            if (SettingsOpen && state.phase != 0 && state.overlay != "pause") DraftSettings = null;
+            State = state;
+            Presentation = presentation;
+            synchronized = true;
+            world.SyncPresentation(State, Presentation);
         }
 
         private void ReadInput()
@@ -357,8 +383,27 @@ namespace UnityOnlyArena
             GUILayout.EndArea();
         }
 
+        private void DrawFloorPresentation()
+        {
+            var cue = Presentation?.floor;
+            if (cue == null || cue.opacity <= 0 || GameCamera == null || State.phase == 0 || State.phase == 5) return;
+            // Runtime supplies every value. Repeated GUI events and paused frames
+            // never change the clip offset, fade or label.
+            Rect viewport = GameCamera.pixelRect;
+            viewport.y = Screen.height - viewport.yMax;
+            Color previous = GUI.color;
+            GUI.color = new Color(.025f, .04f, .075f, cue.opacity * .85f);
+            GUI.DrawTexture(viewport, Texture2D.whiteTexture);
+            GUI.color = new Color(1f, 1f, 1f, cue.opacity);
+            if (floorCueStyle == null)
+                floorCueStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 34, fontStyle = FontStyle.Bold };
+            GUI.Label(viewport, cue.toFloor + "F", floorCueStyle);
+            GUI.color = previous;
+        }
+
         private void OnGUI()
         {
+            DrawFloorPresentation();
             GUILayout.BeginArea(new Rect(20, 12, Screen.width - 40, 150));
             GUILayout.Label($"ENDLESS ARENA · {State.floor}F · {(ArenaPhase)State.phase} · Enemies {State.enemies?.Length ?? 0}");
             GUILayout.Label($"{(Connected ? "Connected" : connection?.Status ?? "Disconnected")}  |  Tick {State.tick}  |  Time {State.elapsed:F2}  |  {State.overlay}  {Message}");

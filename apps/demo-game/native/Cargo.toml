@@ -25,6 +25,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
 [dev-dependencies]
+kitu-tsq1 = { path = "../../../crates/kitu-tsq1" }
 kitu-transport = { path = "../../../crates/kitu-transport" }
 ureq = { version = "3", default-features = false, features = ["json"] }
 tungstenite = "0.29"
