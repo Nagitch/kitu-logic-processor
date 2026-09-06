@@ -5,8 +5,8 @@
   "sourceSha256": {
     "Cargo.toml": "21ae4f4266b7411bab485b6213fc5684c5834241156b99fb3943794654cbd232",
     "Cargo.lock": "b36d7b33d28345048be788f1d60432aa5ff19d8a16cc6df4960364b6e9428865",
-    "crates/kitu-transport/src/wire.rs": "5c2bbe011b3eaf640c1d28d31a36be388b852aa87b4ef075981dba4b49351771",
-    "crates/kitu-unity-ffi/src/application.rs": "374ab0d84f190905114f36ed51af3e7026445c248457c66e464573fa279a1eb6",
+    "crates/kitu-transport/src/wire.rs": "c5c7a99b671108961139dfffd7f2594beecedcc85a662c8973616ae2cf8d6be0",
+    "crates/kitu-unity-ffi/src/application.rs": "920202b72ebd660f32c99c7977a983cb5875ca8ed950e396c7fba71e31c505e6",
     "crates/kitu-unity-ffi/include/kitu_application.h": "7cee12f5de127ad359c01f016d9908b7151c7e70305725087ee5882381bf04f9",
     "apps/demo-game/native/src/lib.rs": "15d2f42ab352087e470b0539d5362c1f9c56acea206d42e0d442a6ad044a5c69",
     "apps/demo-game/native/tests/arena_native.rs": "0151b0155d65b828d411818d31981c3580e8a733d88a47349ac9a98a4711d573",
@@ -25,7 +25,8 @@
         "workspace rustdoc warnings denied",
         "transport/FFI/native internal package lists",
         "frozen C# source and fixture integrity"
-      ]
+      ],
+      "reviewAdditionalTestsAndDoctests": 7
     },
     "native": {
       "platform": "macOS arm64",
@@ -49,7 +50,13 @@
   },
   "review": {
     "independentAppAndOracleReview": "No correctness finding; destroy documentation clarified ownership consumption on OK or PANIC. Original oracle fixture hashes and all comparison rules preserved.",
-    "independentAbiSafetyReview": "No actionable finding; ownership, pointer checks, panic containment, queue/output bounds and typed conversion reviewed."
+    "independentAbiSafetyReview": "No actionable finding; ownership, pointer checks, panic containment, queue/output bounds and typed conversion reviewed.",
+    "githubReview": {
+      "comment": 3943246073,
+      "finding": "Output cap was applied after cloning the full wire batch.",
+      "fix": "Shared borrowed OSC serializers stream directly to a bounded writer; capped geometric allocation and exact encoded-byte limit apply before an intermediate copy can be made.",
+      "validation": "45 affected unit tests/doctests (7 new), Clippy, rustdoc, fmt, package lists and oracle integrity passed. Exactly 64 MiB accepted; overflow stops before later values, inspection remains recoverable, failed tick is poisoned. macOS all 5 native tests + doctest and both real C scenarios passed again against rebuilt libraries."
+    }
   },
   "limits": [
     "The caller schedules one60Hz tick loop; this library starts no server or clock.",

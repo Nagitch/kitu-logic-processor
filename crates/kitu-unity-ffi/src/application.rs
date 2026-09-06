@@ -36,7 +36,10 @@ use std::{
 
 use kitu_osc_ir::OscBundle;
 use kitu_runtime::{InputMetadata, Runtime};
-use kitu_transport::{wire::WireBundle, LocalChannel};
+use kitu_transport::{
+    wire::{WireBundle, WireBundlesRef},
+    LocalChannel,
+};
 use serde::{Deserialize, Serialize};
 
 /// C ABI version; application contract versions are carried separately in metadata.
@@ -537,13 +540,9 @@ unsafe fn copy_bytes(bytes: &[u8], buffer: *mut u8, capacity: usize, required: *
 }
 
 fn encode_bundles(bundles: Vec<OscBundle>) -> Result<Vec<u8>, String> {
-    let wire: Vec<WireBundle> = bundles
-        .iter()
-        .map(WireBundle::try_from)
-        .collect::<Result<_, _>>()
-        .map_err(|error| error.to_string())?;
     let mut writer = LimitedBuffer(Vec::new());
-    serde_json::to_writer(&mut writer, &wire).map_err(|error| error.to_string())?;
+    serde_json::to_writer(&mut writer, &WireBundlesRef::new(&bundles))
+        .map_err(|error| error.to_string())?;
     Ok(writer.0)
 }
 
@@ -553,6 +552,17 @@ impl Write for LimitedBuffer {
     fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
         if bytes.len() > MAX_OUTPUT_BYTES - self.0.len() {
             return Err(io::Error::other("output exceeds 64 MiB ABI limit"));
+        }
+        let required = self.0.len() + bytes.len();
+        if required > self.0.capacity() {
+            // Preserve amortized growth without allowing Vec's next doubling
+            // to reserve beyond the output limit before serialization stops.
+            let capacity = required
+                .max(self.0.capacity().max(256) * 2)
+                .min(MAX_OUTPUT_BYTES);
+            self.0
+                .try_reserve_exact(capacity - self.0.len())
+                .map_err(io::Error::other)?;
         }
         self.0.extend_from_slice(bytes);
         Ok(bytes.len())
@@ -1109,6 +1119,96 @@ mod tests {
             );
             assert!(output.is_null());
             assert!(required > 0);
+        }
+    }
+
+    fn string_batch(length: usize) -> Vec<OscBundle> {
+        vec![OscBundle {
+            messages: vec![OscMessage {
+                address: "/test/large".into(),
+                args: vec![OscArg::Str("x".repeat(length))],
+            }],
+        }]
+    }
+
+    #[test]
+    fn output_limit_uses_exact_encoded_bytes_and_stops_before_later_values() {
+        let overhead = encode_bundles(string_batch(0)).unwrap().len();
+        assert_eq!(
+            encode_bundles(string_batch(MAX_OUTPUT_BYTES - overhead))
+                .unwrap()
+                .len(),
+            MAX_OUTPUT_BYTES,
+            "an exactly fitting batch must not be rejected by a size estimate"
+        );
+        let mut bundles = string_batch(MAX_OUTPUT_BYTES + 1);
+        bundles.push(OscBundle {
+            messages: vec![OscMessage::new("invalid")],
+        });
+        let error = encode_bundles(bundles).unwrap_err();
+        assert!(
+            error.contains("output exceeds 64 MiB ABI limit"),
+            "the writer must stop on the first oversized string before any \
+             conversion of later bundles: {error}"
+        );
+
+        // A normal doubling from half the maximum plus one would reserve more
+        // than the limit when the remaining, still valid bytes are written.
+        let bytes = vec![b'x'; MAX_OUTPUT_BYTES];
+        let mut writer = LimitedBuffer(Vec::new());
+        let split = MAX_OUTPUT_BYTES / 2 + 1;
+        writer.write_all(&bytes[..split]).unwrap();
+        writer.write_all(&bytes[split..]).unwrap();
+        assert_eq!(writer.0.len(), MAX_OUTPUT_BYTES);
+        assert!(writer.0.capacity() <= MAX_OUTPUT_BYTES);
+        assert!(writer.write_all(b"x").is_err());
+        assert_eq!(writer.0.len(), MAX_OUTPUT_BYTES);
+    }
+
+    #[test]
+    fn oversized_inspection_is_recoverable_but_a_tick_batch_failure_poisons() {
+        struct LargeOutput {
+            ticks: Arc<AtomicUsize>,
+        }
+        impl ApplicationDriver for LargeOutput {
+            fn submit(&mut self, _: OscBundle, _: Option<InputMetadata>) -> Result<u64, String> {
+                Ok(0)
+            }
+            fn tick(&mut self) -> Result<Vec<OscBundle>, String> {
+                self.ticks.fetch_add(1, Ordering::SeqCst);
+                Ok(string_batch(MAX_OUTPUT_BYTES + 1))
+            }
+            fn inspect(&self) -> Result<Vec<OscBundle>, String> {
+                Ok(string_batch(MAX_OUTPUT_BYTES + 1))
+            }
+        }
+        unsafe {
+            let ticks = Arc::new(AtomicUsize::new(0));
+            let handle = Box::into_raw(Box::new(ApplicationHandle::new(Box::new(LargeOutput {
+                ticks: Arc::clone(&ticks),
+            }))));
+            let mut required = 99;
+            assert_eq!(
+                inspect_json(handle, ptr::null_mut(), 0, &mut required),
+                DRIVER_ERROR
+            );
+            assert_eq!(ticks.load(Ordering::SeqCst), 0);
+            assert!(String::from_utf8(read(handle, last_error))
+                .unwrap()
+                .contains("output exceeds 64 MiB ABI limit"));
+            assert_eq!(tick(handle), DRIVER_ERROR);
+            assert_eq!(ticks.load(Ordering::SeqCst), 1);
+            assert_eq!(tick(handle), FAILED);
+            assert_eq!(ticks.load(Ordering::SeqCst), 1);
+            assert_eq!(
+                read_output(handle, ptr::null_mut(), 0, &mut required),
+                FAILED,
+                "no partial serialization may escape from a failed tick"
+            );
+            assert!(String::from_utf8(read(handle, last_error))
+                .unwrap()
+                .contains("output exceeds 64 MiB ABI limit"));
+            assert_eq!(destroy(handle), OK);
         }
     }
 }

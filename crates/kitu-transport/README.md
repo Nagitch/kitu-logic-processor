@@ -62,6 +62,13 @@ JSON consumers must preserve signed 64-bit integer values; converting the JSON
 through a JavaScript `Number` can lose precision. MessagePack and native Rust
 decoding retain the integer width without inference.
 
+For output serialization, `WireBundleRef::new(&bundle)` and
+`WireBundlesRef::new(&bundles)` borrow the original OSC values. They produce the
+same wire representation while validating each visited value without cloning
+messages, strings, or the complete batch. Serialize these views directly into
+a bounded writer to enforce output limits before allocating another copy of a
+large batch. On serialization failure, discard any prefix written so far.
+
 ## Publish readiness
 - Status: internal-only (`publish = false`) while the MVP takes shape; metadata now aligns with crates.io requirements.
 - Before enabling publication, run the workspace gates:

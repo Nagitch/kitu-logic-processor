@@ -11,7 +11,10 @@
 //! the core OSC-IR model, and unknown fields are rejected.
 
 use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
-use serde::{Deserialize, Serialize};
+use serde::{
+    ser::{Error as _, SerializeSeq, SerializeStruct},
+    Deserialize, Serialize, Serializer,
+};
 
 use crate::KepCodecError;
 
@@ -76,6 +79,146 @@ pub struct WireMessage {
 pub struct WireBundle {
     /// Messages in delivery order; no flattening or sorting is performed.
     pub messages: Vec<WireMessage>,
+}
+
+/// A serialization view that borrows an OSC bundle without cloning its messages
+/// or strings.
+///
+/// The serialized representation is identical to [`WireBundle`]. Validation
+/// occurs as the serializer visits each value, so a bounded writer can stop
+/// before later messages are traversed or copied. A failed serialization may
+/// have written a prefix; callers must discard it rather than publish it.
+#[derive(Debug, Clone, Copy)]
+pub struct WireBundleRef<'a>(&'a OscBundle);
+
+impl<'a> WireBundleRef<'a> {
+    /// Borrows a bundle for streaming serialization with OSC validation.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_osc_ir::OscBundle;
+    /// use kitu_transport::wire::WireBundleRef;
+    /// let bundle = OscBundle::new();
+    /// assert_eq!(serde_json::to_string(&WireBundleRef::new(&bundle))?,
+    ///     r#"{"messages":[]}"#);
+    /// # Ok::<(), serde_json::Error>(())
+    /// ```
+    pub fn new(bundle: &'a OscBundle) -> Self {
+        Self(bundle)
+    }
+}
+
+/// A borrowed sequence of OSC bundles serialized without an intermediate owned
+/// wire collection.
+///
+/// Bundles, messages, and arguments retain their original order. Validation and
+/// writer errors stop iteration immediately. Like [`WireBundleRef`], this view
+/// may write a prefix before reporting an error.
+#[derive(Debug, Clone, Copy)]
+pub struct WireBundlesRef<'a>(&'a [OscBundle]);
+
+impl<'a> WireBundlesRef<'a> {
+    /// Borrows an entire output batch for incremental serialization.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_osc_ir::OscBundle;
+    /// use kitu_transport::wire::WireBundlesRef;
+    /// let bundles = [OscBundle::new()];
+    /// assert_eq!(serde_json::to_string(&WireBundlesRef::new(&bundles))?,
+    ///     r#"[{"messages":[]}]"#);
+    /// # Ok::<(), serde_json::Error>(())
+    /// ```
+    pub fn new(bundles: &'a [OscBundle]) -> Self {
+        Self(bundles)
+    }
+}
+
+impl Serialize for WireBundlesRef<'_> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut sequence = serializer.serialize_seq(Some(self.0.len()))?;
+        for bundle in self.0 {
+            sequence.serialize_element(&WireBundleRef::new(bundle))?;
+        }
+        sequence.end()
+    }
+}
+
+impl Serialize for WireBundleRef<'_> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut object = serializer.serialize_struct("WireBundle", 1)?;
+        object.serialize_field("messages", &WireMessagesRef(&self.0.messages))?;
+        object.end()
+    }
+}
+
+struct WireMessagesRef<'a>(&'a [OscMessage]);
+
+impl Serialize for WireMessagesRef<'_> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut sequence = serializer.serialize_seq(Some(self.0.len()))?;
+        for message in self.0 {
+            sequence.serialize_element(&WireMessageRef(message))?;
+        }
+        sequence.end()
+    }
+}
+
+struct WireMessageRef<'a>(&'a OscMessage);
+
+impl Serialize for WireMessageRef<'_> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        validate_address(&self.0.address).map_err(S::Error::custom)?;
+        let mut object = serializer.serialize_struct("WireMessage", 2)?;
+        object.serialize_field("address", &self.0.address)?;
+        object.serialize_field("args", &WireArgsRef(&self.0.args))?;
+        object.end()
+    }
+}
+
+struct WireArgsRef<'a>(&'a [OscArg]);
+
+impl Serialize for WireArgsRef<'_> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut sequence = serializer.serialize_seq(Some(self.0.len()))?;
+        for arg in self.0 {
+            sequence.serialize_element(&WireArgRef(arg))?;
+        }
+        sequence.end()
+    }
+}
+
+struct WireArgRef<'a>(&'a OscArg);
+
+impl Serialize for WireArgRef<'_> {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut object = serializer.serialize_struct("WireArg", 2)?;
+        match self.0 {
+            OscArg::Int(value) => {
+                object.serialize_field("type", "int")?;
+                object.serialize_field("value", value)?;
+            }
+            OscArg::Int64(value) => {
+                object.serialize_field("type", "int64")?;
+                object.serialize_field("value", value)?;
+            }
+            OscArg::Float(value) => {
+                validate_float(*value).map_err(S::Error::custom)?;
+                object.serialize_field("type", "float")?;
+                object.serialize_field("value", value)?;
+            }
+            OscArg::Str(value) => {
+                validate_string(value).map_err(S::Error::custom)?;
+                object.serialize_field("type", "str")?;
+                object.serialize_field("value", value)?;
+            }
+            OscArg::Bool(value) => {
+                object.serialize_field("type", "bool")?;
+                object.serialize_field("value", value)?;
+            }
+        }
+        object.end()
+    }
 }
 
 impl TryFrom<&OscBundle> for WireBundle {
@@ -236,6 +379,111 @@ mod tests {
             let osc = crate::encode_osc_bundle(&OscBundle::try_from(wire).unwrap()).unwrap();
             assert_exact(&crate::decode_osc_bundle(&osc).unwrap(), &bundle);
         }
+    }
+
+    #[test]
+    fn borrowed_encoding_matches_owned_json_and_messagepack_bytes() {
+        let bundles = [all_types(), OscBundle::new()];
+        for bundle in &bundles {
+            let owned = WireBundle::try_from(bundle).unwrap();
+            let borrowed = WireBundleRef::new(bundle);
+            assert_eq!(
+                serde_json::to_vec(&borrowed).unwrap(),
+                serde_json::to_vec(&owned).unwrap()
+            );
+            assert_eq!(
+                rmp_serde::to_vec_named(&borrowed).unwrap(),
+                rmp_serde::to_vec_named(&owned).unwrap()
+            );
+            assert_eq!(
+                rmp_serde::to_vec(&borrowed).unwrap(),
+                rmp_serde::to_vec(&owned).unwrap()
+            );
+        }
+        for batch in [bundles.as_slice(), &[]] {
+            let owned: Vec<_> = batch
+                .iter()
+                .map(|bundle| WireBundle::try_from(bundle).unwrap())
+                .collect();
+            let borrowed = WireBundlesRef::new(batch);
+            assert_eq!(
+                serde_json::to_vec(&borrowed).unwrap(),
+                serde_json::to_vec(&owned).unwrap()
+            );
+            assert_eq!(
+                rmp_serde::to_vec_named(&borrowed).unwrap(),
+                rmp_serde::to_vec_named(&owned).unwrap()
+            );
+        }
+    }
+
+    #[test]
+    fn borrowed_serialization_rejects_the_same_invalid_osc_values() {
+        let mut cases: Vec<_> = ["", "relative", "/a\0b"]
+            .into_iter()
+            .map(|address| OscBundle {
+                messages: vec![OscMessage::new(address)],
+            })
+            .collect();
+        for arg in [
+            OscArg::Str("a\0b".into()),
+            OscArg::Float(f32::NAN),
+            OscArg::Float(f32::INFINITY),
+            OscArg::Float(f32::NEG_INFINITY),
+        ] {
+            cases.push(OscBundle {
+                messages: vec![OscMessage {
+                    address: "/example/invalid".into(),
+                    args: vec![arg],
+                }],
+            });
+        }
+        for bundle in &cases {
+            let borrowed = WireBundleRef::new(bundle);
+            assert!(WireBundle::try_from(bundle).is_err());
+            assert!(serde_json::to_vec(&borrowed).is_err());
+            assert!(rmp_serde::to_vec_named(&borrowed).is_err());
+        }
+    }
+
+    #[test]
+    fn bounded_writer_stops_before_visiting_later_bundles() {
+        struct Budget {
+            written: usize,
+            limit: usize,
+        }
+        impl std::io::Write for Budget {
+            fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+                if bytes.len() > self.limit - self.written {
+                    return Err(std::io::Error::other("test byte budget exhausted"));
+                }
+                self.written += bytes.len();
+                Ok(bytes.len())
+            }
+            fn flush(&mut self) -> std::io::Result<()> {
+                Ok(())
+            }
+        }
+        let bundles = [
+            OscBundle {
+                messages: vec![OscMessage {
+                    address: "/example/large".into(),
+                    args: vec![OscArg::Str("x".repeat(1024 * 1024))],
+                }],
+            },
+            // A pre-conversion of the complete batch would fail on this address
+            // before the writer's earlier byte limit could take effect.
+            OscBundle {
+                messages: vec![OscMessage::new("invalid")],
+            },
+        ];
+        let mut writer = Budget {
+            written: 0,
+            limit: 128,
+        };
+        let error = serde_json::to_writer(&mut writer, &WireBundlesRef::new(&bundles)).unwrap_err();
+        assert!(error.to_string().contains("test byte budget exhausted"));
+        assert!(writer.written <= writer.limit);
     }
 
     #[test]

@@ -69,7 +69,10 @@ before any clock advance. Tick/serialization failure poisons the handle because
 an already-started tick cannot safely be retried as if it had never run.
 
 Limits are 1 MiB per configuration/input request, 4096 queued requests and 16 MiB
-of queued serialized input per tick, and 64 MiB per output batch. The application
+of queued serialized input per tick, and 64 MiB per output batch. Borrowed OSC
+views serialize incrementally without cloning the batch or its strings. The
+writer caps geometric buffer growth and stops at the exact encoded-byte limit.
+The application
 keeps its own lower structural bounds. Required output pointers and capacities
 are checked before mutating operations. Capacity exhaustion returns a diagnostic.
 

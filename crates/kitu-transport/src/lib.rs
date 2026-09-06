@@ -11,7 +11,7 @@
 
 pub mod wire;
 
-pub use wire::{WireArg, WireBundle, WireMessage};
+pub use wire::{WireArg, WireBundle, WireBundleRef, WireBundlesRef, WireMessage};
 
 use std::collections::VecDeque;
 
