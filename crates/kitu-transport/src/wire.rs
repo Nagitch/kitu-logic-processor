@@ -164,7 +164,28 @@ impl Serialize for WireMessagesRef<'_> {
     }
 }
 
-struct WireMessageRef<'a>(&'a OscMessage);
+/// Borrowed canonical OSC message serializer, including structural validation.
+///
+/// This view writes strings directly to the caller's serializer, so bounded
+/// writers do not first clone an entire potentially large message.
+///
+/// # Examples
+/// ```
+/// use kitu_osc_ir::OscMessage;
+/// use kitu_transport::wire::WireMessageRef;
+/// let message = OscMessage::new("/example");
+/// assert_eq!(serde_json::to_string(&WireMessageRef::new(&message))?,
+///            r#"{"address":"/example","args":[]}"#);
+/// # Ok::<(), serde_json::Error>(())
+/// ```
+pub struct WireMessageRef<'a>(&'a OscMessage);
+
+impl<'a> WireMessageRef<'a> {
+    /// Borrows a message; serialization validates its address and scalar values.
+    pub fn new(message: &'a OscMessage) -> Self {
+        Self(message)
+    }
+}
 
 impl Serialize for WireMessageRef<'_> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
@@ -387,6 +408,16 @@ mod tests {
         for bundle in &bundles {
             let owned = WireBundle::try_from(bundle).unwrap();
             let borrowed = WireBundleRef::new(bundle);
+            for (message, owned_message) in bundle.messages.iter().zip(&owned.messages) {
+                assert_eq!(
+                    serde_json::to_vec(&WireMessageRef::new(message)).unwrap(),
+                    serde_json::to_vec(owned_message).unwrap()
+                );
+                assert_eq!(
+                    rmp_serde::to_vec_named(&WireMessageRef::new(message)).unwrap(),
+                    rmp_serde::to_vec_named(owned_message).unwrap()
+                );
+            }
             assert_eq!(
                 serde_json::to_vec(&borrowed).unwrap(),
                 serde_json::to_vec(&owned).unwrap()

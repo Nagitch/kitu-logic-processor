@@ -39,6 +39,7 @@ const KEP_ROUTE_SERVER_EVENT: &str = "/server/event";
 
 pub mod arena_wire;
 mod content;
+pub mod inspection;
 mod playback;
 mod recording;
 mod script;
@@ -186,6 +187,21 @@ impl ArenaHost {
         Ok(game.application_projection())
     }
 
+    /// Returns one coherent Arena inspection without advancing or controlling the game.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_demo_game::{build_arena_runtime, host::{ArenaHost, HostOptions}};
+    /// let host = ArenaHost::new(build_arena_runtime()?, HostOptions::default())?;
+    /// let snapshot = serde_json::to_value(host.inspection()?)?;
+    /// assert_eq!(snapshot["state"]["tick"], "-1");
+    /// assert_eq!(snapshot["attempt"], "0");
+    /// # Ok::<(), anyhow::Error>(())
+    /// ```
+    pub fn inspection(&self) -> Result<inspection::InspectionSnapshot> {
+        inspection::inspect(&self.state)
+    }
+
     /// Returns coherent host-only session/playback information, excluded from recordings.
     pub fn inspect_host(&self) -> Result<Vec<OscBundle>> {
         let game = self
@@ -299,6 +315,7 @@ struct GameState {
     controller: Option<(u64, String)>,
     controls: std::collections::VecDeque<playback::Control>,
     publication_id: u64,
+    inspection: inspection::Inspection,
     wire_snapshot_pending: bool,
     wire_pending_inputs: usize,
     wire_pending_bytes: usize,
@@ -311,7 +328,9 @@ impl GameState {
             "host requires an unstarted Runtime"
         );
         let recorder = crate::replay::Recorder::new(&runtime)?;
+        let inspection = inspection::Inspection::new(&runtime.inspect_application());
         Ok(Self {
+            inspection,
             runtime,
             recorder,
             recording_error: None,
@@ -521,6 +540,7 @@ fn router(state: AppState) -> Router {
         .route("/shell/line", post(shell::line))
         .route("/state", get(state_snapshot))
         .route("/logs", get(logs_snapshot))
+        .route("/arena/inspection", get(inspection::get))
         .route("/arena/content", get(content::inspect))
         .route("/arena/content/validate", post(content::validate))
         .route("/arena/content/stage", post(content::stage))
@@ -1027,39 +1047,115 @@ struct TickResult {
 }
 
 fn advance_tick(state: &AppState) -> Result<TickResult> {
+    let waiting = std::time::Instant::now();
     let mut guard = state
         .inner
         .lock()
         .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
-    // Reserve a checked publication watermark before advancing the game.
+    let started = std::time::Instant::now();
+    let lock_wait = started.duration_since(waiting);
+    guard.inspection.begin_attempt();
+    match advance_locked(state, &mut guard) {
+        Ok((tick, update, error)) => {
+            let stepped = inspection::capture(&mut guard, &tick.output, &update);
+            inspection::finish(
+                &mut guard,
+                &update,
+                stepped,
+                error.as_deref(),
+                started.elapsed(),
+                lock_wait,
+            );
+            Ok(tick)
+        }
+        Err(error) => {
+            let update = inspection::Update {
+                replacement: false,
+                runtime_advanced: false,
+                outcome: inspection::Outcome::Fault,
+                before: None,
+            };
+            inspection::finish(
+                &mut guard,
+                &update,
+                false,
+                Some(&format!("{error:#}")),
+                started.elapsed(),
+                lock_wait,
+            );
+            Err(error)
+        }
+    }
+}
+
+fn advance_locked(
+    state: &AppState,
+    guard: &mut GameState,
+) -> Result<(TickResult, inspection::Update, Option<String>)> {
+    // Reserve the existing game watermark before advancing, independently of diagnostics.
     let publication_id = guard
         .publication_id
         .checked_add(1)
         .context("Arena publication sequence exhausted")?;
-    let control = playback::apply_controls(&mut guard);
-    let output = if let Some(ready) = guard.pending_playback.take() {
-        if guard.playback.is_none() {
-            advance_live_tick(&mut guard)?;
-        }
-        guard.playback = Some(ready);
-        guard.wire_snapshot_pending = true;
-        guard.playback.as_mut().unwrap().take_outputs()
-    } else if let Some(playback) = guard.playback.as_mut() {
-        playback.advance();
-        playback.take_outputs()
-    } else {
-        advance_live_tick(&mut guard)?
-    };
-    playback::complete_control(&guard, control);
-    let events = playback::events(&guard, output.clone());
+    let mut before = inspection::position(guard);
+    let control = playback::apply_controls(guard);
+    let mut replacement = control.as_ref().is_some_and(|control| control.replaced);
+    if replacement {
+        before = inspection::replacement_position(guard);
+    }
+    let (output, runtime_advanced, outcome, error) =
+        if let Some(ready) = guard.pending_playback.take() {
+            if guard.playback.is_none() {
+                advance_live_tick(guard)?;
+            }
+            guard.playback = Some(ready);
+            guard.wire_snapshot_pending = true;
+            replacement = true;
+            (
+                guard.playback.as_mut().unwrap().take_outputs(),
+                false,
+                inspection::Outcome::Replacement,
+                None,
+            )
+        } else if let Some(playback) = guard.playback.as_mut() {
+            let (advanced, outcome, error) = match playback.advance() {
+                playback::Advance::Idle => (false, inspection::Outcome::Idle, None),
+                playback::Advance::Advanced => (true, inspection::Outcome::Advanced, None),
+                playback::Advance::Fault(error) => (false, inspection::Outcome::Fault, Some(error)),
+            };
+            (playback.take_outputs(), advanced, outcome, error)
+        } else {
+            (
+                advance_live_tick(guard)?,
+                true,
+                inspection::Outcome::Advanced,
+                None,
+            )
+        };
+    playback::complete_control(guard, control);
+    let events = playback::events(guard, output.clone());
     let run_events = std::mem::take(&mut guard.run_events);
     guard.publication_id = publication_id;
-    arena_wire::publish(state, &mut guard, &output);
-    Ok(TickResult {
-        output,
-        events,
-        run_events,
-    })
+    arena_wire::publish(state, guard, &output);
+    let outcome = if replacement && outcome != inspection::Outcome::Fault {
+        inspection::Outcome::Replacement
+    } else {
+        outcome
+    };
+    Ok((
+        TickResult {
+            output,
+            events,
+            run_events,
+        },
+        inspection::Update {
+            replacement,
+            runtime_advanced,
+            outcome,
+            before,
+        },
+        error,
+    ))
 }
 
 #[cfg(test)]

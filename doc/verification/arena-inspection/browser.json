@@ -1,0 +1,628 @@
+{
+  "status": "passed",
+  "flows": {
+    "native": {
+      "sourceReport": {
+        "path": ".tmp/stage17/browser-proof/native/summary.json",
+        "bytes": 582,
+        "sha256": "cf666e65de8aa6aaa37d49743b6b0449c90f8e9808fd645739f7a0ab8ec1d1c2"
+      },
+      "result": "passed",
+      "api": "http://127.0.0.1:8796",
+      "ui": "http://127.0.0.1:5180",
+      "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+      "checks": [
+        "complete state and context at paused tick",
+        "minimap ground-plane mapping",
+        "entity selection/reset",
+        "floor and boss cues",
+        "forward/backward seek",
+        "step",
+        "play to EOF",
+        "pause",
+        "stop",
+        "return-live",
+        "stale retains complete state",
+        "reconnect",
+        "390px layout",
+        "navigation/remount",
+        "no page errors"
+      ],
+      "pageErrors": "",
+      "observations": [
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/backward.json",
+            "bytes": 26741,
+            "sha256": "c782e3f0e67e3086f5bb2ca759a696d5d6ef8c0d04d9f20e46410f215665904d"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "1",
+          "epoch": "5",
+          "tick": "197",
+          "health": 110,
+          "stateSha256": "7a83c9757af6743874f7674602b3545c79e87f6bdcec3623ed5aa91665c8e62b",
+          "presentationSha256": "35c0cf5f775f44c056a2013f7d82b017de001fbaf370e2da7c4edc442a62bbef",
+          "eventCount": 0,
+          "timingCount": 37,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/boss.json",
+            "bytes": 24117,
+            "sha256": "ae2b42e2c5fec32e28ff87fd167a9edfb17f9628ad4ccd55d9e82270db406fbe"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "1",
+          "epoch": "3",
+          "tick": "1649",
+          "health": 110,
+          "stateSha256": "46a486bdec6dbfd7585635bdf7fef6ff01d966528b7b0fc53d6a481cc11d52aa",
+          "presentationSha256": "9877f4dcc05c397b19117023a5629e43e84407d0e1af101eb52378cccc1af837",
+          "eventCount": 0,
+          "timingCount": 18,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/death.json",
+            "bytes": 40180,
+            "sha256": "026a9e0bfc713e735fc4cd3d4bbfb55d974732e36a7ed85276e54cb66505e020"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "1",
+          "epoch": "4",
+          "tick": "5526",
+          "health": 0,
+          "stateSha256": "5965a143e998b39f45b332f12bfeeb2612adfc4139692e194e07cf2b46114559",
+          "presentationSha256": "23aa19b6a1079ecf880dbecba2f40143bbe22fb24a1cd0ccd259554dc224d21c",
+          "eventCount": 0,
+          "timingCount": 36,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/floor.json",
+            "bytes": 26695,
+            "sha256": "dfa7ddc9ce2720452f0a756502719841a8ce698bc5dedded98c664dd37466c9b"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "1",
+          "epoch": "2",
+          "tick": "197",
+          "health": 110,
+          "stateSha256": "7a83c9757af6743874f7674602b3545c79e87f6bdcec3623ed5aa91665c8e62b",
+          "presentationSha256": "35c0cf5f775f44c056a2013f7d82b017de001fbaf370e2da7c4edc442a62bbef",
+          "eventCount": 0,
+          "timingCount": 37,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/initial.json",
+            "bytes": 16468,
+            "sha256": "8d77c492f0d635dcca02fa3df3991dafe8578512cec0770ffa46ba9ff89f5a61"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "0",
+          "epoch": "1",
+          "tick": "-1",
+          "health": 100,
+          "stateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "presentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089",
+          "eventCount": 0,
+          "timingCount": 13,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/paused.json",
+            "bytes": 113052,
+            "sha256": "66aa9906af0f3e2dcafe557ba8294742c26de0c44856d1b4f41f128b6c2f3c2f"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "1",
+          "epoch": "5",
+          "tick": "249",
+          "health": 110,
+          "stateSha256": "f2a035fbb830c1eb3859037b179d2dd817389610df75074237212454732f974e",
+          "presentationSha256": "c8b0b246564b802f02f890e50bf1c358557ae5f47d3226a0f8d2573adee4ab03",
+          "eventCount": 11,
+          "timingCount": 214,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/reconnected.json",
+            "bytes": 129265,
+            "sha256": "2deb9467eec05b9adcd5ecac609d265bfdbb75b00fc9cd7ad38f52a51c747447"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "1",
+          "epoch": "5",
+          "tick": "249",
+          "health": 110,
+          "stateSha256": "f2a035fbb830c1eb3859037b179d2dd817389610df75074237212454732f974e",
+          "presentationSha256": "c8b0b246564b802f02f890e50bf1c358557ae5f47d3226a0f8d2573adee4ab03",
+          "eventCount": 11,
+          "timingCount": 256,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/retry-eof.json",
+            "bytes": 28273,
+            "sha256": "67c96bc9ce4114f4a7ae0bbfbfe41e563b6eb91cf555b38d2236d202aa07dc1a"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "2",
+          "epoch": "4",
+          "tick": "5527",
+          "health": 100,
+          "stateSha256": "53a4f5aa25ce96f1ea404337fcd049558db184038e901b031648353de91b3f4f",
+          "presentationSha256": "867f20f299fdb3a5382260530f27019cf4363923584a5324aa479913e79577cb",
+          "eventCount": 3,
+          "timingCount": 25,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/returned-live.json",
+            "bytes": 16035,
+            "sha256": "9ab77798473b9bd1b278653f0174ee0c2328f97ad6cea4d551a0aa4901bdc394"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "0",
+          "epoch": "7",
+          "tick": "6215",
+          "health": 100,
+          "stateSha256": "9226a9bc65658dbca3ba72f5becac5ee73291b28615f9ff78443e041ae76715c",
+          "presentationSha256": "bd95fc97d8f3331e10918a83dba4d6146dc2492e532e4e2568da3cf5f26558ba",
+          "eventCount": 0,
+          "timingCount": 12,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/step.json",
+            "bytes": 51095,
+            "sha256": "820be005c759a5708d6441db04e150e7a79f9fcf8437407a6e0180ad691b4c07"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "1",
+          "epoch": "5",
+          "tick": "198",
+          "health": 110,
+          "stateSha256": "3d233f84e57e92cf5265848f6dc2c49ccdf4c6bf600cc5a81cfe89e794b417ae",
+          "presentationSha256": "cdbc8c564aadac2aa9e373a2563cb821c6bd1226ea6261b4d13fbaa8f8a40174",
+          "eventCount": 0,
+          "timingCount": 101,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/native/stopped.json",
+            "bytes": 20724,
+            "sha256": "f2bb3746f9d2e323704b78eb013e38775eab54e7cd80d4f47a3134b641a1753a"
+          },
+          "sessionId": "23787-1788713495513922000",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "run": "0",
+          "epoch": "6",
+          "tick": "-1",
+          "health": 100,
+          "stateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "presentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089",
+          "eventCount": 0,
+          "timingCount": 24,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        }
+      ],
+      "localImages": [
+        {
+          "path": ".tmp/stage17/browser-proof/native/boss-selected.png",
+          "bytes": 318949,
+          "sha256": "0a57452f38bb28a661e5f65f36e3b7923a1aa4a873e47556bccfce307eba5ee1"
+        },
+        {
+          "path": ".tmp/stage17/browser-proof/native/events-timing.png",
+          "bytes": 301806,
+          "sha256": "4c066d099524a4372342dcc12645b15e5dc89fdcb81a5459fc43e40bb7ee23a3"
+        },
+        {
+          "path": ".tmp/stage17/browser-proof/native/mobile.png",
+          "bytes": 280902,
+          "sha256": "f6f1ca0d52495a08c5ac96d701fefa4bc0fd2147506550f5163f9b82725bc50d"
+        },
+        {
+          "path": ".tmp/stage17/browser-proof/native/stale.png",
+          "bytes": 308116,
+          "sha256": "8ad48e0c86d52a177963ecc9f9ff1611c837034e0683fb4c3479e40c705d4cc1"
+        }
+      ]
+    },
+    "server-final": {
+      "sourceReport": {
+        "path": ".tmp/stage17/browser-proof/server-final/summary.json",
+        "bytes": 582,
+        "sha256": "458e1d75816f716329af30bf85b90c2beb521620de49255dd4b90f365264ca95"
+      },
+      "result": "passed",
+      "api": "http://127.0.0.1:8795",
+      "ui": "http://127.0.0.1:5179",
+      "recordingId": "55ac75086a23f373b79340a4addea78cbfad776f948a4b4cc80b0218f05d5540",
+      "checks": [
+        "complete state and context at paused tick",
+        "minimap ground-plane mapping",
+        "entity selection/reset",
+        "floor and boss cues",
+        "forward/backward seek",
+        "step",
+        "play to EOF",
+        "pause",
+        "stop",
+        "return-live",
+        "stale retains complete state",
+        "reconnect",
+        "390px layout",
+        "navigation/remount",
+        "no page errors"
+      ],
+      "pageErrors": "",
+      "observations": [
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/backward.json",
+            "bytes": 25239,
+            "sha256": "4371026bcbb24dd7cb177fd9c6ec438f5afc24a1f85cd03c62f9a059c038e152"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "1",
+          "epoch": "36",
+          "tick": "197",
+          "health": 110,
+          "stateSha256": "7a83c9757af6743874f7674602b3545c79e87f6bdcec3623ed5aa91665c8e62b",
+          "presentationSha256": "35c0cf5f775f44c056a2013f7d82b017de001fbaf370e2da7c4edc442a62bbef",
+          "eventCount": 0,
+          "timingCount": 33,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/boss.json",
+            "bytes": 22527,
+            "sha256": "38cb5f2c339dca819f34b29a88603bb772525a4db79bf32279800f1e1ed8869b"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "1",
+          "epoch": "34",
+          "tick": "1649",
+          "health": 110,
+          "stateSha256": "46a486bdec6dbfd7585635bdf7fef6ff01d966528b7b0fc53d6a481cc11d52aa",
+          "presentationSha256": "9877f4dcc05c397b19117023a5629e43e84407d0e1af101eb52378cccc1af837",
+          "eventCount": 0,
+          "timingCount": 14,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/death.json",
+            "bytes": 37039,
+            "sha256": "2a1fb1215ebe57aceefaf16ce68171331a41817224ac682a475e3e478edba8bb"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "1",
+          "epoch": "35",
+          "tick": "5526",
+          "health": 0,
+          "stateSha256": "5965a143e998b39f45b332f12bfeeb2612adfc4139692e194e07cf2b46114559",
+          "presentationSha256": "23aa19b6a1079ecf880dbecba2f40143bbe22fb24a1cd0ccd259554dc224d21c",
+          "eventCount": 0,
+          "timingCount": 28,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/floor.json",
+            "bytes": 25258,
+            "sha256": "fa92878b05f578f22e45f8e41ffcab97d0791837ee26354ecbedad494b036267"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "1",
+          "epoch": "33",
+          "tick": "197",
+          "health": 110,
+          "stateSha256": "7a83c9757af6743874f7674602b3545c79e87f6bdcec3623ed5aa91665c8e62b",
+          "presentationSha256": "35c0cf5f775f44c056a2013f7d82b017de001fbaf370e2da7c4edc442a62bbef",
+          "eventCount": 0,
+          "timingCount": 33,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/initial.json",
+            "bytes": 16115,
+            "sha256": "a7dc939ac85672caf91c950431509a00edc9a6b7a63ef5a5dadb7a7c8db77f85"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "0",
+          "epoch": "32",
+          "tick": "-1",
+          "health": 100,
+          "stateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "presentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089",
+          "eventCount": 0,
+          "timingCount": 12,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/paused.json",
+            "bytes": 107765,
+            "sha256": "f37ddc1d2719a8c24c23c1007349d6ad4c25080c577710b5870ca5de3b4adaaf"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "1",
+          "epoch": "36",
+          "tick": "247",
+          "health": 110,
+          "stateSha256": "1fb6b46200cf5558e95f084c00f8bbeca1b9a2c36c6003445cefabbb1ab64b0e",
+          "presentationSha256": "cd2b4756c3a65e0357368f530216e140026846879455648e502e5e55ed0272b3",
+          "eventCount": 10,
+          "timingCount": 205,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/reconnected.json",
+            "bytes": 127364,
+            "sha256": "e788f0cc3612f2319c048ee038a95bd09af0574eb75150ad277762f662566e00"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "1",
+          "epoch": "36",
+          "tick": "247",
+          "health": 110,
+          "stateSha256": "1fb6b46200cf5558e95f084c00f8bbeca1b9a2c36c6003445cefabbb1ab64b0e",
+          "presentationSha256": "cd2b4756c3a65e0357368f530216e140026846879455648e502e5e55ed0272b3",
+          "eventCount": 10,
+          "timingCount": 256,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/retry-eof.json",
+            "bytes": 28380,
+            "sha256": "a90e3d8703d496f11713e9cd458d45bf5518778f7e1523a86dbcd38e44adaa0b"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "2",
+          "epoch": "35",
+          "tick": "5527",
+          "health": 100,
+          "stateSha256": "53a4f5aa25ce96f1ea404337fcd049558db184038e901b031648353de91b3f4f",
+          "presentationSha256": "867f20f299fdb3a5382260530f27019cf4363923584a5324aa479913e79577cb",
+          "eventCount": 3,
+          "timingCount": 25,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/returned-live.json",
+            "bytes": 17186,
+            "sha256": "3795e2c511f1e015380fc78a84ad3206345440a385cd2177732d3f80d11a4c99"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "20",
+          "epoch": "38",
+          "tick": "30403",
+          "health": 110,
+          "stateSha256": "dfa0f9c5ccbdf563c929c72a4b252d3d06777d8bb6719a183d462bdf1e6c0b11",
+          "presentationSha256": "10f05b74b38b887aa8370a1484adb1f7c8e629d5fd8d4a57df01647ddf7bb53d",
+          "eventCount": 0,
+          "timingCount": 13,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/step.json",
+            "bytes": 48517,
+            "sha256": "dc79c0f0dc9cbb1f41818d53b8c1227b197f4ce8e497f8c9988ec76676d18015"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "1",
+          "epoch": "36",
+          "tick": "198",
+          "health": 110,
+          "stateSha256": "3d233f84e57e92cf5265848f6dc2c49ccdf4c6bf600cc5a81cfe89e794b417ae",
+          "presentationSha256": "cdbc8c564aadac2aa9e373a2563cb821c6bd1226ea6261b4d13fbaa8f8a40174",
+          "eventCount": 0,
+          "timingCount": 94,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        },
+        {
+          "sourceReport": {
+            "path": ".tmp/stage17/browser-proof/server-final/stopped.json",
+            "bytes": 20417,
+            "sha256": "a736f760fc7b913ecd3c8d0cf82d004bd8f89629ae7b10445fd1ee9c89fc1bb3"
+          },
+          "sessionId": "1-1788712804546230769",
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+            "target": "aarch64-unknown-linux-gnu"
+          },
+          "run": "0",
+          "epoch": "37",
+          "tick": "-1",
+          "health": 100,
+          "stateSha256": "24545cb0e70c592ba624c5a43b927dfcf2aa2417b16e9d09cea6deb8bc7381b4",
+          "presentationSha256": "7caa13d7f96f0c83294b8c29aa5f71df8acea1476447878437472d6951aeb089",
+          "eventCount": 0,
+          "timingCount": 23,
+          "status": "Current · 5 Hz",
+          "selectedEntities": []
+        }
+      ],
+      "localImages": [
+        {
+          "path": ".tmp/stage17/browser-proof/server-final/boss-selected.png",
+          "bytes": 318692,
+          "sha256": "cd84d0b6bcd6a1e75c84070d07dc18fb8b43bf35c9dd03b3d3914c2b658ca868"
+        },
+        {
+          "path": ".tmp/stage17/browser-proof/server-final/events-timing.png",
+          "bytes": 303053,
+          "sha256": "8579f7acd852631ea20d28145136af198f221ff84abad51eb44df2eb4058aab9"
+        },
+        {
+          "path": ".tmp/stage17/browser-proof/server-final/mobile.png",
+          "bytes": 281738,
+          "sha256": "8f10542a62b6608796acfc0334e965c392f8dcc4638f68553dd9834a890bae28"
+        },
+        {
+          "path": ".tmp/stage17/browser-proof/server-final/stale.png",
+          "bytes": 307725,
+          "sha256": "c5f8dd872fa839998b0fa29f3d85f9862a7b97afd19b9d761c324587f9933744"
+        }
+      ]
+    }
+  },
+  "harness": {
+    "path": ".tmp/stage17/browser-proof/flow.py",
+    "bytes": 6853,
+    "sha256": "7fc49a47df8097b4077e14f8299990870eeb229b90ed10d243bb3916c0bc0954"
+  },
+  "scope": "Actual browser against its selected host; PNGs and full DOM/state data remain local. No screenshot publication.",
+  "resolvedHarnessIssue": {
+    "initialFolder": ".tmp/stage17/browser-proof/server",
+    "finding": "Agent-browser transport reserialization changed three numeric values by approximately 1e-16. The final harness reads JSON text from the DOM before parsing, preserving exact displayed-state comparison. No production change or tolerance relaxation was used.",
+    "finalFolder": ".tmp/stage17/browser-proof/server-final"
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "sourceReport": {
+    "path": ".tmp/stage17/rust-checks.json",
+    "bytes": 1354,
+    "sha256": "ddd96659bd6013ba804a2141ec31f1a489e0b1397d322b6e23f376c54eaa8e89"
+  },
+  "workspace": {
+    "fmt": {
+      "status": "passed",
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.45351290702819824,
+      "log": {
+        "path": ".tmp/stage17/rust-fmt.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "tests": {
+      "status": "passed",
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "cargo",
+        "test",
+        "--locked",
+        "--workspace"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 758.0939671993256,
+      "log": {
+        "path": ".tmp/stage17/rust-tests.log",
+        "bytes": 41070,
+        "sha256": "c73e0ed6574e7004865747861f3960fc17db9be98e3c8f25ccff107e87390540"
+      },
+      "counts": {
+        "suites": 58,
+        "passed": 360,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "clippy": {
+      "status": "passed",
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.709978103637695,
+      "log": {
+        "path": ".tmp/stage17/rust-clippy.log",
+        "bytes": 535,
+        "sha256": "2c9537340217ce8ca01bf06efa604f7b2f7a2ebaccc48af55bf127355a85531d"
+      }
+    },
+    "docs": {
+      "status": "passed",
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-e",
+        "RUSTDOCFLAGS=-D warnings",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "cargo",
+        "doc",
+        "--locked",
+        "--workspace",
+        "--no-deps"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.508455038070679,
+      "log": {
+        "path": ".tmp/stage17/rust-docs.log",
+        "bytes": 1088,
+        "sha256": "2bde2503a2ef1be15983dd2146a9e33350d6c74397a80f22cf233c030244da50"
+      }
+    }
+  },
+  "scoped": {
+    "host": {
+      "log": {
+        "path": ".tmp/stage17/backend/host-tests.log",
+        "bytes": 4567,
+        "sha256": "3b1aa6569f35168f626b2315fbc54eeb968b420e0685758ddc3c2b06699e5a34"
+      },
+      "reproductionCommand": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "kitu-demo-game",
+        "--lib",
+        "host::"
+      ],
+      "counts": {
+        "suites": 1,
+        "passed": 43,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "transport": {
+      "log": {
+        "path": ".tmp/stage17/backend/transport-tests.log",
+        "bytes": 3590,
+        "sha256": "887e06bf85413cf411d4031b08500377047c38f62aac1fb2c3f40f3aad32e399"
+      },
+      "reproductionCommand": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "kitu-transport"
+      ],
+      "counts": {
+        "suites": 2,
+        "passed": 39,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "appDoctests": {
+      "log": {
+        "path": ".tmp/stage17/backend/doc-tests.log",
+        "bytes": 1148,
+        "sha256": "55b100fbab9820b46ccffe659d49d7429b4b4f0c9e178a0b5b1484b696438c31"
+      },
+      "reproductionCommand": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "kitu-demo-game",
+        "--doc"
+      ],
+      "counts": {
+        "suites": 1,
+        "passed": 10,
+        "failed": 0,
+        "ignored": 0
+      }
+    }
+  }
+}

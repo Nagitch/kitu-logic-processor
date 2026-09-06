@@ -32,7 +32,8 @@ Endpoints:
 - Demo game admin host: http://localhost:8787
 - Health: http://localhost:8787/health
 - Web Admin WebSocket: ws://localhost:8787/ws
-- Unity/runtime WebSocket: ws://localhost:8787/ws/runtime
+- Arena client WebSocket: ws://localhost:8787/ws/arena
+- Generic Unity/runtime WebSocket: ws://localhost:8787/ws/runtime
 - Experimental WebTransport gateway: https://localhost:9443 over UDP
 
 The `/ws/runtime` endpoint is the development-time Unity vertical slice. It
@@ -67,7 +68,9 @@ Recordings preserve source and policy independently of authoring files. See the
 
 The same host also runs the Arena application at 60 Hz independently of messages.
 Open `Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity` in the Unity demo
-project and connect to `ws://localhost:8787/ws/runtime`. The default scene
+project and select its Server backend at `ws://localhost:8787/ws/arena`.
+The macOS Automatic backend embeds Kitu unless an external server is selected.
+The default scene
 plays the complete endless game, including boss rewards, results and retry. The
 original `EndlessArena.unity` and frozen C# fixtures remain the comparison oracle.
 
@@ -78,8 +81,24 @@ The client only submits input and renders server state. See the
 [full-game evidence](../../doc/verification/arena-progression/results.json).
 
 To include the live migration scene in PlayMode validation, run the host and set
-`KITU_ARENA_WS_URL=ws://localhost:8787/ws/runtime` when launching Unity tests.
+`KITU_ARENA_WS_URL=ws://localhost:8787/ws/arena` when launching Unity tests.
 Without that variable, the external-host connection test is explicitly skipped.
+
+## Arena inspection
+
+Open Admin **Project → Arena Inspector** to observe the selected host's game
+state, entities, minimap, events, presentation cues and host owner-update timing.
+Every panel uses one verified snapshot from `GET /arena/inspection`; its session,
+run and tick distinguish live play, replay and a completed seek. Select entities
+from the map or list, and use the existing playback controls to inspect exact
+ticks after loading a recording through **Arena Replay**. Failed refreshes retain
+the last snapshot with a stale status.
+
+The embedded macOS Player exposes the same endpoint through its optional bridge
+at `http://127.0.0.1:8789`. Inspection reads neither advance the game nor claim a
+controller. The generic World view remains separate. See the
+[inspection contract](../../doc/specs/arena-inspection.md) for exact integer
+representation, event retention, timing scope and replay replacement semantics.
 
 ## Tanu parameters
 
@@ -215,7 +234,7 @@ To repeat the real-scene replay test, regenerate/import the stock recording for
 the current build (see the contract), then add its ID to the PlayMode environment:
 
 ```sh
-KITU_ARENA_WS_URL=ws://127.0.0.1:8787/ws/runtime \
+KITU_ARENA_WS_URL=ws://127.0.0.1:8787/ws/arena \
 KITU_ARENA_REPLAY_ID=<imported-stock-content-id> \
   <Unity-editor> -batchmode -projectPath <isolated-unity-project> \
   -runTests -testPlatform PlayMode -assemblyNames UnityOnlyArena.PlayModeTests \

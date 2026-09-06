@@ -105,6 +105,15 @@ Unity-only procedural reference remains available. See the
 [packaged content contract](specs/arena-packaged-content.md) and
 [relocated Player evidence](verification/arena-content/README.md).
 
+Stage 17 adds one coherent [Arena Inspector](specs/arena-inspection.md) endpoint
+and Admin page shared by standalone and embedded hosts. The owner caches the
+last verified application projection with bounded event history and measured
+owner-update cost; inspection cannot create a game clock or controller. Exact
+decimal identities and committed replacement epochs preserve replay/selection
+context, including failed proof and backward seek. Metrics remain outside game
+state, OSC and recording proofs. See the
+[verification record and pending checks](verification/arena-inspection/README.md).
+
 ### P0 — Execution Semantics
 
 status: implemented

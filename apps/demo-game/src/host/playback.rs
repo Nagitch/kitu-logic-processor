@@ -14,6 +14,7 @@ pub(super) struct AppliedControl {
     complete: Completion,
     result: Result<()>,
     step_from: Option<u64>,
+    pub(super) replaced: bool,
 }
 
 fn pending_seek(game: &GameState) -> bool {
@@ -32,10 +33,14 @@ pub(super) fn apply_controls(game: &mut GameState) -> Option<AppliedControl> {
             } else {
                 None
             };
+            let was_replay = game.playback.is_some();
+            let result = operate(game, &action);
+            let replaced = was_replay && action == "live" && result.is_ok();
             Some(AppliedControl {
                 complete,
-                result: operate(game, &action),
+                result,
                 step_from,
+                replaced,
             })
         }
         Control::BeginSeek(generation) => {
@@ -67,10 +72,12 @@ pub(super) fn apply_controls(game: &mut GameState) -> Option<AppliedControl> {
                     }
                 }
             };
+            let replaced = result.is_ok();
             Some(AppliedControl {
                 complete,
                 result,
                 step_from: None,
+                replaced,
             })
         }
     }
@@ -81,6 +88,7 @@ pub(super) fn complete_control(game: &GameState, applied: Option<AppliedControl>
         complete,
         result,
         step_from,
+        ..
     }) = applied
     else {
         return;
@@ -120,6 +128,12 @@ async fn wait_control(
 
 pub(super) type Mode = kitu_transport::application::ReplayMode;
 
+pub(super) enum Advance {
+    Idle,
+    Advanced,
+    Fault(String),
+}
+
 pub(super) struct Playback {
     id: String,
     session: Arc<Session>,
@@ -134,7 +148,7 @@ pub(super) struct Playback {
 }
 impl Playback {
     #[cfg(test)]
-    fn at(id: String, session: Arc<Session>, tick: i64) -> Result<Self> {
+    pub(super) fn at(id: String, session: Arc<Session>, tick: i64) -> Result<Self> {
         Self::at_with_cancel(id, session, tick, || Ok(()))
     }
     fn at_with_cancel(
@@ -168,14 +182,14 @@ impl Playback {
             error: None,
         })
     }
-    pub(super) fn advance(&mut self) {
+    pub(super) fn advance(&mut self) -> Advance {
         if self.seeking || self.error.is_some() || (!self.playing && self.steps == 0) {
-            return;
+            return Advance::Idle;
         }
         if self.runtime.current_tick().get() >= self.session.manifest().ticks {
             self.playing = false;
             self.steps = 0;
-            return;
+            return Advance::Idle;
         }
         match self.session.tick(&mut self.runtime) {
             Ok(output) => {
@@ -187,13 +201,16 @@ impl Playback {
                     self.playing = false;
                     self.steps = 0;
                 }
+                Advance::Advanced
             }
             Err(error) => {
                 // Session::tick may have advanced before detecting divergence.
                 // Keep showing the last verified state, and require a new seek.
-                self.error = Some(format!("{error:#}"));
+                let diagnostic = format!("{error:#}");
+                self.error = Some(diagnostic.clone());
                 self.playing = false;
                 self.steps = 0;
+                Advance::Fault(diagnostic)
             }
         }
     }
