@@ -934,6 +934,7 @@ dependencies = [
 name = "kitu-demo-game-native"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "kitu-demo-game",
  "kitu-osc-ir",
  "kitu-runtime",
@@ -941,6 +942,9 @@ dependencies = [
  "kitu-unity-ffi",
  "serde",
  "serde_json",
+ "tokio",
+ "tungstenite",
+ "ureq",
 ]
 
 [[package]]

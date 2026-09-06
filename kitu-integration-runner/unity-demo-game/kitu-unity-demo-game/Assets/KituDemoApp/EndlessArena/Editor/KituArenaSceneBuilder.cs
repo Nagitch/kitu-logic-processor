@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -33,14 +34,65 @@ namespace UnityOnlyArena.Editor
         public static void BuildMac()
         {
             PrepareDefault();
-            string destination = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Builds", "KituEndlessArena.app"));
+            KituArenaNativePlugin.Configure();
+            string destination = Environment.GetEnvironmentVariable("KITU_ARENA_PLAYER_PATH");
+            if (string.IsNullOrWhiteSpace(destination))
+                destination = Path.Combine(Application.dataPath, "..", "Builds", "KituEndlessArena.app");
+            destination = Path.GetFullPath(destination);
+            if (!destination.EndsWith(".app", StringComparison.Ordinal))
+                throw new ArgumentException("KITU_ARENA_PLAYER_PATH must end with .app");
             Directory.CreateDirectory(Path.GetDirectoryName(destination));
-            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
-                scenes = new[] { ScenePath }, locationPathName = destination,
-                target = BuildTarget.StandaloneOSX, options = BuildOptions.Development,
-            });
-            if (report.summary.result != BuildResult.Succeeded)
-                throw new Exception("Kitu Arena build failed: " + report.summary.result);
+            string platform = BuildPipeline.GetBuildTargetName(BuildTarget.StandaloneOSX);
+            string previousArchitecture = EditorUserBuildSettings.GetPlatformSettings(platform, "Architecture");
+            var previousBackend = PlayerSettings.GetScriptingBackend(NamedBuildTarget.Standalone);
+            bool previousBackground = PlayerSettings.runInBackground;
+            string previousProductName = PlayerSettings.productName;
+            try
+            {
+                EditorUserBuildSettings.SetPlatformSettings(platform, "Architecture", "ARM64");
+                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
+                PlayerSettings.runInBackground = true;
+                PlayerSettings.productName = "Kitu Endless Arena";
+                var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
+                    scenes = new[] { ScenePath }, locationPathName = destination,
+                    target = BuildTarget.StandaloneOSX, options = BuildOptions.Development,
+                });
+                var evidence = new NativeBuildEvidence {
+                    unityVersion = Application.unityVersion, playerPath = destination,
+                    scene = ScenePath, architecture = "arm64", scriptingBackend = "Mono2x",
+                    pluginPath = KituArenaNativePlugin.PluginPath,
+                    result = report.summary.result.ToString(), errors = report.summary.totalErrors,
+                    warnings = report.summary.totalWarnings, totalBytes = report.summary.totalSize,
+                    elapsedSeconds = report.summary.totalTime.TotalSeconds,
+                };
+                string reportPath = Environment.GetEnvironmentVariable("KITU_ARENA_BUILD_REPORT");
+                if (!string.IsNullOrWhiteSpace(reportPath))
+                {
+                    reportPath = Path.GetFullPath(reportPath);
+                    Directory.CreateDirectory(Path.GetDirectoryName(reportPath));
+                    File.WriteAllText(reportPath, JsonUtility.ToJson(evidence, true));
+                }
+                if (report.summary.result != BuildResult.Succeeded)
+                    throw new Exception("Kitu Arena build failed: " + report.summary.result);
+                Debug.Log("Embedded native Arena player built: " + destination);
+            }
+            finally
+            {
+                EditorUserBuildSettings.SetPlatformSettings(platform, "Architecture", previousArchitecture);
+                PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, previousBackend);
+                PlayerSettings.runInBackground = previousBackground;
+                PlayerSettings.productName = previousProductName;
+                AssetDatabase.SaveAssets();
+            }
+        }
+
+        [Serializable]
+        private sealed class NativeBuildEvidence
+        {
+            public string unityVersion, playerPath, scene, architecture, scriptingBackend, pluginPath, result;
+            public int errors, warnings;
+            public ulong totalBytes;
+            public double elapsedSeconds;
         }
     }
 }

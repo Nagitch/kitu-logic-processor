@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,17 +10,26 @@ namespace UnityOnlyArena
     public sealed class KituArenaClient : MonoBehaviour
     {
         public string Endpoint = "ws://127.0.0.1:8787/ws/runtime";
+        public ArenaBackend Backend = ArenaBackend.Automatic;
+        public bool NativeBridgeEnabled = true;
+        public string NativeBridgeAddress = "127.0.0.1:8789";
+        public string NativeContentPath = "";
+        public bool NativeAutomaticTicks = true;
         public bool ConnectOnStart = true;
         public bool DeviceInput = true;
+        public bool PauseOnFocusLoss = true;
         private readonly string clientId = Guid.NewGuid().ToString("N");
         private long nextMessageId = 1;
-        private ArenaConnection connection;
+        private IArenaConnection connection;
         private ArenaWorldView world;
         private float nextFrame;
         private readonly bool[] requireRelease = { true, true, true, true };
         private bool synchronized;
         private int selectedBackpack;
         private Vector2 inventoryScroll;
+        private double previousClock;
+        private bool started;
+        public ArenaNativeConnection NativeConnection => connection as ArenaNativeConnection;
         public ArenaSettings Settings { get; private set; }
         public ArenaSettings DraftSettings { get; private set; }
         public bool SettingsOpen => DraftSettings != null;
@@ -35,24 +45,55 @@ namespace UnityOnlyArena
         {
             Settings = ArenaSettings.Load();
             Settings.Apply(false);
+            Application.runInBackground = true;
             State = new ArenaReferenceState { tick = -1, aimDirection = Vector2.up, overlay = "none" };
             world = gameObject.AddComponent<ArenaWorldView>();
             world.Initialize(State);
         }
 
-        private void Start() { if (ConnectOnStart) Connect(); }
+        private void Start() { started = true; if (ConnectOnStart) Connect(); }
+        private void OnEnable() { if (started && ConnectOnStart) Connect(); }
 
         public void Connect()
         {
-            connection?.Dispose();
             SessionId = null;
             synchronized = false;
             ReplayActive = false;
             BlockGameplayButtons();
-            connection = new ArenaConnection(Endpoint);
+            try
+            {
+                string serverOverride = ArenaLaunchArguments.Value("--arena-server") ?? Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
+                bool native = Backend == ArenaBackend.Embedded || (Backend == ArenaBackend.Automatic && string.IsNullOrEmpty(serverOverride)
+                    && (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer));
+                if (native)
+                {
+                    var existing = connection as ArenaNativeConnection;
+                    if (existing != null && !existing.IsDisposed) existing.Reconnect();
+                    else
+                    {
+                        connection?.Dispose();
+                        string bridgeOverride = ArenaLaunchArguments.Value("--arena-bridge");
+                        bool bridge = NativeBridgeEnabled && bridgeOverride != "off";
+                        string address = string.IsNullOrEmpty(bridgeOverride) || bridgeOverride == "off" ? NativeBridgeAddress : bridgeOverride;
+                        string contentOverride = ArenaLaunchArguments.Value("--arena-content");
+                        if (contentOverride != null && !Path.IsPathRooted(contentOverride))
+                            throw new ArgumentException("--arena-content requires an absolute TMD path");
+                        connection = new ArenaNativeConnection(bridge, address,
+                            Path.Combine(Application.persistentDataPath, "arena"), contentOverride ?? NativeContentPath);
+                    }
+                    NativeConnection.AutomaticTicks = NativeAutomaticTicks;
+                }
+                else
+                {
+                    connection?.Dispose();
+                    connection = new ArenaConnection(string.IsNullOrEmpty(serverOverride) ? Endpoint : serverOverride);
+                }
+                previousClock = Time.realtimeSinceStartupAsDouble;
+            }
+            catch (Exception error) { Message = error.Message; Debug.LogError("Arena connection failed: " + error.Message); }
         }
 
-        public void Disconnect() { connection?.Dispose(); synchronized = false; }
+        public void Disconnect() { connection?.Disconnect(); synchronized = false; }
 
         public bool Command(string suffix, params int[] values)
         {
@@ -80,6 +121,10 @@ namespace UnityOnlyArena
         private void Update()
         {
             if (connection == null) return;
+            double now = Time.realtimeSinceStartupAsDouble;
+            if (NativeConnection != null) NativeConnection.AutomaticTicks = NativeAutomaticTicks;
+            connection.Pump(Math.Max(0, now - previousClock));
+            previousClock = now;
             while (connection.TryReceive(out string json))
             {
                 try
@@ -154,7 +199,7 @@ namespace UnityOnlyArena
             bool useA = running && keyboard != null && !requireRelease[2] && keyboard.zKey.wasPressedThisFrame;
             bool useB = running && keyboard != null && !requireRelease[3] && keyboard.xKey.wasPressedThisFrame;
             // A press forces a fresh aim frame before the discrete use request.
-            // This timer samples devices; only the server owns the game clock.
+            // This timer samples devices; the Runtime owns the game clock.
             if (Time.unscaledTime < nextFrame && !useA && !useB) return;
             nextFrame = Time.unscaledTime + 1f / 60f;
             var move = Vector2.zero;
@@ -185,8 +230,10 @@ namespace UnityOnlyArena
             for (int i = 0; i < requireRelease.Length; i++) requireRelease[i] = true;
         }
 
-        private void OnApplicationFocus(bool focused) { if (!focused) { Command("pause"); BlockGameplayButtons(); } }
-        private void OnDestroy() { connection?.Dispose(); }
+        private void OnApplicationFocus(bool focused) { if (!focused && PauseOnFocusLoss) { Command("pause"); BlockGameplayButtons(); } }
+        private void OnApplicationPause(bool paused) { if (paused && PauseOnFocusLoss) { Command("pause"); BlockGameplayButtons(); } }
+        private void OnDisable() { connection?.Dispose(); connection = null; synchronized = false; }
+        private void OnDestroy() { connection?.Dispose(); connection = null; }
 
         private static string ItemText(ArenaItemState item)
         {

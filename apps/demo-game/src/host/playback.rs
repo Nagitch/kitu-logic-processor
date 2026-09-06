@@ -1,9 +1,71 @@
 //! Interactive playback uses verified Runtime execution and cached last-valid projections.
 use super::*;
-use kitu_demo_game::replay::{ExecutionVersion, Session};
+use crate::replay::{ExecutionVersion, Session};
 use kitu_osc_ir::OscBundle;
 
-static OPERATIONS: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+type Completion = tokio::sync::oneshot::Sender<Result<()>>;
+pub(super) enum Control {
+    Action(String, Completion),
+    BeginSeek(u64),
+    Prepared(u64, Result<Box<Playback>>, Completion),
+}
+
+fn pending_seek(game: &GameState) -> bool {
+    game.controls
+        .iter()
+        .any(|control| matches!(control, Control::BeginSeek(_) | Control::Prepared(_, _, _)))
+}
+
+pub(super) fn apply_controls(game: &mut GameState) {
+    while let Some(control) = game.controls.pop_front() {
+        match control {
+            Control::Action(action, complete) => {
+                let _ = complete.send(operate(game, &action));
+            }
+            Control::BeginSeek(generation) => {
+                if game.playback_generation == generation {
+                    if let Some(playback) = game.playback.as_mut() {
+                        playback.playing = false;
+                        playback.steps = 0;
+                        playback.seeking = true;
+                    }
+                }
+            }
+            Control::Prepared(generation, prepared, complete) => {
+                let result = if game.playback_generation != generation {
+                    Err(anyhow::anyhow!("replay changed while seeking"))
+                } else {
+                    match prepared {
+                        Ok(playback) => {
+                            game.playback = Some(*playback);
+                            Ok(())
+                        }
+                        Err(error) => {
+                            if let Some(playback) = game.playback.as_mut() {
+                                playback.seeking = false;
+                                playback.error = Some(format!("{error:#}"));
+                            }
+                            Err(error)
+                        }
+                    }
+                };
+                let _ = complete.send(result);
+            }
+        }
+    }
+}
+
+async fn wait_control(
+    state: &AppState,
+    receiver: tokio::sync::oneshot::Receiver<Result<()>>,
+) -> Result<()> {
+    let mut shutdown = state.work.subscribe();
+    state.work.check()?;
+    tokio::select! {
+        result = tokio::time::timeout(std::time::Duration::from_secs(3), receiver) => result.context("owner tick did not apply playback control")?.context("playback control was dropped")?,
+        _ = shutdown.changed() => Err(anyhow::anyhow!("host is shutting down")),
+    }
+}
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,13 +93,24 @@ pub(super) struct Playback {
     output: Vec<OscBundle>,
 }
 impl Playback {
+    #[cfg(test)]
     fn at(id: String, session: Arc<Session>, tick: i64) -> Result<Self> {
+        Self::at_with_cancel(id, session, tick, || Ok(()))
+    }
+    fn at_with_cancel(
+        id: String,
+        session: Arc<Session>,
+        tick: i64,
+        mut check: impl FnMut() -> Result<()>,
+    ) -> Result<Self> {
+        check()?;
         anyhow::ensure!(
             tick >= -1 && (tick == -1 || tick < session.manifest().ticks as i64),
             "seek tick is outside this recording"
         );
         let mut runtime = session.runtime()?;
         for _ in 0..(tick + 1) as u64 {
+            check()?;
             session.tick(&mut runtime)?;
         }
         let projection = runtime.inspect_application();
@@ -111,7 +184,7 @@ pub(super) fn mode(game: &GameState) -> Mode {
             tick: p.world.tick as i64 - 1,
             total_ticks: p.session.manifest().ticks,
             playing: p.playing,
-            seeking: p.seeking || game.pending_playback.is_some(),
+            seeking: p.seeking || game.pending_playback.is_some() || pending_seek(game),
             error: p.error.clone(),
         }
     } else {
@@ -204,20 +277,24 @@ pub(super) async fn load(
     State(state): State<AppState>,
     Json(request): Json<LoadRequest>,
 ) -> Result<Json<Status>, ApiError> {
-    let _operation = OPERATIONS.lock().await;
+    let operation = state.playback_operations.clone().lock_owned().await;
+    state.work.check()?;
     let generation = {
         let mut game = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
         game.playback_generation += 1;
         game.playback_generation
     };
-    let bytes = recording::read(&request.id).await?;
-    let prepared = tokio::task::spawn_blocking(move || {
-        let session = Arc::new(Session::decode(&bytes)?);
-        session.verify()?;
-        Playback::at(request.id, session, -1)
-    })
-    .await
-    .map_err(anyhow::Error::from)??;
+    let bytes = recording::read(&state, &request.id).await?;
+    let work = state.work.clone();
+    let prepared = state
+        .spawn_blocking(move || {
+            let _operation = operation;
+            let session = Arc::new(Session::decode(&bytes)?);
+            session.verify_with_cancel(|| work.check())?;
+            Playback::at_with_cancel(request.id, session, -1, || work.check())
+        })?
+        .await
+        .map_err(anyhow::Error::from)??;
     {
         let mut game = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
         if game.playback_generation != generation {
@@ -276,10 +353,18 @@ pub(super) async fn command(
     if request.action == "stop" {
         return seek(State(state), Json(SeekRequest { tick: -1 })).await;
     }
+    state.work.check()?;
+    let (complete, receiver) = tokio::sync::oneshot::channel();
     {
         let mut game = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
-        operate(&mut game, &request.action)?;
+        if game.controls.len() >= 64 {
+            return Err(ApiError::bad_request("playback control queue is full"));
+        }
+        game.controls
+            .push_back(Control::Action(request.action, complete));
     }
+    wait_control(&state, receiver).await?;
+
     Ok(Json(inspect(&state)?))
 }
 
@@ -292,71 +377,84 @@ pub(super) async fn seek(
     State(state): State<AppState>,
     Json(request): Json<SeekRequest>,
 ) -> Result<Json<Status>, ApiError> {
-    let operation = OPERATIONS.lock().await;
+    let operation = state.playback_operations.clone().lock_owned().await;
+    state.work.check()?;
     let (generation, id, session) = {
         let mut game = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
-        if game.pending_playback.is_some() {
-            return Err(ApiError::bad_request("wait for replay activation"));
+        if game.pending_playback.is_some() || pending_seek(&game) {
+            return Err(ApiError::bad_request("wait for replay activation or seek"));
         }
         let generation = game.playback_generation;
-        let p = game.playback.as_mut().context("load a recording first")?;
+        let playback = game.playback.as_ref().context("load a recording first")?;
         if request.tick < -1
-            || (request.tick != -1 && request.tick >= p.session.manifest().ticks as i64)
+            || (request.tick != -1 && request.tick >= playback.session.manifest().ticks as i64)
         {
             return Err(ApiError::bad_request("seek tick is outside this recording"));
         }
-        p.playing = false;
-        p.steps = 0;
-        p.seeking = true;
-        (generation, p.id.clone(), p.session.clone())
+        let id = playback.id.clone();
+        let session = playback.session.clone();
+        if game.controls.len() >= 64 {
+            return Err(ApiError::bad_request("playback control queue is full"));
+        }
+        game.controls.push_back(Control::BeginSeek(generation));
+        (generation, id, session)
     };
-    // The worker owns both completion and serialization. Dropping the HTTP
-    // future must not strand seeking=true or release the gate while CPU work
-    // still runs. Explicit return-to-live still supersedes it by generation.
-    spawn_seek(state.clone(), generation, operation, move || {
-        Playback::at(id, session, request.tick)
-    })
+    let work = state.work.clone();
+    let receiver = spawn_seek(state.clone(), generation, operation, move || {
+        Playback::at_with_cancel(id, session, request.tick, || work.check())
+    })?
     .await
     .map_err(anyhow::Error::from)??;
+    wait_control(&state, receiver).await?;
     Ok(Json(inspect(&state)?))
 }
 
+type SeekReceiver = tokio::sync::oneshot::Receiver<Result<()>>;
 fn spawn_seek(
     state: AppState,
     generation: u64,
-    operation: tokio::sync::MutexGuard<'static, ()>,
+    operation: tokio::sync::OwnedMutexGuard<()>,
     prepare: impl FnOnce() -> Result<Playback> + Send + 'static,
-) -> tokio::task::JoinHandle<Result<()>> {
-    tokio::task::spawn_blocking(move || {
+) -> Result<tokio::task::JoinHandle<Result<SeekReceiver>>> {
+    let worker = state.clone();
+    state.spawn_blocking(move || {
         let _operation = operation;
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(prepare))
             .unwrap_or_else(|_| Err(anyhow::anyhow!("replay seek worker panicked")));
-        let mut game = state
+        worker.work.check()?;
+        let mut game = worker
             .inner
             .lock()
             .map_err(|_| anyhow::anyhow!("state lock poisoned"))?;
-        anyhow::ensure!(
-            game.playback_generation == generation,
-            "replay changed while seeking"
-        );
-        match result {
-            Ok(prepared) => game.playback = Some(prepared),
-            Err(error) => {
-                if let Some(p) = game.playback.as_mut() {
-                    p.seeking = false;
-                    p.error = Some(format!("{error:#}"));
-                }
-                return Err(error);
-            }
-        }
-        Ok(())
+        // Completion commits only in the clock owner's update, even if the HTTP waiter vanished.
+        let (complete, receiver) = tokio::sync::oneshot::channel();
+        game.controls.push_back(Control::Prepared(
+            generation,
+            result.map(Box::new),
+            complete,
+        ));
+        Ok(receiver)
     })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kitu_demo_game::replay::Recorder;
+    use crate::replay::Recorder;
+
+    async fn with_owner_ticks<T>(
+        state: &AppState,
+        future: impl std::future::Future<Output = T>,
+    ) -> T {
+        tokio::pin!(future);
+        loop {
+            tokio::select! {
+                biased;
+                result = &mut future => return result,
+                _ = tokio::time::sleep(std::time::Duration::from_millis(1)) => { advance_runtime_tick(state).unwrap(); },
+            }
+        }
+    }
 
     fn session() -> Arc<Session> {
         let mut runtime = build_arena_runtime().unwrap();
@@ -483,7 +581,7 @@ mod tests {
         let state = super::super::tests::test_state();
         let saved = session();
         for restore_live in [false, true] {
-            let operation = OPERATIONS.lock().await;
+            let operation = state.playback_operations.clone().lock_owned().await;
             let generation = {
                 let mut game = state.inner.lock().unwrap();
                 game.playback_generation += 1;
@@ -497,20 +595,24 @@ mod tests {
             let worker = spawn_seek(state.clone(), generation, operation, move || {
                 wait.recv().unwrap();
                 Playback::at("test".into(), saved, 17)
-            });
+            })
+            .unwrap();
             // Dropping a request's JoinHandle detaches its already scheduled
             // worker. Hold it at a deterministic barrier, with seeking set.
             drop(worker);
             assert!(inspect(&state).unwrap().mode.seeking);
-            assert!(OPERATIONS.try_lock().is_err());
+            assert!(state.playback_operations.try_lock().is_err());
             if restore_live {
                 operate(&mut state.inner.lock().unwrap(), "live").unwrap();
             }
             release.send(()).unwrap();
-            let _completed =
-                tokio::time::timeout(std::time::Duration::from_secs(5), OPERATIONS.lock())
-                    .await
-                    .unwrap();
+            let _completed = tokio::time::timeout(
+                std::time::Duration::from_secs(5),
+                state.playback_operations.lock(),
+            )
+            .await
+            .unwrap();
+            advance_runtime_tick(&state).unwrap();
             let status = inspect(&state).unwrap();
             assert!(!status.mode.seeking);
             if restore_live {
@@ -539,9 +641,12 @@ mod tests {
             .unwrap();
         }
         advance_runtime_tick(&state).unwrap();
-        let Json(at) = seek(State(state.clone()), Json(SeekRequest { tick: 17 }))
-            .await
-            .unwrap();
+        let Json(at) = with_owner_ticks(
+            &state,
+            seek(State(state.clone()), Json(SeekRequest { tick: 17 })),
+        )
+        .await
+        .unwrap();
         assert_eq!(at.mode.tick, 17);
         assert_eq!(at.state["tick"], 17);
         assert_eq!(at.live_tick, 1);
@@ -549,16 +654,67 @@ mod tests {
             .await
             .is_err());
         assert_eq!(inspect(&state).unwrap().mode.tick, 17);
-        let Json(stopped) = command(
-            State(state.clone()),
-            Json(CommandRequest {
-                action: "stop".into(),
-            }),
+        let Json(stopped) = with_owner_ticks(
+            &state,
+            command(
+                State(state.clone()),
+                Json(CommandRequest {
+                    action: "stop".into(),
+                }),
+            ),
         )
         .await
         .unwrap();
         assert_eq!(stopped.mode.tick, -1);
         assert!(!stopped.mode.playing);
         assert_eq!(stopped.live_tick, 1);
+    }
+
+    #[tokio::test]
+    async fn http_controls_wait_for_the_owner_and_verification_can_cancel_between_ticks() {
+        let state = super::super::tests::test_state();
+        let saved = session();
+        {
+            let mut game = state.inner.lock().unwrap();
+            game.playback_generation = 1;
+            queue_loaded(
+                &mut game,
+                Playback::at("test".into(), saved.clone(), -1).unwrap(),
+            )
+            .unwrap();
+        }
+        advance_runtime_tick(&state).unwrap();
+        let request_state = state.clone();
+        let request = tokio::spawn(async move {
+            command(
+                State(request_state),
+                Json(CommandRequest {
+                    action: "step".into(),
+                }),
+            )
+            .await
+        });
+        for _ in 0..100 {
+            if !state.inner.lock().unwrap().controls.is_empty() {
+                break;
+            }
+            tokio::task::yield_now().await;
+        }
+        assert!(!state.inner.lock().unwrap().controls.is_empty());
+        assert_eq!(inspect(&state).unwrap().mode.tick, -1);
+        assert!(!request.is_finished());
+        advance_runtime_tick(&state).unwrap();
+        assert_eq!(request.await.unwrap().unwrap().0.mode.tick, 0);
+        let mut calls = 0;
+        let error = saved
+            .verify_with_cancel(|| {
+                calls += 1;
+                anyhow::ensure!(calls < 5, "verification cancelled by test");
+                Ok(())
+            })
+            .unwrap_err();
+        assert!(error.to_string().contains("verification cancelled"));
+        assert_eq!(calls, 5);
+        assert_eq!(saved.verify().unwrap().ticks, 30);
     }
 }

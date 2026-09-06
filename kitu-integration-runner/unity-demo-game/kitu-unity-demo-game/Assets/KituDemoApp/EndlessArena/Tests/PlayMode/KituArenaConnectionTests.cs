@@ -385,6 +385,19 @@ namespace UnityOnlyArena.Tests
         {
             string endpoint = Environment.GetEnvironmentVariable("KITU_ARENA_WS_URL");
             if (string.IsNullOrEmpty(endpoint)) Assert.Ignore("Set KITU_ARENA_WS_URL to an isolated running admin host.");
+            return StockRun(endpoint, false);
+        }
+
+        [UnityTest, Category("ArenaNative")]
+        public IEnumerator EmbeddedStockRunReachesElevenDiesAndRetriesWithLocalSettings()
+        {
+            if (Application.platform != RuntimePlatform.OSXEditor && Application.platform != RuntimePlatform.OSXPlayer)
+                Assert.Ignore("Native Arena is currently built for macOS.");
+            return StockRun(null, true);
+        }
+
+        private IEnumerator StockRun(string endpoint, bool native)
+        {
 #if UNITY_EDITOR
             Assert.That(UnityEditor.EditorBuildSettings.scenes.First(s => s.enabled).path,
                 Is.EqualTo("Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity"));
@@ -395,7 +408,11 @@ namespace UnityOnlyArena.Tests
 #endif
             var client = UnityEngine.Object.FindFirstObjectByType<KituArenaClient>();
             root = client.gameObject;
-            client.DeviceInput = false; client.Endpoint = endpoint; client.Connect();
+            client.NativeConnection?.Dispose();
+            client.Backend = native ? ArenaBackend.Embedded : ArenaBackend.Server;
+            client.NativeBridgeEnabled = false;
+            client.PauseOnFocusLoss = !native;
+            client.DeviceInput = false; if (endpoint != null) client.Endpoint = endpoint; client.Connect();
             yield return Until(() => client.Connected, "stock synchronization");
             client.Command("menu");
             yield return Until(() => client.State.phase == 0, "stock opening");

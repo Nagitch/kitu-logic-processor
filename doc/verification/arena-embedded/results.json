@@ -1,0 +1,32 @@
+{
+  "stage": 11,
+  "rust": {
+    "environment": "repository Dev Container",
+    "testsAndDoctestsPassed": 221,
+    "failed": 0,
+    "ignored": 0,
+    "clippy": "workspace all targets/all features, warnings denied: passed",
+    "rustdoc": "workspace all features/no dependencies, warnings denied: passed",
+    "reference": "frozen C# source and both fixture hashes unchanged"
+  },
+  "packageLists": {
+    "kitu-demo-game": "36 files; shared host included, generated artifacts excluded; existing internal-only metadata warning",
+    "kitu-demo-game-native": "7 files; publish=false; generated artifacts excluded",
+    "kitu-unity-ffi": "8 files; C header included; publish=false"
+  },
+  "nativeVerification": "native-verification.json",
+  "packageVerification": "native-package.json",
+  "frontend": {
+    "environment": "Dev Container",
+    "check": "passed (0 errors, 0 warnings)",
+    "lint": "passed",
+    "build": "passed including wasm"
+  },
+  "playerBuild": "player-build.json",
+  "graphicalPlayer": [
+    "player-preparation.json",
+    "player-stock.json"
+  ],
+  "unity": "unity-tests.json",
+  "ordinaryPlayerCliAndAdmin": "live-bridge.json"
+}

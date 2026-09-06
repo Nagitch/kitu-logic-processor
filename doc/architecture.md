@@ -586,9 +586,12 @@ This list tracks scenario coverage and should remain aligned with runtime and to
 `kitu-unity-ffi::application` owns the versioned driver/handle/buffer contract;
 `kitu-transport::wire` supplies a shared typed OSC Serde representation. The
 application-owned `kitu-demo-game-native` factory creates the same complete Arena
-Runtime as the server and exports C wrappers as a dynamic/static library. It
-starts no timer or network host. The embedder owns one tick scheduler and must
-retrieve complete output batches before advancing. The later development bridge
-must reuse the existing application host state, queue, recording and playback;
-creating a second Runtime for Admin would observe a different run. See
-[`specs/arena-native-abi.md`](specs/arena-native-abi.md).
+Runtime as the server and exports C wrappers as a dynamic/static library. The
+embedder owns one tick scheduler and retrieves complete output batches before
+advancing. `apps/demo-game/src/host` now contains the reusable host state, queue,
+recorder, playback, content catalog and Shell receipts. Both the server scheduler
+and the native driver wrap that host. An optional native loopback listener starts
+no clock; CLI/Admin observe and operate the same native session. Host-only
+inspection keeps identity and playback metadata out of deterministic game output.
+See [`specs/arena-native-abi.md`](specs/arena-native-abi.md) and
+[`specs/arena-embedded-host.md`](specs/arena-embedded-host.md).

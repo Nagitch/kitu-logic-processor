@@ -96,6 +96,15 @@ pub trait ApplicationDriver: Send {
 
     /// Returns a detached application projection without advancing or mutating state.
     fn inspect(&self) -> Result<Vec<OscBundle>, String>;
+
+    /// Returns optional host/session metadata separately from deterministic game state.
+    ///
+    /// The default is an empty batch. Tools may inspect session identity or playback
+    /// mode here without adding transport details to application output or replay proofs.
+    /// This method must not advance the clock, consume output, or mutate the host.
+    fn inspect_host(&self) -> Result<Vec<OscBundle>, String> {
+        Ok(Vec::new())
+    }
 }
 
 /// An adapter around an ordinary local runtime with an application installed by its owner.
@@ -449,6 +458,33 @@ pub unsafe fn inspect_json(
     capacity: usize,
     out_required: *mut usize,
 ) -> i32 {
+    inspect_with(handle, buffer, capacity, out_required, false)
+}
+
+/// Copies detached host/session metadata using the same bounded typed-JSON format.
+///
+/// This additive ABI 1 operation keeps nondeterministic host identity out of game
+/// projections and recorded output. Drivers without host metadata return `[]`.
+/// Length queries and short reads never consume output or advance the clock.
+///
+/// # Safety
+/// The handle and destination must satisfy [`inspect_json`]'s requirements.
+pub unsafe fn inspect_host_json(
+    handle: *mut ApplicationHandle,
+    buffer: *mut u8,
+    capacity: usize,
+    out_required: *mut usize,
+) -> i32 {
+    inspect_with(handle, buffer, capacity, out_required, true)
+}
+
+unsafe fn inspect_with(
+    handle: *mut ApplicationHandle,
+    buffer: *mut u8,
+    capacity: usize,
+    out_required: *mut usize,
+    host_metadata: bool,
+) -> i32 {
     with_handle(handle, false, |handle| {
         if !valid_destination(buffer, capacity, out_required) {
             return handle.error(
@@ -456,7 +492,12 @@ pub unsafe fn inspect_json(
                 "invalid inspection buffer or required-length pointer",
             );
         }
-        match handle.driver.inspect().and_then(encode_bundles) {
+        let projection = if host_metadata {
+            handle.driver.inspect_host()
+        } else {
+            handle.driver.inspect()
+        };
+        match projection.and_then(encode_bundles) {
             Ok(bytes) => copy_bytes(&bytes, buffer, capacity, out_required),
             Err(message) => handle.error(DRIVER_ERROR, message),
         }
@@ -668,6 +709,65 @@ mod tests {
             "bundle":{"messages":[{"address":address, "args":[]}]}
         }))
         .unwrap()
+    }
+
+    #[test]
+    fn host_inspection_is_optional_and_separate_from_pending_game_output() {
+        struct Hosted(Probe);
+        impl ApplicationDriver for Hosted {
+            fn submit(
+                &mut self,
+                bundle: OscBundle,
+                metadata: Option<InputMetadata>,
+            ) -> Result<u64, String> {
+                self.0.submit(bundle, metadata)
+            }
+            fn tick(&mut self) -> Result<Vec<OscBundle>, String> {
+                self.0.tick()
+            }
+            fn inspect(&self) -> Result<Vec<OscBundle>, String> {
+                self.0.inspect()
+            }
+            fn inspect_host(&self) -> Result<Vec<OscBundle>, String> {
+                let mut bundle = OscBundle::new();
+                let mut message = OscMessage::new("/host/test/session");
+                message.push_arg(OscArg::Str("independent-session".into()));
+                bundle.push(message);
+                Ok(vec![bundle])
+            }
+        }
+        unsafe {
+            let unhosted = handle();
+            assert_eq!(read(unhosted, inspect_host_json), b"[]");
+            assert_eq!(destroy(unhosted), OK);
+            let hosted = Box::into_raw(Box::new(ApplicationHandle::new(Box::new(Hosted(Probe {
+                count: 0,
+                submissions: 0,
+                drops: Arc::new(AtomicUsize::new(0)),
+                panic_tick: false,
+                fail_tick: false,
+            })))));
+            let initial_host = read(hosted, inspect_host_json);
+            assert!(String::from_utf8_lossy(&initial_host).contains("/host/test/session"));
+            assert_eq!(tick(hosted), OK);
+            let game = read(hosted, inspect_json);
+            let mut required = 0;
+            let mut short = [0xa5];
+            assert_eq!(
+                inspect_host_json(hosted, short.as_mut_ptr(), 1, &mut required),
+                BUFFER_TOO_SMALL
+            );
+            assert_eq!(short, [0xa5]);
+            assert_eq!(
+                inspect_host_json(hosted, ptr::null_mut(), 1, &mut required),
+                INVALID_ARGUMENT
+            );
+            assert_eq!(read(hosted, inspect_host_json), initial_host);
+            assert_eq!(read(hosted, inspect_json), game);
+            assert_eq!(tick(hosted), PENDING_OUTPUT);
+            assert_eq!(read(hosted, read_output), game);
+            assert_eq!(destroy(hosted), OK);
+        }
     }
 
     #[test]
