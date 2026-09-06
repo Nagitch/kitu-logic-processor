@@ -1,0 +1,172 @@
+{
+  "verifiedAtUtc": "2026-09-06T07:12:18.332870+00:00",
+  "baseRevision": "dc921aea3a35121c4452f6b298a9499de43d5a45",
+  "sourceState": "PR149 memory-bound review fix worktree before publication; no source or Git edits by native verifier",
+  "toolchain": {
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+    "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "clang": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+    "sdkPath": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "sdkVersion": "26.5",
+    "macOS": "ProductName:\t\tmacOS\nProductVersion:\t\t26.5.2\nBuildVersion:\t\t25F84",
+    "environmentScript": "/private/tmp/kitu-native-toolchain/env.sh"
+  },
+  "profile": {
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_TARGET_DIR": "/private/tmp/kitu-native-toolchain/target"
+  },
+  "tests": {
+    "integrationPassed": 5,
+    "doctestsPassed": 1,
+    "failures": 0,
+    "commands": [
+      "cargo test --locked -p kitu-demo-game-native",
+      "cargo build --locked -p kitu-demo-game-native"
+    ],
+    "testLog": "/private/tmp/kitu-stage10-macos-review-test.log",
+    "buildLog": "/private/tmp/kitu-stage10-macos-review-build.log"
+  },
+  "artifacts": {
+    "dynamicLibrary": {
+      "path": "/private/tmp/kitu-native-toolchain/target/debug/libkitu_demo_game_native.dylib",
+      "bytes": 14335120,
+      "sha256": "72bf9a0fad188a19b84179130514a4db101b3c2e630ee93719bf1d142456940b"
+    },
+    "linkedDynamicLibrary": {
+      "path": "/private/tmp/kitu-native-toolchain/target/debug/deps/libkitu_demo_game_native.dylib",
+      "bytes": 14335120,
+      "sha256": "72bf9a0fad188a19b84179130514a4db101b3c2e630ee93719bf1d142456940b"
+    },
+    "staticLibrary": {
+      "path": "/private/tmp/kitu-native-toolchain/target/debug/libkitu_demo_game_native.a",
+      "bytes": 56948848,
+      "sha256": "245878b9a324925225da74baff6df1af828f9524fccf39a821764c2fae749ee9"
+    },
+    "cCaller": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/c-abi",
+      "bytes": 35368,
+      "sha256": "c3b3c00ed934ba9795fad522249d8688f65a39026d815816409f110e6688a7e4"
+    },
+    "header": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/crates/kitu-unity-ffi/include/kitu_application.h",
+      "bytes": 5412,
+      "sha256": "7cee12f5de127ad359c01f016d9908b7151c7e70305725087ee5882381bf04f9"
+    },
+    "cSource": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/native/tests/c_abi.c",
+      "bytes": 14729,
+      "sha256": "620e7a7b813c0d8a95adc7469e8dc69f536b1fd4864f51a9a44f7c4426105511"
+    },
+    "cargoLock": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/Cargo.lock",
+      "bytes": 60825,
+      "sha256": "b36d7b33d28345048be788f1d60432aa5ff19d8a16cc6df4960364b6e9428865"
+    }
+  },
+  "architecture": {
+    "dynamicLibrary": "/private/tmp/kitu-native-toolchain/target/debug/libkitu_demo_game_native.dylib: Mach-O 64-bit dynamically linked shared library arm64",
+    "staticLibrary": "Non-fat file: /private/tmp/kitu-native-toolchain/target/debug/libkitu_demo_game_native.a is architecture: arm64",
+    "cCaller": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/c-abi: Mach-O 64-bit executable arm64"
+  },
+  "exportedApplicationSymbols": [
+    "kitu_application_abi_version",
+    "kitu_application_create",
+    "kitu_application_destroy",
+    "kitu_application_inspect_json",
+    "kitu_application_last_error",
+    "kitu_application_read_output",
+    "kitu_application_submit_json",
+    "kitu_application_tick"
+  ],
+  "dynamicLibraryDependencies": "/private/tmp/kitu-native-toolchain/target/debug/libkitu_demo_game_native.dylib:\n\t/private/tmp/kitu-native-toolchain/target/debug/deps/libkitu_demo_game_native.dylib (compatibility version 0.0.0, current version 0.0.0)\n\t/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)\n\t/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)",
+  "cCallerDependencies": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/c-abi:\n\t/private/tmp/kitu-native-toolchain/target/debug/deps/libkitu_demo_game_native.dylib (compatibility version 0.0.0, current version 0.0.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)",
+  "packagingFollowup": "Stage11 must set the dylib install name to @rpath when bundling; current development library install name uses the absolute Cargo target/deps path.",
+  "executionBuildOutputs": [
+    {
+      "buildOutput": "/private/tmp/kitu-native-toolchain/target/debug/build/kitu-demo-game-6a63b4366cb4a19c/output",
+      "execution": [
+        "cargo:rustc-env=ARENA_EXECUTION_HASH=a57e2a2eee2507e735a39252e1dccc07b2347f4c6452a09d5de74a936af91af4",
+        "cargo:rustc-env=ARENA_EXECUTION_TARGET=aarch64-apple-darwin"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario": "preparation",
+      "ticks": 28,
+      "inputs": 40,
+      "lifetimeCycles": 10,
+      "stateAndOutput": "exact match",
+      "trace": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/preparation.trace",
+        "bytes": 11733,
+        "sha256": "2c764a254771e919c33ca8093322c31093d547443b2c942b061bb9f8072d5362"
+      },
+      "expected": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/preparation.expected.ndjson",
+        "bytes": 363311,
+        "sha256": "d1f06c141ad8444a8f843639b1cb231c8068538165164a0303e4b12b9e7f5084"
+      },
+      "actual": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/preparation.actual.ndjson",
+        "bytes": 363311,
+        "sha256": "3e565d9dda71784ef6ded1688936ff76a5b12a8701d7104b974333687c7ecc9c"
+      }
+    },
+    {
+      "scenario": "stock-eleven-death-retry",
+      "ticks": 5528,
+      "inputs": 5581,
+      "lifetimeCycles": 10,
+      "stateAndOutput": "exact match",
+      "trace": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/stock-eleven-death-retry.trace",
+        "bytes": 2209146,
+        "sha256": "0b14c384ac29e986a51cde1b5c206fc3844472b5dd50fec1793b713ad262d1f8"
+      },
+      "expected": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/stock-eleven-death-retry.expected.ndjson",
+        "bytes": 74286921,
+        "sha256": "e245c9b92c340472cfe7d6c2c8c63b1398f8903d93cb84ddfa62aafca703bb50"
+      },
+      "actual": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/stock-eleven-death-retry.actual.ndjson",
+        "bytes": 74286921,
+        "sha256": "53895b09088ff33fbb6235331c33b724df65643d1ffaeb1918cc73fb9244001c"
+      }
+    }
+  ],
+  "logs": [
+    "/private/tmp/kitu-stage10-macos-build.log",
+    "/private/tmp/kitu-stage10-macos-c-compile.log",
+    "/private/tmp/kitu-stage10-macos-c-preparation.log",
+    "/private/tmp/kitu-stage10-macos-c-stock.log",
+    "/private/tmp/kitu-stage10-macos-consumable.log",
+    "/private/tmp/kitu-stage10-macos-review-build.log",
+    "/private/tmp/kitu-stage10-macos-review-c-preparation.log",
+    "/private/tmp/kitu-stage10-macos-review-c-stock.log",
+    "/private/tmp/kitu-stage10-macos-review-test.log",
+    "/private/tmp/kitu-stage10-macos-test.log"
+  ],
+  "unityBuild": "not run; belongs to stage11",
+  "validationPhase": "Final macOS verification after bounded borrowed OSC output encoding review fix",
+  "reviewSourceFiles": [
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/crates/kitu-transport/src/wire.rs",
+      "bytes": 22024,
+      "sha256": "c5c7a99b671108961139dfffd7f2594beecedcc85a662c8973616ae2cf8d6be0"
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/crates/kitu-unity-ffi/src/application.rs",
+      "bytes": 44771,
+      "sha256": "920202b72ebd660f32c99c7977a983cb5875ca8ed950e396c7fba71e31c505e6"
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/native/src/lib.rs",
+      "bytes": 5931,
+      "sha256": "15d2f42ab352087e470b0539d5362c1f9c56acea206d42e0d442a6ad044a5c69"
+    }
+  ]
+}

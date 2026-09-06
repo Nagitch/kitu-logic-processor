@@ -9,6 +9,10 @@
 //! Transports bridge OSC/IR types (`kitu-osc-ir`) with the runtime loop (`kitu-runtime`). See
 //! `doc/crates-overview.md` for adapter expectations and how events flow into ECS systems.
 
+pub mod wire;
+
+pub use wire::{WireArg, WireBundle, WireBundleRef, WireBundlesRef, WireMessage};
+
 use std::collections::VecDeque;
 
 use kitu_core::{KituError, Result};

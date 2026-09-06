@@ -16,6 +16,7 @@ members = [
     "crates/kitu-web-admin-backend",
     "crates/kitu-unity-ffi",
     "apps/demo-game",
+    "apps/demo-game/native",
     "tools/kitu-cli",
     "tools/kitu-replay-runner",
 ]

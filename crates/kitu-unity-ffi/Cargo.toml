@@ -9,10 +9,12 @@ repository = "https://github.com/Nagitch/kitu-logic-processor"
 readme = "README.md"
 keywords = ["kitu", "unity", "ffi"]
 categories = ["api-bindings", "game-development"]
-include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
+include = ["src/**", "include/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }
 kitu-osc-ir = { path = "../kitu-osc-ir" }
 kitu-runtime = { path = "../kitu-runtime" }
 kitu-transport = { path = "../kitu-transport" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

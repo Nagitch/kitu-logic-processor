@@ -38,6 +38,37 @@ Supported OSC packet shapes:
 Nested OSC bundles, blobs, arrays, and additional scalar tags remain unsupported
 until a concrete Kitu client or runtime path requires them.
 
+## Typed JSON, MessagePack, and FFI values
+
+`wire::{WireBundle, WireMessage, WireArg}` supplies a shared Serde representation:
+
+```json
+{"messages":[{"address":"/example/count","args":[{"type":"int64","value":1}]}]}
+```
+
+Tags `int`, `int64`, `float`, `str`, and `bool` preserve OSC scalar types. Message
+and argument order, empty bundles, and empty argument lists are retained. Unknown
+fields and unsupported argument tags are rejected. The representation has no
+nested bundles or timetags; tick scheduling belongs to the runtime envelope.
+
+Use `WireBundle::try_from(&osc_bundle)` for output and
+`OscBundle::try_from(wire_bundle)` after deserializing input. These conversions
+require finite float32 values, addresses starting with `/`, and no embedded NUL
+bytes in addresses or string arguments. Deserialization alone does not validate
+all these conditions. Adapters apply their own payload limits and application
+admission rules. Existing binary OSC helpers retain their compatibility behavior.
+
+JSON consumers must preserve signed 64-bit integer values; converting the JSON
+through a JavaScript `Number` can lose precision. MessagePack and native Rust
+decoding retain the integer width without inference.
+
+For output serialization, `WireBundleRef::new(&bundle)` and
+`WireBundlesRef::new(&bundles)` borrow the original OSC values. They produce the
+same wire representation while validating each visited value without cloning
+messages, strings, or the complete batch. Serialize these views directly into
+a bounded writer to enforce output limits before allocating another copy of a
+large batch. On serialization failure, discard any prefix written so far.
+
 ## Publish readiness
 - Status: internal-only (`publish = false`) while the MVP takes shape; metadata now aligns with crates.io requirements.
 - Before enabling publication, run the workspace gates:

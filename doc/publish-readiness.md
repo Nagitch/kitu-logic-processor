@@ -52,3 +52,11 @@ For each candidate crate before MVP publication:
 - Public APIs have tests or a documented exception.
 - `cargo package --list -p <crate>` has been executed after metadata changes and the result is captured in the PR or issue.
 - `cargo publish --dry-run -p <crate>` is deferred until the project intentionally changes the crate's `publish = false` gate as part of MVP publication.
+
+### Stage 10 native embedding
+
+`kitu-transport` and `kitu-unity-ffi` remain internal (`publish = false`), with
+shared wire and C ABI documentation. The FFI package includes its C header.
+`apps/demo-game/native` is an application factory, also explicitly non-publishable;
+it provides metadata, README and dynamic/static library outputs. Verification
+uses `cargo package --list` for package contents; no crates.io publication occurs.
