@@ -3,15 +3,17 @@
 //! The shared `kitu-unity-ffi` crate owns ABI lifetimes, ordered input admission,
 //! output buffering and diagnostics. This crate selects the same application
 //! factory and validated content used by the server, then exports thin C wrappers.
-//! No socket, scheduler or separate copy of game rules is created here.
+//! An optional loopback bridge exposes that same host to CLI/Admin. Only the
+//! caller advances the clock; the bridge never creates a second game Runtime.
 //!
 //! See `doc/specs/arena-native-abi.md` and the shared C header for caller rules.
 
 use kitu_demo_game::{arena, build_arena_runtime, build_demo_runtime};
-use kitu_unity_ffi::application::{
-    self as ffi, ApplicationDriver, ApplicationHandle, RuntimeDriver,
-};
+use kitu_unity_ffi::application::{self as ffi, ApplicationDriver, ApplicationHandle};
 use serde::Deserialize;
+use std::path::PathBuf;
+
+mod embedded;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -20,6 +22,12 @@ struct NativeConfig {
     contract_version: u32,
     #[serde(default)]
     content: Option<arena::config::ContentVersion>,
+    #[serde(default)]
+    bridge: embedded::BridgeConfig,
+    #[serde(default)]
+    storage_directory: Option<PathBuf>,
+    #[serde(default)]
+    content_path: Option<PathBuf>,
 }
 fn contract_version() -> u32 {
     arena::SCHEMA_VERSION
@@ -42,7 +50,12 @@ fn factory(bytes: &[u8]) -> Result<Box<dyn ApplicationDriver>, String> {
     } else {
         build_arena_runtime().map_err(|error| error.to_string())?
     };
-    Ok(Box::new(RuntimeDriver::new(runtime)))
+    Ok(Box::new(embedded::EmbeddedDriver::new(
+        runtime,
+        config.bridge,
+        config.storage_directory,
+        config.content_path,
+    )?))
 }
 
 /// Returns the supported C ABI version without creating a Runtime.
@@ -150,6 +163,21 @@ pub unsafe extern "C" fn kitu_application_inspect_json(
     out_required: *mut usize,
 ) -> i32 {
     ffi::inspect_json(handle, buffer, capacity, out_required)
+}
+
+/// Inspects host/session metadata without changing deterministic game projections.
+///
+/// # Safety
+/// The live handle is owned by this thread. Buffer and length output pointers
+/// must be valid, disjoint, and follow the shared header's capacity rules.
+#[no_mangle]
+pub unsafe extern "C" fn kitu_application_inspect_host_json(
+    handle: *mut ApplicationHandle,
+    buffer: *mut u8,
+    capacity: usize,
+    out_required: *mut usize,
+) -> i32 {
+    ffi::inspect_host_json(handle, buffer, capacity, out_required)
 }
 
 /// Reads the latest diagnostic without truncation or clearing it.

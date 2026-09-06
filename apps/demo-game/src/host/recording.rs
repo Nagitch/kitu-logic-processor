@@ -1,7 +1,7 @@
 //! Detached TSQ1 export, atomic local persistence and bounded replay verification.
 use super::*;
+use crate::replay::{Recorder, Session};
 use axum::{body::Bytes, http::header};
-use kitu_demo_game::replay::{Recorder, Session};
 use sha2::{Digest, Sha256};
 use std::{
     path::PathBuf,
@@ -13,7 +13,7 @@ pub(super) async fn status(
 ) -> Result<Json<serde_json::Value>, ApiError> {
     let game = state.inner.lock().map_err(|_| ApiError::state_poisoned())?;
     Ok(Json(
-        serde_json::json!({"runtimeId":game.runtime_id,"ticks":game.recorder.ticks(),"liveTick":game.runtime.current_tick().get(),"error":game.recording_error,"maxTicks":kitu_demo_game::replay::MAX_TICKS}),
+        serde_json::json!({"runtimeId":game.runtime_id,"ticks":game.recorder.ticks(),"liveTick":game.runtime.current_tick().get(),"error":game.recording_error,"maxTicks":crate::replay::MAX_TICKS}),
     ))
 }
 fn detached(state: &AppState) -> Result<Recorder> {
@@ -31,7 +31,7 @@ fn detached(state: &AppState) -> Result<Recorder> {
 }
 async fn encoded(state: &AppState) -> Result<Vec<u8>> {
     let recorder = detached(state)?;
-    tokio::task::spawn_blocking(move || recorder.encode()).await?
+    state.spawn_blocking(move || recorder.encode())?.await?
 }
 fn binary(bytes: Vec<u8>) -> impl IntoResponse {
     (
@@ -51,21 +51,25 @@ pub(super) async fn export(State(state): State<AppState>) -> Result<impl IntoRes
 pub(super) async fn save(
     State(state): State<AppState>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
+    let directory = directory(&state)?;
     let bytes = encoded(&state).await?;
-    Ok(Json(persist(&directory(), &bytes).await?))
+    Ok(Json(persist(&directory, &bytes).await?))
 }
-pub(super) fn directory() -> PathBuf {
-    env::var_os("KITU_ARENA_RECORDING_DIRECTORY")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| "apps/demo-game/.arena/recordings".into())
+pub(super) fn directory(state: &AppState) -> Result<PathBuf> {
+    anyhow::ensure!(
+        !state.options.recording_directory.as_os_str().is_empty(),
+        "recording storage is disabled for this host"
+    );
+    Ok(state.options.recording_directory.clone())
 }
-fn path(id: &str) -> Result<PathBuf> {
+fn path(state: &AppState, id: &str) -> Result<PathBuf> {
     anyhow::ensure!(
         id.len() == 64 && id.bytes().all(|c| c.is_ascii_hexdigit()),
         "invalid recording id"
     );
-    Ok(directory().join(format!("{id}.tsq")))
+    Ok(directory(state)?.join(format!("{id}.tsq")))
 }
+
 async fn persist(dir: &std::path::Path, bytes: &[u8]) -> Result<serde_json::Value> {
     let id = hex::encode(Sha256::digest(bytes));
     tokio::fs::create_dir_all(dir).await?;
@@ -83,9 +87,11 @@ async fn persist(dir: &std::path::Path, bytes: &[u8]) -> Result<serde_json::Valu
     }
     Ok(serde_json::json!({"id":id,"bytes":bytes.len(),"path":destination}))
 }
-pub(super) async fn list() -> Result<Json<serde_json::Value>, ApiError> {
+pub(super) async fn list(
+    State(state): State<AppState>,
+) -> Result<Json<serde_json::Value>, ApiError> {
     let mut entries = Vec::new();
-    let mut files = match tokio::fs::read_dir(directory()).await {
+    let mut files = match tokio::fs::read_dir(directory(&state)?).await {
         Ok(files) => files,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
             return Ok(Json(serde_json::json!([])))
@@ -95,7 +101,7 @@ pub(super) async fn list() -> Result<Json<serde_json::Value>, ApiError> {
     while let Some(file) = files.next_entry().await.map_err(anyhow::Error::from)? {
         let name = file.file_name().to_string_lossy().to_string();
         if let Some(id) = name.strip_suffix(".tsq") {
-            if path(id).is_ok() {
+            if path(&state, id).is_ok() {
                 entries.push(serde_json::json!({"id":id,"bytes":file.metadata().await.map_err(anyhow::Error::from)?.len()}));
             }
         }
@@ -103,10 +109,10 @@ pub(super) async fn list() -> Result<Json<serde_json::Value>, ApiError> {
     entries.sort_by(|a, b| a["id"].as_str().cmp(&b["id"].as_str()));
     Ok(Json(serde_json::Value::Array(entries)))
 }
-pub(super) async fn read(id: &str) -> Result<Vec<u8>> {
+pub(super) async fn read(state: &AppState, id: &str) -> Result<Vec<u8>> {
     use tokio::io::AsyncReadExt;
     let mut bytes = Vec::new();
-    tokio::fs::File::open(path(id)?)
+    tokio::fs::File::open(path(state, id)?)
         .await?
         .take(kitu_tsq1::recording::MAX_BYTES as u64 + 1)
         .read_to_end(&mut bytes)
@@ -117,27 +123,44 @@ pub(super) async fn read(id: &str) -> Result<Vec<u8>> {
     );
     Ok(bytes)
 }
-pub(super) async fn download(Path(id): Path<String>) -> Result<impl IntoResponse, ApiError> {
-    Ok(binary(read(&id).await?))
+pub(super) async fn download(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+) -> Result<impl IntoResponse, ApiError> {
+    Ok(binary(read(&state, &id).await?))
 }
-pub(super) async fn import(bytes: Bytes) -> Result<Json<serde_json::Value>, ApiError> {
+pub(super) async fn import(
+    State(state): State<AppState>,
+    bytes: Bytes,
+) -> Result<Json<serde_json::Value>, ApiError> {
+    let directory = directory(&state)?;
     let bytes = bytes.to_vec();
-    let bytes = tokio::task::spawn_blocking(move || {
-        Session::decode(&bytes)?;
-        Ok::<_, anyhow::Error>(bytes)
-    })
-    .await
-    .map_err(anyhow::Error::from)??;
-    Ok(Json(persist(&directory(), &bytes).await?))
+    let bytes = state
+        .spawn_blocking(move || {
+            Session::decode(&bytes)?;
+            Ok::<_, anyhow::Error>(bytes)
+        })?
+        .await
+        .map_err(anyhow::Error::from)??;
+    Ok(Json(persist(&directory, &bytes).await?))
 }
 pub(super) async fn verify(
+    State(state): State<AppState>,
     Path(id): Path<String>,
-) -> Result<Json<kitu_demo_game::replay::Verification>, ApiError> {
-    let bytes = read(&id).await?;
-    // CPU work is detached from the live simulation; only one verification at a time.
-    static VERIFY: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(1);
-    let _permit = VERIFY.acquire().await.map_err(anyhow::Error::from)?;
-    let result = tokio::task::spawn_blocking(move || Session::decode(&bytes)?.verify())
+) -> Result<Json<crate::replay::Verification>, ApiError> {
+    let bytes = read(&state, &id).await?;
+    let permit = state
+        .verification_slots
+        .clone()
+        .acquire_owned()
+        .await
+        .map_err(anyhow::Error::from)?;
+    let work = state.work.clone();
+    let result = state
+        .spawn_blocking(move || {
+            let _permit = permit;
+            Session::decode(&bytes)?.verify_with_cancel(|| work.check())
+        })?
         .await
         .map_err(anyhow::Error::from)??;
     Ok(Json(result))
@@ -206,6 +229,6 @@ mod tests {
         assert_eq!((report.ticks, report.inputs, report.runs), (10, 1, 1));
         assert_eq!(state.inner.lock().unwrap().runtime.current_tick().get(), 10);
         tokio::fs::remove_dir_all(dir).await.unwrap();
-        assert!(path("../secrets").is_err());
+        assert!(path(&state, "../secrets").is_err());
     }
 }

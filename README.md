@@ -41,7 +41,8 @@ Implementation status:
 
 - Endless Arena now runs its complete game rules in the persistent 60 Hz Kitu application; Unity is the default input/presentation client. See the [run instructions](kitu-integration-runner/unity-demo-game/README.md#endless-arena-with-kitu-default), [contract](doc/specs/arena-runtime-contract.md) and [comparison evidence](doc/verification/arena-progression/results.json).
 - Arena's real [Tanu tables](apps/demo-game/content/arena.tmd) can be edited in VS Code, evaluated and validated in Admin, and applied to the next run. Active runs retain their saved values and hash. See the [authoring workflow](apps/demo-game/README.md#tanu-parameters) and [evidence](doc/verification/arena-tanu/results.json).
-- The Unity-only reference and frozen inputs remain available. Real [TSQ1 session recording and re-execution](doc/specs/arena-replay.md) preserve exact ticks, ordered inputs and frozen content. Admin now controls play, pause, step and seek while Unity displays the same read-only replay. [Live CLI and browser Shell](doc/specs/live-shell.md) now inspect and operate the running host using shared commands and applied results. Full native embedding follows in the [staged implementation](https://github.com/Nagitch/kitu-logic-processor/issues/129).
+- The Unity-only reference and frozen inputs remain available. Real [TSQ1 session recording and re-execution](doc/specs/arena-replay.md) preserve exact ticks, ordered inputs and frozen content. Admin now controls play, pause, step and seek while Unity displays the same read-only replay. [Live CLI and browser Shell](doc/specs/live-shell.md) inspect and operate the running host using shared commands and applied results.
+- The macOS Unity standalone embeds the complete Arena native library and runs without an external Kitu server. Its optional loopback bridge connects CLI and Admin to that same Runtime. See the [build instructions](kitu-integration-runner/unity-demo-game/README.md#reproduce-the-embedded-macos-build), [host contract](doc/specs/arena-embedded-host.md), [graphical verification](doc/verification/arena-embedded/README.md) and [remaining stages](https://github.com/Nagitch/kitu-logic-processor/issues/129).
 - Several data/content and tooling sections below describe target architecture rather than finished production features.
 - For the current implemented/partial/staged breakdown, use [doc/architecture.md](doc/architecture.md#current-implementation-staging).
 - For the rationale and tradeoffs behind accepted cross-cutting choices, use
@@ -312,4 +313,5 @@ The full Endless Arena native C ABI is implemented in
 static library around the same application Runtime, with typed ordered inputs,
 complete outputs, inspection, bounded caller-owned buffers and explicit lifecycle.
 See the [ABI contract and native verification](doc/specs/arena-native-abi.md).
-Unity standalone packaging and the development tooling bridge are the next stage.
+The macOS Unity standalone bundles this library and optionally exposes the shared
+development host to CLI and Admin; see the [embedded host](doc/specs/arena-embedded-host.md).

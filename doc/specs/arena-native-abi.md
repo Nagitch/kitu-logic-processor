@@ -116,7 +116,8 @@ creation/destruction. Compare its NDJSON against the ordinary Runtime trace with
 and target. Cross-target checks retain the frozen C# tolerance rather than
 pretending different execution identities are replay-compatible.
 
-Stage 11 adds the Unity native adapter, standalone packaging and the development
-CLI/Admin bridge. That bridge must share the same application host state,
-recording/playback and input queue. Server and embedded schedulers must never run
-simultaneously against one instance. No structural impossibility is known.
+The [stage 11 embedded host contract](arena-embedded-host.md) adds optional
+loopback CLI/Admin configuration and `kitu_application_inspect_host_json`, an
+additive ABI 1 inspection operation. The bridge shares application host state,
+recording/playback and input admission with the native owner; it starts no timer.
+Server and embedded schedulers must never run simultaneously against one instance.

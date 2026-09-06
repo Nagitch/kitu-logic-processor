@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace UnityOnlyArena
 {
     // Transport only: no Unity objects, gameplay clocks or retry of consumed inputs.
-    public sealed class ArenaConnection : IDisposable
+    public sealed class ArenaConnection : IArenaConnection
     {
         private readonly ClientWebSocket socket = new ClientWebSocket();
         private readonly CancellationTokenSource cancellation = new CancellationTokenSource();
@@ -23,6 +23,8 @@ namespace UnityOnlyArena
 
         public ArenaConnection(string url) { _ = Run(url); }
         public bool TryReceive(out string message) => incoming.TryDequeue(out message);
+        public void Pump(double elapsedSeconds) { }
+        public void Disconnect() => Dispose();
 
         public bool Send(string message)
         {

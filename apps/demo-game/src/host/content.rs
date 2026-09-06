@@ -35,18 +35,7 @@ pub(super) struct ContentStatus {
 }
 
 impl Service {
-    pub(super) fn from_environment() -> Self {
-        Self::new(
-            env::var_os("KITU_ARENA_TMD")
-                .map(PathBuf::from)
-                .unwrap_or_else(|| "apps/demo-game/content/arena.tmd".into()),
-            env::var_os("KITU_ARENA_RUN_DIRECTORY")
-                .map(PathBuf::from)
-                .unwrap_or_else(|| "apps/demo-game/.arena/runs".into()),
-        )
-    }
-
-    fn new(path: PathBuf, run_directory: PathBuf) -> Self {
+    pub(super) fn new(path: PathBuf, run_directory: PathBuf) -> Self {
         Self {
             path,
             run_directory,
@@ -96,7 +85,7 @@ pub(super) async fn validate(
     // The runtime continues to tick while disk I/O and Formula evaluation run.
     let _validation = state.content.validation.lock().await;
     let path = state.content.path.clone();
-    let result = tokio::task::spawn_blocking(move || read_candidate(path)).await;
+    let result = state.spawn_blocking(move || read_candidate(path))?.await;
     {
         let mut catalog = state
             .content
@@ -117,6 +106,10 @@ pub(super) async fn validate(
 }
 
 fn read_candidate(path: PathBuf) -> Result<ContentVersion> {
+    anyhow::ensure!(
+        !path.as_os_str().is_empty(),
+        "content source is disabled for this host"
+    );
     let mut bytes = Vec::new();
     std::fs::File::open(&path)
         .with_context(|| format!("open {}", path.display()))?
@@ -152,6 +145,7 @@ pub(super) async fn stage(
 }
 
 pub(super) fn stage_candidate(state: &AppState, request: StageRequest) -> Result<StageResponse> {
+    state.work.check()?;
     let mut catalog = state
         .content
         .catalog
@@ -184,6 +178,9 @@ pub(super) fn stage_candidate(state: &AppState, request: StageRequest) -> Result
 }
 
 pub(super) fn save_run_event(state: &AppState, event: &ServerEvent) {
+    if !state.options.persist_runs {
+        return;
+    }
     let ServerEvent::Osc { address, args } = event else {
         return;
     };
@@ -201,7 +198,9 @@ pub(super) fn save_run_event(state: &AppState, event: &ServerEvent) {
         Err(_) => return,
     };
     let service = state.content.clone();
-    tokio::spawn(async move {
+    let worker_service = service.clone();
+    let queued = state.spawn(async move {
+        let service = worker_service;
         let result = persist_run(&service, &runtime_id, &run).await;
         if let Ok(mut catalog) = service.catalog.lock() {
             match result {
@@ -211,8 +210,13 @@ pub(super) fn save_run_event(state: &AppState, event: &ServerEvent) {
                     catalog.persistence_error = Some(format!("{error:#}"));
                 }
             }
-        }
+        };
     });
+    if let Err(error) = queued {
+        if let Ok(mut catalog) = service.catalog.lock() {
+            catalog.persistence_error = Some(error.to_string());
+        }
+    }
 }
 
 async fn persist_run(service: &Service, runtime_id: &str, run: &serde_json::Value) -> Result<u64> {

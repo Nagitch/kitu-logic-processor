@@ -1,7 +1,7 @@
 # Unity Demo Game
 
-This Unity project contains the offline endless arena, its original gameplay
-smoke baseline, and the separate Kitu integration verification scene.
+This Unity project contains the Kitu-backed endless arena, its Unity-only
+comparison baseline, and the separate Kitu integration verification scene.
 
 It pairs with `apps/demo-game` while staying focused on the Unity presentation/input boundary.
 
@@ -149,12 +149,17 @@ and [Unity CLI and Pipeline overview](https://unity.com/blog/meet-the-unity-cli)
 
 ## Endless Arena with Kitu (default)
 
-Run `cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host` in the Dev
-Container, forwarding port 8787. Open
-`Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity` and enter Play Mode.
-This is the first enabled build scene. Its inspector `Endpoint` defaults to
-`ws://127.0.0.1:8787/ws/runtime`. The complete game runs in the server: preparation,
-inventory/equipment, combat, endless floors, bosses/rewards, results and retry.
+Open `Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity`, the first enabled
+build scene. On macOS, inspector `Backend = Automatic` selects the embedded
+native library. Build the plugin with the command below before entering Play
+Mode. Preparation, inventory/equipment, combat, endless floors, bosses/rewards,
+results and retry all run through the same Kitu application as the server.
+
+Set `Backend = Server`, supply `--arena-server ws://127.0.0.1:8787/ws/runtime`,
+or set `KITU_ARENA_WS_URL` to select the external server explicitly. Run
+`cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host` in the Dev Container
+and forward its port for that mode. The inspector `Endpoint` retains its existing
+`ws://127.0.0.1:8787/ws/runtime` default.
 
 WASD moves, the mouse aims, mouse buttons fire weapons A/B, Z/X use consumables,
 E opens a nearby supply chest, I/Tab opens inventory and Escape closes/pauses.
@@ -166,7 +171,7 @@ on every fifth floor. Results show the completed run and support retry with R.
 Volume/fullscreen settings reuse the original local preferences. Settings opened
 from pause leave the run paused after Apply or Cancel.
 
-The server owns the 60 Hz game clock, while Unity samples inputs and renders
+Kitu owns the 60 Hz game clock, while Unity samples inputs and renders
 complete state projections. Disconnect pauses the game; Connect resynchronizes,
 and Resume explicitly restarts it with fresh controls. Focus loss requests pause.
 Invalid sessions/versions and competing controllers are rejected. The client
@@ -183,9 +188,103 @@ checkpoints and 53 receipts. See [evidence](../../doc/verification/arena-progres
 
 **Kitu > Prepare Endless Arena (Kitu)** restores the default build entry without
 replacing an existing scene. **Kitu > Build Endless Arena (Kitu, macOS)** builds
-the server-connected scene to `Builds/KituEndlessArena.app`. Native-library
-embedding and a verified standalone build are subsequent stages of #129.
+the embedded ARM64 scene to `Builds/KituEndlessArena.app` after validating plugin
+import settings. The build temporarily selects Mono, ARM64 and background
+execution, then restores the Editor's prior build settings.
 The original build menu below remains an explicit reference-only choice.
+
+### Reproduce the embedded macOS build
+
+Use an Apple Silicon Mac with Rust `1.96.0`, Cargo, Apple Command Line Tools and
+the licensed Unity `6000.6.0f1` Editor with macOS build support. General Rust and
+frontend checks remain in the Dev Container; these commands use the Apple SDK.
+Close the Editor for this checkout, then run from the repository root:
+
+```sh
+python3 tools/build-arena-native-macos.py
+python3 tools/build-arena-player-macos.py
+```
+
+The first command runs a locked Cargo build for `aarch64-apple-darwin`, installs
+`Assets/Plugins/macOS/libkitu_demo_game_native.dylib`, changes its install name
+to `@rpath/libkitu_demo_game_native.dylib`, and applies a local ad-hoc signature.
+It verifies ARM64, all application ABI exports, system-only dependencies and
+the signature before replacing the prior plugin. The binary is ignored by Git;
+its stable `.meta` file and Editor importer are tracked. `--profile release`
+selects an optimized native build. Cargo/toolchain settings supplied in the
+invoking environment are preserved; the default development build disables
+incremental compilation and debug information to limit disk use.
+
+The second command selects the pinned Editor, builds the graphical Player and
+checks its executable architecture, embedded plugin, signatures and plugin code
+identity. `--editor`, `--player`, `--evidence` and `--timeout` override explicit
+paths or limits. Build reports and native SHA-256 values are written under
+`.tmp/stage11/`; a successful build alone does not claim gameplay verification.
+
+Launch `Builds/KituEndlessArena.app` normally to play without an external Kitu
+server. Its development bridge defaults to `http://127.0.0.1:8789` and observes
+the same native-owned run. For example:
+
+```sh
+cargo run -p kitu-cli -- --endpoint http://127.0.0.1:8789 inspect application
+```
+
+Use the Admin frontend against that HTTP endpoint and `ws://127.0.0.1:8789/ws`.
+`--arena-bridge off` disables the bridge; `--arena-bridge 127.0.0.1:8790` selects
+another loopback port. The bridge queues commands and observes state; it does
+not start a second game clock. Inspector fields `NativeBridgeEnabled`,
+`NativeBridgeAddress` and `NativeContentPath` configure Editor runs.
+Use `--arena-content /absolute/path/to/arena.tmd` to select an existing authoring
+document in a standalone run; validate and stage it through Admin for next-run
+application.
+
+### Verify the built Player with the frozen scenarios
+
+Generate expected output with the same native target and development profile:
+
+```sh
+KITU_NATIVE_EVIDENCE_DIR="$PWD/.tmp/stage11/reference" \
+  CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 \
+  cargo test --locked --target aarch64-apple-darwin -p kitu-demo-game-native
+
+python3 tools/run-arena-player-verification.py \
+  --player kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app \
+  --trace .tmp/stage11/reference/preparation.trace \
+  --expected .tmp/stage11/reference/preparation.expected.ndjson \
+  --evidence .tmp/stage11/player-preparation
+
+python3 tools/run-arena-player-verification.py \
+  --player kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app \
+  --trace .tmp/stage11/reference/stock-eleven-death-retry.trace \
+  --expected .tmp/stage11/reference/stock-eleven-death-retry.expected.ndjson \
+  --evidence .tmp/stage11/player-stock
+```
+
+If the plugin was built with `--profile release`, add `--release` to the Cargo
+test command as well. Regenerate fixtures whenever the native application,
+dependencies or build profile change.
+
+The Player harness forces the native backend, disables its bridge and device
+input, and submits the recorded operations through the ordinary native queue
+and tick/output path. It compares every complete state and output against the
+same-build Runtime expectation, renders checkpoints, writes `result.json`, and
+exits with a failing status on divergence. Preparation covers 28 ticks and
+40 inputs; the stock scenario covers 5,528 ticks and 5,581 inputs, including 11F
+death and retry. The runner independently compares the fresh `actual.ndjson`
+against the requested expectation, checks counts, native mode, exit status and
+current screenshots, then writes `player-verification.json` with artifact hashes.
+Preparation captures `inventory.png`; the stock run captures `chest.png`,
+`combat.png`, `boss.png`, `death-11f.png` and `retry.png`.
+Extra Player arguments can be passed after `--`; overrides of the three
+`--arena-self-test`, `--arena-expected` and `--arena-evidence` flags are rejected.
+Screenshots are created by the graphical Player; do not pass `-nographics` when
+collecting rendering evidence. A timeout terminates the owned Player process
+group, including children that outlive the group leader.
+
+The [Stage 11 verification record](../../doc/verification/arena-embedded/README.md)
+retains the actual macOS build reports, both successful standalone comparisons,
+six rendered checkpoints and the full Unity results (50 EditMode / 21 PlayMode).
+Both graphical standalone fixtures passed with the external server stopped.
 
 ## Unity-only endless arena
 

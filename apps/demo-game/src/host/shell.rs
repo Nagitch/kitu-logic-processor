@@ -48,6 +48,7 @@ pub(super) async fn execute(
     )
 }
 async fn handle(state: AppState, request: CommandRequest) -> Result<CommandResponse> {
+    state.work.check()?;
     anyhow::ensure!(
         request.version == COMMAND_VERSION,
         "incompatible Shell command version"
@@ -105,7 +106,7 @@ async fn handle(state: AppState, request: CommandRequest) -> Result<CommandRespo
                 },
             );
             let worker = state.clone();
-            tokio::spawn(async move {
+            state.spawn(async move {
                 let source = format!("shell:{}:{}", request.client_id, request.id);
                 let result = run(&worker, &request.args, &source).await;
                 let response = match result {
@@ -143,7 +144,7 @@ async fn handle(state: AppState, request: CommandRequest) -> Result<CommandRespo
                 };
                 // Work and cached results survive an HTTP client disconnect.
                 let _ = sender.send(Some(response));
-            });
+            })?;
             receiver
         }
     };
@@ -256,7 +257,11 @@ async fn run(state: &AppState, args: &[String], source: &str) -> Result<Value> {
         }
         "replay list" => {
             exactly(rest, 0, &spec.usage)?;
-            value(recording::list().await.map_err(|e| e.0)?)
+            value(
+                recording::list(State(state.clone()))
+                    .await
+                    .map_err(|e| e.0)?,
+            )
         }
         "replay save" => {
             exactly(rest, 0, &spec.usage)?;
@@ -269,7 +274,7 @@ async fn run(state: &AppState, args: &[String], source: &str) -> Result<Value> {
         "replay verify" => {
             exactly(rest, 1, &spec.usage)?;
             value(
-                recording::verify(Path(rest[0].clone()))
+                recording::verify(State(state.clone()), Path(rest[0].clone()))
                     .await
                     .map_err(|e| e.0)?,
             )
@@ -356,7 +361,7 @@ async fn run(state: &AppState, args: &[String], source: &str) -> Result<Value> {
         "scenario list" => {
             exactly(rest, 0, &spec.usage)?;
             Ok(serde_json::from_str(include_str!(
-                "../../../content/arena-scenarios.json"
+                "../../content/arena-scenarios.json"
             ))?)
         }
         "scenario run" => {
@@ -392,6 +397,11 @@ fn materialize(state: &AppState, id: &str, args: &[String]) -> Result<OscMessage
     Ok(catalog.materialize_message(id, &inputs)?)
 }
 async fn submit(state: &AppState, message: OscMessage, source: &str, id: u64) -> Result<Value> {
+    state.work.check()?;
+    anyhow::ensure!(
+        message.address != "/input/arena/disconnect",
+        "disconnect is owned by the controller connection"
+    );
     let arena_input = message.address.starts_with("/input/arena/");
     anyhow::ensure!(
         arena_input
@@ -424,6 +434,7 @@ async fn submit(state: &AppState, message: OscMessage, source: &str, id: u64) ->
 async fn wait_receipt(state: &AppState, sequence: u64, expects_receipt: bool) -> Result<Value> {
     tokio::time::timeout(std::time::Duration::from_secs(3),async {
         loop {
+            state.work.check()?;
             {
                 let game=state.inner.lock().map_err(|_|anyhow::anyhow!("state lock poisoned"))?;
                 if let Some(receipt)=game.live_receipts.get(&sequence) {return Ok(json!({"receipt":receipt,"state":application(&game)?}));}
@@ -476,8 +487,10 @@ pub(super) fn capture_receipts(game: &mut GameState, output: &[kitu_osc_ir::OscB
     }
 }
 async fn wait_activation(state: &AppState, expected_id: &str) -> Result<()> {
+    state.work.check()?;
     tokio::time::timeout(std::time::Duration::from_secs(3), async {
         loop {
+            state.work.check()?;
             {
                 let game = state
                     .inner
@@ -517,7 +530,7 @@ struct ScenarioStep {
 }
 async fn run_scenario(state: &AppState, id: &str, source: &str) -> Result<Value> {
     let scenarios: Vec<Scenario> =
-        serde_json::from_str(include_str!("../../../content/arena-scenarios.json"))?;
+        serde_json::from_str(include_str!("../../content/arena-scenarios.json"))?;
     let scenario = scenarios
         .into_iter()
         .find(|s| s.id == id)
@@ -557,6 +570,7 @@ async fn run_scenario(state: &AppState, id: &str, source: &str) -> Result<Value>
                 + u64::from(step.wait_ticks);
             tokio::time::timeout(std::time::Duration::from_secs(15), async {
                 loop {
+                    state.work.check()?;
                     let tick = {
                         let game = state
                             .inner
@@ -723,7 +737,7 @@ mod tests {
         assert_eq!(scenario.data["state"]["overlay"], "none");
         ticker.abort();
         let recorder = state.inner.lock().unwrap().recorder.clone();
-        let session = kitu_demo_game::replay::Session::decode(&recorder.encode().unwrap()).unwrap();
+        let session = crate::replay::Session::decode(&recorder.encode().unwrap()).unwrap();
         let replay = session.verify().unwrap();
         assert_eq!(replay.runs, 2);
         let mut replay_runtime = session.runtime().unwrap();

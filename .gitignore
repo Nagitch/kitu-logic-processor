@@ -8,3 +8,6 @@
 /.pnpm-store/
 /tools/kitu-webtransport-gateway/certs/
 /tools/kitu-webtransport-gateway/target/
+# Rebuilt locally by tools/build-arena-native-macos.py; import metadata is tracked.
+/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/Plugins/macOS/*.dylib
+/tools/__pycache__/

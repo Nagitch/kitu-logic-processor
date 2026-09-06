@@ -346,9 +346,21 @@ impl Session {
     }
     /// Re-executes every tick and compares every state/output and frozen run manifest.
     pub fn verify(&self) -> Result<Verification> {
+        self.verify_with_cancel(|| Ok(()))
+    }
+    /// Performs the same complete verification with a cancellation check before each tick.
+    ///
+    /// Cancellation returns its diagnostic without weakening state, event or run-manifest proofs.
+    /// Callers joining native-library background workers can stop between bounded tick steps.
+    pub fn verify_with_cancel(
+        &self,
+        mut check: impl FnMut() -> Result<()>,
+    ) -> Result<Verification> {
+        check()?;
         let mut runtime = self.runtime()?;
         let mut recorder = Recorder::new(&runtime)?;
         while runtime.current_tick().get() < self.manifest.ticks {
+            check()?;
             let outputs = self.tick(&mut runtime)?;
             recorder.capture(&runtime, &outputs)?;
         }

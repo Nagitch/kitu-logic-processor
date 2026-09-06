@@ -113,6 +113,17 @@ int32_t kitu_application_inspect_json(
     size_t capacity,
     size_t *out_required);
 
+/*
+ * Additive ABI 1 host/session inspection, separate from deterministic game output.
+ * Same buffer/size rules as inspect_json; returns [] when no host metadata exists.
+ * Application libraries define their host metadata addresses and schemas.
+ */
+int32_t kitu_application_inspect_host_json(
+    KituApplication *handle,
+    uint8_t *buffer,
+    size_t capacity,
+    size_t *out_required);
+
 /* Persistent last UTF-8 diagnostic, including on a failed handle. Initially empty. */
 int32_t kitu_application_last_error(
     KituApplication *handle,
