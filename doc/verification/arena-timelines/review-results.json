@@ -1,33 +1,73 @@
 {
-  "stage": 14,
-  "issue": 156,
-  "implementationRevision": "217b5392e466d5dbe0e8d52bdf3108d13fcb6122",
-  "initialImplementationRevision": "b18dbb0d3c911eb0d79388a426b70771b933476d",
-  "preservedUnityReferenceRevision": "38f2b4be4b7b2b604f1b21dfe9ce407846e0fc43",
+  "implementationRevision": "9b87cbb77b350958453e2850499be24f795eecc2",
+  "devContainer": {
+    "passed": 305,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 54
+  },
+  "macNative": {
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 4
+  },
+  "checks": {
+    "rust-tests.log": {
+      "path": ".tmp/stage14/review/rust-tests.log",
+      "bytes": 34669,
+      "sha256": "8675ebe2cbbc5a55cd364975ee52e6014b149515c70c6a68d18730f8d8f946c1"
+    },
+    "fmt.log": {
+      "path": ".tmp/stage14/review/fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "clippy.log": {
+      "path": ".tmp/stage14/review/clippy.log",
+      "bytes": 256,
+      "sha256": "5b403cca131b2a7fb68b32e5ad447b1bbcc266602fb216373ad6a6cba56fb542"
+    },
+    "rustdoc.log": {
+      "path": ".tmp/stage14/review/rustdoc.log",
+      "bytes": 445,
+      "sha256": "d3b26acb27eeb793aa3cade96475ea1b9dbbed770bc492bd6a9d808bcc17a596"
+    },
+    "native-tests.log": {
+      "path": ".tmp/stage14/review/native-tests.log",
+      "bytes": 2943,
+      "sha256": "9195a204b2678b80d751b2b0233c62dce0561601cd371a13050e5466dcdad876"
+    },
+    "host-build.log": {
+      "path": ".tmp/stage14/review/host-build.log",
+      "bytes": 72,
+      "sha256": "f0788aa36d1c86b6ccdfb7f4042a5574102d82061c046422a2d42e008a1e4710"
+    }
+  },
   "runtimeArchive": {
     "stage": 14,
-    "sourceRevision": "217b5392e466d5dbe0e8d52bdf3108d13fcb6122",
+    "sourceRevision": "9b87cbb77b350958453e2850499be24f795eecc2",
     "sourceDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "createdAtUtc": "2026-09-06T12:48:01.628266+00:00",
-    "directory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage14-3060fcaea30e",
+    "createdAtUtc": "2026-09-06T13:10:38.864515+00:00",
+    "directory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage14-final-e8e46a9bf607",
     "artifacts": [
       {
         "source": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/target/debug/kitu-demo-game-admin-host",
-        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage14-3060fcaea30e/linux/kitu-demo-game-admin-host",
-        "sha256": "3060fcaea30e726a7f19177ef8a3a04e281794bd2d0e3dbca6309a275c610748",
-        "bytes": 150491064
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage14-final-e8e46a9bf607/linux/kitu-demo-game-admin-host",
+        "sha256": "e8e46a9bf6079f9ba0e9ab817ceb488cb0b4fbfb71129d256c9422b3587de631",
+        "bytes": 150466352
       },
       {
         "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
-        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage14-3060fcaea30e/macos/libkitu_demo_game_native.dylib",
-        "sha256": "8c5680cdce250c53412b4e8fa003328f1c784b202ab916c3545d3785b26fc66f",
-        "bytes": 27944112
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage14-final-e8e46a9bf607/macos/libkitu_demo_game_native.dylib",
+        "sha256": "37fcf63cc18e58a0787b464eb61c228fc2844b96a3d366c3ec9a3c945ffce517",
+        "bytes": 27937440
       },
       {
         "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.a",
-        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage14-3060fcaea30e/macos/libkitu_demo_game_native.a",
-        "sha256": "7ed90b8aeb29d75f8c029a597500e8f7756dca8cca7e0ea684d1f021d3bb4a60",
-        "bytes": 87086416
+        "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage14-final-e8e46a9bf607/macos/libkitu_demo_game_native.a",
+        "sha256": "a8b9545b589fbd7948e06d602eaf8dbdff757d984e097f1ef53b6dfd174cf836",
+        "bytes": 87161200
       }
     ],
     "playerFiles": [
@@ -58,7 +98,7 @@
       },
       {
         "path": "Contents/MacOS/Kitu Endless Arena",
-        "sha256": "25dd1bffd76f3849c8834f775c4248b3c9eaf9a66e53d3d7aeadb0faff0dbb65",
+        "sha256": "bb4a40de2caf6991bb07aab20cc6b8741a62677f51432ce105c118741df54f60",
         "bytes": 35172
       },
       {
@@ -153,8 +193,8 @@
       },
       {
         "path": "Contents/PlugIns/ARM64/libkitu_demo_game_native.dylib",
-        "sha256": "e605eda65317b3d3fef8888758c3232ac557b7d4cef281a4fea6ef9a5fd0db3a",
-        "bytes": 27799792
+        "sha256": "48287ff0862727678d31c61240cf996c276ecade7891ca5d52f9813a9e30ae22",
+        "bytes": 27793152
       },
       {
         "path": "Contents/PlugIns/lib_burst_generated.bundle",
@@ -1598,12 +1638,12 @@
       },
       {
         "path": "Contents/Resources/Data/boot.config",
-        "sha256": "95ed49f11f6a9cb9ed50da86167ea6bde746421b16a4c99d603b7fb094f7f24e",
+        "sha256": "9cc9b87f693f4a7bd42f651487d36c615dddd412573a4b76e6b024ec0f888c6e",
         "bytes": 554
       },
       {
         "path": "Contents/Resources/Data/globalgamemanagers",
-        "sha256": "64964db2d6ff40ee16051533c3fec8afedbdd9d82666057a44058d586477b60e",
+        "sha256": "0372be865e86693742b12da8fb3f6607fe790b868cb8d70016863a920aa2d2f1",
         "bytes": 124436
       },
       {
@@ -1623,7 +1663,7 @@
       },
       {
         "path": "Contents/Resources/Data/resources.assets",
-        "sha256": "464ef562fe84b6f74ef6a69e2acb409d9ab3fdf25b0f870bf261dfea0f84a884",
+        "sha256": "3708d6ca41be7f8db710c4dcb12a8365251b7f36b39d0fdbfe5b7023251245bb",
         "bytes": 381180
       },
       {
@@ -1658,120 +1698,72 @@
       },
       {
         "path": "Contents/_CodeSignature/CodeResources",
-        "sha256": "3a966ac0a04b8a34f148054e23e5f36fbdd28b3d092e0899cb1026bd77c069df",
+        "sha256": "261d4a6730c102c0f96c21035105728f004c5cc497e4e7cc514feaf07da1cee1",
         "bytes": 95005
       }
     ],
-    "purpose": "Exact reviewed binaries and Player retained for old recordings after later execution-version changes."
+    "purpose": "Exact reviewed binaries and Player retained for old recordings after later execution-version changes.",
+    "serverBuildVerified": "Archived server replaced after final standalone cargo build, and SHA256 verified against the tested host executable."
   },
-  "knownIntegrationCorrections": [
-    {
-      "finding": "Split WebSocket state and presentation could render different ticks",
-      "fix": "Atomic tick/simulationStep pairing, reconnect reset and backward-seek acceptance",
-      "evidence": "Five EditMode regression cases and live replay PlayMode case"
+  "unity": {
+    "EditMode": {
+      "id": "2",
+      "testcasecount": "55",
+      "result": "Passed",
+      "total": "55",
+      "passed": "55",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 13:14:19Z",
+      "end-time": "2026-09-06 13:14:20Z",
+      "duration": "0.4023342"
     },
-    {
-      "finding": "Unity JsonUtility materialized a JSON null floor cue as an empty object",
-      "fix": "Newtonsoft presentation decoder retains authoritative null",
-      "evidence": "Initial PlayMode death assertion reproduced; final55Edit and21Play passed. Three subsequent initial failures resulted from the first failed case leaving shared replay loaded; final suite returns live paused."
+    "PlayMode": {
+      "id": "2",
+      "testcasecount": "21",
+      "result": "Passed",
+      "total": "21",
+      "passed": "21",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-09-06 13:14:33Z",
+      "end-time": "2026-09-06 13:18:18Z",
+      "duration": "224.6796005"
     }
-  ],
-  "reports": {
-    "browser.json": {
-      "sha256": "ddc15deaca48aa8449b7c3a10deb30ebddd3216bd2150bab12b88961817d894e",
-      "bytes": 18508
+  },
+  "ciAtImplementationRevision": [
+    {
+      "link": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34035080528/job/101491549943",
+      "name": "Arena Reference Integrity",
+      "state": "SUCCESS"
     },
-    "cli.json": {
-      "sha256": "4210ed998da87c33d09d66a7b9858cecf331153b8c2f827c8db0f7d1a0faaf40",
-      "bytes": 31191
+    {
+      "link": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34035080528/job/101491549912",
+      "name": "Format Check",
+      "state": "SUCCESS"
     },
-    "frontend.json": {
-      "sha256": "6e25b1a868f51cc72779e041f8dad9847f4d3b2eff04701d5889e6ea27509e42",
-      "bytes": 1687
+    {
+      "link": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34035080528/job/101491550006",
+      "name": "Test Suite",
+      "state": "SUCCESS"
     },
-    "native-c.json": {
-      "sha256": "7cfd329aad59313a26824c697b96d9d9f523943f9075e9639c44a35ada7550ad",
-      "bytes": 5536
+    {
+      "link": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34035080528/job/101491549989",
+      "name": "Documentation Build",
+      "state": "SUCCESS"
     },
-    "native-package.json": {
-      "sha256": "6a20b9f7e9b1b8014f609558744b2ffe85cf7d66594eea06b2324363b8e5c675",
-      "bytes": 2235
-    },
-    "player-build.json": {
-      "sha256": "9c041d511545aead714375021e169d2697f5817b16f6c4961f9659b4f7a6ffd0",
-      "bytes": 3580
-    },
-    "player-preparation.json": {
-      "sha256": "5cf91c19a6d18d84fa8558aa13a323b603a0338b44e3865ff80323a1d0efc8b4",
-      "bytes": 4242
-    },
-    "player-script.json": {
-      "sha256": "c8551fc21b3a8694c5ff34b57b5f7942be1cdb4ec483c965b3fbfa545718faa3",
-      "bytes": 4749
-    },
-    "player-stock.json": {
-      "sha256": "62901864dc2969e3e75f48767e1588531dbc2182101947ea611cc9883e563488",
-      "bytes": 5354
-    },
-    "player-timeline.json": {
-      "sha256": "fc94d5c231e35e101850eba4910bbd2a9129ff87c74b5eca0f618ed64162e7cd",
-      "bytes": 5624
-    },
-    "review-fix.json": {
-      "sha256": "66553540d47cf93dd3e18c5ba0942b4283f1874821237c75e082cbe5024a7d3a",
-      "bytes": 1634
-    },
-    "review-native-c.json": {
-      "sha256": "832bc68946a1f3ee0efe0d10c7b58608c177a7a33aac341e54d6d2c3e9336d5a",
-      "bytes": 5683
-    },
-    "review-native-package.json": {
-      "sha256": "661b79514a48cb50f13083d8577cf189b1364faa82dddcf43b49851d8d25f1c5",
-      "bytes": 2235
-    },
-    "review-player-build.json": {
-      "sha256": "aa21f0f3fdf78b0b90eb3f332f6590711b943affca263b250cd610512f8dc0a9",
-      "bytes": 3587
-    },
-    "review-player-preparation.json": {
-      "sha256": "124e9a46e708e289ca7b2dc529586f85ed36dfe57b3d2ebe34f5368aa3ccc505",
-      "bytes": 4311
-    },
-    "review-player-script.json": {
-      "sha256": "f4c82dadd7f02443eb6873eaf61cb3fccb2afd2f521884ec619b88022d2ebb36",
-      "bytes": 4834
-    },
-    "review-player-stock.json": {
-      "sha256": "fc4d908ea290db56797b308dc274a974a291a6b9377ad161c955fc439eadfa79",
-      "bytes": 5451
-    },
-    "review-player-timeline.json": {
-      "sha256": "115e4f77c02957ea2943508f521aca7efac71d3d8879fe2d2068889475f71381",
-      "bytes": 5729
-    },
-    "review-results.json": {
-      "sha256": "0e8014651bac65aaf4239fc8f8fb96945c32628435d07871df2446ae7385ffc8",
-      "bytes": 73284
-    },
-    "review-unity-tests.json": {
-      "sha256": "9a9e6de4134bfffb28e82f264e42a925c8f99c68f6a90956e965538a1e8fc07e",
-      "bytes": 14048
-    },
-    "review-visual-equivalence.json": {
-      "sha256": "e0dd8bd0f4a38c1b0f3450403455f7478a71e978a3f795f20ba3d0834905c3a8",
-      "bytes": 3996
-    },
-    "rust.json": {
-      "sha256": "8413561245deff2f8d03cee7fce819d225ffda166ee9e638047c39d5d648b2ad",
-      "bytes": 2062
-    },
-    "unity-tests.json": {
-      "sha256": "c26b3770f4d42959d4fb483df1e59ff473a67a9ea8751bdca8c9a93fd11778a7",
-      "bytes": 14048
-    },
-    "visual-qa.json": {
-      "sha256": "69eb18a6d99a20837d9981c2ddfb41fa6f286e05b713501ac75b2aed055600b1",
-      "bytes": 14089
+    {
+      "link": "https://github.com/Nagitch/kitu-logic-processor/actions/runs/34035080528/job/101491549821",
+      "name": "Clippy Lint",
+      "state": "SUCCESS"
     }
-  }
+  ]
 }

@@ -68,3 +68,20 @@ Generate edited binary sources with `arena-timelines` as described in the
 [macOS build procedure](../../specs/arena-embedded-host.md), retaining traces with
 an absolute `KITU_NATIVE_EVIDENCE_DIR`. Run the C caller and Player verifier for
 `preparation`, `stock-eleven-death-retry`, `rhai-boss` and `timeline-cues`.
+
+PR review identified a detailed timeline snapshot captured before the same tick's
+simulation/cue advancement. The [review regression and correction](review-fix.json)
+reproduce both start and an unpaused stage at a due floor keyframe, then publish
+one coherent snapshot after the tick completes. Receipts, recorded source
+versions and per-start manifests remain distinct. Independent review found no
+further issue in ordering or replay. The rebuilt [C ABI](review-native-c.json),
+[native package](review-native-package.json), [Player](review-player-build.json)
+and all four graphical scenarios ([preparation](review-player-preparation.json),
+[stock](review-player-stock.json), [script](review-player-script.json),
+[timeline](review-player-timeline.json)) pass again. All [15 final PNGs](review-visual-equivalence.json)
+are byte-identical to their previously inspected counterparts.
+Final [305 Rust tests/doctests, 19 macOS native cases and retained artifacts](review-results.json)
+passed, together with formatting, Clippy and warnings-denied rustdoc. Unity
+[55 EditMode and 21 PlayMode](review-unity-tests.json) passed again using the final
+server recording and native library. Browser/CLI source-edit workflows above
+retain their exact earlier execution artifacts; their HTTP contracts did not change.
