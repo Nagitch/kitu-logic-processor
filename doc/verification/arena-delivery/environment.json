@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "devContainer": {
+    "sourceReport": {
+      "path": ".tmp/stage18/devcontainer-result.json",
+      "bytes": 1624,
+      "sha256": "720ef585c3034dfb43ec4d7e38228b0826af744a1f962e41055db1ce5930dd25"
+    },
+    "result": "passed",
+    "imageId": "sha256:5c7161d1495affe8545056afe021be46b02ae903f6172324d344eb8c6646e352",
+    "imageName": "vsc-kitu-logic-processor-638af7d126afbead6b08caf26cd665558dc7ac42fae9f061541c18752480d093",
+    "checks": [
+      "actual Dev Container image build",
+      "read-only offline image tool probe",
+      "actual postCreate setup in existing Dev Container",
+      "hydrated PNG matches committed LFS object"
+    ],
+    "logs": [
+      {
+        "path": ".tmp/stage18/devcontainer-build-final.log",
+        "bytes": 27464,
+        "sha256": "a4af6d83b2663649d2bc1e8ff0282746f88ab62c093612d92f83c5366e40a8ec"
+      },
+      {
+        "path": ".tmp/stage18/devcontainer-image-tools.log",
+        "bytes": 82,
+        "sha256": "9113a498b2447013c1434ee48ec9290a6adc5deec68135634ffeedda3b38f69f"
+      },
+      {
+        "path": ".tmp/stage18/devcontainer-lfs-setup.log",
+        "bytes": 2905,
+        "sha256": "fc8dcfaba45ab8fc0c3707fb5faeedaa87abfc5fa6a0ef2bae0c73f991699ec8"
+      }
+    ],
+    "projectSetupObserved": {
+      "rust": "1.96.0",
+      "cargo": "1.96.0",
+      "node": "24.20.0",
+      "pnpm": "11.9.0",
+      "python": "3.11.2",
+      "gitLfs": "3.3.0"
+    },
+    "imageProbeObserved": {
+      "node": "24.20.0",
+      "python": "3.11.2",
+      "gitLfs": "3.3.0",
+      "just": "1.58.0"
+    },
+    "versionPolicy": "Project Rust and pnpm are exact pins; Node uses major24; OS/image dependencies are recorded, not claimed bit-for-bit hermetic."
+  },
+  "gitLfs": {
+    "sourceReport": {
+      "path": ".tmp/stage18/container-image-difference.json",
+      "bytes": 888,
+      "sha256": "873a381fa6292f31b1240df0d18ba055903f3cd28b0340969148eccfeef63bad"
+    },
+    "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/TutorialInfo/Icons/URP.png",
+    "macosSha256": "1d17a9ff3537859abe2c008603d29d90cf43191ae77aa386167cc65e53ba03d9",
+    "macosBytes": 24069,
+    "gitSha256": "5404aef14d77c32749f963918960e22d2623e48fd8c08db5afda2f73cbbc9ee0",
+    "reason": "The container initially lacked Git LFS filters; hydrated bytes already matched the committed LFS object.",
+    "lfsPointer": "version https://git-lfs.github.com/spec/v1\noid sha256:1d17a9ff3537859abe2c008603d29d90cf43191ae77aa386167cc65e53ba03d9\nsize 24069\n",
+    "expectedPayloadSha256": "1d17a9ff3537859abe2c008603d29d90cf43191ae77aa386167cc65e53ba03d9",
+    "payloadRepairNeeded": false,
+    "resolution": "Install git-lfs, configure local filters, hydrate fresh checkouts and enable LFS checkout in CI.",
+    "resolvedSourceCommit": "2d3a8f2c9ba6b1b0415d181ecd22a4ca7011ed1c"
+  }
+}

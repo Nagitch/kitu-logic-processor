@@ -1,0 +1,1089 @@
+{
+  "schemaVersion": 1,
+  "serverStatus": "passed",
+  "embeddedPlayerStatus": "passed",
+  "flows": {
+    "server": {
+      "sourceReport": {
+        "path": ".tmp/stage18/browser-proof/server/summary.json",
+        "bytes": 582,
+        "sha256": "b9a3bf3c4fd0e96afc5bae962924724beab439dbb2d8bd123614dc1f312ec6ad"
+      },
+      "result": "passed",
+      "api": "http://127.0.0.1:8797",
+      "ui": "http://127.0.0.1:5179",
+      "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+      "checks": [
+        "complete state and context at paused tick",
+        "minimap ground-plane mapping",
+        "entity selection/reset",
+        "floor and boss cues",
+        "forward/backward seek",
+        "step",
+        "play to EOF",
+        "pause",
+        "stop",
+        "return-live",
+        "stale retains complete state",
+        "reconnect",
+        "390px layout",
+        "navigation/remount",
+        "no page errors"
+      ],
+      "pageErrors": "",
+      "checkpoints": [
+        {
+          "label": "initial",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/initial.json",
+            "bytes": 16344,
+            "sha256": "779f68c714cd48c952c84a9b54559a1b896b2578aa1600a1f320f4e38ffea5d4"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "1",
+          "run": "0",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "-1",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "-1",
+            "simulationSteps": "0",
+            "phase": 0,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "floor",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/floor.json",
+            "bytes": 26587,
+            "sha256": "46479e775e4cd4e90349120e7db761810b444925ba660e4803c5d3659b2dda23"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "2",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "197",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "197",
+            "simulationSteps": "184",
+            "phase": 2,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": {
+              "clipId": "floor-transition",
+              "eventCount": 5,
+              "fromFloor": 0,
+              "id": "r1:c1",
+              "nextEventIndex": 2,
+              "offsetTick": "12",
+              "opacity": 0.20000000298023224,
+              "startedTick": "185",
+              "toFloor": 1
+            },
+            "bosses": []
+          }
+        },
+        {
+          "label": "boss",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/boss.json",
+            "bytes": 27467,
+            "sha256": "73be42570a5d904275e545667908a0b9769c4788912749132ab59a46757a46e3"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "3",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "1649",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "1649",
+            "simulationSteps": "1636",
+            "phase": 3,
+            "floor": 5
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": [
+              {
+                "clipId": "boss-telegraph",
+                "entityId": 199,
+                "eventCount": 5,
+                "floor": 5,
+                "id": "r1:c6",
+                "intensity": 1.0,
+                "nextEventIndex": 3,
+                "offsetTick": "24",
+                "radius": 3.0,
+                "startedTick": "1625"
+              }
+            ]
+          }
+        },
+        {
+          "label": "boss-selected",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/boss-selected.json",
+            "bytes": 9342,
+            "sha256": "4ef637a62119e58e97e45d69bcf45e936ed8ed6d9c7a90e2ba477985c91c5932"
+          },
+          "ui": {
+            "status": "Current \u00b7 5 Hz",
+            "width": 1280,
+            "scrollWidth": 1280,
+            "selected": [
+              "[\"29326-1788717428529147000\",\"3\",\"1\"]:enemy:199",
+              "[\"29326-1788717428529147000\",\"3\",\"1\"]:enemy:199"
+            ]
+          }
+        },
+        {
+          "label": "death",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/death.json",
+            "bytes": 32439,
+            "sha256": "31827d685015fd288f95366091f4294dd6e87961be904488692c0d78d5336ea6"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "4",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "5526",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "5526",
+            "simulationSteps": "5479",
+            "phase": 5,
+            "floor": 11
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "retry-eof",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/retry-eof.json",
+            "bytes": 28053,
+            "sha256": "e6f5d0f5c46bc82db66cf6b879249a8641a94885d504617713769ca425b50f02"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "4",
+          "run": "2",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "5527",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "5527",
+            "simulationSteps": "5480",
+            "phase": 1,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "backward",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/backward.json",
+            "bytes": 26774,
+            "sha256": "e7cc0def33bcc4ccac5b8d92148e7acece72b0a2e0f91ff0ef30a3846c5f16df"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "5",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "197",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "197",
+            "simulationSteps": "184",
+            "phase": 2,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": {
+              "clipId": "floor-transition",
+              "eventCount": 5,
+              "fromFloor": 0,
+              "id": "r1:c1",
+              "nextEventIndex": 2,
+              "offsetTick": "12",
+              "opacity": 0.20000000298023224,
+              "startedTick": "185",
+              "toFloor": 1
+            },
+            "bosses": []
+          }
+        },
+        {
+          "label": "step",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/step.json",
+            "bytes": 49616,
+            "sha256": "cf194c7faf08b45cbe3d12d079c785fc499d1c9400c08ee27f98a55a70ea9f30"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "5",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "198",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "198",
+            "simulationSteps": "185",
+            "phase": 2,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": {
+              "clipId": "floor-transition",
+              "eventCount": 5,
+              "fromFloor": 0,
+              "id": "r1:c1",
+              "nextEventIndex": 2,
+              "offsetTick": "13",
+              "opacity": 0.20000000298023224,
+              "startedTick": "185",
+              "toFloor": 1
+            },
+            "bosses": []
+          }
+        },
+        {
+          "label": "paused",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/paused.json",
+            "bytes": 107668,
+            "sha256": "6d336d845612e442fbb24d611d41ae5747302341e1cbe89ff01ec1bd73403e4f"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "5",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "246",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "246",
+            "simulationSteps": "233",
+            "phase": 3,
+            "floor": 1
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "stopped",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/stopped.json",
+            "bytes": 20270,
+            "sha256": "963ae6c81d7a536746f7070adf74b6372cc84560bb127eacadaeab98e2600acd"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "6",
+          "run": "0",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "-1",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "-1",
+            "simulationSteps": "0",
+            "phase": 0,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "returned-live",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/returned-live.json",
+            "bytes": 16022,
+            "sha256": "218246f825866a70903753b4eb0cc80d0317d2d52ae40d810937f5c8f9e58459"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "7",
+          "run": "0",
+          "readOnly": false,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": false,
+            "recordingId": null,
+            "tick": "829",
+            "totalTicks": "0",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "829",
+            "simulationSteps": "0",
+            "phase": 0,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "reconnected",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/reconnected.json",
+            "bytes": 126974,
+            "sha256": "5f1426d1ff005b27631b428c1f2a92bda45c0c9e8a41ef169a66283d76888b26"
+          },
+          "sessionId": "29326-1788717428529147000",
+          "epoch": "5",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "246",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "246",
+            "simulationSteps": "233",
+            "phase": 3,
+            "floor": 1
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "mobile",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/mobile.json",
+            "bytes": 12223,
+            "sha256": "e55a914fc16875b743792bfcdd8912c84b8e8a52c5eb282df0ff98edf97842ff"
+          },
+          "ui": {
+            "status": "Current \u00b7 5 Hz",
+            "width": 390,
+            "scrollWidth": 390,
+            "selected": []
+          }
+        },
+        {
+          "label": "stale",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/server/stale.json",
+            "bytes": 12327,
+            "sha256": "6af8fa91772f42bb345b546b2d14b2e830bf6b060e03ad517045cad036df2052"
+          },
+          "ui": {
+            "status": "stale",
+            "width": 1280,
+            "scrollWidth": 1280,
+            "selected": []
+          }
+        }
+      ],
+      "executionEvidence": {
+        "sourceReport": {
+          "path": ".tmp/stage18/browser-proof/server/processes.json",
+          "bytes": 786,
+          "sha256": "e46f6a196aa5dd37abb0d9f64820a1095de0be2bdd6427a1f1976dda4dd5982c"
+        },
+        "host": {
+          "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/kitu-demo-game-admin-host",
+          "bytes": 35923312,
+          "sha256": "07f1b6f1dc5c971319e05c069ecf6ea6401484ecb49ca8ab91a690fe2487b3eb"
+        },
+        "recording": {
+          "path": ".tmp/stage18/macos-full-01/replay/stock-eleven-death-retry.tsq",
+          "bytes": 2684925,
+          "sha256": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d"
+        },
+        "execution": {
+          "package": "0.1.0",
+          "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+          "target": "aarch64-apple-darwin"
+        },
+        "api": "http://127.0.0.1:8797",
+        "ui": "http://127.0.0.1:5179"
+      }
+    },
+    "embeddedPlayer": {
+      "sourceReport": {
+        "path": ".tmp/stage18/browser-proof/native/summary.json",
+        "bytes": 582,
+        "sha256": "478c2087e2076f151173ce9f9dbccd643f44a089aa9fef74aa3343261367d134"
+      },
+      "result": "passed",
+      "api": "http://127.0.0.1:8798",
+      "ui": "http://127.0.0.1:5180",
+      "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+      "checks": [
+        "complete state and context at paused tick",
+        "minimap ground-plane mapping",
+        "entity selection/reset",
+        "floor and boss cues",
+        "forward/backward seek",
+        "step",
+        "play to EOF",
+        "pause",
+        "stop",
+        "return-live",
+        "stale retains complete state",
+        "reconnect",
+        "390px layout",
+        "navigation/remount",
+        "no page errors"
+      ],
+      "pageErrors": "",
+      "checkpoints": [
+        {
+          "label": "initial",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/initial.json",
+            "bytes": 16070,
+            "sha256": "4530b69d3c24dcb758cfbe2f8e6a5ae7cdc5b994c038cae6667054a4755aea6e"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "1",
+          "run": "0",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "-1",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "-1",
+            "simulationSteps": "0",
+            "phase": 0,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "floor",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/floor.json",
+            "bytes": 12952,
+            "sha256": "d5e972ea90b8d138f0e0f9d6434a0cc95ce565f420fc44b622c15777463c302d"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "2",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "197",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "197",
+            "simulationSteps": "184",
+            "phase": 2,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": {
+              "clipId": "floor-transition",
+              "eventCount": 5,
+              "fromFloor": 0,
+              "id": "r1:c1",
+              "nextEventIndex": 2,
+              "offsetTick": "12",
+              "opacity": 0.20000000298023224,
+              "startedTick": "185",
+              "toFloor": 1
+            },
+            "bosses": []
+          }
+        },
+        {
+          "label": "boss",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/boss.json",
+            "bytes": 27495,
+            "sha256": "7b57d6c16a1ecc0d79fee881db230613ef0fd984d175350c93c374fc46ca299c"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "3",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "1649",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "1649",
+            "simulationSteps": "1636",
+            "phase": 3,
+            "floor": 5
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": [
+              {
+                "clipId": "boss-telegraph",
+                "entityId": 199,
+                "eventCount": 5,
+                "floor": 5,
+                "id": "r1:c6",
+                "intensity": 1.0,
+                "nextEventIndex": 3,
+                "offsetTick": "24",
+                "radius": 3.0,
+                "startedTick": "1625"
+              }
+            ]
+          }
+        },
+        {
+          "label": "boss-selected",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/boss-selected.json",
+            "bytes": 9342,
+            "sha256": "491f91e4f4ffeec68dbf5d376cf070edcf8e386d6afd78c779c8767171cdee49"
+          },
+          "ui": {
+            "status": "Current \u00b7 5 Hz",
+            "width": 1280,
+            "scrollWidth": 1280,
+            "selected": [
+              "[\"32034-1788719109114397000\",\"3\",\"1\"]:enemy:199",
+              "[\"32034-1788719109114397000\",\"3\",\"1\"]:enemy:199"
+            ]
+          }
+        },
+        {
+          "label": "death",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/death.json",
+            "bytes": 31681,
+            "sha256": "1ff5eed3307b20968969e9177b5ae6da9a36cb15fbd9aefcf1c5a91aff8f72ef"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "4",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "5526",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "5526",
+            "simulationSteps": "5479",
+            "phase": 5,
+            "floor": 11
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "retry-eof",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/retry-eof.json",
+            "bytes": 27966,
+            "sha256": "12cb3b35f9c187c686eb73899df6886c8036591ac00301da047e7d86b36a39a9"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "4",
+          "run": "2",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "5527",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "5527",
+            "simulationSteps": "5480",
+            "phase": 1,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "backward",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/backward.json",
+            "bytes": 26664,
+            "sha256": "9dfc50331a6192ee000cfc688785ab48c087b03ee7c2920ddf5da49fac6c8565"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "5",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "197",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "197",
+            "simulationSteps": "184",
+            "phase": 2,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": {
+              "clipId": "floor-transition",
+              "eventCount": 5,
+              "fromFloor": 0,
+              "id": "r1:c1",
+              "nextEventIndex": 2,
+              "offsetTick": "12",
+              "opacity": 0.20000000298023224,
+              "startedTick": "185",
+              "toFloor": 1
+            },
+            "bosses": []
+          }
+        },
+        {
+          "label": "step",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/step.json",
+            "bytes": 50343,
+            "sha256": "1e969b7fc5de1bd47a83cd6c1457d81038648487c58d92af67c56be2877f55e2"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "5",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "198",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "198",
+            "simulationSteps": "185",
+            "phase": 2,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": {
+              "clipId": "floor-transition",
+              "eventCount": 5,
+              "fromFloor": 0,
+              "id": "r1:c1",
+              "nextEventIndex": 2,
+              "offsetTick": "13",
+              "opacity": 0.20000000298023224,
+              "startedTick": "185",
+              "toFloor": 1
+            },
+            "bosses": []
+          }
+        },
+        {
+          "label": "paused",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/paused.json",
+            "bytes": 108679,
+            "sha256": "25db351720983e09b455343ac3e714c8c58913bb377b7324565ec6d538930636"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "5",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "247",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "247",
+            "simulationSteps": "234",
+            "phase": 3,
+            "floor": 1
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "stopped",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/stopped.json",
+            "bytes": 20327,
+            "sha256": "533c02eb374a6187f07c0b8ba03ee727ecc89120029ffdcc916382f7b82d678f"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "6",
+          "run": "0",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "-1",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "-1",
+            "simulationSteps": "0",
+            "phase": 0,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "returned-live",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/returned-live.json",
+            "bytes": 15992,
+            "sha256": "98b1aa14aee1339710f927e54869c0ac40a85f6db0be2b1279b5b13f953b69f4"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "7",
+          "run": "0",
+          "readOnly": false,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": false,
+            "recordingId": null,
+            "tick": "809",
+            "totalTicks": "0",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "809",
+            "simulationSteps": "0",
+            "phase": 0,
+            "floor": 0
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "reconnected",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/reconnected.json",
+            "bytes": 126991,
+            "sha256": "509a90f93519db82b456d705762863d3998979344431ce459d4f433ca0c0767b"
+          },
+          "sessionId": "32034-1788719109114397000",
+          "epoch": "5",
+          "run": "1",
+          "readOnly": true,
+          "execution": {
+            "package": "0.1.0",
+            "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+            "target": "aarch64-apple-darwin"
+          },
+          "mode": {
+            "active": true,
+            "recordingId": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+            "tick": "247",
+            "totalTicks": "5528",
+            "playing": false,
+            "seeking": false,
+            "error": null
+          },
+          "state": {
+            "tick": "247",
+            "simulationSteps": "234",
+            "phase": 3,
+            "floor": 1
+          },
+          "presentation": {
+            "floor": null,
+            "bosses": []
+          }
+        },
+        {
+          "label": "mobile",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/mobile.json",
+            "bytes": 12222,
+            "sha256": "dcacf88b0932a278bdd3b6ed96f147022b6cf2cc3d41b57b3bd1fa7379fd737b"
+          },
+          "ui": {
+            "status": "Current \u00b7 5 Hz",
+            "width": 390,
+            "scrollWidth": 390,
+            "selected": []
+          }
+        },
+        {
+          "label": "stale",
+          "sourceReport": {
+            "path": ".tmp/stage18/browser-proof/native/stale.json",
+            "bytes": 12326,
+            "sha256": "4c1514cf3a743e6971dffb568f82f6ac2f118a34bb9f4165e3f42dfb51af1095"
+          },
+          "ui": {
+            "status": "stale",
+            "width": 1280,
+            "scrollWidth": 1280,
+            "selected": []
+          }
+        }
+      ],
+      "executionEvidence": {
+        "sourceReport": {
+          "path": ".tmp/stage18/browser-proof/native/processes.json",
+          "bytes": 1002,
+          "sha256": "e85a00432e9b9595fba55b5abf66bdec488bfb118f7818a2e53fabe63f3b71ce"
+        },
+        "player": "/private/var/folders/7n/f8j_v3_x2v3gtybcq54zzpbc0000gn/T/kitu-arena-verification-sbajhvrs/relocated.app",
+        "executable": {
+          "path": "/private/var/folders/7n/f8j_v3_x2v3gtybcq54zzpbc0000gn/T/kitu-arena-verification-sbajhvrs/relocated.app/Contents/MacOS/Kitu Endless Arena",
+          "bytes": 35172,
+          "sha256": "02d0e2a074d322008e54455aa246bde661d1c904b89971f4498ec741912133c9"
+        },
+        "recording": {
+          "path": ".tmp/stage18/macos-full-02/replay/stock-eleven-death-retry.tsq",
+          "bytes": 2684925,
+          "sha256": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d"
+        },
+        "execution": {
+          "package": "0.1.0",
+          "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+          "target": "aarch64-apple-darwin"
+        },
+        "api": "http://127.0.0.1:8798",
+        "ui": "http://127.0.0.1:5180",
+        "externalArenaWebSocketOverrideRemoved": true
+      }
+    }
+  },
+  "screenshotsPublished": false,
+  "completeStateRetainedLocally": true
+}

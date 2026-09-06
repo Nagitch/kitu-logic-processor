@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "sourceReport": {
+    "path": ".tmp/stage18/final-cleanup.json",
+    "bytes": 270,
+    "sha256": "95da9e77a1b4354ef12cb80ea7c60e0129240a25c34363f87169b9d7c0d7d4f2"
+  },
+  "cleanup": {
+    "ownedProcesses": [
+      {
+        "pid": 31043,
+        "stopped": true
+      },
+      {
+        "pid": 32034,
+        "stopped": true
+      },
+      {
+        "pid": 32043,
+        "stopped": true
+      }
+    ],
+    "releasedPorts": [
+      54376,
+      8797,
+      8798,
+      5179,
+      5180
+    ]
+  }
+}

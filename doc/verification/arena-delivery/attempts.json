@@ -1,0 +1,438 @@
+{
+  "schemaVersion": 1,
+  "firstFullAttempt": {
+    "attempt": "macos-full-01",
+    "sourceReport": {
+      "path": ".tmp/stage18/macos-full-01/verification.json",
+      "bytes": 175124,
+      "sha256": "5cfac571cf1a02ac86163e5aa65868168616620043ee00bdb954c1c2171b7c08"
+    },
+    "requestedScope": "full",
+    "status": "failed",
+    "startedAtUtc": "2026-09-06T17:43:34.921017+00:00",
+    "finishedAtUtc": "2026-09-06T18:02:05.462574+00:00",
+    "diagnostic": "Command exited 1: .tmp/stage18/macos-full-01/commands/048-edited-player-trace.log",
+    "toolchain": {
+      "target": "aarch64-apple-darwin",
+      "profile": "dev",
+      "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+      "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "macOS": "26.5.2",
+      "cargo": [
+        "cargo 1.96.0 (30a34c682 2026-05-25)"
+      ],
+      "rustc": [
+        "rustc 1.96.0 (ac68faa20 2026-05-25)",
+        "binary: rustc",
+        "commit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96",
+        "commit-date: 2026-05-25",
+        "host: aarch64-apple-darwin",
+        "release: 1.96.0",
+        "LLVM version: 22.1.2"
+      ],
+      "sdk": [
+        "26.5"
+      ],
+      "clang": [
+        "/Library/Developer/CommandLineTools/usr/bin/clang"
+      ],
+      "unity": "6000.6.0f1",
+      "editor": "/Applications/Unity/Hub/Editor/6000.6.0f1/Unity.app/Contents/MacOS/Unity"
+    },
+    "execution": {
+      "package": "0.1.0",
+      "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+      "target": "aarch64-apple-darwin"
+    },
+    "source": {
+      "commit": "cc75f9320fd5160598a94c55e0ffef4721049f84",
+      "dirty": false,
+      "dirtyFiles": [],
+      "inputs": [
+        {
+          "path": "Cargo.lock",
+          "bytes": 61830,
+          "sha256": "7d78bd87d2f659e3bdda9d449ad274a482cf1a46a1d813007c12ba0ceaac41a2"
+        },
+        {
+          "path": "rust-toolchain.toml",
+          "bytes": 86,
+          "sha256": "fa0addad5676243d360310f981a69528b0341d295cb5012253d9721aba4d30c0"
+        },
+        {
+          "path": "tools/arena-verification-cases.json",
+          "bytes": 20918,
+          "sha256": "e043ea350d5a8de1d82f9a8c02483367e01a82440ab770de2604660d749c8dba"
+        },
+        {
+          "path": "tools/kitu-web-admin/frontend/pnpm-lock.yaml",
+          "bytes": 100636,
+          "sha256": "2cbdde6305d3fcb40e56b04f6b2a83b2798c467a967a1d9f894977915332706e"
+        },
+        {
+          "path": "tools/kitu-web-admin/frontend/package.json",
+          "bytes": 1520,
+          "sha256": "22d784989bb95fe65aa6123652099aca338b452a79a85b35d22fe1d48d7cf143"
+        },
+        {
+          "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Packages/manifest.json",
+          "bytes": 2304,
+          "sha256": "3424d1efaa8b3bf4ca2000e8d95d316789283d596684ecb6141df821a1be9452"
+        },
+        {
+          "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Packages/packages-lock.json",
+          "bytes": 14894,
+          "sha256": "e3dd6ef954bd25edd37a34502aac9f087869f858951d2911c0ae16647b375a41"
+        },
+        {
+          "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/ProjectSettings/ProjectVersion.txt",
+          "bytes": 83,
+          "sha256": "39584c3e6c1e571d53a79ef2dd6ea91c0568ac086792cc435e86401a0ba824ed"
+        }
+      ]
+    },
+    "steps": [
+      {
+        "id": "preflight",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "source-package",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "native-tests",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "native-build",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "c-abi",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "default-player-build",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "server-provision",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "unity-edit",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "unity-msgpack",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "unity-json",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "codec-readback",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "inspection-identities",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "server-stop",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "default-player-traces",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "default-content-probes",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "edited-player-build",
+        "required": true,
+        "status": "passed",
+        "diagnostic": null
+      },
+      {
+        "id": "edited-player-trace",
+        "required": true,
+        "status": "failed",
+        "diagnostic": "Command exited 1: .tmp/stage18/macos-full-01/commands/048-edited-player-trace.log"
+      },
+      {
+        "id": "edited-content-probe",
+        "required": true,
+        "status": "notRun",
+        "diagnostic": null
+      }
+    ],
+    "cleanup": {
+      "status": "passed",
+      "ownedProcesses": [
+        {
+          "pid": 28935,
+          "role": "server",
+          "endpoint": "http://127.0.0.1:58013",
+          "exit": -15
+        }
+      ],
+      "restoredFiles": [
+        "Assets/AddressableAssetsData/AddressableAssetSettings.asset",
+        "ProjectSettings/ProjectAuditorSettings.asset",
+        "ProjectSettings/ProjectSettings.asset",
+        "ProjectSettings/UnityConnectSettings.asset"
+      ],
+      "unexpectedChanges": []
+    },
+    "nativeTests": {
+      "arena_native": {
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      },
+      "embedded_bridge": {
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      },
+      "package": {
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      },
+      "packaged_player": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      },
+      "wire_parity": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      },
+      "doctests": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      }
+    },
+    "unityTests": {
+      "unity-edit": {
+        "total": 143,
+        "passed": 143,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      },
+      "unity-msgpack": {
+        "total": 31,
+        "passed": 31,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      },
+      "unity-json": {
+        "total": 7,
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0
+      }
+    },
+    "cAbi": {
+      "preparation": {
+        "ticks": 28,
+        "stateAndOutput": "exact match",
+        "expected": ".tmp/stage18/macos-full-01/native-traces/preparation.expected.ndjson",
+        "actual": ".tmp/stage18/macos-full-01/c-output/preparation.ndjson"
+      },
+      "stock-eleven-death-retry": {
+        "ticks": 5528,
+        "stateAndOutput": "exact match",
+        "expected": ".tmp/stage18/macos-full-01/native-traces/stock-eleven-death-retry.expected.ndjson",
+        "actual": ".tmp/stage18/macos-full-01/c-output/stock-eleven-death-retry.ndjson"
+      },
+      "rhai-boss": {
+        "ticks": 1800,
+        "stateAndOutput": "exact match",
+        "expected": ".tmp/stage18/macos-full-01/native-traces/rhai-boss.expected.ndjson",
+        "actual": ".tmp/stage18/macos-full-01/c-output/rhai-boss.ndjson"
+      },
+      "timeline-cues": {
+        "ticks": 1830,
+        "stateAndOutput": "exact match",
+        "expected": ".tmp/stage18/macos-full-01/native-traces/timeline-cues.expected.ndjson",
+        "actual": ".tmp/stage18/macos-full-01/c-output/timeline-cues.ndjson"
+      }
+    },
+    "codecReadback": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "pairs": 11
+    },
+    "serverStop": {
+      "stopped": true,
+      "pid": 28935,
+      "exit": -15,
+      "ownedEndpointStoppedBeforeGraphicalProof": true
+    }
+  },
+  "failureExplanation": "The coordinator omitted the existing --arena-initial-expected argument for bundled-edited. Required default/C/native/Unity/negative-content steps passed before that failure; full-01 remains failed and edited-content-probe was not run.",
+  "targetedEditedFollowup": {
+    "sourceReport": {
+      "path": ".tmp/stage18/edited-followup-01/player-verification.json",
+      "bytes": 26466,
+      "sha256": "e1598dace6757967874438c5a8b643fcf45ba1dd30acd2a8036fb966a402c6c8"
+    },
+    "status": "passed",
+    "result": {
+      "backend": "native",
+      "scenario": "bundled-edited",
+      "matched": true,
+      "ticks": 1800,
+      "inputs": 1816,
+      "deathObserved": false,
+      "retryObserved": false
+    },
+    "command": [
+      ".tmp/stage18/macos-full-01/build/edited.app/Contents/MacOS/Kitu Endless Arena",
+      "-screen-fullscreen",
+      "0",
+      "-screen-width",
+      "1100",
+      "-screen-height",
+      "720",
+      "-logFile",
+      ".tmp/stage18/edited-followup-01/player.log",
+      "--arena-initial-expected",
+      ".tmp/stage18/macos-full-01/packaged-oracle/bundled-edited.initial.json",
+      "--arena-self-test",
+      ".tmp/stage18/macos-full-01/packaged-oracle/bundled-edited.trace",
+      "--arena-expected",
+      ".tmp/stage18/macos-full-01/packaged-oracle/bundled-edited.expected.ndjson",
+      "--arena-evidence",
+      ".tmp/stage18/edited-followup-01"
+    ],
+    "independentComparison": {
+      "ticks": 1800,
+      "stateAndOutput": "exact match",
+      "expected": ".tmp/stage18/macos-full-01/packaged-oracle/bundled-edited.expected.ndjson",
+      "actual": ".tmp/stage18/edited-followup-01/actual.ndjson"
+    },
+    "trace": {
+      "path": ".tmp/stage18/macos-full-01/packaged-oracle/bundled-edited.trace",
+      "bytes": 721278,
+      "sha256": "13a20b14d4ca1839be2106fa193b6807956bfddf51df5633abd5c5673e8e279d"
+    },
+    "expected": {
+      "path": ".tmp/stage18/macos-full-01/packaged-oracle/bundled-edited.expected.ndjson",
+      "bytes": 47061572,
+      "sha256": "0b7d3ebde55f26960953f3282a89bf7aeb548713d68e865b69e17d49f01127d5"
+    },
+    "actual": {
+      "path": ".tmp/stage18/edited-followup-01/actual.ndjson",
+      "bytes": 47061572,
+      "sha256": "a944e5bb35e77f0053b4e07cc1528eca7d0816e27449661bc95f817ad6ec1044"
+    },
+    "executable": {
+      "path": ".tmp/stage18/macos-full-01/build/edited.app/Contents/MacOS/Kitu Endless Arena",
+      "bytes": 35172,
+      "sha256": "9594019896fadad8c21a553eceb6f95572a3e8c097341fb0e18e6344636e54c0"
+    },
+    "plugin": {
+      "bytes": 30444992,
+      "sha256": "0e684dd67200b2f52c279e7ffeb5ca6f29ae64403a599936e0c3fac1826ad9ca",
+      "unsignedSha256": "376862f55d8dc284b87a7762794f65c198ea7d9406a551b4dcc9d7ee6b3c123b",
+      "architecture": "arm64",
+      "installName": "@rpath/libkitu_demo_game_native.dylib",
+      "signatureVerified": true
+    },
+    "renderedCheckpointNames": [
+      "bundled-boss.png",
+      "bundled-floor.png",
+      "bundled-weapon.png"
+    ],
+    "pixelEqualityClaimed": false,
+    "initialExpected": {
+      "path": ".tmp/stage18/macos-full-01/packaged-oracle/bundled-edited.initial.json",
+      "bytes": 13646,
+      "sha256": "ab89128f3c36f03c27c0ff7895a7874bb4c3e1bd8803cedcf337ac179728c49b"
+    }
+  },
+  "correction": "Forward and require the detached initial oracle before launching bundled-edited. A new complete attempt is required; the targeted pass does not relabel full-01.",
+  "generatedFileCleanup": {
+    "sourceReport": {
+      "path": ".tmp/stage18/cleanup-generated/result.json",
+      "bytes": 843,
+      "sha256": "4ac31467b9e5dbe5cefe4c680c9410dab4a88357899d5e5f951b4556717e8b79"
+    },
+    "status": "completed",
+    "preservedCopyBeforeRemoval": true,
+    "files": [
+      {
+        "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/AddressableAssetsData/link.xml",
+        "bytes": 1264,
+        "sha256": "e99466a59e2c1b6560de595cc59a2f3496872fb3b0e4fbcc01b8b4fc50d577f4",
+        "reason": "Generated by the owned Stage18 Unity build; absent at the clean preflight and not covered by the first coordinator allowlist."
+      },
+      {
+        "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/AddressableAssetsData/link.xml.meta",
+        "bytes": 158,
+        "sha256": "68c2a968a4dbf53860c5a7ad3fed29b05257b12ba780ab9231578a42f6940eb4",
+        "reason": "Generated by the owned Stage18 Unity build; absent at the clean preflight and not covered by the first coordinator allowlist."
+      }
+    ]
+  },
+  "cleanupExplanation": "The initial allowlist omitted generated Addressables link.xml/meta. The captured files were retained before removal; the final coordinator preserves/restores their prior state.",
+  "fixedSourceCommit": "7db01caeaa98e6ed353fc4b2aa9526e4c8704b0b"
+}

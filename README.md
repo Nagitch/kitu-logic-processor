@@ -50,7 +50,7 @@ Implementation status:
 - The macOS Unity standalone embeds the complete Arena native library and runs without an external Kitu server. Its optional loopback bridge connects CLI and Admin to that same Runtime. See the [build instructions](kitu-integration-runner/unity-demo-game/README.md#reproduce-the-embedded-macos-build), [host contract](doc/specs/arena-embedded-host.md) and [graphical verification](doc/verification/arena-embedded/README.md).
 - Arena loads its material and primitive prefabs through local Addressables and initializes native game rules from the Tanu, Rhai and TSQ1 sources bundled with its macOS Player. A versioned package manifest binds those sources to the visual keys; missing or invalid content fails before gameplay. [Package contract](doc/specs/arena-packaged-content.md) and [relocated Player verification](doc/verification/arena-content/README.md).
 - [Arena Inspector](doc/specs/arena-inspection.md) combines game state, entities, minimap, events, presentation cues and host timing from one verified server or embedded Runtime snapshot. Exact replay step/seek and visibly stale error handling preserve the observation context. [Stage 17 verification](doc/verification/arena-inspection/README.md).
-- [The delivery matrix](doc/verification/arena-delivery/README.md) links all 18 stages to their Issues, contracts and evidence. Stages 1–17 are merged; Stage 18 build/CI verification and merge are in progress. Historical evidence retains its capture-time status.
+- [The delivery matrix](doc/verification/arena-delivery/README.md) links all 18 stages to their Issues, contracts and evidence. All 18 implementations and local verification are complete in this tree; stages 1–17 are merged. Stage 18 publication awaits approval after automatic review rejected its GitHub push. Historical evidence retains its capture-time status.
 - The sections below describe the delivered Arena reference and explicitly marked framework expansion. Production remote operations, multiplayer and CDN delivery remain outside this implementation.
 - For the current implemented/partial/staged breakdown, use [doc/architecture.md](doc/architecture.md#current-implementation-staging).
 - For the rationale and tradeoffs behind accepted cross-cutting choices, use
@@ -286,9 +286,13 @@ verification requires the pinned licensed Editor and a graphical session; an
 unavailable environment is reported separately from passed checks.
 
 The [18-stage delivery matrix](doc/verification/arena-delivery/README.md) links
-actual Issues, merged PRs, contracts and compact evidence. Stage 18 final checks
-and merge remain pending. Large recordings, binaries and unapproved screenshots
-remain local artifacts, with hashes retained in the verification reports.
+actual Issues, merged PRs, contracts and compact evidence. All required local
+checks passed, including the complete macOS coordinator and both server and
+embedded Player Admin flows. Stage 18 GitHub publication awaits user approval
+after automatic approval review rejected its push; no Stage 18 PR, CI run,
+review, merge or parent reference update is claimed. Large recordings, binaries
+and unapproved screenshots remain local artifacts, with hashes retained in the
+verification reports.
 
 
 ## Deployment & Distribution

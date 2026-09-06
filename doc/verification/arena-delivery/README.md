@@ -1,10 +1,15 @@
 # Endless Arena delivery status
 
 The approved [roadmap #129](https://github.com/Nagitch/kitu-logic-processor/issues/129)
-has **stages 1–17 merged**. Stage 18 is in progress in
-[Issue 164](https://github.com/Nagitch/kitu-logic-processor/issues/164); its final
-checks, PR, review, merge and workspace reference update are pending.
-The [machine-readable matrix](stages.json) retains exact merge identities.
+has **all 18 implementations and required local checks complete in this tree**,
+with **stages 1–17 merged**. Stage 18 is tracked in
+[Issue 164](https://github.com/Nagitch/kitu-logic-processor/issues/164). Automatic
+approval review rejected its GitHub push, and explicit user approval is pending.
+No Stage 18 PR has been created; CI, review, merge and the parent reference
+update have not run. The parent update is tracked in
+[workspace Issue 40](https://github.com/Nagitch/kitu-workspace/issues/40).
+The [machine-readable matrix](stages.json) retains exact historical merge
+identities and separates local completion from publication.
 
 Earlier verification pages are historical captures. A page saying “PR/CI pending”
 records the state when its artifacts were captured, even if that stage has since
@@ -33,7 +38,7 @@ for a current verification run.
 | 15 | JSON, MessagePack and compatibility | [#158](https://github.com/Nagitch/kitu-logic-processor/issues/158) / [PR 159](https://github.com/Nagitch/kitu-logic-processor/pull/159) | [Specification](../../specs/arena-application-wire.md) | [Record](../arena-wire/README.md) |
 | 16 | Addressables and bundled content | [#160](https://github.com/Nagitch/kitu-logic-processor/issues/160) / [PR 161](https://github.com/Nagitch/kitu-logic-processor/pull/161) | [Specification](../../specs/arena-packaged-content.md) | [Record](../arena-content/README.md) |
 | 17 | Coherent Admin inspection | [#162](https://github.com/Nagitch/kitu-logic-processor/issues/162) / [PR 163](https://github.com/Nagitch/kitu-logic-processor/pull/163) | [Specification](../../specs/arena-inspection.md) | [Record](../arena-inspection/README.md) |
-| 18 | Reproducible builds, CI and delivery status | [#164](https://github.com/Nagitch/kitu-logic-processor/issues/164) / PR pending | [Specification](../../specs/arena-build-verification.md) | [Record](../arena-delivery/README.md) |
+| 18 | Reproducible builds, CI and delivery status | [#164](https://github.com/Nagitch/kitu-logic-processor/issues/164) / publication awaiting approval | [Specification](../../specs/arena-build-verification.md) | [Record](results.json) |
 
 The latest merged parent workspace reference is
 [PR 39](https://github.com/Nagitch/kitu-workspace/pull/39), which includes Kitu
@@ -80,15 +85,63 @@ the authoritative Arena rules.
 
 | Required completion | Status |
 | --- | --- |
-| Shared repository checks: reference, Rust, frontend/WASM and data | Pending |
-| macOS native tests, C caller, library and source-package proof | Pending |
-| Licensed Unity tests and graphical default/edited Player proof | Pending |
-| Final CI, review and Kitu PR merge | Pending |
-| Parent workspace reference update | Pending |
+| Shared repository checks | Passed: 360 Rust tests/doctests across 58 suites, reference/fmt/Clippy/rustdoc, 19 frontend cases and full WASM/Vite build |
+| Final data/coordinator regression scope | Passed separately: 65 portable Python cases and actual Rust/C ABI package interoperability |
+| Dev Container and workspace build | Actual image/setup and locked workspace build passed; Git LFS prerequisite verified |
+| Complete macOS coordinator | Fresh `macos-full-02` passed all 18 required steps, with cleanup passed and no unexpected changes |
+| Native C ABI and Unity | 29 native cases including doctests; four C traces; 143 EditMode, 31 MessagePack and seven JSON PlayMode cases; 11 codec export pairs and coherent inspection checks passed |
+| Graphical standalone and content | Four default scenarios passed 9,186 ticks / 9,257 inputs; edited bundled source passed 1,800 ticks / 1,816 inputs with the initial oracle. Relocation, authoring preservation and six invalid-content starts passed |
+| Actual Admin browser | Server and relocated embedded Player each passed all 15 flow checks with no page errors |
+| Retained execution identities and cleanup | Eight archived artifacts and two signed Players verified; owned processes stopped and ports released |
+| GitHub push, CI, review and Kitu PR merge | Push awaits user approval after automatic approval review rejected it; no Stage 18 PR, CI run, review or merge |
+| Parent workspace reference update | Not performed; tracked in workspace Issue 40 |
 
-Final reports will be linked here after execution. Build output, full state and
-trace files, recordings, runtime archives and PNGs remain local ignored artifacts;
-compact reports retain commands, counts, versions and hashes.
+[results.json](results.json) separates completed local checks from pending
+publication. [repository.json](repository.json) retains exact commands, counts
+and source/lock/log identities. The full Dev Container attempt ran from
+`cc75f9320fd5160598a94c55e0ffef4721049f84` with 61 Python cases; the later data
+scope ran from clean `7db01caeaa98e6ed353fc4b2aa9526e4c8704b0b` with 65. The
+final scope includes the corrected coordinator regressions and package interop;
+these repeated focused cases are not added to the 360 unique workspace total.
+Tests use `--locked --workspace`, while Clippy and Stage 18 rustdoc include all
+features. Frontend evidence includes the WASM prebuild, not only Vite.
+
+[environment.json](environment.json) records the actual Dev Container image and
+setup. The first existing container lacked Git LFS filters and reported a
+hydrated PNG as dirty. Its 24,069 bytes already matched the committed LFS object
+SHA-256; no image repair was needed. Installing Git LFS and configuring local
+filters resolved that environment discrepancy. The first report's dirty flag
+is retained rather than rewritten as a clean run.
+
+[attempts.json](attempts.json) preserves the failed `macos-full-01` and the
+successful targeted follow-up. The coordinator omitted the existing
+`--arena-initial-expected` argument for the edited initial-package scenario.
+Passing the required detached initial oracle allowed the actual Player to verify
+all 1,800 ticks and 1,816 inputs, with the same signed native library. This does
+not relabel the failed complete attempt. The first build also generated
+Addressables `link.xml`/metadata outside its initial cleanup allowlist; retained
+copies and the later preservation/restoration fix are recorded separately.
+
+[macos.json](macos.json) records the successful complete `macos-full-02` from
+clean `7db01caeaa98e6ed353fc4b2aa9526e4c8704b0b`. It retains the native, Unity,
+C caller, standalone, content and cleanup results, including the exact package,
+Player and signed library identities. The default and edited Players use the
+same signed native library; only the bundled sources select the edited initial
+values. The failed first attempt remains distinct in [attempts.json](attempts.json).
+
+[browser.json](browser.json) records both actual Admin flows: complete displayed
+state, cue/entity inspection, forward/backward replay, step, Play to EOF, pause,
+Stop, return-live, stale/reconnect and 390px layout all passed without page errors.
+The embedded flow used the relocated Player, with the external Arena WebSocket
+override removed; its executable identity is retained.
+[runtime-archive.json](runtime-archive.json) records eight retained artifacts and
+two signed Players under the ignored `stage18-c6b392508f27` archive.
+[cleanup.json](cleanup.json) records the stopped task-owned processes and released
+ports. Recordings retain their original IDs and execution metadata.
+
+Build output, full state and trace files, recordings, runtime archives and PNGs
+remain local ignored artifacts. Compact reports retain commands, counts, versions
+and hashes; this stage publishes no screenshots.
 
 ## Limits and later work
 
@@ -103,5 +156,7 @@ are outside this delivery. The embedded development bridge is local tooling,
 not a deployed authenticated service. Local Addressables and reproducible build
 artifacts do not imply CDN publishing or release signing/notarization.
 
-No in-scope feature has been deferred as structurally impossible. The remaining
-Stage 18 checks and merge are pending work, not impossibility claims.
+No in-scope feature has been deferred as structurally impossible. Implementation
+and required local verification are complete. The remaining publication, CI,
+review, merge and parent reference update depend on resolving the GitHub push
+approval blocker; they are not structural impossibility claims.

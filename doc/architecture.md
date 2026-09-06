@@ -51,7 +51,7 @@ Status terms in this section are used as follows:
 
 ### Endless Arena reference application
 
-status: stages 1–17 implemented and merged; stage 18 verification/CI delivery in progress
+status: all 18 implementations and local checks complete; stages 1–17 merged; stage 18 publication awaiting approval
 
 The [delivery matrix](verification/arena-delivery/README.md) links each stage's
 actual Issue, merged PR, contract and evidence. Earlier reports retain their
@@ -120,7 +120,9 @@ state, OSC and recording proofs. See the
 [verification record](verification/arena-inspection/README.md).
 
 Stage 18 connects repository and macOS verification entry points and records
-their final delivery status. Its own execution, CI and merge remain pending.
+their delivery status. Its complete local execution passed. Automatic approval
+review rejected the GitHub push, so publication awaits user approval; Stage 18
+PR creation, CI, review, merge and the parent reference update have not run.
 Native macOS checks require Apple SDK tools; full Unity/Player verification also
 requires the licensed pinned Editor and a graphical session. This environment
 requirement does not make the embedded implementation structurally unavailable.
@@ -193,7 +195,7 @@ exists:
 - core specs, CI, and architecture docs exist
 - GitHub Issue based work tracking exists
 - the Arena delivery matrix connects all 18 stages to contracts and evidence,
-  with verified merges distinguished from pending execution and publication
+  with verified local execution and merges distinguished from pending publication
 
 missing:
 - continued synchronization as framework work beyond Arena changes the public

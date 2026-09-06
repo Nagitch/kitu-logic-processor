@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "stage": 18,
+  "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/164",
+  "implementationStatus": "implemented_in_this_tree",
+  "status": "local_checks_complete",
+  "checks": {
+    "repository": "passed",
+    "finalData": "passed",
+    "devContainer": "passed",
+    "workspaceBuild": "passed",
+    "macosFull": "passed",
+    "serverBrowser": "passed",
+    "embeddedPlayerBrowser": "passed",
+    "runtimeArchive": "recorded"
+  },
+  "publication": {
+    "status": "awaiting_user_approval",
+    "action": "GitHub push of the Stage18 branch",
+    "reason": "Automatic approval review rejected the push. Explicit user approval is pending; no Stage18 PR has been created.",
+    "pullRequest": null,
+    "ci": "not_run",
+    "review": "not_run",
+    "childMerge": "not_performed",
+    "workspaceIssue": "https://github.com/Nagitch/kitu-workspace/issues/40",
+    "workspaceReference": "not_performed"
+  },
+  "reports": [
+    "repository.json",
+    "environment.json",
+    "attempts.json",
+    "macos.json",
+    "browser.json",
+    "runtime-archive.json",
+    "cleanup.json"
+  ],
+  "evidencePolicy": "Counts and hashes refer to the named captured attempt. Failed attempts are preserved. No PNGs, raw state/traces, recordings or binaries are published by this generator."
+}

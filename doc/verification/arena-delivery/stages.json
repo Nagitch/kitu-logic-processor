@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roadmap": "https://github.com/Nagitch/kitu-logic-processor/issues/129",
-  "status": "in_progress",
+  "status": "local_checks_complete_publication_awaiting_approval",
   "historySource": "Live GitHub roadmap and merged develop pull requests, read during Stage 18 preparation.",
   "historicalEvidencePolicy": "Stage reports preserve their capture-time check and pending states. This matrix records subsequently verified merges; it does not relabel earlier measurements as a current run.",
   "workspaceReference": {
@@ -252,27 +252,48 @@
     {
       "stage": 18,
       "name": "Reproducible builds, CI and delivery status",
-      "status": "in_progress",
+      "status": "implemented",
       "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/164",
       "pullRequest": null,
-      "mergeCommit": null,
-      "mergedAt": null,
       "contract": "doc/specs/arena-build-verification.md",
       "evidence": [
-        "doc/verification/arena-delivery/README.md"
+        "doc/verification/arena-delivery/README.md",
+        "doc/verification/arena-delivery/results.json"
       ],
-      "scope": "Shared repository checks and macOS native/full verification orchestration."
+      "scope": "Shared repository checks and macOS native/full verification orchestration.",
+      "verificationStatus": "local_checks_complete",
+      "publicationStatus": "awaiting_user_approval"
     }
   ],
   "stage18": {
-    "repositoryChecks": "pending",
-    "nativeChecks": "pending",
-    "licensedUnityAndPlayerChecks": "pending",
-    "ci": "pending",
-    "review": "pending",
-    "childMerge": "pending",
-    "workspaceReference": "pending",
-    "reports": []
+    "implementationStatus": "implemented_in_this_tree",
+    "repositoryChecks": "passed",
+    "nativeChecks": "passed",
+    "licensedUnityAndPlayerChecks": "passed",
+    "serverBrowser": "passed",
+    "embeddedPlayerBrowser": "passed",
+    "runtimeArchive": "recorded",
+    "publication": {
+      "status": "awaiting_user_approval",
+      "action": "GitHub push of the Stage18 branch",
+      "reason": "Automatic approval review rejected the push. Explicit user approval is pending; no Stage18 PR has been created.",
+      "pullRequest": null,
+      "ci": "not_run",
+      "review": "not_run",
+      "childMerge": "not_performed",
+      "workspaceIssue": "https://github.com/Nagitch/kitu-workspace/issues/40",
+      "workspaceReference": "not_performed"
+    },
+    "reports": [
+      "doc/verification/arena-delivery/results.json",
+      "doc/verification/arena-delivery/repository.json",
+      "doc/verification/arena-delivery/environment.json",
+      "doc/verification/arena-delivery/attempts.json",
+      "doc/verification/arena-delivery/macos.json",
+      "doc/verification/arena-delivery/browser.json",
+      "doc/verification/arena-delivery/runtime-archive.json",
+      "doc/verification/arena-delivery/cleanup.json"
+    ]
   },
   "outOfScope": [
     "Windows",

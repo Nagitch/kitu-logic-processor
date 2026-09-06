@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "sourceReport": {
+    "path": ".tmp/stage18/runtime-archive.json",
+    "bytes": 9019,
+    "sha256": "5b6d364c6d91d74ecf71271c1cdce534b6d5e6580919ef448905b5273e2d3686"
+  },
+  "archive": {
+    "stage": 18,
+    "directory": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27",
+    "sourceAtMacVerification": {
+      "commit": "7db01caeaa98e6ed353fc4b2aa9526e4c8704b0b",
+      "dirty": false,
+      "dirtyFiles": [],
+      "inputs": [
+        {
+          "path": "Cargo.lock",
+          "bytes": 61830,
+          "sha256": "7d78bd87d2f659e3bdda9d449ad274a482cf1a46a1d813007c12ba0ceaac41a2"
+        },
+        {
+          "path": "rust-toolchain.toml",
+          "bytes": 86,
+          "sha256": "fa0addad5676243d360310f981a69528b0341d295cb5012253d9721aba4d30c0"
+        },
+        {
+          "path": "tools/arena-verification-cases.json",
+          "bytes": 20918,
+          "sha256": "e043ea350d5a8de1d82f9a8c02483367e01a82440ab770de2604660d749c8dba"
+        },
+        {
+          "path": "tools/kitu-web-admin/frontend/pnpm-lock.yaml",
+          "bytes": 100636,
+          "sha256": "2cbdde6305d3fcb40e56b04f6b2a83b2798c467a967a1d9f894977915332706e"
+        },
+        {
+          "path": "tools/kitu-web-admin/frontend/package.json",
+          "bytes": 1520,
+          "sha256": "22d784989bb95fe65aa6123652099aca338b452a79a85b35d22fe1d48d7cf143"
+        },
+        {
+          "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Packages/manifest.json",
+          "bytes": 2304,
+          "sha256": "3424d1efaa8b3bf4ca2000e8d95d316789283d596684ecb6141df821a1be9452"
+        },
+        {
+          "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Packages/packages-lock.json",
+          "bytes": 14894,
+          "sha256": "e3dd6ef954bd25edd37a34502aac9f087869f858951d2911c0ae16647b375a41"
+        },
+        {
+          "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/ProjectSettings/ProjectVersion.txt",
+          "bytes": 83,
+          "sha256": "39584c3e6c1e571d53a79ef2dd6ea91c0568ac086792cc435e86401a0ba824ed"
+        }
+      ]
+    },
+    "sourceAtRepositoryVerification": {
+      "commit": "cc75f9320fd5160598a94c55e0ffef4721049f84",
+      "dirty": true,
+      "dirtyFiles": [
+        {
+          "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/TutorialInfo/Icons/URP.png",
+          "artifact": {
+            "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/TutorialInfo/Icons/URP.png",
+            "bytes": 24069,
+            "sha256": "1d17a9ff3537859abe2c008603d29d90cf43191ae77aa386167cc65e53ba03d9"
+          }
+        }
+      ],
+      "locks": [
+        {
+          "path": "Cargo.lock",
+          "bytes": 61830,
+          "sha256": "7d78bd87d2f659e3bdda9d449ad274a482cf1a46a1d813007c12ba0ceaac41a2"
+        },
+        {
+          "path": "rust-toolchain.toml",
+          "bytes": 86,
+          "sha256": "fa0addad5676243d360310f981a69528b0341d295cb5012253d9721aba4d30c0"
+        },
+        {
+          "path": "tools/kitu-web-admin/frontend/pnpm-lock.yaml",
+          "bytes": 100636,
+          "sha256": "2cbdde6305d3fcb40e56b04f6b2a83b2798c467a967a1d9f894977915332706e"
+        },
+        {
+          "path": "tools/kitu-web-admin/frontend/package.json",
+          "bytes": 1520,
+          "sha256": "22d784989bb95fe65aa6123652099aca338b452a79a85b35d22fe1d48d7cf143"
+        }
+      ]
+    },
+    "execution": {
+      "package": "0.1.0",
+      "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+      "target": "aarch64-apple-darwin"
+    },
+    "artifacts": [
+      {
+        "source": "target/debug/kitu-demo-game-admin-host",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/linux/kitu-demo-game-admin-host",
+        "sha256": "c6b392508f27c875e003f22b1eacf80616562302d90570543d642ca5219e70ef",
+        "bytes": 160953664
+      },
+      {
+        "source": "target/debug/kitu-cli",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/linux/kitu-cli",
+        "sha256": "b70308648aa7aef09d7b75dcacc18d357d3611422d480db1114d832b05d0bd08",
+        "bytes": 15335776
+      },
+      {
+        "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/kitu-demo-game-admin-host",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/macos/kitu-demo-game-admin-host",
+        "sha256": "07f1b6f1dc5c971319e05c069ecf6ea6401484ecb49ca8ab91a690fe2487b3eb",
+        "bytes": 35923312
+      },
+      {
+        "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/kitu-cli",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/macos/kitu-cli",
+        "sha256": "a449dac5c4fafe0c1791e50d56715258ea37fd920245d0fd32eb36b67eb7d052",
+        "bytes": 2872256
+      },
+      {
+        "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/macos/libkitu_demo_game_native.dylib",
+        "sha256": "386bad99afcecaf3dccdb24f7c4ce0afb0d843887f0727f24daee766c3ba503b",
+        "bytes": 30604768
+      },
+      {
+        "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.a",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/macos/libkitu_demo_game_native.a",
+        "sha256": "cf2f23cc5fc13d6b09526397a2f195a31b7b28827b8bb71ff8676c6ce9fe0d30",
+        "bytes": 94220296
+      },
+      {
+        "source": ".tmp/stage18/macos-full-02/replay/stock-eleven-death-retry.tsq",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/recordings/stock-eleven-death-retry.tsq",
+        "sha256": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d",
+        "bytes": 2684925
+      },
+      {
+        "source": ".tmp/stage18/macos-full-02/packaged-oracle/bundled-edited.tsq",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/recordings/bundled-edited.tsq",
+        "sha256": "c576e2505224d054c9940d5afc2da44ff25f15cb1ba85dcf7cade44be1e20910",
+        "bytes": 880613
+      }
+    ],
+    "players": [
+      {
+        "name": "default",
+        "source": ".tmp/stage18/macos-full-02/build/default.app",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/default/KituEndlessArena.app",
+        "files": 343,
+        "manifestSha256": "c6f6595d98aa5ce0353972e02f0ab4a44dabd26e9384db97a1740e5051302af5",
+        "signatureVerified": true,
+        "nativeLibrary": "0e684dd67200b2f52c279e7ffeb5ca6f29ae64403a599936e0c3fac1826ad9ca",
+        "packageHash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5"
+      },
+      {
+        "name": "edited",
+        "source": ".tmp/stage18/macos-full-02/build/edited.app",
+        "archive": "apps/demo-game/.arena/runtime-versions/stage18-c6b392508f27/edited/KituEndlessArena.app",
+        "files": 343,
+        "manifestSha256": "766b5631287af3be3d20aed83b4a97f21139c89a5baaec8c12f222032f66f17e",
+        "signatureVerified": true,
+        "nativeLibrary": "0e684dd67200b2f52c279e7ffeb5ca6f29ae64403a599936e0c3fac1826ad9ca",
+        "packageHash": "691a7653e9be54cb77c84dfb20d2fa941be705e5fa54b79f43b3021c48390f33"
+      }
+    ],
+    "purpose": "Retain exact executed runtimes, CLI, packages and Players for saved recordings; existing variant directories are never overwritten."
+  }
+}
