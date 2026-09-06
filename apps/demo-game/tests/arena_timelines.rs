@@ -28,6 +28,83 @@ fn capture(runtime: &mut kitu_demo_game::DemoRuntime, recorder: &mut Recorder) -
     recorder.capture(runtime, &outputs).unwrap();
     outputs
 }
+
+fn output_json(outputs: &[OscBundle], address: &str) -> Value {
+    let messages = outputs
+        .iter()
+        .flat_map(|bundle| &bundle.messages)
+        .filter(|message| message.address == address)
+        .collect::<Vec<_>>();
+    assert_eq!(messages.len(), 1, "one committed snapshot for {address}");
+    let [OscArg::Str(value)] = messages[0].args.as_slice() else {
+        panic!("JSON snapshot for {address}");
+    };
+    serde_json::from_str(value).unwrap()
+}
+
+fn assert_committed_timeline(
+    runtime: &kitu_demo_game::DemoRuntime,
+    outputs: &[OscBundle],
+) -> Value {
+    let timeline = output_json(outputs, "/ui/arena/timeline");
+    let presentation = output_json(outputs, "/render/arena/presentation");
+    let state = output_json(outputs, "/ui/arena/state");
+    assert_eq!(timeline["presentation"], presentation);
+    assert_eq!(presentation["tick"], state["tick"]);
+    assert_eq!(presentation["simulationStep"], state["simulationSteps"]);
+    assert_eq!(
+        timeline,
+        output_json(&runtime.inspect_application(), "/ui/arena/timeline")
+    );
+    timeline
+}
+
+#[test]
+fn start_emits_timeline_after_the_first_successful_simulation_step() {
+    let mut runtime = build_arena_runtime().unwrap();
+    support::send(&mut runtime, "unity", 1, "/input/arena/start", vec![]);
+    runtime.tick_once().unwrap();
+    let outputs = runtime.drain_output_buffer();
+    let state = output_json(&outputs, "/ui/arena/state");
+    assert_eq!(state["tick"], 0);
+    assert_eq!(state["simulationSteps"], 1);
+    assert_committed_timeline(&runtime, &outputs);
+}
+
+#[test]
+fn live_stage_emits_timeline_after_advancing_an_active_cue() {
+    let mut recorder = Recorder::new(&build_arena_runtime().unwrap()).unwrap();
+    support::replay_reference_observing_ticks(
+        "stock-eleven-death-retry",
+        197,
+        |_| {},
+        |runtime, outputs| recorder.capture(runtime, outputs).unwrap(),
+    );
+    let session = Session::decode(&recorder.encode().unwrap()).unwrap();
+    let mut runtime = session.runtime().unwrap();
+    for _ in 0..session.manifest().ticks {
+        session.tick(&mut runtime).unwrap();
+    }
+    let before = arena::inspect_timeline(&runtime).unwrap();
+    assert_eq!(support::projection(&runtime)["overlay"], "none");
+    assert_eq!(before.presentation.floor.as_ref().unwrap().offset_tick, 11);
+    let candidate = edited(4.5);
+    arena::stage_timeline(&mut runtime, candidate.clone(), 1).unwrap();
+    runtime.tick_once().unwrap();
+    let outputs = runtime.drain_output_buffer();
+    let timeline = assert_committed_timeline(&runtime, &outputs);
+    assert_eq!(timeline["pending"]["hash"], candidate.hash);
+    assert_eq!(
+        timeline["active"]["hash"],
+        before.active.as_ref().unwrap().hash
+    );
+    assert_eq!(timeline["presentation"]["floor"]["offsetTick"], 12);
+    assert_eq!(
+        timeline["presentation"]["simulationStep"],
+        before.presentation.simulation_step + 1
+    );
+}
+
 #[test]
 fn next_run_adoption_duplicate_stale_and_invalid_candidates_keep_valid_versions() {
     let mut runtime = build_arena_runtime().unwrap();

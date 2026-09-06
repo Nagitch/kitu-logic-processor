@@ -87,7 +87,10 @@ New presentation events are emitted after the original game events, preserving
 their original order fields. `/ui/arena/timeline/event` identifies the run, tick,
 order, cue, clip, offset and start/event/stop operation. Applied events retain the
 track/event indices and exact typed OSC bundle. `/ui/arena/timeline` publishes
-detached versions on adoption/staging/inspection.
+detached versions on adoption/staging/inspection. An update requested by accepted
+start/stage inputs is coalesced into one complete snapshot after that tick
+finishes advancing presentation. Individual input receipts and recorded source
+versions remain distinct.
 
 `/render/arena/presentation` is a compact complete snapshot after `/ui/arena/state`:
 contract version, run, management tick, simulation step, boss cues and optional

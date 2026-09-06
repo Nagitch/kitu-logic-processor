@@ -711,7 +711,7 @@ impl RuntimeApplication for ArenaApplication {
         let mut output = OscBundle::new();
         let tick = context.tick.get() as i64;
         let mut timeline_events = Vec::new();
-        let mut timeline_updates = Vec::new();
+        let mut timeline_update_required = false;
         session
             .presentation
             .synchronize(session.run_number, &session.state, tick);
@@ -813,7 +813,7 @@ impl RuntimeApplication for ArenaApplication {
                             .synchronize(session.run_number, &session.state, tick);
                     }
                     if code == "ok" && (starting || staging_timeline) {
-                        timeline_updates.push(timeline_snapshot(session));
+                        timeline_update_required = true;
                     }
                     if code == "ok" && (starting || staging) {
                         let content = content_snapshot(session);
@@ -913,8 +913,13 @@ impl RuntimeApplication for ArenaApplication {
                 &mut timeline_events,
             );
         }
-        for snapshot in timeline_updates {
-            output.push(json_message("/ui/arena/timeline", &snapshot));
+        if timeline_update_required {
+            // Publish the committed tick, including due cue events, rather than
+            // the intermediate state observed while applying input commands.
+            output.push(json_message(
+                "/ui/arena/timeline",
+                &timeline_snapshot(session),
+            ));
         }
         for mut event in timeline_events {
             event["tick"] = tick.into();
