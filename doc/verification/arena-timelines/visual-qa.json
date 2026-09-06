@@ -1,0 +1,282 @@
+{
+  "verifiedAtUtc": "2026-09-06T12:49:03.922974+00:00",
+  "method": "Final-build direct view_image re-inspection of all15 refreshed original local PNGs; fresh report/artifact hash verification and independent current-trace pause/48/96tick verification; no image modification or upload.",
+  "pass": true,
+  "findings": [],
+  "scenarios": [
+    {
+      "scenario": "preparation",
+      "verifiedAtUtc": "2026-09-06T12:46:14.972057+00:00",
+      "ticks": 28,
+      "inputs": 40,
+      "reportPath": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-preparation/player-verification.json",
+      "reportSha256": "5cf91c19a6d18d84fa8558aa13a323b603a0338b44e3865ff80323a1d0efc8b4",
+      "executableSha256": "25dd1bffd76f3849c8834f775c4248b3c9eaf9a66e53d3d7aeadb0faff0dbb65",
+      "pluginSha256": "e605eda65317b3d3fef8888758c3232ac557b7d4cef281a4fea6ef9a5fd0db3a",
+      "traceSha256": "2c764a254771e919c33ca8093322c31093d547443b2c942b061bb9f8072d5362",
+      "actualSha256": "7757787be54fe109a2d4a02b8692c9b8528355a78850f9c9c90d6b7ccc7cdf8b",
+      "stateAndOutput": "exact match",
+      "timelineSources": {
+        "hash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+        "clips": [
+          {
+            "id": "boss-telegraph",
+            "sourceSha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+          },
+          {
+            "id": "floor-transition",
+            "sourceSha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+          }
+        ]
+      },
+      "sessionId": "3191-1788698773644571000"
+    },
+    {
+      "scenario": "stock-eleven-death-retry",
+      "verifiedAtUtc": "2026-09-06T12:46:53.304410+00:00",
+      "ticks": 5528,
+      "inputs": 5581,
+      "reportPath": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-stock/player-verification.json",
+      "reportSha256": "62901864dc2969e3e75f48767e1588531dbc2182101947ea611cc9883e563488",
+      "executableSha256": "25dd1bffd76f3849c8834f775c4248b3c9eaf9a66e53d3d7aeadb0faff0dbb65",
+      "pluginSha256": "e605eda65317b3d3fef8888758c3232ac557b7d4cef281a4fea6ef9a5fd0db3a",
+      "traceSha256": "0b14c384ac29e986a51cde1b5c206fc3844472b5dd50fec1793b713ad262d1f8",
+      "actualSha256": "b0e34ed635fd717bf0b3fad7450606d9468f19f495392f54a2aee3cd819c94d5",
+      "stateAndOutput": "exact match",
+      "timelineSources": {
+        "hash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+        "clips": [
+          {
+            "id": "boss-telegraph",
+            "sourceSha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+          },
+          {
+            "id": "floor-transition",
+            "sourceSha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+          }
+        ]
+      },
+      "firstBossCueSpan": {
+        "firstTick": 1625,
+        "lastTick": 1672,
+        "managementTicks": 48,
+        "lastOffsetTick": 47
+      },
+      "sessionId": "3214-1788698778177751000"
+    },
+    {
+      "scenario": "rhai-boss",
+      "verifiedAtUtc": "2026-09-06T12:47:08.619666+00:00",
+      "ticks": 1800,
+      "inputs": 1817,
+      "reportPath": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-script/player-verification.json",
+      "reportSha256": "c8551fc21b3a8694c5ff34b57b5f7942be1cdb4ec483c965b3fbfa545718faa3",
+      "executableSha256": "25dd1bffd76f3849c8834f775c4248b3c9eaf9a66e53d3d7aeadb0faff0dbb65",
+      "pluginSha256": "e605eda65317b3d3fef8888758c3232ac557b7d4cef281a4fea6ef9a5fd0db3a",
+      "traceSha256": "810b0b3c2adb76b58dbedf065c98cc188e4803e8cb30128db2c4540194c20aee",
+      "actualSha256": "997b951b4a4b78178346fa909c65dd4b5fc3b142c9aed1d9f4d1ec5f6ce9744d",
+      "stateAndOutput": "exact match",
+      "timelineSources": {
+        "hash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+        "clips": [
+          {
+            "id": "boss-telegraph",
+            "sourceSha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+          },
+          {
+            "id": "floor-transition",
+            "sourceSha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+          }
+        ]
+      },
+      "firstBossCueSpan": {
+        "firstTick": 1625,
+        "lastTick": 1720,
+        "managementTicks": 96,
+        "lastOffsetTick": 95
+      },
+      "sessionId": "3286-1788698816749420000"
+    },
+    {
+      "scenario": "timeline-cues",
+      "verifiedAtUtc": "2026-09-06T12:47:24.155028+00:00",
+      "ticks": 1830,
+      "inputs": 1819,
+      "reportPath": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-timeline/player-verification.json",
+      "reportSha256": "fc94d5c231e35e101850eba4910bbd2a9129ff87c74b5eca0f618ed64162e7cd",
+      "executableSha256": "25dd1bffd76f3849c8834f775c4248b3c9eaf9a66e53d3d7aeadb0faff0dbb65",
+      "pluginSha256": "e605eda65317b3d3fef8888758c3232ac557b7d4cef281a4fea6ef9a5fd0db3a",
+      "traceSha256": "3e10813b369cdcdcac93ba36a833a0f6124d7f2e0a6eb91f0c52542790331837",
+      "actualSha256": "e5d61c22455a8c214e2f990df77f03e23abb0db1e5b77b1b59208437a77479df",
+      "stateAndOutput": "exact match",
+      "timelineSources": {
+        "hash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+        "clips": [
+          {
+            "id": "boss-telegraph",
+            "sourceSha256": "a470838cf9f2ac0b752b97bd95d6038f8bc237673238f88e9fd0620f93202b62"
+          },
+          {
+            "id": "floor-transition",
+            "sourceSha256": "c1df5a5518de803b5fab01e032594e024a7ef103d74301b042343ef76a0a539c"
+          }
+        ]
+      },
+      "firstBossCueSpan": {
+        "firstTick": 1625,
+        "lastTick": 1702,
+        "managementTicks": 78,
+        "lastOffsetTick": 47
+      },
+      "pauseProof": {
+        "firstTick": 1650,
+        "lastTick": 1679,
+        "count": 30,
+        "simulationStep": 1636,
+        "cueId": "r1:c6",
+        "offsetTick": 24,
+        "radius": 4.5,
+        "intensity": 1.0,
+        "completeCueAndSimulationStepEqual": true,
+        "resumeTick": 1680,
+        "resumeOffsetTick": 25
+      },
+      "editedFloorProof": {
+        "tick": 197,
+        "offsetTick": 12,
+        "opacity": 0.85
+      },
+      "sessionId": "3323-1788698831822366000"
+    }
+  ],
+  "images": [
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-preparation/inventory.png",
+      "sha256": "27e19d33d1595fabc836277acb3d0c02516addb79923ec9ef3e74e9278371a04",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick1,0F Preparing,HP100/100,starter Blade20damage/0.5s,three empty backpack slots and empty other equipment; inventory labels and controls are legible and unclipped; player/chest/portal visible."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-stock/boss.png",
+      "sha256": "f457204b562e4b7b63ee260902249bd24b3b692e9ea3c76509b1251513d34aad",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick1625,5F Combat; purple boss,player,shield and projectiles visible; default warning ring around boss fits viewport; HUD/equipment legible."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-stock/chest.png",
+      "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick75,0F supply chest paused; starter inventory and all11 supply rows with Take buttons visible without clipping; player,chest,portal behind UI."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-stock/combat.png",
+      "sha256": "b2c6212ff2efb75b141525c522afcc54138a3895278239d07230e94d0aefedaa",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick203,1F Combat,HUD reports3 enemies,HP110/110 and attack1.05; player,shield and red enemies visible; faint1F label is inside game viewport,HUD/equipment readable."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-stock/death-11f.png",
+      "sha256": "f322a81b1e913f415e27d8942c62edbd83c89108c66ee5318bdc47d24ec1bb61",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick5526,11F Results,HP0/130; result shows10clears,58enemies including2bosses,88.02s,maxHP130,attack1.15; retry/menu controls and four equipment names visible, no stale floor cue."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-stock/retry.png",
+      "sha256": "7ad3badf7dc7194e24a2290921a0285cee48fcb7fd1889bcd7a887b255b4c231",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick5527,0F Preparing; HP100/100,attack1.00,starter Blade and other slots empty; clean player,chest,portal scene, no stale warning/fade/result."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-script/boss-script.png",
+      "sha256": "f457204b562e4b7b63ee260902249bd24b3b692e9ea3c76509b1251513d34aad",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick1625 edited-script warning onset shows same default radius warning/player/boss as stock; duration cannot be inferred from this still."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-script/chest.png",
+      "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick75 supply chest shows same intact initial inventory/supply UI as stock."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-script/combat.png",
+      "sha256": "b2c6212ff2efb75b141525c522afcc54138a3895278239d07230e94d0aefedaa",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick203,1F Combat shows same player/enemy/HP110/110 scene and faint floor label as stock."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-timeline/boss.png",
+      "sha256": "df3ad8f82ed255a462fd8e92ca024ab2da16307ed7f58b4bd3f7e5d9b2237cca",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick1625,5F; edited warning visibly wider than stock, enclosing player edge; its far arc reaches viewport upper boundary because camera follows player; the warning remains recognizable."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-timeline/chest.png",
+      "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick75 supply chest retains intact baseline inventory/supply layout after staged timeline edit."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-timeline/combat.png",
+      "sha256": "7668a0898f748417ff72656a1b9621d0357b6b9d68a9a1bd0c6dac9d025a9ac4",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick203,1F Combat with edited stronger viewport dimming and clear centered1F label; player/enemies still visible; HUD and equipment text unaffected by fade."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-timeline/timeline-boss.png",
+      "sha256": "350836923cfbf34fdf236eb973189d4657cc00852a50beda990e5bbb072bc6d4",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick1649,5F Combat; complete large warning ring visibly thickens at authored offset24; purple boss,projectiles,player/shield clearly visible."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-timeline/timeline-floor.png",
+      "sha256": "0c0ea2690da455989005249f8c7ef9c3b811d9e7ef613fb1e3700095d5c86baa",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick197,0F Transition; viewport is visibly dimmed with centered1F target label; player/shield visible beneath fade; top HUD and bottom equipment remain legible and unclipped."
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage14/player-timeline/timeline-paused.png",
+      "sha256": "99e1e2ef063ad51ab619c54f768d9c956b44217490b5a859f49a9a2dd23fb508",
+      "width": 1920,
+      "height": 1200,
+      "pass": true,
+      "observation": "Tick1650,5F pause; Resume/Settings/Main menu controls appear while boss,ring,player and projectiles remain in the same positions as tick1649; screenshot captures first paused tick."
+    }
+  ],
+  "limits": [
+    "Visual inspection covers the captured checkpoints, not every rendered frame or WebSocket transport segmentation.",
+    "The pause screenshot is tick1650 (pause onset); all30 frozen management ticks are proven by the actual trace, not the still.",
+    "Default and edited-script warning-onset screenshots are identical;48/96tick lifetimes are verified from actual trace.",
+    "The enlarged warning reaches the camera viewport boundary at onset; the offset24 checkpoint shows its complete ring.",
+    "Exact radius/opacity values come from authoritative trace and the native self-test render assertions; they are not measured from image pixels."
+  ],
+  "sourceRevisionReportedByCoordinator": "217b539"
+}
