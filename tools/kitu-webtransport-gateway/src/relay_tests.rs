@@ -180,7 +180,28 @@ async fn a_burst_returns_only_the_first_128_response_frames() {
         .unwrap()
         .unwrap();
     assert_eq!(frames, all[..FRAME_LIMIT]);
+    assert!(
+        relay.writer.is_none() && relay.reader.is_none(),
+        "a capped batch must discard both socket halves and their backlog"
+    );
+    tokio::time::sleep(Duration::from_millis(250)).await;
     assert_eq!(backend.received(), vec![1]);
+    assert_eq!(
+        backend.connections.load(Ordering::SeqCst),
+        1,
+        "returning the capped batch must not reconnect or resend the mutation"
+    );
+    let next = timeout(Duration::from_secs(2), relay.relay_kep_envelope(request(2)))
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        next,
+        vec![response(2, 0)],
+        "old burst frames cannot leak into the next reply"
+    );
+    assert_eq!(backend.received(), vec![1, 2]);
+    assert_eq!(backend.connections.load(Ordering::SeqCst), 2);
 }
 
 #[tokio::test]

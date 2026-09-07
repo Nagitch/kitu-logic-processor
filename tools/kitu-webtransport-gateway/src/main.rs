@@ -333,7 +333,14 @@ impl InternalWebSocketRelay {
         }
 
         match self.relay_connected(bytes).await {
-            Ok(response) => Ok(response),
+            Ok(response) => {
+                if response.len() == MAX_RELAY_RESPONSES {
+                    // A capped batch may leave an actively growing backlog.
+                    // Drop it now; only a later explicit request reconnects.
+                    self.reset();
+                }
+                Ok(response)
+            }
             Err(err) => {
                 self.reset();
                 Err(err)

@@ -66,7 +66,8 @@ KEP JSON responses for at most 200 ms measured from that first response, then
 writes each retained response to the same WebTransport stream in arrival order
 before finishing it. Each request waits at most two seconds for its first
 response. The additional 200 ms deadline is absolute: continuous 60 Hz events do
-not restart it. A batch completes early after 128 retained response frames.
+not restart it. A batch completes early after 128 retained response frames and
+resets the relay to discard any growing backlog before the next request.
 Retained encoded response payloads are limited to 1 MiB in total; exceeding that
 budget fails the request and resets the internal relay. As with other failures
 after sending a mutation, the gateway does not resend that request. A later
