@@ -1,0 +1,248 @@
+{
+  "native": {
+    "sourceReport": {
+      "path": ".tmp/stage17/native/native-package.json",
+      "bytes": 2235,
+      "sha256": "582e4af4287cbe216fbc94fa2ba7c9774448837659346e82e929532b64ed1b98"
+    },
+    "createdAtUtc": "2026-09-06T16:37:00.101538+00:00",
+    "target": "aarch64-apple-darwin",
+    "profile": "dev",
+    "cargoCommand": [
+      "cargo",
+      "build",
+      "--locked",
+      "-p",
+      "kitu-demo-game-native",
+      "--target",
+      "aarch64-apple-darwin",
+      "--profile",
+      "dev"
+    ],
+    "cargo": "cargo 1.96.0 (30a34c682 2026-05-25)",
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)\nbinary: rustc\ncommit-hash: ac68faa20c58cbccd01ee7208bf3b6e93a7d7f96\ncommit-date: 2026-05-25\nhost: aarch64-apple-darwin\nrelease: 1.96.0\nLLVM version: 22.1.2",
+    "sdk": "26.5",
+    "sdkPath": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+    "cargoLock": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/Cargo.lock",
+      "bytes": 61830,
+      "sha256": "7d78bd87d2f659e3bdda9d449ad274a482cf1a46a1d813007c12ba0ceaac41a2"
+    },
+    "sourceLibrary": {
+      "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+      "bytes": 30604768,
+      "sha256": "386bad99afcecaf3dccdb24f7c4ce0afb0d843887f0727f24daee766c3ba503b"
+    },
+    "plugin": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
+      "bytes": 30444992,
+      "sha256": "0e684dd67200b2f52c279e7ffeb5ca6f29ae64403a599936e0c3fac1826ad9ca",
+      "architecture": "arm64",
+      "installName": "@rpath/libkitu_demo_game_native.dylib",
+      "dependencies": [
+        "@rpath/libkitu_demo_game_native.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "applicationSymbols": [
+        "kitu_application_abi_version",
+        "kitu_application_create",
+        "kitu_application_destroy",
+        "kitu_application_inspect_host_json",
+        "kitu_application_inspect_json",
+        "kitu_application_last_error",
+        "kitu_application_read_output",
+        "kitu_application_submit_json",
+        "kitu_application_tick"
+      ],
+      "unsignedSha256": "376862f55d8dc284b87a7762794f65c198ea7d9406a551b4dcc9d7ee6b3c123b",
+      "signatureVerified": true
+    }
+  },
+  "player": {
+    "sourceReport": {
+      "path": ".tmp/stage17/player-build/player-build.json",
+      "bytes": 7629,
+      "sha256": "1fa853627951a2a88df1bbde715d73461157835578f9f64170781caf20ff49b7"
+    },
+    "createdAtUtc": "2026-09-06T16:39:24.738550+00:00",
+    "player": "/private/tmp/kitu-stage17-relocated/KituEndlessArena.app",
+    "executable": {
+      "path": "/private/tmp/kitu-stage17-relocated/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+      "bytes": 35172,
+      "sha256": "5ff38d6537acd8b9d68d9784091e819a50c03e22c8ebc9ae51058975815335ac"
+    },
+    "unityBuild": {
+      "unityVersion": "6000.6.0f1",
+      "playerPath": "/private/tmp/kitu-stage17-relocated/KituEndlessArena.app",
+      "scene": "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity",
+      "architecture": "arm64",
+      "scriptingBackend": "Mono2x",
+      "pluginPath": "Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
+      "result": "Succeeded",
+      "packageHash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+      "addressablesVersion": "2.11.2",
+      "catalogSha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5",
+      "errors": 0,
+      "warnings": 4,
+      "totalBytes": 217348432,
+      "elapsedSeconds": 6.290247
+    },
+    "bundledPlugin": {
+      "path": "/private/tmp/kitu-stage17-relocated/KituEndlessArena.app/Contents/PlugIns/ARM64/libkitu_demo_game_native.dylib",
+      "bytes": 30444992,
+      "sha256": "0e684dd67200b2f52c279e7ffeb5ca6f29ae64403a599936e0c3fac1826ad9ca",
+      "architecture": "arm64",
+      "installName": "@rpath/libkitu_demo_game_native.dylib",
+      "dependencies": [
+        "@rpath/libkitu_demo_game_native.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "applicationSymbols": [
+        "kitu_application_abi_version",
+        "kitu_application_create",
+        "kitu_application_destroy",
+        "kitu_application_inspect_host_json",
+        "kitu_application_inspect_json",
+        "kitu_application_last_error",
+        "kitu_application_read_output",
+        "kitu_application_submit_json",
+        "kitu_application_tick"
+      ],
+      "unsignedSha256": "376862f55d8dc284b87a7762794f65c198ea7d9406a551b4dcc9d7ee6b3c123b",
+      "signatureVerified": true
+    },
+    "signatureVerified": true,
+    "nativeLibraryBundled": true,
+    "content": {
+      "package": {
+        "directory": "/private/tmp/kitu-stage17-relocated/KituEndlessArena.app/Contents/Resources/Data/StreamingAssets/KituArena",
+        "hash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+        "manifestBytes": 625,
+        "files": [
+          {
+            "path": "unity-assets.json",
+            "bytes": 306,
+            "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+          },
+          {
+            "path": "arena.tmd",
+            "bytes": 49783,
+            "sha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa"
+          },
+          {
+            "path": "boss.rhai",
+            "bytes": 676,
+            "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+          },
+          {
+            "path": "timelines/boss-telegraph.tsq",
+            "bytes": 737,
+            "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+          },
+          {
+            "path": "timelines/floor-transition.tsq",
+            "bytes": 652,
+            "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+          }
+        ],
+        "assets": [
+          {
+            "role": "baseMaterial",
+            "key": "arena/material/base",
+            "type": "Material"
+          },
+          {
+            "role": "cube",
+            "key": "arena/primitive/cube",
+            "type": "GameObject"
+          },
+          {
+            "role": "capsule",
+            "key": "arena/primitive/capsule",
+            "type": "GameObject"
+          },
+          {
+            "role": "sphere",
+            "key": "arena/primitive/sphere",
+            "type": "GameObject"
+          }
+        ]
+      },
+      "addressablesVersion": "2.11.2",
+      "catalogSha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5",
+      "localOnly": true,
+      "artifacts": [
+        {
+          "relativePath": "StandaloneOSX/arenalocal_assets_all_60221ffc212ab1d2d9ac5e4cb9415c2a.bundle",
+          "bytes": 259644,
+          "sha256": "31e3b9963b6ba3507034c13bfdcffb122105b8318fcc1edac9a2414905dbf8d3"
+        },
+        {
+          "relativePath": "catalog.bin",
+          "bytes": 2317,
+          "sha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5"
+        },
+        {
+          "relativePath": "catalog.hash",
+          "bytes": 32,
+          "sha256": "8c789eb8ec2b811d4dbb8334267d6488dc86b3e4576142c70f71f347566eeaab"
+        },
+        {
+          "relativePath": "settings.json",
+          "bytes": 858,
+          "sha256": "dd257f5fb77c1fe288f07eb994322c0f83cb6ee855ec37663c2ae51a41adb2aa"
+        }
+      ]
+    }
+  },
+  "replays": {
+    "server": {
+      "execution": {
+        "package": "0.1.0",
+        "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+        "target": "aarch64-unknown-linux-gnu"
+      },
+      "recording": {
+        "path": ".tmp/stage17/replay/stock-eleven-death-retry.tsq",
+        "bytes": 2684930,
+        "sha256": "55ac75086a23f373b79340a4addea78cbfad776f948a4b4cc80b0218f05d5540"
+      },
+      "sourceReport": {
+        "path": ".tmp/stage17/replay/stock-verification.json",
+        "bytes": 4780,
+        "sha256": "5dfc4ae9a318102d0bf09cf7bcfb0ef8db8752120774a5285f51c7b1a63851b1"
+      },
+      "ticks": 5528,
+      "inputs": 5581,
+      "runs": 2,
+      "finalTick": 5527,
+      "finalHealth": 100
+    },
+    "native": {
+      "execution": {
+        "package": "0.1.0",
+        "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+        "target": "aarch64-apple-darwin"
+      },
+      "recording": {
+        "path": ".tmp/stage17/native-replay/stock-eleven-death-retry.tsq",
+        "bytes": 2684925,
+        "sha256": "87c7c621e0d239c1bce6bb7dd779efdb0fa198e484b00567de17606fa143194d"
+      },
+      "sourceReport": {
+        "path": ".tmp/stage17/native-replay/stock-verification.json",
+        "bytes": 4780,
+        "sha256": "5dfc4ae9a318102d0bf09cf7bcfb0ef8db8752120774a5285f51c7b1a63851b1"
+      },
+      "ticks": 5528,
+      "inputs": 5581,
+      "runs": 2,
+      "finalTick": 5527,
+      "finalHealth": 100
+    }
+  }
+}

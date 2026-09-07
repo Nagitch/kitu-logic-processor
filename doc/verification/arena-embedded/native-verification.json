@@ -1,0 +1,89 @@
+{
+  "verifiedAtUtc": "2026-09-06T08:59:07.683597+00:00",
+  "revision": "Final stage11 review fix for queued playback controls; previous artifacts retained separately",
+  "target": "aarch64-apple-darwin",
+  "profile": "dev with debug=0, incremental=0",
+  "nativeTestsPassed": 5,
+  "httpWsLifetimeTestsPassed": 5,
+  "doctestsPassed": 1,
+  "failures": 0,
+  "environmentRetry": "Initial sandboxed bridge test bind failed with EPERM; all five bridge tests passed with normal localhost access; no implementation changes or gameplay rerun required",
+  "sourceLibrary": {
+    "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+    "bytes": 25003888,
+    "sha256": "05a767e69466b3c92f4617a59deea5c49e78c70f1ae47bc3815a6b40e5e248be"
+  },
+  "linkedLibrary": {
+    "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/deps/libkitu_demo_game_native.dylib",
+    "bytes": 25003888,
+    "sha256": "05a767e69466b3c92f4617a59deea5c49e78c70f1ae47bc3815a6b40e5e248be"
+  },
+  "staticLibrary": {
+    "path": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.a",
+    "bytes": 81336112,
+    "sha256": "3380f96ff20c94f3c0308cdedbc273d27ac5d77a2f97bde75038419aebcb39b6"
+  },
+  "cCaller": {
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/c-abi",
+    "bytes": 35368,
+    "sha256": "08e0f0a84291c18b2da500273971686070dcdf7f110f2d7b0b664d0924408418"
+  },
+  "packageReport": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-native/native-package.json",
+  "packageSourceMatchesCLoadedLibrary": true,
+  "scenarios": [
+    {
+      "scenario": "preparation",
+      "ticks": 28,
+      "inputs": 40,
+      "lifetimeCycles": 10,
+      "stateAndOutput": "exact match",
+      "trace": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.trace",
+        "bytes": 11733,
+        "sha256": "2c764a254771e919c33ca8093322c31093d547443b2c942b061bb9f8072d5362"
+      },
+      "expected": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.expected.ndjson",
+        "bytes": 363311,
+        "sha256": "d1f06c141ad8444a8f843639b1cb231c8068538165164a0303e4b12b9e7f5084"
+      },
+      "actual": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/preparation.actual.ndjson",
+        "bytes": 363311,
+        "sha256": "3e565d9dda71784ef6ded1688936ff76a5b12a8701d7104b974333687c7ecc9c"
+      }
+    },
+    {
+      "scenario": "stock-eleven-death-retry",
+      "ticks": 5528,
+      "inputs": 5581,
+      "lifetimeCycles": 10,
+      "stateAndOutput": "exact match",
+      "trace": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/stock-eleven-death-retry.trace",
+        "bytes": 2209146,
+        "sha256": "0b14c384ac29e986a51cde1b5c206fc3844472b5dd50fec1793b713ad262d1f8"
+      },
+      "expected": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/stock-eleven-death-retry.expected.ndjson",
+        "bytes": 74286921,
+        "sha256": "e245c9b92c340472cfe7d6c2c8c63b1398f8903d93cb84ddfa62aafca703bb50"
+      },
+      "actual": {
+        "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage11/review-reference/stock-eleven-death-retry.actual.ndjson",
+        "bytes": 74286921,
+        "sha256": "53895b09088ff33fbb6235331c33b724df65643d1ffaeb1918cc73fb9244001c"
+      }
+    }
+  ],
+  "logs": [
+    "/private/tmp/kitu-stage11-macos-review-bridge-test.log",
+    "/private/tmp/kitu-stage11-macos-review-c-compile.log",
+    "/private/tmp/kitu-stage11-macos-review-c-preparation.log",
+    "/private/tmp/kitu-stage11-macos-review-c-stock-eleven-death-retry.log",
+    "/private/tmp/kitu-stage11-macos-review-native-doc.log",
+    "/private/tmp/kitu-stage11-macos-review-native-test.log",
+    "/private/tmp/kitu-stage11-macos-review-native-verification.log",
+    "/private/tmp/kitu-stage11-macos-review-package.log"
+  ]
+}

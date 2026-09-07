@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "sessionId": "example-arena-host",
+  "revision": "1",
+  "attempt": "1",
+  "epoch": "0",
+  "run": "1",
+  "mode": {
+    "active": false,
+    "recordingId": null,
+    "tick": "0",
+    "totalTicks": "0",
+    "playing": false,
+    "seeking": false,
+    "error": null
+  },
+  "readOnly": false,
+  "execution": {
+    "package": "kitu-demo-game 0.1.0",
+    "sourceHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "target": "aarch64-apple-darwin"
+  },
+  "versions": {
+    "content": {
+      "activeHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+      "pendingHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770"
+    },
+    "script": {
+      "activeHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+      "pendingHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025"
+    },
+    "timeline": {
+      "activeHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "pendingHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82"
+    }
+  },
+  "diagnostics": {
+    "hostError": null,
+    "recordingError": null,
+    "scriptFault": null
+  },
+  "state": {
+    "tick": "0",
+    "simulationSteps": "1",
+    "phase": 1,
+    "overlay": "none",
+    "floor": 0,
+    "elapsed": 0.016666668,
+    "playerPosition": {
+      "x": 0.0,
+      "y": -7.0
+    },
+    "aimDirection": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "inventory": {
+      "health": 100,
+      "maxHealth": 100,
+      "nextItemId": 12,
+      "attackUpgrades": 0,
+      "attackMultiplier": 1.0,
+      "shieldDelayRemaining": 0.0,
+      "damagedThisUpdate": false,
+      "backpack": [
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        }
+      ],
+      "equipment": [
+        {
+          "id": 1,
+          "kind": 0,
+          "damage": 20,
+          "shield": 0,
+          "name": "Blade",
+          "interval": 0.5,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 0,
+          "kind": 0,
+          "damage": 0,
+          "shield": 0,
+          "name": "",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        }
+      ],
+      "chest": [
+        {
+          "id": 2,
+          "kind": 0,
+          "damage": 20,
+          "shield": 0,
+          "name": "Quick Blade",
+          "interval": 0.5,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 3,
+          "kind": 0,
+          "damage": 30,
+          "shield": 0,
+          "name": "Power Blade",
+          "interval": 0.8,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 4,
+          "kind": 1,
+          "damage": 12,
+          "shield": 0,
+          "name": "Quick Shooter",
+          "interval": 0.25,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 5,
+          "kind": 1,
+          "damage": 20,
+          "shield": 0,
+          "name": "Power Shooter",
+          "interval": 0.45,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 6,
+          "kind": 2,
+          "damage": 50,
+          "shield": 0,
+          "name": "Quick Heavy Shooter",
+          "interval": 1.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 7,
+          "kind": 2,
+          "damage": 75,
+          "shield": 0,
+          "name": "Power Heavy Shooter",
+          "interval": 1.5,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 8,
+          "kind": 3,
+          "damage": 0,
+          "shield": 0,
+          "name": "Medkit",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 9,
+          "kind": 4,
+          "damage": 100,
+          "shield": 0,
+          "name": "Grenade",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 10,
+          "kind": 5,
+          "damage": 0,
+          "shield": 100,
+          "name": "Shield",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 11,
+          "kind": 6,
+          "damage": 0,
+          "shield": 0,
+          "name": "Health Upgrade (+10 HP)",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        },
+        {
+          "id": 12,
+          "kind": 7,
+          "damage": 0,
+          "shield": 0,
+          "name": "Attack Upgrade (+5%)",
+          "interval": 0.0,
+          "shieldFraction": 0.0
+        }
+      ]
+    },
+    "chestAvailable": true,
+    "portalAvailable": true,
+    "enemiesDefeated": 0,
+    "bossesDefeated": 0,
+    "floorsCleared": 0,
+    "nextEntityId": 1,
+    "transitionRemaining": 0.0,
+    "portalArmed": true,
+    "weaponCooldowns": [0.0, 0.0],
+    "enemies": [],
+    "projectiles": [],
+    "grenades": [],
+    "effects": [],
+    "result": {
+      "present": false,
+      "floor": 0,
+      "enemiesDefeated": 0,
+      "bossesDefeated": 0,
+      "floorsCleared": 0,
+      "maxHealth": 0,
+      "elapsed": 0.0,
+      "attackMultiplier": 0.0,
+      "equipmentNames": []
+    }
+  },
+  "presentation": {
+    "contractVersion": 1,
+    "run": "1",
+    "tick": "0",
+    "simulationStep": "1",
+    "bosses": [],
+    "floor": null
+  },
+  "arena": {
+    "minX": -10,
+    "maxX": 10,
+    "minY": -10,
+    "maxY": 10,
+    "playerRadius": 0.5,
+    "chest": {
+      "x": -3,
+      "y": 0,
+      "interactionRadius": 2
+    },
+    "portal": {
+      "x": 0,
+      "y": 7.5,
+      "triggerRadius": 1.25
+    }
+  },
+  "events": {
+    "capacity": 256,
+    "byteLimit": 2097152,
+    "payloadByteLimit": 65536,
+    "firstSequence": "0",
+    "lastSequence": "2",
+    "dropped": "0",
+    "omittedPayloads": "0",
+    "entries": [
+      {
+        "sequence": "0",
+        "revision": "1",
+        "epoch": "0",
+        "run": "1",
+        "tick": "0",
+        "bundleIndex": 0,
+        "messageIndex": 0,
+        "address": "/game/arena/run",
+        "detail": {
+          "kind": "run",
+          "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+          "scriptHash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+          "timelineHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82"
+        }
+      },
+      {
+        "sequence": "1",
+        "revision": "1",
+        "epoch": "0",
+        "run": "1",
+        "tick": "0",
+        "bundleIndex": 0,
+        "messageIndex": 3,
+        "address": "/game/arena/phase",
+        "detail": {
+          "kind": "message",
+          "messageJson": "{\"address\":\"/game/arena/phase\",\"args\":[{\"type\":\"str\",\"value\":\"{\\\"bossesDefeated\\\":0,\\\"enemiesDefeated\\\":0,\\\"floor\\\":0,\\\"floorsCleared\\\":0,\\\"order\\\":3,\\\"phase\\\":1,\\\"previous\\\":0,\\\"tick\\\":0}\"}]}"
+        }
+      },
+      {
+        "sequence": "2",
+        "revision": "1",
+        "epoch": "0",
+        "run": "1",
+        "tick": "0",
+        "bundleIndex": 0,
+        "messageIndex": 4,
+        "address": "/ui/arena/command",
+        "detail": {
+          "kind": "message",
+          "messageJson": "{\"address\":\"/ui/arena/command\",\"args\":[{\"type\":\"str\",\"value\":\"{\\\"sequence\\\":0,\\\"source\\\":\\\"reference:commands\\\",\\\"id\\\":1,\\\"tick\\\":0,\\\"appliedTick\\\":0,\\\"accepted\\\":true,\\\"duplicate\\\":false,\\\"code\\\":\\\"ok\\\"}\"}]}"
+        }
+      }
+    ]
+  },
+  "timing": {
+    "scope": "hostUpdate",
+    "capacity": 256,
+    "budgetUs": 16666.666666666668,
+    "maxDurationUs": 86400000000,
+    "totalSamples": "1",
+    "overBudgetSamples": "0",
+    "last": {
+      "attempt": "1",
+      "revision": "1",
+      "tick": "0",
+      "outcome": "advanced",
+      "runtimeAdvanced": true,
+      "simulationAdvanced": true,
+      "durationUs": 640.25,
+      "lockWaitUs": 0.5,
+      "durationClamped": false,
+      "lockWaitClamped": false,
+      "overBudget": false
+    },
+    "samples": [
+      {
+        "attempt": "1",
+        "revision": "1",
+        "tick": "0",
+        "outcome": "advanced",
+        "runtimeAdvanced": true,
+        "simulationAdvanced": true,
+        "durationUs": 640.25,
+        "lockWaitUs": 0.5,
+        "durationClamped": false,
+        "lockWaitClamped": false,
+        "overBudget": false
+      }
+    ],
+    "meanUs": 640.25,
+    "p95Us": 640.25,
+    "maxUs": 640.25
+  }
+}

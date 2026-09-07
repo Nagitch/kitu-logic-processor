@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "revision": "38f2b4be4b7b2b604f1b21dfe9ce407846e0fc43",
+  "unityVersion": "6000.6.0f1",
+  "sourceSha256": {
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaSimulation.cs": "e11eb9e896d163aa873aa523a29f57aee9db785149376891cb9922c4308f60f5",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaInventory.cs": "6b5d7ec84b1d30c82158ff4adb6a7e391559211734784da9736dd5997f5e2c0c",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaGame.cs": "9a1b63eb899fe84bce87d0e65a0efff3f6099f721dfcc242bc8e757ca34a8dcb"
+  },
+  "fixtureSha256": {
+    "preparation/expected.ndjson": "a2b2282482c8fc931ee3637a1187362f90829ca0774d212b1dd9dde6f06667d6",
+    "preparation/outcomes.ndjson": "157363f2a05c7eef582948875b7d688d2f821367d79a9958d42985eb1fca0780",
+    "preparation/scenario.json": "4b2db21292d8e714be5bfbe78d7cf13e5e53417826396d88836247e1954ac4cc",
+    "stock-eleven-death-retry/expected.ndjson": "7bbe125d7838feca9bd8a75019be79f5b676a38f946a3bc6803fc1c8ca71a539",
+    "stock-eleven-death-retry/outcomes.ndjson": "0eda45d966823c550ffa58226eadae0e16e3d86d849d94f6420f4de4f16c7a50",
+    "stock-eleven-death-retry/scenario.json": "e1feca79fa4cc78c81e99a6053d8a762601d249f4150af7086447cbfa10a3916"
+  }
+}

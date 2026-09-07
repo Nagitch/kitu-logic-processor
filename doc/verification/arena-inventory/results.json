@@ -1,0 +1,103 @@
+{
+  "stage": 3,
+  "issue": 134,
+  "baselineRevision": "38f2b4be4b7b2b604f1b21dfe9ce407846e0fc43",
+  "unityVersion": "6000.6.0f1",
+  "unity": {
+    "editmode": {
+      "result": "Passed",
+      "total": "47",
+      "passed": "47",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "0.3776335"
+    },
+    "playmode": {
+      "result": "Passed",
+      "total": "13",
+      "passed": "13",
+      "failed": "0",
+      "skipped": "0",
+      "duration": "2.5527426"
+    }
+  },
+  "rust": {
+    "environment": "Dedicated Dev Container with Rust 1.96.0",
+    "fmt": "passed",
+    "clippyAllTargetsAllFeatures": "passed",
+    "testsAndDoctestsPassed": 130,
+    "docAllNoDeps": "passed",
+    "publication": "Demo app remains internal (publish=false); no package publication attempted"
+  },
+  "comparison": [
+    {
+      "scenario": "preparation",
+      "inputTicks": 28,
+      "checkpointTicks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        12,
+        25,
+        26,
+        27
+      ],
+      "commandOutcomes": 12
+    },
+    {
+      "scenario": "stock-eleven-death-retry",
+      "inputTicks": 185,
+      "checkpointTicks": [
+        0,
+        60,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        94,
+        99,
+        105,
+        110,
+        116,
+        120,
+        121,
+        127,
+        132,
+        138,
+        143,
+        180
+      ],
+      "commandOutcomes": 16
+    }
+  ],
+  "floatAbsoluteTolerance": 0.0001,
+  "comparedState": "Every migrated projection field and complete inventory, including item ordering, IDs, charge/fractions, HP and clocks; exact command outcomes. Combat/progression fields are subsequent gates.",
+  "networkEvidence": "Real migration scene: movement/pause/reconnect plus chest access, take/equip, HP upgrade, invalid destination rejection, unequip/chest swap and resumed gameplay. Batch assertions only; no screenshot/native-build claim.",
+  "referenceReviewFix": "PR131 discussion_r3941519066: invalid take destination returns invalid_target. New C# atomicity regression passes; pinned rule sources and frozen fixtures unchanged.",
+  "sourceSha256": {
+    "apps/demo-game/src/arena.rs": "9d4304fd0933844c04fd49739acd2015db1ef1ec4e9e70744813c73a5dcda8fd",
+    "apps/demo-game/src/arena/inventory.rs": "ac3de95ae094cd381bbd220b5e2c46eb28e474e4c1dfa7e5a3033b5cd2545a7d",
+    "apps/demo-game/tests/arena_inventory.rs": "9aad97ffe316a2295e230949fdade6f1239eb96760f6c74db8703fc653e1c32a",
+    "apps/demo-game/tests/support/mod.rs": "505565217fd1fd0b265118d9505f43c1d5d56cbb3771077bb4773a61a8dee01a",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/KituArenaClient.cs": "3ba807947389cbc38003a5f64f7dc02d7223300b3225e1e860fb57548314d60a",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaReferenceSession.cs": "5af86a47c612564f55b28e536ccbac2eaf19cd3897e08ee341947d7f0abb2ac4",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/ArenaReferenceTests.cs": "2943fe40b197e8a8351f38ccb16f0e18d9eaaf83a6af45a1d72a5bd8783417bc",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/KituArenaConnectionTests.cs": "ee26250176aeb4eae4eed9b1eee455fefd6c23e402403253671c309386803796"
+  }
+}

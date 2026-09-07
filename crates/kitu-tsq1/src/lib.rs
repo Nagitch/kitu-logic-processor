@@ -1,7 +1,7 @@
-//! TSQ1 timeline parser and scheduler skeleton.
+//! TSQ1 binary recordings and legacy text timeline helpers.
 //!
 //! # Responsibilities
-//! - Parse TSQ1 text into a structured AST for deterministic playback.
+//! - Encode real TSQ1 documents with exact ticks and lossless typed OSC bundles.
 //! - Provide scheduling helpers that emit OSC/IR events for the runtime loop.
 //! - Keep the timeline model self-contained so tooling and runtime share the same semantics.
 //!
@@ -12,6 +12,9 @@
 use std::collections::VecDeque;
 
 use kitu_core::{KituError, Result, Tick};
+
+pub mod presentation;
+pub mod recording;
 
 /// A single timeline step.
 #[derive(Debug, Clone, PartialEq, Eq)]

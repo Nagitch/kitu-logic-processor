@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/rust:1-bullseye
+FROM mcr.microsoft.com/devcontainers/rust:1-bookworm
 
 # Core build and troubleshooting tools
 RUN apt-get update \
@@ -6,8 +6,10 @@ RUN apt-get update \
         clang \
         lld \
         pkg-config \
+        python3 \
         libssl-dev \
         git \
+        git-lfs \
         zsh \
         fzf \
         ripgrep \
@@ -15,7 +17,7 @@ RUN apt-get update \
 
 # Ensure required Rust components and helper tools are available
 RUN rustup component add clippy rustfmt \
-    && if ! command -v just >/dev/null 2>&1; then cargo install --locked just; fi
+    && if ! command -v just >/dev/null 2>&1; then cargo install --locked --version 1.58.0 just; fi
 
 # Fix cargo registry permissions to avoid "Permission denied" errors
 # Ensure vscode user can write to cargo registry directories

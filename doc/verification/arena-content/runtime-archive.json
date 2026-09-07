@@ -1,0 +1,45 @@
+{
+  "stage": 16,
+  "sourceRevision": "f0e966fda4e2aa7d00483982ad496134f05a55d2",
+  "createdAtUtc": "2026-09-06T15:57:22.723435+00:00",
+  "directory": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage16-cf2a418982f8",
+  "artifacts": [
+    {
+      "source": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/target/debug/kitu-demo-game-admin-host",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage16-cf2a418982f8/linux/kitu-demo-game-admin-host",
+      "sha256": "cf2a418982f8d21a85dc4200bf2717100eebaca7e17157f0b5d83f87e67fa22e",
+      "bytes": 158403976
+    },
+    {
+      "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.dylib",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage16-cf2a418982f8/macos/libkitu_demo_game_native.dylib",
+      "sha256": "3db0e598a26af16fa627c6b13a862bbd1fd1ddc33fad47b4e07c0089489a347c",
+      "bytes": 29805168
+    },
+    {
+      "source": "/private/tmp/kitu-native-toolchain/target/aarch64-apple-darwin/debug/libkitu_demo_game_native.a",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage16-cf2a418982f8/macos/libkitu_demo_game_native.a",
+      "sha256": "163366ad040ba31380e6127cd1a93c28c0fe2ed43183d6ab2e1fdc3ae738e0dc",
+      "bytes": 92798624
+    }
+  ],
+  "players": [
+    {
+      "name": "default",
+      "source": "/private/tmp/kitu-stage16-relocated/KituEndlessArena.app",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage16-cf2a418982f8/default/KituEndlessArena.app",
+      "files": 343,
+      "manifestSha256": "ff1c85f6e8de2e67c0946b3f76a290baa452913c5040532e5c836906e22c8df8",
+      "signatureVerified": true
+    },
+    {
+      "name": "edited",
+      "source": "/private/tmp/kitu-stage16-relocated/KituArenaEditedFinal.app",
+      "archive": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/apps/demo-game/.arena/runtime-versions/stage16-cf2a418982f8/edited/KituArenaEditedFinal.app",
+      "files": 343,
+      "manifestSha256": "672e1964e28861b5a7145addd0c25bfda13fc67eb9fd21d32a9ad1bf41e5573e",
+      "signatureVerified": true
+    }
+  ],
+  "purpose": "Retain verified execution versions and packaged Players for older recordings; records are never relabelled."
+}

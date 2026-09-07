@@ -13,3 +13,10 @@ include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }
+kitu-osc-ir = { path = "../kitu-osc-ir" }
+anyhow = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rmp-serde = "1.3.1"
+tsq1 = { git = "https://github.com/Nagitch/tsq1", rev = "05707147e83a4fba591a3933d49f056bb6d3540b" }
+tsq1-osc = { git = "https://github.com/Nagitch/tsq1", rev = "05707147e83a4fba591a3933d49f056bb6d3540b" }

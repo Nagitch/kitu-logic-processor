@@ -1,0 +1,77 @@
+{
+  "createdAtUtc": "2026-09-06T13:06:57.911861+00:00",
+  "player": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app",
+  "executable": {
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/MacOS/Kitu Endless Arena",
+    "bytes": 35172,
+    "sha256": "bb4a40de2caf6991bb07aab20cc6b8741a62677f51432ce105c118741df54f60"
+  },
+  "unityBuild": {
+    "unityVersion": "6000.6.0f1",
+    "playerPath": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app",
+    "scene": "Assets/KituDemoApp/EndlessArena/KituEndlessArena.unity",
+    "architecture": "arm64",
+    "scriptingBackend": "Mono2x",
+    "pluginPath": "Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
+    "result": "Succeeded",
+    "errors": 0,
+    "warnings": 4,
+    "totalBytes": 213891979,
+    "elapsedSeconds": 5.271491999999999
+  },
+  "sourcePlugin": {
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/Plugins/macOS/libkitu_demo_game_native.dylib",
+    "bytes": 27793152,
+    "sha256": "48287ff0862727678d31c61240cf996c276ecade7891ca5d52f9813a9e30ae22",
+    "architecture": "arm64",
+    "installName": "@rpath/libkitu_demo_game_native.dylib",
+    "dependencies": [
+      "@rpath/libkitu_demo_game_native.dylib",
+      "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+      "/usr/lib/libiconv.2.dylib",
+      "/usr/lib/libSystem.B.dylib"
+    ],
+    "applicationSymbols": [
+      "kitu_application_abi_version",
+      "kitu_application_create",
+      "kitu_application_destroy",
+      "kitu_application_inspect_host_json",
+      "kitu_application_inspect_json",
+      "kitu_application_last_error",
+      "kitu_application_read_output",
+      "kitu_application_submit_json",
+      "kitu_application_tick"
+    ],
+    "unsignedSha256": "3d1c732b5cb595e3aef84f3bb56737edb5ca0d795346f9d0ff2ffee9d86f94ec",
+    "signatureVerified": true
+  },
+  "bundledPlugin": {
+    "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Builds/KituEndlessArena.app/Contents/PlugIns/ARM64/libkitu_demo_game_native.dylib",
+    "bytes": 27793152,
+    "sha256": "48287ff0862727678d31c61240cf996c276ecade7891ca5d52f9813a9e30ae22",
+    "architecture": "arm64",
+    "installName": "@rpath/libkitu_demo_game_native.dylib",
+    "dependencies": [
+      "@rpath/libkitu_demo_game_native.dylib",
+      "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+      "/usr/lib/libiconv.2.dylib",
+      "/usr/lib/libSystem.B.dylib"
+    ],
+    "applicationSymbols": [
+      "kitu_application_abi_version",
+      "kitu_application_create",
+      "kitu_application_destroy",
+      "kitu_application_inspect_host_json",
+      "kitu_application_inspect_json",
+      "kitu_application_last_error",
+      "kitu_application_read_output",
+      "kitu_application_submit_json",
+      "kitu_application_tick"
+    ],
+    "unsignedSha256": "3d1c732b5cb595e3aef84f3bb56737edb5ca0d795346f9d0ff2ffee9d86f94ec",
+    "signatureVerified": true
+  },
+  "signatureVerified": true,
+  "nativeLibraryBundled": true,
+  "playVerification": "Run run-arena-player-verification.py separately."
+}

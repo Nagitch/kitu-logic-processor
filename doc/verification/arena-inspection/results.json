@@ -1,0 +1,57 @@
+{
+  "stage": 17,
+  "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/162",
+  "capturedAtUtc": "2026-09-06T16:54:40.499438+00:00",
+  "status": "local_verification_complete",
+  "execution": {
+    "aarch64-apple-darwin": {
+      "package": "0.1.0",
+      "sourceHash": "3324e597ad570f9631d1f88b3236717a5c869463c9dd269ba46a36df007542b5",
+      "target": "aarch64-apple-darwin"
+    },
+    "aarch64-unknown-linux-gnu": {
+      "package": "0.1.0",
+      "sourceHash": "ab8a1ecd1a364faa57e132c3d9c929a058f34b00417ced43ffe9bc4f16e8986f",
+      "target": "aarch64-unknown-linux-gnu"
+    }
+  },
+  "pluginSha256": "0e684dd67200b2f52c279e7ffeb5ca6f29ae64403a599936e0c3fac1826ad9ca",
+  "packageHash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+  "completed": {
+    "editMode": 143,
+    "fullMessagePackPlayMode": 31,
+    "frontendTests": 19,
+    "nativeBuild": true,
+    "signedPlayerBuild": true,
+    "browserFlows": 2,
+    "jsonNetworkPlayMode": 7,
+    "workspaceTests": {
+      "suites": 58,
+      "passed": 360,
+      "failed": 0,
+      "ignored": 0
+    },
+    "graphicalPlayer": {
+      "ticks": 5528,
+      "inputs": 5581,
+      "completeStateAndOutput": "exact match",
+      "screenshots": 5
+    }
+  },
+  "reports": {
+    "rust": "rust.json",
+    "frontend": "frontend.json",
+    "unity": "unity-tests.json",
+    "builds": "builds.json",
+    "browser": "browser.json",
+    "runtimeArchive": "runtime-archive.json",
+    "graphicalPlayer": "player.json"
+  },
+  "pending": [
+    {
+      "check": "pr_ci_review_merge_and_parent_pointer",
+      "status": "pending"
+    }
+  ],
+  "scope": "Local macOS ARM64 Player and Linux ARM64 Dev Container host. Inspection timing stays outside deterministic state and recording fingerprints. No screenshot publication or Windows/CDN/remote deployment claim."
+}

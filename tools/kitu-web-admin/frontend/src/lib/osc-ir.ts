@@ -58,7 +58,7 @@ async function loadOscIrWasm() {
       wasmModule = null;
       const detail = error instanceof Error ? error.message : String(error);
       throw new Error(
-        `OSC-IR WASM bindings are not available. Run \`npm run wasm\` before starting Web Admin. ${detail}`,
+        `OSC-IR WASM bindings are not available. Run \`pnpm run wasm\` before starting Web Admin. ${detail}`,
       );
     });
 

@@ -1,0 +1,12 @@
+{
+  "name": "UnityOnlyArena.Editor",
+  "references": [
+    "UnityOnlyArena",
+    "Unity.Addressables",
+    "Unity.ResourceManager",
+    "Unity.Addressables.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

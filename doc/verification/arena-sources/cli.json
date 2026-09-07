@@ -1,0 +1,25 @@
+{
+  "recordingId": "de5aca74604261712e97c4a146cc6e871deea3d46c685b3260e4f0dcdb787006",
+  "recordedTicks": 34302,
+  "savedDamage": 32,
+  "currentAuthoringDamage": 39,
+  "liveActiveDamage": 37,
+  "pendingDamage": 37,
+  "savedWinningLayer": "debug",
+  "liveWinningLayer": "event",
+  "firstStep": 0,
+  "seekTick": 34301,
+  "seekStateEqualsVerifiedState": true,
+  "stageDuringReplay": {
+    "id": 1,
+    "ok": false,
+    "data": null,
+    "error": "replay is read-only; return to live mode before sending game inputs"
+  },
+  "returnLive": "same active/pending/candidate values, paused then explicit resume/pause",
+  "sessionId": "1-1788687912503672559",
+  "savedContentHash": "87cb9e6ad917ff85eade4a913cca54d2c47c06874ec4abc7e094987cf2391d3c",
+  "currentActiveHash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+  "candidateHash": "460913f06a4a798eeaf146005bec889147aa2a7b33548916f0d20c6aa28a89d6",
+  "authoringSourceModifiedSinceRecording": true
+}

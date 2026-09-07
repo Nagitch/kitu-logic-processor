@@ -1,0 +1,349 @@
+{
+  "date": "2026-09-05",
+  "unity_version": "m_EditorVersion: 6000.5.0f1",
+  "base_revision": "d1805c537695d4c84baf1554062417237ea1cfc7",
+  "branch": "codex/unity-only-endless-arena",
+  "scope": "Unity-only endless arena implementation; source and asset hashes identify the verified content. Unity YAML trailing whitespace was normalized before commit.",
+  "suites": {
+    "editmode": {
+      "result": "Passed",
+      "total": 39,
+      "passed": 39,
+      "failed": 0,
+      "duration_seconds": 0.1423513,
+      "end_utc": "2026-09-05 12:58:23Z",
+      "tests": [
+        {
+          "name": "ArenaInventoryTests.ChestHasSixDistinctWeaponCandidatesAndFiveItemUpgradeCandidates",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.DamageUpdateCannotRegenerateAndRecoveryStartsAfterThreeSeconds",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.DamageWithoutAShieldStillStartsSharedDelayAndChangingEquipmentKeepsIt",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.DeathPreventsRevivalConsumptionAndFurtherInventoryChanges",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.FractionalRecoveryAccumulatesAcrossSmallUpdatesAndUsesNewCapacity",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.FullHealthMedkitIsKeptAndUsedMedkitOnlyRefillsHp",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.GrenadeIsConsumedImmediatelyAndBackpackDoesNotAutoRefillEquipment",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.HealingDoesNotTouchShieldOrDelayAndNonPositiveDamageDoesNothing",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.InvalidOperationsAreAtomicAndUnequipNeedsAnEmptyBackpackSlot",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.ResetRemovesAllRunStateAndRestoresOnlyTheStarterBlade",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.ShieldChargeAndFractionSurviveSwapsButOnlyEquipmentRegenerates",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.ShieldsAbsorbInSlotOrderAndRemainEquippedWhenEmpty",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.TakingSwappingAndEquippingConserveItemInstancesEvenWhenBackpackIsFull",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.UpgradesConsumeOnceAndHealthUpgradeDoesNotRefillAnExistingShield",
+          "result": "Passed"
+        },
+        {
+          "name": "ArenaInventoryTests.UsingMedkitAThenBConsumesOnlyAWhenAHealsToFull",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaRunScenarioTests.StockChestLoadoutAndContinuousMovementCanClearElevenFloors",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ActualPursuerMovementAndMeleeEventuallyKillAnIdlePlayer",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BossClearHealsOnceAndKeepsRewardContentsAndShieldCharge",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BossTelegraphsThenFiresEightShotsAndDoesNotMeleeDuringTellOrRecovery",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BulletsExpireAtWallOrMaximumRange",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.BulletSpawnOverlappingEnemyStillHitsInsteadOfSkippingCloseTarget",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ClearRemovesHostileShotsAndGrenadesBeforeSafeStateCanBeDamaged",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ContactAloneDoesNoDamageAndEnemyWaitsInitialAttackInterval",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.DeathSnapshotStaysFixedAndRetryResetsRunWhileMenuClearsIt",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.EndlessProgressionThroughTwentyOneFloorsUsesSpecifiedRosterAndRewards",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.EnemyBulletSweepDamagesPlayerAndIgnoresOtherEnemies",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.FloorTransitionCarriesHealthInventoryAndShieldTimersButResetsTransientState",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.GrenadeRequiresAimConsumesAtThrowAndDealsSnapshotAreaDamageAfterDelay",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.GrenadeTargetIsLimitedByThrowRangeAndArena",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.IndependentWeaponsHitConeOncePerEnemyAndHonorCooldowns",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.MedkitInputsAreOrderedBeforeIncomingDamageAndSecondFullHealthMedkitIsKept",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.MovementIsNormalizedWallBoundAndMaintainsLastValidAim",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.OpeningDoesNotRunAndStartingCreatesOnePreparationChest",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.PortalAppearingUnderPlayerRequiresExitAndReentryAndCannotTransitionTwice",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.PortalRejectsNoWeaponWithoutDiscardingChest",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ProjectileSweepHitsNearestTargetEvenWhenListOrderIsFarFirst",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.ShooterApproachesAndFiresTowardPlayerAfterItsInitialDelay",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(1)",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(5)",
+          "result": "Passed"
+        }
+      ]
+    },
+    "playmode": {
+      "result": "Passed",
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "duration_seconds": 1.5675218,
+      "end_utc": "2026-09-05 13:07:53Z",
+      "tests": [
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.ChestDistanceAndCombatInventoryGatesUseEAndTab",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.FullHealthMedkitAndSimultaneousMedkitsDoNotConsumeAnExtraItem",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.HeldButtonsAcrossInventoryCloseRequireReleaseBeforeWeaponsOrItems",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.OpeningStartAndReturnToMenuOwnTheSceneAndRunLifetime",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.PauseSettingsAndFocusLossFreezeCombatAndReturnToPause",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.SettingsDraftCancelResetAndApplyReturnToOpeningWithoutAdvancingRun",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.SettingsSaveLoadUsesAnIsolatedPrefixAndRejectsInvalidSavedValues",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.WasdAimAndBothMouseButtonsReachTheRunningSimulation",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaFrontendTests.ZAndXUseTheirOwnSlotsThroughTheInputSystem",
+          "result": "Passed"
+        },
+        {
+          "name": "UnityOnlyArena.Tests.ArenaSceneScenarioTests.ActualSceneStockRunReachesElevenThenDiesAndRestarts",
+          "result": "Passed"
+        }
+      ]
+    }
+  },
+  "source_sha256": {
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Editor/ArenaBuild.cs": "6d8cf25dd4c43f890d08e8a0da4a8adf050fba6ec9304269a415ef69ab384560",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Editor/ArenaBuild.cs.meta": "0739e0beacf25faad2a26e219bef28210af33e0ddfd5ca68f9c3c59199cd7ffe",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Editor/UnityOnlyArena.Editor.asmdef": "c297c63a3177f973d045d0e4cd7c3928868118bc2fbf70c5fe1a060297aa6d2c",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Editor/UnityOnlyArena.Editor.asmdef.meta": "13ebe55caafe511ec837a042187f02baf74d08b816b18384a4f7d6b2a7a06eb0",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Editor.meta": "2c89fa23ea68f0b762c4496c26fb855b695b796fe870503d10e312e8f40eafb5",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/EndlessArena.unity": "88a34b24cabe511bce5a7a771d172a26a4891079b85a5187eb1bf76bd63e1a8b",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/EndlessArena.unity.meta": "d03ee6bece1b90874006e9cb429f3e4f3b7840da84d54732b2e0a2286272892a",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Resources/ArenaBase.mat": "b2c92f044daf91bf197bc05b210292c209dce54aafdb4f887550fb864589c792",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Resources/ArenaBase.mat.meta": "6140bb8ab0bc038d4dc27fab5791fb43bac6531857e98b2d07ff124be360c889",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Resources.meta": "58f7508c10f855510fcac6a284e7bf363c9a6b4a73b0d1c6b4e28b72d6a6a450",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaGame.cs": "93415c1c666e29b58454f0304e9f9d3c8c4d33e3be15a75ebf1a9e6a65e405d8",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaGame.cs.meta": "5a6f802ac3ba4ee14070def2f7ac02f720152079f12ce498cea75342142805ef",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaHud.cs": "daf7b067e2620fb430d190044a4b6d18ddf4d000f2e3cfc38fa43e5e2d81d299",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaHud.cs.meta": "b2c2ed86a6ad4d8a28ae6730f25f99727d680eebf10e9cba62777a5992b77efb",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaInventory.cs": "6b5d7ec84b1d30c82158ff4adb6a7e391559211734784da9736dd5997f5e2c0c",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaInventory.cs.meta": "1ff5e7ebb466fccb9e434db44f30182ae9341e32f1ad9a91102b1e97af4a257c",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaSettings.cs": "4f29ad79cf6cd99cc8231684cc428b0a22023ef36408eb713cb19141038a4751",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaSettings.cs.meta": "45e0f68c2e281d0923c1df1e9ffa5327ffe17dc37f0c56da543fdaf24e35f594",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaSimulation.cs": "e11eb9e896d163aa873aa523a29f57aee9db785149376891cb9922c4308f60f5",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaSimulation.cs.meta": "451037c6e618342ff87e119b2991b4fc36ae69c7cae9fc528ff3501516694f45",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaWorldView.cs": "b955ff6eb8f6ec7927359b523508e0ce78004c13bd7b1980e3f5a3bc24dea109",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/ArenaWorldView.cs.meta": "29d1c6040c5bd7dd9a16f5e5edd8bf6e538fc79b3dc5bbc0cf72b4c50d665576",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/UnityOnlyArena.asmdef": "a01e1d6fe29a8b8c614f7027bf5ffc548baf1e043c42ca8a60d7306c28c53eb1",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime/UnityOnlyArena.asmdef.meta": "6af97c1b5a2004b07c1e7ffaf8ab1da7b64632788e6b34755ee746ad833cbcea",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Runtime.meta": "4937124e9b29a5df42f40ec96ca908df13fbb3cf165e64ce51723a04cbd5bbb6",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/ArenaInventoryTests.cs": "da08357fc646417ec7705ebe11eea862718edd6fea0ec4a2b7158b31592406d6",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/ArenaInventoryTests.cs.meta": "54ab76eef5fba5ee4540aaae9d90e6cb01523701f8ed1305b684d2744a1b58e8",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/ArenaRunScenarioTests.cs": "a7767e538df3162aec51dc0ed09529d1d5f6f5d3d0a19f8a53089579addecf99",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/ArenaRunScenarioTests.cs.meta": "54e5efe026c54e448088cc7ecfff9abe1b7b06bcd679d78eeac581f826c34ee1",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/ArenaSimulationTests.cs": "a398fe14c3188984f19ed30b11aa71323fb096a8b83cfffbb4267bc69e82fd7b",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/ArenaSimulationTests.cs.meta": "05f8a5764af0eb23bbc60d1398986544b7aca6edb9be80c14ebf7ca65672e5ee",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/UnityOnlyArena.Tests.asmdef": "1eaf32e87772dd3dc2d6bb1a675bac6fb276b900cd6ecb6f7b606758e203b257",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor/UnityOnlyArena.Tests.asmdef.meta": "2bee891e7671837974696222e0029ba1a9a534eada38060ef3cef3016fd18521",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/Editor.meta": "58e8baea8429a70aeea2c0175c3460a163c42cee762f7a3da37a917a8abc7073",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/ArenaFrontendTests.cs": "83702613236e8736ccf493cd9e4e8aa2113424dbb247db836baf3eda3e9f0f03",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/ArenaFrontendTests.cs.meta": "b5f70749bfcf9a7a483fd3f529dd4eb1accb2b6be147169f55520ee123488d95",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/ArenaSceneScenarioTests.cs": "3b7310b68362e2fbf424d24411c22f4aa6999430951c4e0d137c2e80ef58b18a",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/ArenaSceneScenarioTests.cs.meta": "95639afcd5606ba0391ed592b9f965b377b8ef315e38904362ba3d2b7d257c78",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/UnityOnlyArena.PlayModeTests.asmdef": "ab832b137373dd3e3cc3bd0e09bc2238335c930ca98a1555076c50a514fab2f6",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode/UnityOnlyArena.PlayModeTests.asmdef.meta": "e6dea1b47281165a18c3d8dd2155ee80e4c03e58cd97ade4beecccdc50adea04",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests/PlayMode.meta": "f2b853c2fe27e7cea77da0fcb4d4a56ac2f868099d31096ec27267739abc5fa1",
+    "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/KituDemoApp/EndlessArena/Tests.meta": "03eaf09a33f64af707e784d6fd2f8c7b7d3c0fa41bcf9c6af88cfd9d60997a65"
+  },
+  "scene_checkpoints": [
+    "[scene run] Actual saved scene; ArenaGame.AdvanceSimulation accelerates the stock input bot. ArenaGame.Update, WorldView.LateUpdate and HUD.OnGUI remain enabled. Physical input is covered separately.",
+    "[scene visual] captured Logs/arena-visuals/opening.png; 0F Opening; t=0.00; HP=100/100; enemies=0; kills=0; cleared=0; bosses=0; inspect image for visual quality.",
+    "[scene visual] captured Logs/arena-visuals/chest.png; 0F Preparing; t=1.23; HP=110/110; enemies=0; kills=0; cleared=0; bosses=0; inspect image for visual quality.",
+    "[scene run] selected stock chest 0F Preparing; t=1.23; HP=110/110; enemies=0; kills=0; cleared=0; bosses=0",
+    "[scene run] entered 1F Combat; t=2.83; HP=110/110; enemies=3; kills=0; cleared=0; bosses=0",
+    "[scene visual] captured Logs/arena-visuals/combat.png; 1F Combat; t=2.88; HP=110/110; enemies=3; kills=0; cleared=0; bosses=0; inspect image for visual quality.",
+    "[scene run] cleared 1F Cleared; t=5.70; HP=110/110; enemies=0; kills=3; cleared=1; bosses=0",
+    "[scene run] entered 2F Combat; t=7.35; HP=110/110; enemies=4; kills=3; cleared=1; bosses=0",
+    "[scene run] cleared 2F Cleared; t=10.78; HP=110/110; enemies=0; kills=7; cleared=2; bosses=0",
+    "[scene run] entered 3F Combat; t=11.93; HP=110/110; enemies=5; kills=7; cleared=2; bosses=0",
+    "[scene run] cleared 3F Cleared; t=16.87; HP=110/110; enemies=0; kills=12; cleared=3; bosses=0",
+    "[scene run] entered 4F Combat; t=17.32; HP=110/110; enemies=6; kills=12; cleared=3; bosses=0",
+    "[scene run] cleared 4F Cleared; t=22.45; HP=110/110; enemies=0; kills=18; cleared=4; bosses=0",
+    "[scene run] entered 5F Combat; t=22.75; HP=110/110; enemies=1; kills=18; cleared=4; bosses=0",
+    "[scene visual] captured Logs/arena-visuals/boss.png; 5F Combat; t=25.78; HP=110/110; enemies=1; kills=18; cleared=4; bosses=0; inspect image for visual quality.",
+    "[scene run] cleared 5F Cleared; t=27.60; HP=110/110; enemies=0; kills=19; cleared=5; bosses=1",
+    "[scene run] selected stock chest 5F Cleared; t=29.58; HP=120/120; enemies=0; kills=19; cleared=5; bosses=1",
+    "[scene run] entered 6F Combat; t=30.72; HP=120/120; enemies=8; kills=19; cleared=5; bosses=1",
+    "[scene run] cleared 6F Cleared; t=37.85; HP=120/120; enemies=0; kills=27; cleared=6; bosses=1",
+    "[scene run] entered 7F Combat; t=39.63; HP=120/120; enemies=9; kills=27; cleared=6; bosses=1",
+    "[scene run] cleared 7F Cleared; t=47.55; HP=120/120; enemies=0; kills=36; cleared=7; bosses=1",
+    "[scene run] entered 8F Combat; t=49.83; HP=120/120; enemies=10; kills=36; cleared=7; bosses=1",
+    "[scene run] cleared 8F Cleared; t=59.25; HP=120/120; enemies=0; kills=46; cleared=8; bosses=1",
+    "[scene run] entered 9F Combat; t=62.05; HP=120/120; enemies=11; kills=46; cleared=8; bosses=1",
+    "[scene run] cleared 9F Cleared; t=72.93; HP=120/120; enemies=0; kills=57; cleared=9; bosses=1",
+    "[scene run] entered 10F Combat; t=75.53; HP=120/120; enemies=1; kills=57; cleared=9; bosses=1",
+    "[scene run] cleared 10F Cleared; t=80.85; HP=120/120; enemies=0; kills=58; cleared=10; bosses=2",
+    "[scene run] selected stock chest 10F Cleared; t=82.05; HP=130/130; enemies=0; kills=58; cleared=10; bosses=2",
+    "[scene run] entered 11F Combat; t=83.15; HP=130/130; enemies=12; kills=58; cleared=10; bosses=2",
+    "[scene run] stock run reached 11F; cease movement, firing and item use for natural AI death.",
+    "[scene run] natural death 11F Results; t=89.09; HP=0/130; enemies=12; kills=58; cleared=10; bosses=2",
+    "[scene visual] captured Logs/arena-visuals/result.png; 11F Results; t=89.09; HP=0/130; enemies=12; kills=58; cleared=10; bosses=2; inspect image for visual quality.",
+    "[scene run] actual scene completed opening -> stock 1F..11F -> natural death -> clean retry."
+  ],
+  "visuals": {
+    "source": "Real Unity GameView ScreenCapture, non-batch PlayMode runner; human/model image inspection completed.",
+    "files": [
+      "opening.png",
+      "chest.png",
+      "combat.png",
+      "boss.png",
+      "result.png"
+    ],
+    "observations": "Readable opening, stock chest/equipment, combat with enemy HP, boss telegraph and game-over result. Fixed HUD bands retain no old text."
+  },
+  "initial_input_fixture_failure": {
+    "total": "9",
+    "passed": "2",
+    "failed": "7",
+    "duration": "0.2975079"
+  },
+  "test_limits": [
+    "Frontend tests inject virtual Keyboard/Mouse state through the production ArenaGame.Update.",
+    "Scene scenario accelerates normal stock movement/aim/weapon commands through ArenaGame.AdvanceSimulation; it does not modify HP, enemy positions, weapon stats or floor numbers.",
+    "Focused rule tests set up controlled states for boundary cases. The 21-floor roster test is distinct from the stock-play scenario.",
+    "Standalone UI, window mode, quit and restart persistence are checked separately; a build alone is not proof of those."
+  ],
+  "build": {
+    "result": "Success",
+    "exit_code": 0,
+    "command": "Unity -batchmode -quit -projectPath <project> -executeMethod UnityOnlyArena.Editor.ArenaBuild.BuildMac -logFile Logs/arena-build.log",
+    "scene": "Assets/KituDemoApp/EndlessArena/EndlessArena.unity",
+    "artifact": "Builds/EndlessArena.app",
+    "runtime_assembly_sha256": "5224d4ce2952e45d80dca418b83f25bafb8003aaf81a63bf2256488f743cfdf3",
+    "confirmation": "Build Finished, Result: Success.; Arena player built: <project>/Builds/EndlessArena.app"
+  },
+  "standalone_observations": {
+    "method": "Native app UI through CUA, separate from accelerated scene test",
+    "completed": [
+      "Final build launches into opening menu",
+      "Settings Apply changes windowed to borderless fullscreen",
+      "Quit terminates process 78599; ps confirms no such PID",
+      "Relaunch creates process 78908 and restores 36% master volume and borderless fullscreen",
+      "Restore defaults followed by Cancel preserves 36% and fullscreen when settings reopen",
+      "Restore defaults followed by Apply returns to windowed mode",
+      "Earlier native checks verified Start -> 0F, Tab inventory, Escape close/pause, pause return to menu"
+    ],
+    "remaining_settings": "Defaults applied at end of verification."
+  }
+}

@@ -1,0 +1,9 @@
+{
+    "name": "UnityOnlyArena",
+    "references": [
+        "Unity.InputSystem",
+        "Unity.Newtonsoft.Json",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
+    ]
+}

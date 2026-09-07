@@ -1,0 +1,302 @@
+{
+  "sourceReport": {
+    "path": ".tmp/stage16/visual-equivalence.json",
+    "bytes": 9214,
+    "sha256": "fe7c1428ed4b9966d506e59f0a06051abeb1026a8da468235745df4931f393b0"
+  },
+  "images": 15,
+  "byteIdenticalImages": 0,
+  "pixelIdenticalImages": 0,
+  "maximumChannelDifference": 3,
+  "channelScale": 255,
+  "maximumMeanChannelDifference": 0.0007745225694444444,
+  "cases": [
+    {
+      "current": ".tmp/stage16/player-preparation/inventory.png",
+      "reference": ".tmp/stage15/player-preparation/inventory.png",
+      "currentSha256": "aa34127eaee125fba2b44da705c26b302dffd0b5b054bac2451f3d3519717fc3",
+      "referenceSha256": "27e19d33d1595fabc836277acb3d0c02516addb79923ec9ef3e74e9278371a04",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 1261,
+        "maximumChannelDifference": 2,
+        "meanChannelDifference": 0.00014420572916666667,
+        "bounds": [
+          217,
+          42,
+          1917,
+          618
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-stock/boss.png",
+      "reference": ".tmp/stage15/player-stock/boss.png",
+      "currentSha256": "c9d95593af0cf78f6a9526ee26c1cdfcc97ec59cadf047396f348e9243feb8a1",
+      "referenceSha256": "f457204b562e4b7b63ee260902249bd24b3b692e9ea3c76509b1251513d34aad",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 4425,
+        "maximumChannelDifference": 3,
+        "meanChannelDifference": 0.0005725911458333334,
+        "bounds": [
+          48,
+          192,
+          1430,
+          943
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-stock/chest.png",
+      "reference": ".tmp/stage15/player-stock/chest.png",
+      "currentSha256": "513e4c26718bd218dcdef315293cddb0ff3f0668837dfd6daa0c3eacf99d1068",
+      "referenceSha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 3630,
+        "maximumChannelDifference": 1,
+        "meanChannelDifference": 0.0004154730902777778,
+        "bounds": [
+          252,
+          192,
+          1886,
+          971
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-stock/combat.png",
+      "reference": ".tmp/stage15/player-stock/combat.png",
+      "currentSha256": "83829ca8d3a31bf1a85e9590cf3ddfab03d1010848dd642fada8c54e9a0ba748",
+      "referenceSha256": "b2c6212ff2efb75b141525c522afcc54138a3895278239d07230e94d0aefedaa",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 1229,
+        "maximumChannelDifference": 2,
+        "meanChannelDifference": 0.0001982421875,
+        "bounds": [
+          632,
+          192,
+          1919,
+          650
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-stock/death-11f.png",
+      "reference": ".tmp/stage15/player-stock/death-11f.png",
+      "currentSha256": "ebb79319bfb895f69a28b876f7eed766d2d2751161f8c1c734f90f80e2e58e31",
+      "referenceSha256": "f322a81b1e913f415e27d8942c62edbd83c89108c66ee5318bdc47d24ec1bb61",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 3127,
+        "maximumChannelDifference": 3,
+        "meanChannelDifference": 0.0003620876736111111,
+        "bounds": [
+          628,
+          192,
+          1919,
+          737
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-stock/retry.png",
+      "reference": ".tmp/stage15/player-stock/retry.png",
+      "currentSha256": "6d3c57a678fe7c22c5898aabc4cd4b7b2950ca5b812736639751e5b79512baf8",
+      "referenceSha256": "7ad3badf7dc7194e24a2290921a0285cee48fcb7fd1889bcd7a887b255b4c231",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 1223,
+        "maximumChannelDifference": 3,
+        "meanChannelDifference": 0.00014507378472222222,
+        "bounds": [
+          631,
+          192,
+          1919,
+          634
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-script/boss-script.png",
+      "reference": ".tmp/stage15/player-script/boss-script.png",
+      "currentSha256": "8aab43577492bac3dc63a553b4092ecba44e57d6b305c0e484453c7ed675b3ab",
+      "referenceSha256": "f457204b562e4b7b63ee260902249bd24b3b692e9ea3c76509b1251513d34aad",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 4367,
+        "maximumChannelDifference": 3,
+        "meanChannelDifference": 0.0005579427083333334,
+        "bounds": [
+          48,
+          192,
+          1429,
+          943
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-script/chest.png",
+      "reference": ".tmp/stage15/player-script/chest.png",
+      "currentSha256": "97d0970f682eea1c81cdd87bef15ff7764bbaa9a08d57211fdccb3a5337ba8ee",
+      "referenceSha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 3702,
+        "maximumChannelDifference": 2,
+        "meanChannelDifference": 0.0004282769097222222,
+        "bounds": [
+          252,
+          192,
+          1886,
+          971
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-script/combat.png",
+      "reference": ".tmp/stage15/player-script/combat.png",
+      "currentSha256": "ac6acc9a12c1073473d2d21be70e878dffe41c6c1d1ef28e78ae479421a9b54f",
+      "referenceSha256": "b2c6212ff2efb75b141525c522afcc54138a3895278239d07230e94d0aefedaa",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 1162,
+        "maximumChannelDifference": 2,
+        "meanChannelDifference": 0.00019162326388888888,
+        "bounds": [
+          628,
+          192,
+          1919,
+          650
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-timeline/boss.png",
+      "reference": ".tmp/stage15/player-timeline/boss.png",
+      "currentSha256": "8961790af9bed6bbbf7e82208dc85e84efca7aeca9489763eeda32663dc32bcb",
+      "referenceSha256": "df3ad8f82ed255a462fd8e92ca024ab2da16307ed7f58b4bd3f7e5d9b2237cca",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 4810,
+        "maximumChannelDifference": 3,
+        "meanChannelDifference": 0.000671875,
+        "bounds": [
+          49,
+          192,
+          1430,
+          943
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-timeline/chest.png",
+      "reference": ".tmp/stage15/player-timeline/chest.png",
+      "currentSha256": "6a05ac537518be07bcef75f6632b67c6270df70ea53bc428f73df95a08309db7",
+      "referenceSha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 3490,
+        "maximumChannelDifference": 1,
+        "meanChannelDifference": 0.0004076605902777778,
+        "bounds": [
+          252,
+          192,
+          1886,
+          971
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-timeline/combat.png",
+      "reference": ".tmp/stage15/player-timeline/combat.png",
+      "currentSha256": "435ddd16ca8fbec9c80e3a7dea4782308ba6198c0c451ea6c7d97c87625cd381",
+      "referenceSha256": "7668a0898f748417ff72656a1b9621d0357b6b9d68a9a1bd0c6dac9d025a9ac4",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 377,
+        "maximumChannelDifference": 1,
+        "meanChannelDifference": 4.090711805555556e-05,
+        "bounds": [
+          906,
+          192,
+          1817,
+          650
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-timeline/timeline-boss.png",
+      "reference": ".tmp/stage15/player-timeline/timeline-boss.png",
+      "currentSha256": "55445dfaef28fa1ee1238f542800e455954f194a1858a6c43e979b882a7c1af1",
+      "referenceSha256": "350836923cfbf34fdf236eb973189d4657cc00852a50beda990e5bbb072bc6d4",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 5890,
+        "maximumChannelDifference": 3,
+        "meanChannelDifference": 0.0007498914930555555,
+        "bounds": [
+          0,
+          237,
+          1345,
+          971
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-timeline/timeline-floor.png",
+      "reference": ".tmp/stage15/player-timeline/timeline-floor.png",
+      "currentSha256": "fc70ebed5e52b8ab760f6dcc37bbe87b6062e739f177d65bd9fc0b330252691b",
+      "referenceSha256": "0c0ea2690da455989005249f8c7ef9c3b811d9e7ef613fb1e3700095d5c86baa",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 1278,
+        "maximumChannelDifference": 2,
+        "meanChannelDifference": 0.00014312065972222222,
+        "bounds": [
+          8,
+          227,
+          1333,
+          921
+        ]
+      }
+    },
+    {
+      "current": ".tmp/stage16/player-timeline/timeline-paused.png",
+      "reference": ".tmp/stage15/player-timeline/timeline-paused.png",
+      "currentSha256": "9869c96d07be33a356970126b8493e95f8f7f89f8474dab1532be872675f67de",
+      "referenceSha256": "99e1e2ef063ad51ab619c54f768d9c956b44217490b5a859f49a9a2dd23fb508",
+      "equal": false,
+      "pixels": {
+        "equal": false,
+        "differentPixels": 6201,
+        "maximumChannelDifference": 3,
+        "meanChannelDifference": 0.0007745225694444444,
+        "bounds": [
+          0,
+          230,
+          1362,
+          971
+        ]
+      }
+    }
+  ],
+  "claim": "Logical state/output equality is exact; pixel equality is not claimed. Image differences are measured, not assumed absent.",
+  "publication": "No PNG files are included or uploaded; paths and hashes identify retained local images."
+}

@@ -1,0 +1,143 @@
+{
+  "workspace": {
+    "passed": 343,
+    "failed": 0,
+    "ignored": 0,
+    "suites": 58,
+    "log": {
+      "path": ".tmp/stage16/rust-tests.log",
+      "bytes": 38948,
+      "sha256": "cd891c073f836bd7f56f7afcff085e05bc9bbd525035b43bae93ee53229aee9a"
+    },
+    "note": "This full run preceded the expectedBundledContentHash race guard. The final focused package run covers that regression; final Clippy compiled the guard."
+  },
+  "commands": {
+    "fmt": {
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.5489809513092041
+    },
+    "tests": {
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "cargo",
+        "test",
+        "--locked",
+        "--workspace"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 648.0276160240173
+    },
+    "clippy": {
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "cargo",
+        "clippy",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--all-features",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.37201189994812
+    },
+    "docs": {
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-e",
+        "RUSTDOCFLAGS=-D warnings",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "cargo",
+        "doc",
+        "--locked",
+        "--workspace",
+        "--no-deps"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.9454100131988525
+    }
+  },
+  "finalPackageRegression": {
+    "passed": 5,
+    "failed": 0,
+    "ignored": 0,
+    "log": {
+      "path": ".tmp/stage16/final-package-native-tests.log",
+      "bytes": 824,
+      "sha256": "2229b25b20d02397d8c664721cbcae8ab5e4df51437597107bf9dcfa7c7955d6"
+    }
+  },
+  "toolLogs": {
+    "fmt": {
+      "path": ".tmp/stage16/rust-fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "clippy": {
+      "path": ".tmp/stage16/rust-clippy.log",
+      "bytes": 256,
+      "sha256": "2a858b59cdb0d66f3e47ed4f1e46a7b8588698d3ad32a9eea494e010a86b6c24"
+    },
+    "docs": {
+      "path": ".tmp/stage16/rust-docs.log",
+      "bytes": 445,
+      "sha256": "7cc9a244d9aac2bb7f81812fcf068b5d3447c7b557ecc22ee3411d8940b57c52"
+    }
+  },
+  "packagingHelper": {
+    "matched": true,
+    "environment": "Dev Container Python",
+    "checks": [
+      "repeat staging preserves manifest hash",
+      "preexisting temporary symlink is not followed",
+      "source root symlink",
+      "staging root symlink",
+      "missing TSQ",
+      "tampered source",
+      "source symlink",
+      "duplicate visual key",
+      "incorrect visual type",
+      "unknown mapping field",
+      "empty visual key",
+      "actual packed bytes verify in isolated packaging fixture",
+      "missing actual bundle",
+      "tampered actual bundle",
+      "remote catalog location",
+      "catalog artifact path escape",
+      "missing catalog key"
+    ],
+    "packageHash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+    "catalogSha256": "f38992826089a665d661e07a2005e2ebd7fd932d65567fb47924345941ef5ab5",
+    "note": "File-verifier fixture uses actual packed content, but is not a runnable Player. Graphical Player proof is separate."
+  },
+  "pythonRustInteropLog": {
+    "path": ".tmp/stage16/package-python-interop.log",
+    "bytes": 536,
+    "sha256": "fdd6b810d320f5d432f4844d3b304e96ea24d14844b90899d76e7d084d02e61b"
+  }
+}

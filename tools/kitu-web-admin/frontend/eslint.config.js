@@ -37,6 +37,11 @@ export default ts.config(
   },
   {
     rules: {
+      "preserve-caught-error": "off",
+      "svelte/no-dom-manipulating": "off",
+      "svelte/no-navigation-without-resolve": "off",
+      "svelte/prefer-svelte-reactivity": "off",
+      "svelte/require-each-key": "off",
       "svelte/valid-compile": ["error", { ignoreWarnings: true }],
     },
   },

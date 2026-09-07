@@ -1,0 +1,531 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-09-06T12:40:25.450007+00:00",
+  "passed": true,
+  "scope": "Stage14 actual Admin TSQ1 presentation authoring, next-run activation and saved replay inspection",
+  "environment": {
+    "admin": "http://127.0.0.1:5178",
+    "api": "http://127.0.0.1:8792",
+    "webSocket": "ws://127.0.0.1:8792/ws",
+    "session": "kitu-e19c-timeline-admin",
+    "sessionClosed": true,
+    "agentBrowser": "0.27.0",
+    "execution": {
+      "package": "0.1.0",
+      "sourceHash": "9a16f4c06e06713f9ea349e47c588b390df7d50970b8fd01fa7822e1f40a5be5",
+      "target": "aarch64-unknown-linux-gnu"
+    },
+    "authoringPath": "/workspaces/kitu-logic-processor/.tmp/stage14/authoring/timelines"
+  },
+  "versions": {
+    "default": {
+      "hash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "contractVersion": 1,
+      "tickRate": 60,
+      "clips": [
+        {
+          "id": "boss-telegraph",
+          "sourceSha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f",
+          "bytes": 737
+        },
+        {
+          "id": "floor-transition",
+          "sourceSha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5",
+          "bytes": 652
+        }
+      ]
+    },
+    "adopted": {
+      "hash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "contractVersion": 1,
+      "tickRate": 60,
+      "clips": [
+        {
+          "id": "boss-telegraph",
+          "sourceSha256": "a470838cf9f2ac0b752b97bd95d6038f8bc237673238f88e9fd0620f93202b62",
+          "bytes": 737
+        },
+        {
+          "id": "floor-transition",
+          "sourceSha256": "c1df5a5518de803b5fab01e032594e024a7ef103d74301b042343ef76a0a539c",
+          "bytes": 652
+        }
+      ]
+    },
+    "later": {
+      "hash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "contractVersion": 1,
+      "tickRate": 60,
+      "clips": [
+        {
+          "id": "boss-telegraph",
+          "sourceSha256": "af4ec338cc5286a8958fb23b898cc7b38d573a44adf407506c9f49eacf5d030f",
+          "bytes": 737
+        },
+        {
+          "id": "floor-transition",
+          "sourceSha256": "02aeb2931d00295859bc7dae7b4964e5834d1626979eb6e5aa6b2eea92a27181",
+          "bytes": 652
+        }
+      ]
+    }
+  },
+  "checks": {
+    "initialEmptyCandidate": true,
+    "fileNamesByteCountsAndSourceDigestsVisible": true,
+    "clipBytesMatchSha256": true,
+    "validationPreservesActive": true,
+    "stagingPreservesActive": true,
+    "nextRunAdoptsStagedVersion": true,
+    "invalidBinaryClearsCandidateAndRetainsActivePending": true,
+    "deletedSourceClearsCandidateAndRetainsActivePending": true,
+    "validRecovery": true,
+    "editedSourceDoesNotReplaceSavedReplay": true,
+    "readOnlyApplyDisabledWithDifferentCandidate": true,
+    "pausedCueUnchangedAcrossPoll": true,
+    "stepAdvancesOneTickWithExactExpectedPresentation": true,
+    "overviewAndStoryNavigation": true,
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "errorOverlay": false,
+    "hasContent": true,
+    "webSocketOpen": true
+  },
+  "observations": [
+    {
+      "file": "01-initial.json",
+      "sha256": "d51fb4b7ef4b9b5e5448c29086aa45662f87e57d6640eef1281501c08a450d32",
+      "run": 0,
+      "readOnly": false,
+      "activeHash": null,
+      "pendingHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "candidateHash": null,
+      "diagnostics": []
+    },
+    {
+      "file": "02-active-default.json",
+      "sha256": "e5cd160d2fb77ad52beb84321a76ca634c23587e011c74166d1df822a1096cdc",
+      "run": 1,
+      "readOnly": false,
+      "activeHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "pendingHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "candidateHash": null,
+      "diagnostics": []
+    },
+    {
+      "file": "03-candidate.json",
+      "sha256": "ed44216d80dffb0f065feed205be6b4a6fc9e04173fc7747fed93ce93b497a43",
+      "run": 1,
+      "readOnly": false,
+      "activeHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "pendingHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "candidateHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "diagnostics": []
+    },
+    {
+      "file": "04-staged.json",
+      "sha256": "3280ffdfc07e893ab25326bf6fc6346d6eb4c51cf7ad68c1bffee35805ce319a",
+      "run": 1,
+      "readOnly": false,
+      "activeHash": "c996c00e557e46b60010fed41908e71f96edcc8f0f3c458b8e3472ce4fbbae82",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "diagnostics": []
+    },
+    {
+      "file": "05-adopted.json",
+      "sha256": "8c9ae2ba9c1d9be428d7af1de06e32c4c57c8ea72faf011c61f99f57689bc87e",
+      "run": 2,
+      "readOnly": false,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "diagnostics": []
+    },
+    {
+      "file": "07-invalid.json",
+      "sha256": "69caf1ead8e7572ec02d46df3de14708949b6fcdb87bf200085b278625747527",
+      "run": 2,
+      "readOnly": false,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": null,
+      "diagnostics": [
+        "boss-telegraph: decode presentation TSQ1: invalid input at byte 0: TSQ1 header is truncated"
+      ]
+    },
+    {
+      "file": "08-deleted.json",
+      "sha256": "282ab5c855d417e61cc8cdbf09eb4915bb1cdb4f3ad4040260b8d60093018290",
+      "run": 2,
+      "readOnly": false,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": null,
+      "diagnostics": [
+        "/workspaces/kitu-logic-processor/.tmp/stage14/authoring/timelines/boss-telegraph.tsq: cannot open timeline source: No such file or directory (os error 2)"
+      ]
+    },
+    {
+      "file": "09-recovered.json",
+      "sha256": "3d51e210c16b09c49c4f2eecc680b992141b36b3a26477461fbe078031251792",
+      "run": 2,
+      "readOnly": false,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "diagnostics": []
+    },
+    {
+      "file": "11-later-candidate.json",
+      "sha256": "0daeca80124898cf8b1bd7a6b0fa2a899e81524e303c7ffb417f45304c2a7c03",
+      "run": 2,
+      "readOnly": false,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "diagnostics": []
+    },
+    {
+      "file": "12-later-staged.json",
+      "sha256": "35ee6495c21dad9d61e3f18f72436a3363ba1c10cd48a6f421bfcb70719d8f63",
+      "run": 2,
+      "readOnly": false,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "candidateHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "diagnostics": []
+    },
+    {
+      "file": "15-own-replay.json",
+      "sha256": "832252b39b68c15ede194c132ae75c98845e66ea839a20dd540fd7429e1c1a75",
+      "run": 2,
+      "readOnly": true,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "diagnostics": []
+    },
+    {
+      "file": "18-floor-cue.json",
+      "sha256": "9d7d4d58cf3ca2b9398f1d4b313679b239c58bd910f79fbaf7a7da7acae71b2e",
+      "run": 1,
+      "readOnly": true,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "diagnostics": []
+    },
+    {
+      "file": "19-boss-cue.json",
+      "sha256": "4c0e335cf724b978752f938b5265de93d2fe42ac0d0bbcd8cd288bfc0a30c9c7",
+      "run": 1,
+      "readOnly": true,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "diagnostics": []
+    },
+    {
+      "file": "21-cue-step.json",
+      "sha256": "81c02ebbdaa3ed789fb59d2c1e0350a2e5e70f9b6f041211b1c3a26d22a03241",
+      "run": 1,
+      "readOnly": true,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "candidateHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "diagnostics": []
+    },
+    {
+      "file": "22-return-live.json",
+      "sha256": "fc30d1f3e9d7d9103c67d7ad0d62ed4ba92e0c6392b6143db8bced05c2e4c7c6",
+      "run": 2,
+      "readOnly": false,
+      "activeHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+      "pendingHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "candidateHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+      "diagnostics": []
+    }
+  ],
+  "browserShellCommands": [
+    {
+      "command": "app action run arena.start",
+      "uiResult": "Completed",
+      "evidence": "02-start-default.json",
+      "sha256": "11c320eba0c2e3c9277708257c3b4f9748af51e96a3a55feb35ff46a58ab7bba",
+      "receipt": {
+        "accepted": true,
+        "appliedTick": 10771,
+        "code": "ok",
+        "duplicate": false,
+        "id": 1,
+        "sequence": 0,
+        "source": "shell:browser-eb0cc6f0-a56f-46a4-a533-f39373e175b8:1",
+        "tick": 10771
+      }
+    },
+    {
+      "command": "app action run arena.menu",
+      "uiResult": "Completed",
+      "evidence": "05-menu.json",
+      "sha256": "e728e11485aa8ca4a6735e6db7cd71400f9e52291e5fa1f6d019e13f0564c827",
+      "receipt": {
+        "accepted": true,
+        "appliedTick": 11033,
+        "code": "ok",
+        "duplicate": false,
+        "id": 1,
+        "sequence": 2,
+        "source": "shell:browser-85a2be04-7898-4366-ba1f-7f9ed903c193:1",
+        "tick": 11033
+      }
+    },
+    {
+      "command": "app action run arena.start",
+      "uiResult": "Completed",
+      "evidence": "05-start-custom.json",
+      "sha256": "45aed28f006b84623df908b465ad0a3436a50253a821b210ef104e359329204e",
+      "receipt": {
+        "accepted": true,
+        "appliedTick": 11118,
+        "code": "ok",
+        "duplicate": false,
+        "id": 1,
+        "sequence": 3,
+        "source": "shell:browser-66966357-70c8-48df-a6c1-ab19c3d64a7a:1",
+        "tick": 11118
+      }
+    },
+    {
+      "command": "replay save",
+      "uiResult": "Completed",
+      "evidence": "10-save.json",
+      "sha256": "c79249c6944d35777912a9277b41a5ad23cb46a4d8b18d6f66ae73a43d101ff3"
+    },
+    {
+      "command": "replay load 099904cac24716987b67ca9fc02fb4b969769fcae6e8bbf077875de001d5fbea",
+      "uiResult": "Completed",
+      "evidence": "13-own-replay-load.json",
+      "sha256": "dd84f6e9dc9f383d5e98b88c6241a906262fb4c3291dc942ab7f3eb80425b04a",
+      "mode": {
+        "active": true,
+        "error": null,
+        "playing": false,
+        "recordingId": "099904cac24716987b67ca9fc02fb4b969769fcae6e8bbf077875de001d5fbea",
+        "seeking": false,
+        "tick": -1,
+        "totalTicks": 13950
+      }
+    },
+    {
+      "command": "replay step",
+      "uiResult": "Completed",
+      "evidence": "14-own-replay-step.json",
+      "sha256": "2cfa6e6c39e9fb2e9217886fb57a77b4bf3d5cd0187f9d47b9cf3b9c97f25da8",
+      "mode": {
+        "active": true,
+        "error": null,
+        "playing": false,
+        "recordingId": "099904cac24716987b67ca9fc02fb4b969769fcae6e8bbf077875de001d5fbea",
+        "seeking": false,
+        "tick": 0,
+        "totalTicks": 13950
+      }
+    },
+    {
+      "command": "replay seek 11118",
+      "uiResult": "Completed",
+      "evidence": "15-own-replay-seek.json",
+      "sha256": "03d7e43eb369760b3cabc1cafdeecb571f5282f6314421d4dafcd5ef8c02b92e",
+      "mode": {
+        "active": true,
+        "error": null,
+        "playing": false,
+        "recordingId": "099904cac24716987b67ca9fc02fb4b969769fcae6e8bbf077875de001d5fbea",
+        "seeking": false,
+        "tick": 11118,
+        "totalTicks": 13950
+      }
+    }
+  ],
+  "authoringCommands": [
+    {
+      "args": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "target/debug/arena-timelines",
+        ".tmp/stage14/authoring/timelines",
+        "--boss-radius",
+        "4.5",
+        "--floor-peak-opacity",
+        "0.85"
+      ],
+      "exitCode": 0
+    },
+    {
+      "args": [
+        "/usr/local/bin/docker",
+        "exec",
+        "-w",
+        "/workspaces/kitu-logic-processor",
+        "kitu-e19c-development",
+        "target/debug/arena-timelines",
+        ".tmp/stage14/authoring/timelines",
+        "--boss-radius",
+        "5.5",
+        "--floor-peak-opacity",
+        "0.6"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "actualSavedRecording": {
+    "bytes": 2168619,
+    "id": "099904cac24716987b67ca9fc02fb4b969769fcae6e8bbf077875de001d5fbea",
+    "path": "/workspaces/kitu-logic-processor/.tmp/stage14/authoring/recordings/099904cac24716987b67ca9fc02fb4b969769fcae6e8bbf077875de001d5fbea.tsq",
+    "totalTicksVerified": 13950,
+    "loadedTick": -1,
+    "steppedTick": 0,
+    "seekTick": 11118,
+    "activeTimelineHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e"
+  },
+  "cueRecording": {
+    "path": ".tmp/stage14/linux-reference/timeline-cues.tsq",
+    "id": "7f6af480696829f5f1b0cebed3ee6837a2ef0b477a010ae90b51104c8e9a6da0",
+    "bytes": 891212,
+    "totalTicksVerified": 1830,
+    "importAndLoad": "Arena Replay file input / Verify and load",
+    "seekControls": "Arena Replay Seek to tick / Seek",
+    "floor": {
+      "matchesExpectedExactly": true,
+      "presentation": {
+        "contractVersion": 1,
+        "run": 1,
+        "tick": 197,
+        "simulationStep": 184,
+        "bosses": [],
+        "floor": {
+          "id": "r1:c1",
+          "clipId": "floor-transition",
+          "fromFloor": 0,
+          "toFloor": 1,
+          "startedTick": 185,
+          "offsetTick": 12,
+          "nextEventIndex": 2,
+          "eventCount": 5,
+          "opacity": 0.85
+        }
+      }
+    },
+    "boss": {
+      "matchesExpectedExactly": true,
+      "presentation": {
+        "contractVersion": 1,
+        "run": 1,
+        "tick": 1637,
+        "simulationStep": 1624,
+        "bosses": [
+          {
+            "id": "r1:c6",
+            "clipId": "boss-telegraph",
+            "entityId": 199,
+            "floor": 5,
+            "startedTick": 1625,
+            "offsetTick": 12,
+            "nextEventIndex": 2,
+            "eventCount": 5,
+            "radius": 4.5,
+            "intensity": 0.7
+          }
+        ],
+        "floor": null
+      }
+    },
+    "stepped": {
+      "matchesExpectedExactly": true,
+      "presentation": {
+        "contractVersion": 1,
+        "run": 1,
+        "tick": 1638,
+        "simulationStep": 1625,
+        "bosses": [
+          {
+            "id": "r1:c6",
+            "clipId": "boss-telegraph",
+            "entityId": 199,
+            "floor": 5,
+            "startedTick": 1625,
+            "offsetTick": 13,
+            "nextEventIndex": 2,
+            "eventCount": 5,
+            "radius": 4.5,
+            "intensity": 0.7
+          }
+        ],
+        "floor": null
+      }
+    }
+  },
+  "final": {
+    "mode": {
+      "active": false,
+      "recordingId": null,
+      "tick": 21061,
+      "totalTicks": 0,
+      "playing": false,
+      "seeking": false,
+      "error": null
+    },
+    "run": 2,
+    "overlay": "pause",
+    "activeTimelineHash": "8c60f2af957eeaaecd2c95be332c5440495ee69dc073d5d4012cfd9b0d18fc2e",
+    "pendingTimelineHash": "8078a45f8f2e30338fd02bcf1cb85c3fea46a4118471f0cf8ce7875250969dc3",
+    "hostReleased": true
+  },
+  "screenshots": [
+    {
+      "file": "01-initial.png",
+      "sha256": "f96760a66ef3c8662645bef0fc540b77b8dd9e69b95b1b285302c19f99d19ce0",
+      "publication": "local only",
+      "visuallyInspected": false
+    },
+    {
+      "file": "04-staged.png",
+      "sha256": "92b565d63d372dce0194e1226e181349c5584d5d2ab60d3aca1a8c5016dc909f",
+      "publication": "local only",
+      "visuallyInspected": false
+    },
+    {
+      "file": "07-invalid.png",
+      "sha256": "75cb89d661e76f9d46a9a0dbe65651648eb58bf2ee5788f5619c1ea204199369",
+      "publication": "local only",
+      "visuallyInspected": false
+    },
+    {
+      "file": "15-own-replay.png",
+      "sha256": "9d56fe02df2070cbb8cf1537c91b60fc1af49c9a453a6d2de8fb7222a07abf1c",
+      "publication": "local only",
+      "visuallyInspected": false
+    },
+    {
+      "file": "18-floor-cue.png",
+      "sha256": "3d5bacdb32c395ee1913ccda541a136d5c35cd2a20c96da461440b8617e04f73",
+      "publication": "local only",
+      "visuallyInspected": true
+    },
+    {
+      "file": "19-boss-cue.png",
+      "sha256": "9c4286a328d208b34359bae169ecc86ba896a7dbe1812295ef0b8e52e5fc2db0",
+      "publication": "local only",
+      "visuallyInspected": true
+    }
+  ],
+  "limits": [
+    "Runtime mutations used actual Admin controls and browser Shell. File edits used the real TSQ1 authoring generator plus deliberate invalid/deleted fixture files. HTTP was read-only for assertions.",
+    "No source edits, Cargo, Git, or screenshot upload during this proof.",
+    "Live polling can miss short cues; exact observed positions were checked while replay was paused."
+  ]
+}

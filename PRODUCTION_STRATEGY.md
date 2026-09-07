@@ -46,7 +46,7 @@ Status note: this is a bootstrap strategy document. Current implementation statu
 **Core Rust Setup**
 
 - **rust-toolchain.toml**
-  - Pin Rust version (e.g., `channel = "1.82.0"`)
+  - Pin Rust version (e.g., `channel = "1.96.0"`)
 
 - **Cargo.toml + Workspace Layout**
   - Prepare for multi-crate workspace (e.g., `kitu-core`, `kitu-ecs`, etc.)

@@ -1,0 +1,129 @@
+{
+  "recordingId": "4a078634957826d914b6858aca6699054db27461e2bab719f00563a9d120d1f3",
+  "archivedExecution": "e410f19439c2eb7d683a7eb53bafb4257ca19f1ea5ef486050b66c03ac6ea090",
+  "verified": {
+    "ticks": 10122,
+    "inputs": 30144,
+    "runs": 5,
+    "state": {
+      "aimDirection": {
+        "x": -0.4997235,
+        "y": 0.866185
+      },
+      "bossesDefeated": 0,
+      "chestAvailable": false,
+      "effects": [],
+      "elapsed": 6.7166996,
+      "enemies": [],
+      "enemiesDefeated": 3,
+      "floor": 1,
+      "floorsCleared": 1,
+      "grenades": [],
+      "inventory": {
+        "attackMultiplier": 1.0,
+        "attackUpgrades": 0,
+        "backpack": [
+          {
+            "damage": 20,
+            "id": 1,
+            "interval": 0.5,
+            "kind": 0,
+            "name": "Blade",
+            "shield": 0,
+            "shieldFraction": 0.0
+          },
+          {
+            "damage": 0,
+            "id": 0,
+            "interval": 0.0,
+            "kind": 0,
+            "name": "",
+            "shield": 0,
+            "shieldFraction": 0.0
+          },
+          {
+            "damage": 0,
+            "id": 0,
+            "interval": 0.0,
+            "kind": 0,
+            "name": "",
+            "shield": 0,
+            "shieldFraction": 0.0
+          }
+        ],
+        "chest": [],
+        "damagedThisUpdate": false,
+        "equipment": [
+          {
+            "damage": 20,
+            "id": 5,
+            "interval": 0.45,
+            "kind": 1,
+            "name": "Power Shooter",
+            "shield": 0,
+            "shieldFraction": 0.0
+          },
+          {
+            "damage": 12,
+            "id": 4,
+            "interval": 0.25,
+            "kind": 1,
+            "name": "Quick Shooter",
+            "shield": 0,
+            "shieldFraction": 0.0
+          },
+          {
+            "damage": 0,
+            "id": 10,
+            "interval": 0.0,
+            "kind": 5,
+            "name": "Shield",
+            "shield": 110,
+            "shieldFraction": 0.0
+          },
+          {
+            "damage": 0,
+            "id": 0,
+            "interval": 0.0,
+            "kind": 0,
+            "name": "",
+            "shield": 0,
+            "shieldFraction": 0.0
+          }
+        ],
+        "health": 110,
+        "maxHealth": 110,
+        "nextItemId": 12,
+        "shieldDelayRemaining": 0.0
+      },
+      "nextEntityId": 34,
+      "overlay": "pause",
+      "phase": 4,
+      "playerPosition": {
+        "x": 0.0,
+        "y": -7.0
+      },
+      "portalArmed": true,
+      "portalAvailable": true,
+      "projectiles": [],
+      "result": {
+        "attackMultiplier": 0.0,
+        "bossesDefeated": 0,
+        "elapsed": 0.0,
+        "enemiesDefeated": 0,
+        "equipmentNames": [],
+        "floor": 0,
+        "floorsCleared": 0,
+        "maxHealth": 0,
+        "present": false
+      },
+      "simulationSteps": 5914,
+      "tick": 10121,
+      "transitionRemaining": -3.7252903e-09,
+      "weaponCooldowns": [
+        0.11666651,
+        0.050000012
+      ]
+    }
+  }
+}

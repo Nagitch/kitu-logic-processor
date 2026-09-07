@@ -1,0 +1,168 @@
+{
+  "revision": "28af9bc0d3dba946552d132cbbfe524dcd47159c",
+  "sessionId": "80340-1788685409800006000",
+  "execution": {
+    "package": "0.1.0",
+    "sourceHash": "3fd149d2a3ff32df914b0465920c2aaf5cc4198f9f07dc1a1c7bb21e1d6ed9ad",
+    "target": "aarch64-apple-darwin"
+  },
+  "packagedLibrarySha256": "35d90e9e91ac071644bf2e3171ab511ea7bd598621d6bc8618af9cb3ca4bcaae",
+  "actualClients": [
+    "macOS kitu-cli executable",
+    "concurrent HTTP playback commands",
+    "browser Admin Shell"
+  ],
+  "initialContentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+  "commands": {
+    "start": {
+      "ok": true,
+      "receipt": {
+        "accepted": true,
+        "appliedTick": 1045,
+        "code": "ok",
+        "duplicate": false,
+        "id": 1,
+        "sequence": 1001,
+        "source": "shell:cli-80419-1788685427237257000:1",
+        "tick": 1045
+      },
+      "mode": null,
+      "contentHash": null
+    },
+    "pause": {
+      "ok": true,
+      "receipt": {
+        "accepted": true,
+        "appliedTick": 1046,
+        "code": "ok",
+        "duplicate": false,
+        "id": 1,
+        "sequence": 1003,
+        "source": "shell:cli-80421-1788685427254148000:1",
+        "tick": 1046
+      },
+      "mode": null,
+      "contentHash": null
+    },
+    "load-old-recording": {
+      "ok": true,
+      "receipt": null,
+      "mode": {
+        "active": true,
+        "error": null,
+        "playing": false,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "seeking": false,
+        "tick": -1,
+        "totalTicks": 42510
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770"
+    },
+    "first-step": {
+      "ok": true,
+      "receipt": null,
+      "mode": {
+        "active": true,
+        "error": null,
+        "playing": false,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "seeking": false,
+        "tick": 0,
+        "totalTicks": 42510
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770"
+    },
+    "seek": {
+      "ok": true,
+      "receipt": null,
+      "mode": {
+        "active": true,
+        "error": null,
+        "playing": false,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "seeking": false,
+        "tick": 4786,
+        "totalTicks": 42510
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770"
+    },
+    "live": {
+      "ok": true,
+      "receipt": null,
+      "mode": {
+        "active": false,
+        "error": null,
+        "playing": false,
+        "recordingId": null,
+        "seeking": false,
+        "tick": 3698,
+        "totalTicks": 0
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770"
+    }
+  },
+  "concurrentSteps": [
+    {
+      "mode": {
+        "active": true,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "tick": 1,
+        "totalTicks": 42510,
+        "playing": false,
+        "seeking": false,
+        "error": null
+      },
+      "stateTick": 1
+    },
+    {
+      "mode": {
+        "active": true,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "tick": 2,
+        "totalTicks": 42510,
+        "playing": false,
+        "seeking": false,
+        "error": null
+      },
+      "stateTick": 2
+    }
+  ],
+  "browserShell": {
+    "command": "app action run arena.resume",
+    "receipt": {
+      "accepted": true,
+      "appliedTick": 10207,
+      "code": "ok",
+      "duplicate": false,
+      "id": 1,
+      "sequence": 9826,
+      "source": "shell:browser-67a41d56-e1ba-4253-84d0-673490ce31c7:2",
+      "tick": 10207
+    },
+    "sameSessionVerified": true,
+    "resultOverlay": "none",
+    "errors": []
+  },
+  "logs": {
+    "initial.json": {
+      "path": ".tmp/stage11/review-live-bridge/initial.json",
+      "sha256": "a1a8e7e1e1afc8160d18e56b65b74a460fe45bf5fc0caa6ac02c3e4cc00b5265"
+    },
+    "concurrent-steps.json": {
+      "path": ".tmp/stage11/review-live-bridge/concurrent-steps.json",
+      "sha256": "3999cc15469140d23c50a5700550378115aeda020d8b64d0fc4656b5b758b9ef"
+    },
+    "admin-inspect.txt": {
+      "path": ".tmp/stage11/review-live-bridge/admin-inspect.txt",
+      "sha256": "7580716f1c9770a665c26d0e50680bdbc743715466643a9311c49ebc32464bff"
+    },
+    "admin-resume.txt": {
+      "path": ".tmp/stage11/review-live-bridge/admin-resume.txt",
+      "sha256": "d4032344591cc153f8c5cbbf3b3aad5ac8288a994ec961bfb079ed4e1417b53b"
+    },
+    "after-browser-resume.json": {
+      "path": ".tmp/stage11/review-live-bridge/after-browser-resume.json",
+      "sha256": "6d026bcf5b996b0aada6bff8eaf7f9d11296a249fa58e2371404fbba229b11d3"
+    }
+  }
+}

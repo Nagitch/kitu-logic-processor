@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="47" result="Passed" total="47" passed="47" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:40Z" duration="0.4062743">
+  <test-suite type="TestSuite" id="1000" name="kitu-unity-demo-game" fullname="kitu-unity-demo-game" runstate="Runnable" testcasecount="47" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:40Z" duration="0.406274" total="47" passed="47" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1064" name="UnityOnlyArena.Tests.dll" fullname="/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Library/ScriptAssemblies/UnityOnlyArena.Tests.dll" runstate="Runnable" testcasecount="47" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:40Z" duration="0.401474" total="47" passed="47" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="88665" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestFixture" id="1011" name="ArenaInventoryTests" fullname="ArenaInventoryTests" classname="ArenaInventoryTests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.031029" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-case id="1013" name="ChestHasSixDistinctWeaponCandidatesAndFiveItemUpgradeCandidates" fullname="ArenaInventoryTests.ChestHasSixDistinctWeaponCandidatesAndFiveItemUpgradeCandidates" methodname="ChestHasSixDistinctWeaponCandidatesAndFiveItemUpgradeCandidates" classname="ArenaInventoryTests" runstate="Runnable" seed="11475273" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.010640" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1021" name="DamageUpdateCannotRegenerateAndRecoveryStartsAfterThreeSeconds" fullname="ArenaInventoryTests.DamageUpdateCannotRegenerateAndRecoveryStartsAfterThreeSeconds" methodname="DamageUpdateCannotRegenerateAndRecoveryStartsAfterThreeSeconds" classname="ArenaInventoryTests" runstate="Runnable" seed="2112446060" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.001285" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1024" name="DamageWithoutAShieldStillStartsSharedDelayAndChangingEquipmentKeepsIt" fullname="ArenaInventoryTests.DamageWithoutAShieldStillStartsSharedDelayAndChangingEquipmentKeepsIt" methodname="DamageWithoutAShieldStillStartsSharedDelayAndChangingEquipmentKeepsIt" classname="ArenaInventoryTests" runstate="Runnable" seed="224046719" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000716" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1026" name="DeathPreventsRevivalConsumptionAndFurtherInventoryChanges" fullname="ArenaInventoryTests.DeathPreventsRevivalConsumptionAndFurtherInventoryChanges" methodname="DeathPreventsRevivalConsumptionAndFurtherInventoryChanges" classname="ArenaInventoryTests" runstate="Runnable" seed="2009625340" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.001390" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1022" name="FractionalRecoveryAccumulatesAcrossSmallUpdatesAndUsesNewCapacity" fullname="ArenaInventoryTests.FractionalRecoveryAccumulatesAcrossSmallUpdatesAndUsesNewCapacity" methodname="FractionalRecoveryAccumulatesAcrossSmallUpdatesAndUsesNewCapacity" classname="ArenaInventoryTests" runstate="Runnable" seed="2121985023" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000330" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1017" name="FullHealthMedkitIsKeptAndUsedMedkitOnlyRefillsHp" fullname="ArenaInventoryTests.FullHealthMedkitIsKeptAndUsedMedkitOnlyRefillsHp" methodname="FullHealthMedkitIsKeptAndUsedMedkitOnlyRefillsHp" classname="ArenaInventoryTests" runstate="Runnable" seed="1714210330" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000407" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1019" name="GrenadeIsConsumedImmediatelyAndBackpackDoesNotAutoRefillEquipment" fullname="ArenaInventoryTests.GrenadeIsConsumedImmediatelyAndBackpackDoesNotAutoRefillEquipment" methodname="GrenadeIsConsumedImmediatelyAndBackpackDoesNotAutoRefillEquipment" classname="ArenaInventoryTests" runstate="Runnable" seed="921548480" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000324" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1025" name="HealingDoesNotTouchShieldOrDelayAndNonPositiveDamageDoesNothing" fullname="ArenaInventoryTests.HealingDoesNotTouchShieldOrDelayAndNonPositiveDamageDoesNothing" methodname="HealingDoesNotTouchShieldOrDelayAndNonPositiveDamageDoesNothing" classname="ArenaInventoryTests" runstate="Runnable" seed="2031438551" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000254" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1015" name="InvalidOperationsAreAtomicAndUnequipNeedsAnEmptyBackpackSlot" fullname="ArenaInventoryTests.InvalidOperationsAreAtomicAndUnequipNeedsAnEmptyBackpackSlot" methodname="InvalidOperationsAreAtomicAndUnequipNeedsAnEmptyBackpackSlot" classname="ArenaInventoryTests" runstate="Runnable" seed="210752257" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000614" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1012" name="ResetRemovesAllRunStateAndRestoresOnlyTheStarterBlade" fullname="ArenaInventoryTests.ResetRemovesAllRunStateAndRestoresOnlyTheStarterBlade" methodname="ResetRemovesAllRunStateAndRestoresOnlyTheStarterBlade" classname="ArenaInventoryTests" runstate="Runnable" seed="1440339386" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.001756" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1023" name="ShieldChargeAndFractionSurviveSwapsButOnlyEquipmentRegenerates" fullname="ArenaInventoryTests.ShieldChargeAndFractionSurviveSwapsButOnlyEquipmentRegenerates" methodname="ShieldChargeAndFractionSurviveSwapsButOnlyEquipmentRegenerates" classname="ArenaInventoryTests" runstate="Runnable" seed="374329072" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000449" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1020" name="ShieldsAbsorbInSlotOrderAndRemainEquippedWhenEmpty" fullname="ArenaInventoryTests.ShieldsAbsorbInSlotOrderAndRemainEquippedWhenEmpty" methodname="ShieldsAbsorbInSlotOrderAndRemainEquippedWhenEmpty" classname="ArenaInventoryTests" runstate="Runnable" seed="1526798575" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000211" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1014" name="TakingSwappingAndEquippingConserveItemInstancesEvenWhenBackpackIsFull" fullname="ArenaInventoryTests.TakingSwappingAndEquippingConserveItemInstancesEvenWhenBackpackIsFull" methodname="TakingSwappingAndEquippingConserveItemInstancesEvenWhenBackpackIsFull" classname="ArenaInventoryTests" runstate="Runnable" seed="731071236" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000420" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1016" name="UpgradesConsumeOnceAndHealthUpgradeDoesNotRefillAnExistingShield" fullname="ArenaInventoryTests.UpgradesConsumeOnceAndHealthUpgradeDoesNotRefillAnExistingShield" methodname="UpgradesConsumeOnceAndHealthUpgradeDoesNotRefillAnExistingShield" classname="ArenaInventoryTests" runstate="Runnable" seed="45430890" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000286" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+        <test-case id="1018" name="UsingMedkitAThenBConsumesOnlyAWhenAHealsToFull" fullname="ArenaInventoryTests.UsingMedkitAThenBConsumesOnlyAWhenAHealsToFull" methodname="UsingMedkitAThenBConsumesOnlyAWhenAHealsToFull" classname="ArenaInventoryTests" runstate="Runnable" seed="1442050980" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000177" asserts="0">
+          <properties>
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+        </test-case>
+      </test-suite>
+      <test-suite type="TestSuite" id="1065" name="UnityOnlyArena" fullname="UnityOnlyArena" runstate="Runnable" testcasecount="32" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:40Z" duration="0.368885" total="32" passed="32" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1066" name="Tests" fullname="UnityOnlyArena.Tests" runstate="Runnable" testcasecount="32" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:40Z" duration="0.362183" total="32" passed="32" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1027" name="ArenaReferenceTests" fullname="UnityOnlyArena.Tests.ArenaReferenceTests" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.302045" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1028" name="CaptureDetachesEntitiesItemsAndRecordedCommands" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.CaptureDetachesEntitiesItemsAndRecordedCommands" methodname="CaptureDetachesEntitiesItemsAndRecordedCommands" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" seed="1775200776" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.006121" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1030" name="DuplicatesKeepTheirOriginalResultAndStaleItemsCannotMove" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.DuplicatesKeepTheirOriginalResultAndStaleItemsCannotMove" methodname="DuplicatesKeepTheirOriginalResultAndStaleItemsCannotMove" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" seed="776055214" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.001413" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1036" name="FrozenTraceReplaysThroughOriginalRules" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.FrozenTraceReplaysThroughOriginalRules" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.289914" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1034" name="FrozenTraceReplaysThroughOriginalRules(&quot;preparation&quot;)" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.FrozenTraceReplaysThroughOriginalRules(&quot;preparation&quot;)" methodname="FrozenTraceReplaysThroughOriginalRules" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" seed="339327600" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.010196" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1035" name="FrozenTraceReplaysThroughOriginalRules(&quot;stock-eleven-death-retry&quot;)" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.FrozenTraceReplaysThroughOriginalRules(&quot;stock-eleven-death-retry&quot;)" methodname="FrozenTraceReplaysThroughOriginalRules" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" seed="1952507824" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.279241" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1033" name="InvalidBatchesAndNonContiguousTicksFailBeforeStateMutation" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.InvalidBatchesAndNonContiguousTicksFailBeforeStateMutation" methodname="InvalidBatchesAndNonContiguousTicksFailBeforeStateMutation" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" seed="1537459590" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000835" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1032" name="InvalidChestDestinationsUseTheStableTargetCodeWithoutMovingItems" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.InvalidChestDestinationsUseTheStableTargetCodeWithoutMovingItems" methodname="InvalidChestDestinationsUseTheStableTargetCodeWithoutMovingItems" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" seed="610853211" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000962" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1029" name="PauseConsumesCommandsWithoutAdvancingAnyGameplayClock" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.PauseConsumesCommandsWithoutAdvancingAnyGameplayClock" methodname="PauseConsumesCommandsWithoutAdvancingAnyGameplayClock" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" seed="1894733195" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000636" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1031" name="SuccessfulUpgradeIsNotConsumedTwiceAfterRetry" fullname="UnityOnlyArena.Tests.ArenaReferenceTests.SuccessfulUpgradeIsNotConsumedTwiceAfterRetry" methodname="SuccessfulUpgradeIsNotConsumedTwiceAfterRetry" classname="UnityOnlyArena.Tests.ArenaReferenceTests" runstate="Runnable" seed="245745576" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:39Z" duration="0.000947" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1037" name="ArenaRunScenarioTests" fullname="UnityOnlyArena.Tests.ArenaRunScenarioTests" classname="UnityOnlyArena.Tests.ArenaRunScenarioTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:40Z" duration="0.048632" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1038" name="StockChestLoadoutAndContinuousMovementCanClearElevenFloors" fullname="UnityOnlyArena.Tests.ArenaRunScenarioTests.StockChestLoadoutAndContinuousMovementCanClearElevenFloors" methodname="StockChestLoadoutAndContinuousMovementCanClearElevenFloors" classname="UnityOnlyArena.Tests.ArenaRunScenarioTests" runstate="Runnable" seed="1014322478" result="Passed" start-time="2026-09-06 00:12:39Z" end-time="2026-09-06 00:12:40Z" duration="0.047462" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1039" name="ArenaSimulationTests" fullname="UnityOnlyArena.Tests.ArenaSimulationTests" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" testcasecount="23" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.010883" total="23" passed="23" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1052" name="ActualPursuerMovementAndMeleeEventuallyKillAnIdlePlayer" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.ActualPursuerMovementAndMeleeEventuallyKillAnIdlePlayer" methodname="ActualPursuerMovementAndMeleeEventuallyKillAnIdlePlayer" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="783238399" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000477" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1045" name="BossClearHealsOnceAndKeepsRewardContentsAndShieldCharge" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.BossClearHealsOnceAndKeepsRewardContentsAndShieldCharge" methodname="BossClearHealsOnceAndKeepsRewardContentsAndShieldCharge" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="746948745" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000599" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1059" name="BossTelegraphsThenFiresEightShotsAndDoesNotMeleeDuringTellOrRecovery" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.BossTelegraphsThenFiresEightShotsAndDoesNotMeleeDuringTellOrRecovery" methodname="BossTelegraphsThenFiresEightShotsAndDoesNotMeleeDuringTellOrRecovery" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="1336174386" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000476" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1055" name="BulletsExpireAtWallOrMaximumRange" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.BulletsExpireAtWallOrMaximumRange" methodname="BulletsExpireAtWallOrMaximumRange" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="1520637850" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000244" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1050" name="BulletSpawnOverlappingEnemyStillHitsInsteadOfSkippingCloseTarget" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.BulletSpawnOverlappingEnemyStillHitsInsteadOfSkippingCloseTarget" methodname="BulletSpawnOverlappingEnemyStillHitsInsteadOfSkippingCloseTarget" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="1689769464" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000164" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1061" name="ClearRemovesHostileShotsAndGrenadesBeforeSafeStateCanBeDamaged" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.ClearRemovesHostileShotsAndGrenadesBeforeSafeStateCanBeDamaged" methodname="ClearRemovesHostileShotsAndGrenadesBeforeSafeStateCanBeDamaged" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="1785510659" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000528" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1053" name="ContactAloneDoesNoDamageAndEnemyWaitsInitialAttackInterval" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.ContactAloneDoesNoDamageAndEnemyWaitsInitialAttackInterval" methodname="ContactAloneDoesNoDamageAndEnemyWaitsInitialAttackInterval" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="981459547" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000096" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1063" name="DeathSnapshotStaysFixedAndRetryResetsRunWhileMenuClearsIt" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.DeathSnapshotStaysFixedAndRetryResetsRunWhileMenuClearsIt" methodname="DeathSnapshotStaysFixedAndRetryResetsRunWhileMenuClearsIt" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="1913536868" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000699" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1041" name="EndlessProgressionThroughTwentyOneFloorsUsesSpecifiedRosterAndRewards" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.EndlessProgressionThroughTwentyOneFloorsUsesSpecifiedRosterAndRewards" methodname="EndlessProgressionThroughTwentyOneFloorsUsesSpecifiedRosterAndRewards" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="2048417889" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.001149" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1051" name="EnemyBulletSweepDamagesPlayerAndIgnoresOtherEnemies" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.EnemyBulletSweepDamagesPlayerAndIgnoresOtherEnemies" methodname="EnemyBulletSweepDamagesPlayerAndIgnoresOtherEnemies" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="654593866" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000265" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1060" name="FloorTransitionCarriesHealthInventoryAndShieldTimersButResetsTransientState" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.FloorTransitionCarriesHealthInventoryAndShieldTimersButResetsTransientState" methodname="FloorTransitionCarriesHealthInventoryAndShieldTimersButResetsTransientState" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="620275607" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000553" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1056" name="GrenadeRequiresAimConsumesAtThrowAndDealsSnapshotAreaDamageAfterDelay" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.GrenadeRequiresAimConsumesAtThrowAndDealsSnapshotAreaDamageAfterDelay" methodname="GrenadeRequiresAimConsumesAtThrowAndDealsSnapshotAreaDamageAfterDelay" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="89536660" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000462" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1057" name="GrenadeTargetIsLimitedByThrowRangeAndArena" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.GrenadeTargetIsLimitedByThrowRangeAndArena" methodname="GrenadeTargetIsLimitedByThrowRangeAndArena" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="953371283" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000181" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1048" name="IndependentWeaponsHitConeOncePerEnemyAndHonorCooldowns" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.IndependentWeaponsHitConeOncePerEnemyAndHonorCooldowns" methodname="IndependentWeaponsHitConeOncePerEnemyAndHonorCooldowns" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="502150715" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000238" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1058" name="MedkitInputsAreOrderedBeforeIncomingDamageAndSecondFullHealthMedkitIsKept" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.MedkitInputsAreOrderedBeforeIncomingDamageAndSecondFullHealthMedkitIsKept" methodname="MedkitInputsAreOrderedBeforeIncomingDamageAndSecondFullHealthMedkitIsKept" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="923404322" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000149" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1062" name="MovementIsNormalizedWallBoundAndMaintainsLastValidAim" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.MovementIsNormalizedWallBoundAndMaintainsLastValidAim" methodname="MovementIsNormalizedWallBoundAndMaintainsLastValidAim" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="1508272527" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000177" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1040" name="OpeningDoesNotRunAndStartingCreatesOnePreparationChest" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.OpeningDoesNotRunAndStartingCreatesOnePreparationChest" methodname="OpeningDoesNotRunAndStartingCreatesOnePreparationChest" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="86911214" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000223" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1046" name="PortalAppearingUnderPlayerRequiresExitAndReentryAndCannotTransitionTwice" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.PortalAppearingUnderPlayerRequiresExitAndReentryAndCannotTransitionTwice" methodname="PortalAppearingUnderPlayerRequiresExitAndReentryAndCannotTransitionTwice" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="216740128" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000250" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1047" name="PortalRejectsNoWeaponWithoutDiscardingChest" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.PortalRejectsNoWeaponWithoutDiscardingChest" methodname="PortalRejectsNoWeaponWithoutDiscardingChest" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="144640597" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000376" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1049" name="ProjectileSweepHitsNearestTargetEvenWhenListOrderIsFarFirst" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.ProjectileSweepHitsNearestTargetEvenWhenListOrderIsFarFirst" methodname="ProjectileSweepHitsNearestTargetEvenWhenListOrderIsFarFirst" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="877757344" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000203" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1054" name="ShooterApproachesAndFiresTowardPlayerAfterItsInitialDelay" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.ShooterApproachesAndFiresTowardPlayerAfterItsInitialDelay" methodname="ShooterApproachesAndFiresTowardPlayerAfterItsInitialDelay" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="519243879" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000344" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1044" name="SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000754" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1042" name="SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(1)" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(1)" methodname="SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="1747463831" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000357" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1043" name="SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(5)" fullname="UnityOnlyArena.Tests.ArenaSimulationTests.SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards(5)" methodname="SimultaneousPlayerAndLastEnemyDeathRecordsKillButNeverClearsOrRewards" classname="UnityOnlyArena.Tests.ArenaSimulationTests" runstate="Runnable" seed="829382688" result="Passed" start-time="2026-09-06 00:12:40Z" end-time="2026-09-06 00:12:40Z" duration="0.000065" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[<b><color=#2EA3FF>MCP-FOR-UNITY</color></b>: [TestRunnerNoThrottle] Restored Interaction Mode after test run.
+Saving results to: /Users/mujina/Library/Application Support/DefaultCompany/kitu-unity-demo-game/TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

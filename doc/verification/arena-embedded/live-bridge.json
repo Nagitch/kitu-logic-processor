@@ -1,0 +1,179 @@
+{
+  "sessionId": "76686-1788682805485848000",
+  "endpoint": "http://127.0.0.1:8789",
+  "admin": "http://127.0.0.1:5175",
+  "execution": {
+    "package": "0.1.0",
+    "sourceHash": "3fd149d2a3ff32df914b0465920c2aaf5cc4198f9f07dc1a1c7bb21e1d6ed9ad",
+    "target": "aarch64-apple-darwin"
+  },
+  "player": "ordinary graphical standalone, default embedded connection; actual macOS CLI and browser Admin",
+  "cli": {
+    "start": {
+      "accepted": true,
+      "appliedTick": 4786,
+      "code": "ok",
+      "duplicate": false,
+      "id": 1,
+      "sequence": 4625,
+      "source": "shell:cli-76930-1788682885269711000:1",
+      "tick": 4786
+    },
+    "pause": {
+      "accepted": true,
+      "appliedTick": 4956,
+      "code": "ok",
+      "duplicate": false,
+      "id": 1,
+      "sequence": 4787,
+      "source": "shell:cli-76955-1788682888097918000:1",
+      "tick": 4956
+    },
+    "pause-after-browser": {
+      "accepted": true,
+      "appliedTick": 13267,
+      "code": "ok",
+      "duplicate": false,
+      "id": 1,
+      "sequence": 12786,
+      "source": "shell:cli-77149-1788683026614580000:1",
+      "tick": 13267
+    },
+    "arena.menu": {
+      "accepted": true,
+      "appliedTick": 52735,
+      "code": "ok",
+      "duplicate": false,
+      "id": 1,
+      "sequence": 50884,
+      "source": "shell:cli-77991-1788683684412106000:1",
+      "tick": 52735
+    },
+    "arena.start": {
+      "accepted": true,
+      "appliedTick": 52736,
+      "code": "ok",
+      "duplicate": false,
+      "id": 1,
+      "sequence": 50886,
+      "source": "shell:cli-77992-1788683684438156000:1",
+      "tick": 52736
+    }
+  },
+  "content": {
+    "authoring": "edited real Tanu container literal; Admin evaluates through public Tanu API",
+    "starterDamageBefore": 20,
+    "starterDamageAfter": 23,
+    "initialHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+    "changedHash": "83d12b84dd69b444d2a207c9d3a1ced750a9dc671aa67a410ee21bc0b197de58",
+    "activeStayedUnchangedWhileStaged": true,
+    "nextRunActivated": true
+  },
+  "replay": {
+    "loaded": {
+      "mode": {
+        "active": true,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "tick": -1,
+        "totalTicks": 42510,
+        "playing": false,
+        "seeking": false,
+        "error": null
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+      "overlay": "none"
+    },
+    "step": {
+      "mode": {
+        "active": true,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "tick": 0,
+        "totalTicks": 42510,
+        "playing": false,
+        "seeking": false,
+        "error": null
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+      "overlay": "none"
+    },
+    "seek": {
+      "mode": {
+        "active": true,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "tick": 4786,
+        "totalTicks": 42510,
+        "playing": false,
+        "seeking": false,
+        "error": null
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+      "overlay": "none"
+    },
+    "playing": {
+      "mode": {
+        "active": true,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "tick": 4788,
+        "totalTicks": 42510,
+        "playing": true,
+        "seeking": false,
+        "error": null
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+      "overlay": "none"
+    },
+    "paused": {
+      "mode": {
+        "active": true,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "tick": 6221,
+        "totalTicks": 42510,
+        "playing": false,
+        "seeking": false,
+        "error": null
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+      "overlay": "pause"
+    },
+    "stopped": {
+      "mode": {
+        "active": true,
+        "recordingId": "715c24fbb40bc0c02a3e8f355a2fea085a12bb6732fd7b5e9a0c8eb42c50e91c",
+        "tick": -1,
+        "totalTicks": 42510,
+        "playing": false,
+        "seeking": false,
+        "error": null
+      },
+      "contentHash": "c4bf2d4829913798f26e888a2cdb3db8217f66f0cc5f6e9d035b158775d8e770",
+      "overlay": "none"
+    },
+    "live": {
+      "mode": {
+        "active": false,
+        "recordingId": null,
+        "tick": 58117,
+        "totalTicks": 0,
+        "playing": false,
+        "seeking": false,
+        "error": null
+      },
+      "contentHash": "83d12b84dd69b444d2a207c9d3a1ced750a9dc671aa67a410ee21bc0b197de58",
+      "overlay": "pause"
+    }
+  },
+  "browserErrors": [],
+  "screenshots": {
+    "admin-shell.png": "5ead89f037be02480add5846cda1e74e696df0601dbd146d28e07cd5d3d7c6de",
+    "admin-tanu.png": "6f81a6cee7d032d853cc0fa3f68660fdefd81382d4398134f60e32105b142eba",
+    "admin-replay.png": "b4f7eda46693b6a85f090560d504b1477381ff98d86e82a2068d8ee50dd5c629"
+  },
+  "browserShell": {
+    "command": "app action run arena.resume",
+    "sessionMatches": true,
+    "accepted": true,
+    "appliedTick": 11031,
+    "sequence": 10633,
+    "source": "shell:browser-f5e1cee0-830b-43db-984a-360daa6d883a:1"
+  }
+}

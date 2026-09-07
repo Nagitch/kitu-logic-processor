@@ -1,0 +1,574 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "attempts": [
+    {
+      "attempt": "repository-full-01",
+      "sourceReport": {
+        "path": ".tmp/stage18/repository-full-01/verification.json",
+        "bytes": 16002,
+        "sha256": "c9e35be885f5fe794c69ebbe33fba0b7d2ffa568e0bdd55a5b0fd223bbb0c181"
+      },
+      "requestedScope": "all",
+      "status": "passed",
+      "startedAtUtc": "2026-09-06T17:43:30.070463+00:00",
+      "finishedAtUtc": "2026-09-06T17:54:55.744740+00:00",
+      "environment": {
+        "python": "3.11.2 (main, May 12 2026, 05:17:27) [GCC 12.2.0]",
+        "platform": "Linux-7.0.14-orbstack-00380-ga7e0a2dc9535-aarch64-with-glibc2.36",
+        "pythonBytecodeDisabledForChildren": true
+      },
+      "diagnostic": null,
+      "source": {
+        "commit": "cc75f9320fd5160598a94c55e0ffef4721049f84",
+        "dirty": true,
+        "dirtyFiles": [
+          {
+            "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/TutorialInfo/Icons/URP.png",
+            "artifact": {
+              "path": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/TutorialInfo/Icons/URP.png",
+              "bytes": 24069,
+              "sha256": "1d17a9ff3537859abe2c008603d29d90cf43191ae77aa386167cc65e53ba03d9"
+            }
+          }
+        ],
+        "locks": [
+          {
+            "path": "Cargo.lock",
+            "bytes": 61830,
+            "sha256": "7d78bd87d2f659e3bdda9d449ad274a482cf1a46a1d813007c12ba0ceaac41a2"
+          },
+          {
+            "path": "rust-toolchain.toml",
+            "bytes": 86,
+            "sha256": "fa0addad5676243d360310f981a69528b0341d295cb5012253d9721aba4d30c0"
+          },
+          {
+            "path": "tools/kitu-web-admin/frontend/pnpm-lock.yaml",
+            "bytes": 100636,
+            "sha256": "2cbdde6305d3fcb40e56b04f6b2a83b2798c467a967a1d9f894977915332706e"
+          },
+          {
+            "path": "tools/kitu-web-admin/frontend/package.json",
+            "bytes": 1520,
+            "sha256": "22d784989bb95fe65aa6123652099aca338b452a79a85b35d22fe1d48d7cf143"
+          }
+        ]
+      },
+      "rustTests": {
+        "passed": 360,
+        "suites": 58,
+        "failed": 0,
+        "ignored": 0
+      },
+      "pythonTests": 61,
+      "frontendTests": {
+        "tests": 19,
+        "pass": 19,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "frontendIncludesWasmPrebuild": true,
+      "package": {
+        "hash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+        "manifestBytes": 625,
+        "files": [
+          {
+            "path": "unity-assets.json",
+            "bytes": 306,
+            "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+          },
+          {
+            "path": "arena.tmd",
+            "bytes": 49783,
+            "sha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa"
+          },
+          {
+            "path": "boss.rhai",
+            "bytes": 676,
+            "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+          },
+          {
+            "path": "timelines/boss-telegraph.tsq",
+            "bytes": 737,
+            "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+          },
+          {
+            "path": "timelines/floor-transition.tsq",
+            "bytes": 652,
+            "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+          }
+        ],
+        "assets": [
+          {
+            "role": "baseMaterial",
+            "key": "arena/material/base",
+            "type": "Material"
+          },
+          {
+            "role": "cube",
+            "key": "arena/primitive/cube",
+            "type": "GameObject"
+          },
+          {
+            "role": "capsule",
+            "key": "arena/primitive/capsule",
+            "type": "GameObject"
+          },
+          {
+            "role": "sphere",
+            "key": "arena/primitive/sphere",
+            "type": "GameObject"
+          }
+        ]
+      },
+      "commands": [
+        {
+          "id": "rust-version",
+          "status": "passed",
+          "argv": [
+            "rustc",
+            "--version"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/rust-version.log",
+            "bytes": 54,
+            "sha256": "2f722b284fd6e65c359303f29c902c2122acbe0c52458cf11231f95c19833ed6"
+          }
+        },
+        {
+          "id": "reference",
+          "status": "passed",
+          "argv": [
+            "/usr/bin/python3",
+            "tools/verify-arena-reference.py"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/reference.log",
+            "bytes": 276,
+            "sha256": "c7e0250ab344ef881dcfd13338ae8628ab23011b0d82e82f60b089822ebad12f"
+          }
+        },
+        {
+          "id": "fmt",
+          "status": "passed",
+          "argv": [
+            "cargo",
+            "fmt",
+            "--all",
+            "--",
+            "--check"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/fmt.log",
+            "bytes": 29,
+            "sha256": "5fcb04dce61431e03194e48dc201c4f32c352e4a96d055e73ed0191c5364579a"
+          }
+        },
+        {
+          "id": "test",
+          "status": "passed",
+          "argv": [
+            "cargo",
+            "test",
+            "--locked",
+            "--workspace"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/test.log",
+            "bytes": 40547,
+            "sha256": "295ae280f3552c69929d6cc48da81c9a983efa3837b24d18929c1bfcf9708398"
+          }
+        },
+        {
+          "id": "clippy",
+          "status": "passed",
+          "argv": [
+            "cargo",
+            "clippy",
+            "--locked",
+            "--workspace",
+            "--all-targets",
+            "--all-features",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/clippy.log",
+            "bytes": 152,
+            "sha256": "34e0aa8a7c6c70b904332c17d705554b4962b44b93382fd54c614df8a6fb8f65"
+          }
+        },
+        {
+          "id": "docs",
+          "status": "passed",
+          "argv": [
+            "cargo",
+            "doc",
+            "--locked",
+            "--workspace",
+            "--no-deps",
+            "--all-features"
+          ],
+          "environment": {
+            "RUSTDOCFLAGS": "-D warnings"
+          },
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/docs.log",
+            "bytes": 319,
+            "sha256": "7e4c3a4e95d036228a4896393f21efffc115962c37c860ac7bb7a79e5b900a16"
+          }
+        },
+        {
+          "id": "python-tests",
+          "status": "passed",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tools/tests",
+            "-p",
+            "test_*.py",
+            "-v"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/python-tests.log",
+            "bytes": 11412,
+            "sha256": "17195f694ad8c5f4da50d7d32d1b2f04dd66178d2a8361919446d3d51a1e5a13"
+          }
+        },
+        {
+          "id": "package-interop",
+          "status": "passed",
+          "argv": [
+            "cargo",
+            "test",
+            "--locked",
+            "-p",
+            "kitu-demo-game-native",
+            "--test",
+            "package",
+            "--",
+            "--nocapture"
+          ],
+          "environment": {
+            "KITU_PACKAGE_INTEROP_DIR": ".tmp/stage18/repository-full-01/package"
+          },
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/package-interop.log",
+            "bytes": 1176,
+            "sha256": "bb90a9d4bfb26e98437c212b97bd0f74a4633a96bea230d8fb1331b41bdb70e4"
+          }
+        },
+        {
+          "id": "node-version",
+          "status": "passed",
+          "argv": [
+            "node",
+            "--version"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/node-version.log",
+            "bytes": 26,
+            "sha256": "b7590ecf254aece14e65e13edd2674a42e63026a3689382aa9e164ed1b00f013"
+          }
+        },
+        {
+          "id": "pnpm-version",
+          "status": "passed",
+          "argv": [
+            "pnpm",
+            "--version"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/pnpm-version.log",
+            "bytes": 24,
+            "sha256": "0fbcc01dff41dd0818604d656f06b1861c3ca85bafd94e7980726df45bfb84aa"
+          }
+        },
+        {
+          "id": "frontend-install",
+          "status": "passed",
+          "argv": [
+            "pnpm",
+            "install",
+            "--frozen-lockfile"
+          ],
+          "environment": {
+            "CI": "true"
+          },
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/frontend-install.log",
+            "bytes": 198,
+            "sha256": "1e0f5b093e0875ff59643b24a7b9ef5d58b881ddd27edb16babf9802ec4c52c2"
+          }
+        },
+        {
+          "id": "frontend-check",
+          "status": "passed",
+          "argv": [
+            "pnpm",
+            "run",
+            "check"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/frontend-check.log",
+            "bytes": 415,
+            "sha256": "2bbf11a23eed7dff4566d35a9f79c6e60ce51b5086008cd96c46853edeb6db2c"
+          }
+        },
+        {
+          "id": "frontend-lint",
+          "status": "passed",
+          "argv": [
+            "pnpm",
+            "run",
+            "lint"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/frontend-lint.log",
+            "bytes": 167,
+            "sha256": "88f2f30c3001fca4fd04d16bd1d4995490fc72619af3b1a8347f6c2288ac84a2"
+          }
+        },
+        {
+          "id": "frontend-test-inspection",
+          "status": "passed",
+          "argv": [
+            "pnpm",
+            "run",
+            "test:inspection"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/frontend-test-inspection.log",
+            "bytes": 1931,
+            "sha256": "57c61eea80bf64da9dcc49a86787522d0905795bd6885279be02dbf56a8a8c55"
+          }
+        },
+        {
+          "id": "frontend-build",
+          "status": "passed",
+          "argv": [
+            "pnpm",
+            "run",
+            "build"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/repository-full-01/frontend-build.log",
+            "bytes": 10522,
+            "sha256": "a6926038b3b18391c2ef3e97fccdfef9d1531f3561a8f4bc4bf720826b20e9ab"
+          }
+        }
+      ]
+    },
+    {
+      "attempt": "data-final-02",
+      "sourceReport": {
+        "path": ".tmp/stage18/data-final-02/verification.json",
+        "bytes": 5568,
+        "sha256": "9176e557d902780ce3a05da871c510fced6201058c5f966905fe81b2840823d3"
+      },
+      "requestedScope": "data",
+      "status": "passed",
+      "startedAtUtc": "2026-09-06T18:06:06.671133+00:00",
+      "finishedAtUtc": "2026-09-06T18:06:20.718741+00:00",
+      "environment": {
+        "python": "3.11.2 (main, May 12 2026, 05:17:27) [GCC 12.2.0]",
+        "platform": "Linux-7.0.14-orbstack-00380-ga7e0a2dc9535-aarch64-with-glibc2.36",
+        "pythonBytecodeDisabledForChildren": true
+      },
+      "diagnostic": null,
+      "source": {
+        "commit": "7db01caeaa98e6ed353fc4b2aa9526e4c8704b0b",
+        "dirty": false,
+        "dirtyFiles": [],
+        "locks": [
+          {
+            "path": "Cargo.lock",
+            "bytes": 61830,
+            "sha256": "7d78bd87d2f659e3bdda9d449ad274a482cf1a46a1d813007c12ba0ceaac41a2"
+          },
+          {
+            "path": "rust-toolchain.toml",
+            "bytes": 86,
+            "sha256": "fa0addad5676243d360310f981a69528b0341d295cb5012253d9721aba4d30c0"
+          },
+          {
+            "path": "tools/kitu-web-admin/frontend/pnpm-lock.yaml",
+            "bytes": 100636,
+            "sha256": "2cbdde6305d3fcb40e56b04f6b2a83b2798c467a967a1d9f894977915332706e"
+          },
+          {
+            "path": "tools/kitu-web-admin/frontend/package.json",
+            "bytes": 1520,
+            "sha256": "22d784989bb95fe65aa6123652099aca338b452a79a85b35d22fe1d48d7cf143"
+          }
+        ]
+      },
+      "pythonTests": 65,
+      "package": {
+        "hash": "0e003376f7788866f6484137bedbfe2ef62c7c8b7d9f7ac61994eeb0c59406e5",
+        "manifestBytes": 625,
+        "files": [
+          {
+            "path": "unity-assets.json",
+            "bytes": 306,
+            "sha256": "7ea97d2d952a0455ba3222b55b00b0374278886352d3556acd9253581ce72278"
+          },
+          {
+            "path": "arena.tmd",
+            "bytes": 49783,
+            "sha256": "d0039136addf946d21408ebae6517ddad7648e2edde1a2a1d868a2e24da3befa"
+          },
+          {
+            "path": "boss.rhai",
+            "bytes": 676,
+            "sha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1"
+          },
+          {
+            "path": "timelines/boss-telegraph.tsq",
+            "bytes": 737,
+            "sha256": "b9e2db730eb66191f609c5c67e8df91e07f34be2c471e78ed3e34824dd80b94f"
+          },
+          {
+            "path": "timelines/floor-transition.tsq",
+            "bytes": 652,
+            "sha256": "e77a2671eb36095881c8071e2fad499d57f673c687396b0ae196cfefa6e028b5"
+          }
+        ],
+        "assets": [
+          {
+            "role": "baseMaterial",
+            "key": "arena/material/base",
+            "type": "Material"
+          },
+          {
+            "role": "cube",
+            "key": "arena/primitive/cube",
+            "type": "GameObject"
+          },
+          {
+            "role": "capsule",
+            "key": "arena/primitive/capsule",
+            "type": "GameObject"
+          },
+          {
+            "role": "sphere",
+            "key": "arena/primitive/sphere",
+            "type": "GameObject"
+          }
+        ]
+      },
+      "commands": [
+        {
+          "id": "rust-version",
+          "status": "passed",
+          "argv": [
+            "rustc",
+            "--version"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/data-final-02/rust-version.log",
+            "bytes": 54,
+            "sha256": "2f722b284fd6e65c359303f29c902c2122acbe0c52458cf11231f95c19833ed6"
+          }
+        },
+        {
+          "id": "python-tests",
+          "status": "passed",
+          "argv": [
+            "/usr/bin/python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tools/tests",
+            "-p",
+            "test_*.py",
+            "-v"
+          ],
+          "environment": {},
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/data-final-02/python-tests.log",
+            "bytes": 12148,
+            "sha256": "318172d428b4a48dda11c45649190826aa464161f10648623f1930426dec0db0"
+          }
+        },
+        {
+          "id": "package-interop",
+          "status": "passed",
+          "argv": [
+            "cargo",
+            "test",
+            "--locked",
+            "-p",
+            "kitu-demo-game-native",
+            "--test",
+            "package",
+            "--",
+            "--nocapture"
+          ],
+          "environment": {
+            "KITU_PACKAGE_INTEROP_DIR": ".tmp/stage18/data-final-02/package"
+          },
+          "exitCode": 0,
+          "logArtifact": {
+            "path": ".tmp/stage18/data-final-02/package-interop.log",
+            "bytes": 999,
+            "sha256": "bc72dc498db61ed6e164c3f2aa751f4df6a159543c81e5282c6505acb68436fb"
+          }
+        }
+      ]
+    }
+  ],
+  "workspaceBuild": {
+    "status": "passed",
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--workspace"
+    ],
+    "sourceLog": {
+      "path": ".tmp/stage18/workspace-build.log",
+      "bytes": 628,
+      "sha256": "a303a3f491726ba3dc678faf9a4a1ff2d29997d02ace6a13a78f5a6d34700f08"
+    }
+  },
+  "scopeNote": "Full workspace/default-feature tests and all-feature Clippy/rustdoc passed on cc75. Final data/coordinator regressions passed separately on clean7db. These are separate scopes; their case counts are not added to360 unique workspace cases."
+}

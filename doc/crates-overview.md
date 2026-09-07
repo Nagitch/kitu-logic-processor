@@ -9,13 +9,14 @@ Status note: some data/content crates are staged entry points. Their responsibil
 | Crate | Purpose | Key dependencies |
 | --- | --- | --- |
 | `kitu-core` | Foundational types (errors, ticks, timestamps) shared across all crates. | – |
+| `kitu-calculation` | Shared OpenFormula function adapter and explicit `KITU.*` extension registration. | `openformula-kernel` |
 | `kitu-ecs` | Minimal ECS wrapper and scheduler used by the runtime loop. | `kitu-core` |
 | `kitu-osc-ir` | Core OSC/IR message types that travel across transports. | `kitu-core` |
 | `kitu-transport` | Message transport abstraction (local channel, network adapters). | `kitu-core`, `kitu-osc-ir` |
 | `kitu-runtime` | Tick-based orchestrator that wires ECS, transports, and future data/script layers. | `kitu-core`, `kitu-ecs`, `kitu-transport`, `kitu-osc-ir` |
-| `kitu-scripting-rhai` | Rhai integration layer (script hosts, bindings, helpers). | `kitu-core` |
+| `kitu-scripting-rhai` | Bounded pure Rhai execution with copied JSON inputs and structured diagnostics. | `rhai`, `serde_json` |
 | `kitu-data-tmd` | Parser/loader for TMD data definitions. | `kitu-core` |
-| `kitu-data-sqlite` | SQLite-backed data store utilities and schema helpers. | `kitu-core` |
+| `kitu-data-sqlite` | Bounded, read-only typed SQLite snapshots with consistent schema and ordering. | `rusqlite` |
 | `kitu-tsq1` | TSQ1 timeline AST and playback utilities. | `kitu-core` |
 | `kitu-shell` | CLI shell primitives for driving the runtime during development. | `kitu-core` |
 | `kitu-web-admin-backend` | Backend pieces for the browser-based admin (HTTP/WS glue). | `kitu-core` |
@@ -26,6 +27,7 @@ Status note: some data/content crates are staged entry points. Their responsibil
 ```mermaid
 graph TD
     kitu_core["kitu-core"]
+    kitu_calculation["kitu-calculation"]
     kitu_ecs["kitu-ecs"]
     kitu_osc_ir["kitu-osc-ir"]
     kitu_transport["kitu-transport"]
@@ -38,6 +40,8 @@ graph TD
     kitu_web_admin_backend["kitu-web-admin-backend"]
     kitu_unity_ffi["kitu-unity-ffi"]
 
+    kitu_calculation --> openformula_kernel["openformula-kernel"]
+
     kitu_ecs --> kitu_core
     kitu_osc_ir --> kitu_core
     kitu_transport --> kitu_core
@@ -46,9 +50,7 @@ graph TD
     kitu_runtime --> kitu_ecs
     kitu_runtime --> kitu_transport
     kitu_runtime --> kitu_osc_ir
-    kitu_scripting_rhai --> kitu_core
     kitu_data_tmd --> kitu_core
-    kitu_data_sqlite --> kitu_core
     kitu_tsq1 --> kitu_core
     kitu_shell --> kitu_core
     kitu_web_admin_backend --> kitu_core
@@ -62,6 +64,10 @@ graph TD
 ### `kitu-core`
 - Defines cross-crate primitives such as `KituError`, the `Result` alias, and tick/timestamp handling.
 - Keep error variants and time utilities cohesive here so downstream crates do not redefine them.
+
+### `kitu-calculation`
+- Adapts the version-pinned shared calculation registry without taking ownership of parsing, references, runtime triggers, or presentation.
+- Keeps product functions explicitly registered under `KITU.*`; standard names retain their shared OpenFormula-derived behavior.
 
 ### `kitu-ecs`
 - Provides the lightweight ECS world, scheduling, and `System` trait used by the runtime loop.
@@ -80,16 +86,17 @@ graph TD
 - Future extensions will plug in TSQ1 playback, scripting hooks, and data loaders via this crate.
 
 ### `kitu-scripting-rhai`
-- Staged entry point for building the Rhai execution environment and exposing safe bindings for runtime state.
-- Scripts should access gameplay data through APIs defined here instead of touching ECS internals directly.
+- Implements a raw Rhai host with explicit capability, execution and data limits, opaque compiled programs and fresh copied JSON inputs/outputs.
+- Arena owns the [boss context and allowed action contract](specs/arena-boss-scripts.md); scripts receive no ECS mutation access.
 
 ### `kitu-data-tmd`
 - Staged entry point for parsing TMD authoring assets into strongly typed structures ready for validation and loading.
 - Keep transformations and schema evolution logic here to isolate game/runtime code from raw TMD layout changes.
 
 ### `kitu-data-sqlite`
-- Staged entry point for SQLite schema management, migrations, and query helpers.
-- Designed to be shared by build pipelines and runtime code that consume the same data store.
+- Implemented read-only snapshots cover schema and all requested tables in one transaction, including WAL data.
+- Explicit table specifications, native scalar types, unique ordering keys, cancellation and resource limits produce detached values; no client-supplied SQL is exposed.
+- Applications own their table schemas, authoring, domain validation and activation. Arena uses the [shared TMD/SQLite layered contract](specs/arena-content-sources.md).
 
 ### `kitu-tsq1`
 - Staged entry point for the TSQ1 timeline model and playback helpers for driving presentation events.

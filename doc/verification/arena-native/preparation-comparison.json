@@ -1,0 +1,6 @@
+{
+  "ticks": 28,
+  "stateAndOutput": "exact match",
+  "expected": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/preparation.expected.ndjson",
+  "actual": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage10-macos/preparation.actual.ndjson"
+}

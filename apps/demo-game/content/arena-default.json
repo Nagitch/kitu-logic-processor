@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "starter",
+      "name": "Blade",
+      "kind": 0,
+      "damage": 20,
+      "bossDamage": 20,
+      "interval": 0.5
+    },
+    {
+      "id": "quick-blade",
+      "name": "Quick Blade",
+      "kind": 0,
+      "damage": 20,
+      "bossDamage": 24,
+      "interval": 0.5
+    },
+    {
+      "id": "power-blade",
+      "name": "Power Blade",
+      "kind": 0,
+      "damage": 30,
+      "bossDamage": 36,
+      "interval": 0.8
+    },
+    {
+      "id": "quick-shooter",
+      "name": "Quick Shooter",
+      "kind": 1,
+      "damage": 12,
+      "bossDamage": 15,
+      "interval": 0.25
+    },
+    {
+      "id": "power-shooter",
+      "name": "Power Shooter",
+      "kind": 1,
+      "damage": 20,
+      "bossDamage": 24,
+      "interval": 0.45
+    },
+    {
+      "id": "quick-heavy",
+      "name": "Quick Heavy Shooter",
+      "kind": 2,
+      "damage": 50,
+      "bossDamage": 60,
+      "interval": 1
+    },
+    {
+      "id": "power-heavy",
+      "name": "Power Heavy Shooter",
+      "kind": 2,
+      "damage": 75,
+      "bossDamage": 90,
+      "interval": 1.5
+    },
+    {
+      "id": "medkit",
+      "name": "Medkit",
+      "kind": 3,
+      "damage": 0,
+      "bossDamage": 0,
+      "interval": 0
+    },
+    {
+      "id": "grenade",
+      "name": "Grenade",
+      "kind": 4,
+      "damage": 100,
+      "bossDamage": 100,
+      "interval": 0
+    },
+    {
+      "id": "shield",
+      "name": "Shield",
+      "kind": 5,
+      "damage": 0,
+      "bossDamage": 0,
+      "interval": 0
+    },
+    {
+      "id": "health-upgrade",
+      "name": "Health Upgrade (+10 HP)",
+      "kind": 6,
+      "damage": 0,
+      "bossDamage": 0,
+      "interval": 0
+    },
+    {
+      "id": "attack-upgrade",
+      "name": "Attack Upgrade (+5%)",
+      "kind": 7,
+      "damage": 0,
+      "bossDamage": 0,
+      "interval": 0
+    }
+  ],
+  "enemies": [
+    {
+      "kind": 0,
+      "health": 40,
+      "damage": 10,
+      "speed": 2.5,
+      "range": 1.5,
+      "interval": 1,
+      "radius": 0.5
+    },
+    {
+      "kind": 1,
+      "health": 30,
+      "damage": 8,
+      "speed": 2,
+      "range": 6,
+      "interval": 1.5,
+      "radius": 0.5
+    },
+    {
+      "kind": 2,
+      "health": 100,
+      "damage": 20,
+      "speed": 1.2,
+      "range": 1.8,
+      "interval": 1.5,
+      "radius": 0.7
+    },
+    {
+      "kind": 3,
+      "health": 300,
+      "damage": 20,
+      "speed": 1.5,
+      "range": 2,
+      "interval": 1.5,
+      "radius": 1
+    }
+  ],
+  "difficulty": {
+    "healthGrowth": 0.12,
+    "damageGrowth": 0.08
+  },
+  "chests": [
+    {
+      "phase": "preparing",
+      "itemId": "quick-blade"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "power-blade"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "quick-shooter"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "power-shooter"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "quick-heavy"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "power-heavy"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "medkit"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "grenade"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "shield"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "health-upgrade"
+    },
+    {
+      "phase": "preparing",
+      "itemId": "attack-upgrade"
+    },
+    {
+      "phase": "boss",
+      "itemId": "quick-blade"
+    },
+    {
+      "phase": "boss",
+      "itemId": "power-blade"
+    },
+    {
+      "phase": "boss",
+      "itemId": "quick-shooter"
+    },
+    {
+      "phase": "boss",
+      "itemId": "power-shooter"
+    },
+    {
+      "phase": "boss",
+      "itemId": "quick-heavy"
+    },
+    {
+      "phase": "boss",
+      "itemId": "power-heavy"
+    },
+    {
+      "phase": "boss",
+      "itemId": "medkit"
+    },
+    {
+      "phase": "boss",
+      "itemId": "grenade"
+    },
+    {
+      "phase": "boss",
+      "itemId": "shield"
+    },
+    {
+      "phase": "boss",
+      "itemId": "health-upgrade"
+    },
+    {
+      "phase": "boss",
+      "itemId": "attack-upgrade"
+    }
+  ]
+}

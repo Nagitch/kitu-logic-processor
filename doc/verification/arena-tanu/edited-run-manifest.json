@@ -1,0 +1,251 @@
+{
+  "application": "endless-arena",
+  "applicationVersion": "0.1.0",
+  "contractVersion": 1,
+  "manifestVersion": 1,
+  "runtimeId": "1-1788640707743836273",
+  "start": {
+    "content": {
+      "hash": "02d576425c7d0c6f4ac8b72ead9f90f7d20a2b69a5a2a99188a3c91d2850b262",
+      "sourceSha256": "14a259b95e8a90def971f051d6fe89ae4fc5fe02e092b2efc41cc0f084bbe280",
+      "tanuRevision": "194358e8791f1391492abcb60d8cfcc37bbb383a",
+      "values": {
+        "chests": [
+          {
+            "itemId": "quick-blade",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "power-blade",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "quick-shooter",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "power-shooter",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "quick-heavy",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "power-heavy",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "medkit",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "grenade",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "shield",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "health-upgrade",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "attack-upgrade",
+            "phase": "preparing"
+          },
+          {
+            "itemId": "quick-blade",
+            "phase": "boss"
+          },
+          {
+            "itemId": "power-blade",
+            "phase": "boss"
+          },
+          {
+            "itemId": "quick-shooter",
+            "phase": "boss"
+          },
+          {
+            "itemId": "power-shooter",
+            "phase": "boss"
+          },
+          {
+            "itemId": "quick-heavy",
+            "phase": "boss"
+          },
+          {
+            "itemId": "power-heavy",
+            "phase": "boss"
+          },
+          {
+            "itemId": "medkit",
+            "phase": "boss"
+          },
+          {
+            "itemId": "grenade",
+            "phase": "boss"
+          },
+          {
+            "itemId": "shield",
+            "phase": "boss"
+          },
+          {
+            "itemId": "health-upgrade",
+            "phase": "boss"
+          },
+          {
+            "itemId": "attack-upgrade",
+            "phase": "boss"
+          }
+        ],
+        "difficulty": {
+          "damageGrowth": 0.07999999821186066,
+          "healthGrowth": 0.119999997317791
+        },
+        "enemies": [
+          {
+            "damage": 10,
+            "health": 40,
+            "interval": 1.0,
+            "kind": 0,
+            "radius": 0.5,
+            "range": 1.5,
+            "speed": 2.5
+          },
+          {
+            "damage": 8,
+            "health": 30,
+            "interval": 1.5,
+            "kind": 1,
+            "radius": 0.5,
+            "range": 6.0,
+            "speed": 2.0
+          },
+          {
+            "damage": 20,
+            "health": 100,
+            "interval": 1.5,
+            "kind": 2,
+            "radius": 0.699999988079071,
+            "range": 1.7999999523162842,
+            "speed": 1.2000000476837158
+          },
+          {
+            "damage": 20,
+            "health": 300,
+            "interval": 1.5,
+            "kind": 3,
+            "radius": 1.0,
+            "range": 2.0,
+            "speed": 1.5
+          }
+        ],
+        "items": [
+          {
+            "bossDamage": 20,
+            "damage": 37,
+            "id": "starter",
+            "interval": 0.5,
+            "kind": 0,
+            "name": "Blade"
+          },
+          {
+            "bossDamage": 24,
+            "damage": 20,
+            "id": "quick-blade",
+            "interval": 0.5,
+            "kind": 0,
+            "name": "Quick Blade"
+          },
+          {
+            "bossDamage": 36,
+            "damage": 30,
+            "id": "power-blade",
+            "interval": 0.800000011920929,
+            "kind": 0,
+            "name": "Power Blade"
+          },
+          {
+            "bossDamage": 15,
+            "damage": 12,
+            "id": "quick-shooter",
+            "interval": 0.25,
+            "kind": 1,
+            "name": "Quick Shooter"
+          },
+          {
+            "bossDamage": 24,
+            "damage": 20,
+            "id": "power-shooter",
+            "interval": 0.44999998807907104,
+            "kind": 1,
+            "name": "Power Shooter"
+          },
+          {
+            "bossDamage": 60,
+            "damage": 50,
+            "id": "quick-heavy",
+            "interval": 1.0,
+            "kind": 2,
+            "name": "Quick Heavy Shooter"
+          },
+          {
+            "bossDamage": 90,
+            "damage": 75,
+            "id": "power-heavy",
+            "interval": 1.5,
+            "kind": 2,
+            "name": "Power Heavy Shooter"
+          },
+          {
+            "bossDamage": 0,
+            "damage": 0,
+            "id": "medkit",
+            "interval": 0.0,
+            "kind": 3,
+            "name": "Medkit"
+          },
+          {
+            "bossDamage": 100,
+            "damage": 100,
+            "id": "grenade",
+            "interval": 0.0,
+            "kind": 4,
+            "name": "Grenade"
+          },
+          {
+            "bossDamage": 0,
+            "damage": 0,
+            "id": "shield",
+            "interval": 0.0,
+            "kind": 5,
+            "name": "Shield"
+          },
+          {
+            "bossDamage": 0,
+            "damage": 0,
+            "id": "health-upgrade",
+            "interval": 0.0,
+            "kind": 6,
+            "name": "Health Upgrade (+10 HP)"
+          },
+          {
+            "bossDamage": 0,
+            "damage": 0,
+            "id": "attack-upgrade",
+            "interval": 0.0,
+            "kind": 7,
+            "name": "Attack Upgrade (+5%)"
+          }
+        ],
+        "schemaVersion": 1
+      }
+    },
+    "order": 1,
+    "run": 1,
+    "tick": 628817
+  },
+  "tickRate": 60
+}

@@ -1,0 +1,208 @@
+{
+  "reviewedAtUtc": "2026-09-06T09:59:01.193407+00:00",
+  "method": "Independent visual inspection of all six original local PNGs using view_image; completed run reports checked separately after Player completion.",
+  "result": "pass",
+  "imagesReviewed": 6,
+  "observations": [
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage12/player-preparation/inventory.png",
+      "sha256": "27e19d33d1595fabc836277acb3d0c02516addb79923ec9ef3e74e9278371a04",
+      "bytes": 133884,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T09:54:30.815478+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "visualResult": "pass",
+      "label": "inventory",
+      "tick": 1,
+      "floor": 0,
+      "phase": "Preparing",
+      "displayedTimeSeconds": 0.02,
+      "hp": [
+        100,
+        100
+      ],
+      "attackMultiplier": 1.0,
+      "facts": [
+        "Inventory says game paused. All three backpack slots are Empty.",
+        "Weapon A is Blade, 20 damage / 0.5s; Weapon B and both item slots are Empty.",
+        "Cyan player, gold chest, green portal ring and shaded arena floor are visible."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage12/player-stock/chest.png",
+      "sha256": "76e47c4ad9f0297e0573815f985c9eca639cba5ab940728334c0ca2d2c5b9a92",
+      "bytes": 190335,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T09:55:50.460696+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "visualResult": "pass",
+      "label": "supply chest",
+      "tick": 75,
+      "floor": 0,
+      "phase": "Preparing",
+      "displayedTimeSeconds": 1.25,
+      "hp": [
+        100,
+        100
+      ],
+      "facts": [
+        "SUPPLY CHEST says game paused; backpack has three Empty slots.",
+        "Blade 20 damage / 0.5s is equipped; other equipment slots are Empty.",
+        "Chest lists Quick/Power Blade, Shooter and Heavy Shooter, Medkit, Grenade, Shield100, Health Upgrade+10HP and Attack Upgrade+5%, with Take controls."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage12/player-stock/combat.png",
+      "sha256": "61fe10d494fa62ab0a1776521607dfb52703598fbf8e636c451c4f137582829c",
+      "bytes": 125534,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T09:55:51.017195+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "visualResult": "pass",
+      "label": "1F combat",
+      "tick": 203,
+      "floor": 1,
+      "phase": "Combat",
+      "displayedTimeSeconds": 2.87,
+      "hp": [
+        110,
+        110
+      ],
+      "attackMultiplier": 1.05,
+      "facts": [
+        "HUD shows Enemies3 and Defeat every enemy.",
+        "Cyan player has a blue shield ring; red enemy capsules are visible ahead.",
+        "Equipment HUD shows Power Shooter20/0.45s, Quick Shooter12/0.25s, Shield110 and Medkit."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage12/player-stock/boss.png",
+      "sha256": "d5be5258631e4e7ec9fe93896e31d17ff32541ce210ec714133a4b22f4e31671",
+      "bytes": 138402,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T09:55:56.870017+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "visualResult": "pass",
+      "label": "5F boss",
+      "tick": 1625,
+      "floor": 5,
+      "phase": "Combat",
+      "displayedTimeSeconds": 25.37,
+      "hp": [
+        110,
+        110
+      ],
+      "facts": [
+        "HUD shows Enemies1 and Defeat the boss.",
+        "Large shaded purple boss, red circular telegraph, small bright projectiles and shielded cyan player are visible."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage12/player-stock/death-11f.png",
+      "sha256": "f322a81b1e913f415e27d8942c62edbd83c89108c66ee5318bdc47d24ec1bb61",
+      "bytes": 169254,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T09:56:13.606264+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "visualResult": "pass",
+      "label": "11F game over",
+      "tick": 5526,
+      "floor": 11,
+      "phase": "Results",
+      "displayedTimeSeconds": 88.02,
+      "hp": [
+        0,
+        130
+      ],
+      "attackMultiplier": 1.15,
+      "facts": [
+        "GAME OVER panel says Reached11F, Cleared10 floors, Defeated58 enemies including2 bosses.",
+        "Run time88.02s, MaximumHP130 and Attackx1.15 are shown.",
+        "Power Shooter, Quick Shooter, Shield and Medkit are listed; Try again(R) and Return to menu controls are visible."
+      ]
+    },
+    {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage12/player-stock/retry.png",
+      "sha256": "7ad3badf7dc7194e24a2290921a0285cee48fcb7fd1889bcd7a887b255b4c231",
+      "bytes": 116306,
+      "dimensions": [
+        1920,
+        1200
+      ],
+      "modifiedAtUtc": "2026-09-06T09:56:13.672828+00:00",
+      "hashMatchesCompletedRunReport": true,
+      "visualResult": "pass",
+      "label": "retry reset",
+      "tick": 5527,
+      "floor": 0,
+      "phase": "Preparing",
+      "displayedTimeSeconds": 0.02,
+      "hp": [
+        100,
+        100
+      ],
+      "attackMultiplier": 1.0,
+      "facts": [
+        "HUD shows Enemies0 and prepare-at-chest instruction; game-over panel is gone.",
+        "Weapon A reset to Blade20 damage/0.5s; Weapon B and both item slots are Empty.",
+        "Cyan player returned to the preparation layout with gold chest and green portal."
+      ]
+    }
+  ],
+  "completedRunReports": {
+    "player-preparation": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage12/player-preparation/player-verification.json",
+      "sha256": "66876cf468bc2047211933396bdcfdd7bed763b524b8e59c9abaa7dfb74b7852",
+      "verifiedAtUtc": "2026-09-06T09:54:31.447665+00:00",
+      "sessionId": "86004-1788688470233810000",
+      "ticks": 28,
+      "inputs": 40,
+      "native": true,
+      "exactStateAndOutput": true,
+      "traceSha256": "2c764a254771e919c33ca8093322c31093d547443b2c942b061bb9f8072d5362",
+      "expectedSha256": "d1f06c141ad8444a8f843639b1cb231c8068538165164a0303e4b12b9e7f5084",
+      "executableSha256": "3c499846581938ad406d0111596ec1e5d4f54e3d73fe160546acfca9c37bbc15",
+      "pluginSha256": "600850f020545932f4acd60e5c133a888af707ebc98cde75c31251e1d235ce5a",
+      "unsignedPluginSha256": "c8b1c9efe85cf415024863aa2c0df620e87fba170d2dc507e3db8b2910c5a2b9"
+    },
+    "player-stock": {
+      "path": "/Users/mujina/.codex/worktrees/e19c/kitu-workspace/kitu-logic-processor/.tmp/stage12/player-stock/player-verification.json",
+      "sha256": "bb6f5872c94165b620d071f424382e8fbf2372e87e54b616829ded7b320728c3",
+      "verifiedAtUtc": "2026-09-06T09:56:14.708524+00:00",
+      "sessionId": "86191-1788688549690996000",
+      "ticks": 5528,
+      "inputs": 5581,
+      "native": true,
+      "exactStateAndOutput": true,
+      "traceSha256": "0b14c384ac29e986a51cde1b5c206fc3844472b5dd50fec1793b713ad262d1f8",
+      "expectedSha256": "e245c9b92c340472cfe7d6c2c8c63b1398f8903d93cb84ddfa62aafca703bb50",
+      "executableSha256": "3c499846581938ad406d0111596ec1e5d4f54e3d73fe160546acfca9c37bbc15",
+      "pluginSha256": "600850f020545932f4acd60e5c133a888af707ebc98cde75c31251e1d235ce5a",
+      "unsignedPluginSha256": "c8b1c9efe85cf415024863aa2c0df620e87fba170d2dc507e3db8b2910c5a2b9"
+    }
+  },
+  "limits": [
+    "Static screenshots verify visible checkpoint labels and presentation only; they do not independently prove input handling, timing, AI, audio or deterministic execution.",
+    "Exact state/output reproduction and tick/input counts come from the completed generated verification reports, not image inference.",
+    "The retry screenshot shows equipment reset but its closed inventory does not independently expose backpack contents.",
+    "The combat camera does not show the entire arena; the Enemies3 value is a HUD observation, not a manual count of all visible enemies.",
+    "These baseline gameplay screenshots do not by themselves demonstrate SQLite/TMD editing or layered configuration activation; those require the separate live Admin/CLI evidence."
+  ],
+  "imageFilesModified": false,
+  "publishedOrUploaded": false
+}

@@ -1,0 +1,491 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-09-06T11:13:28.532703+00:00",
+  "passed": true,
+  "tool": "agent-browser 0.27.0",
+  "adminUrl": "http://127.0.0.1:5177/game-scripts",
+  "hostUrl": "http://127.0.0.1:8791",
+  "session": {
+    "version": 1,
+    "sessionId": "1-1788692706882880805"
+  },
+  "sourcePath": ".tmp/stage13/authoring/boss.rhai",
+  "versions": {
+    "default08": {
+      "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+      "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+      "contractVersion": 1,
+      "policyVersion": "kitu-rhai-json-v1",
+      "rhaiVersion": "1.26.0"
+    },
+    "adopted16": {
+      "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+      "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+      "contractVersion": 1,
+      "policyVersion": "kitu-rhai-json-v1",
+      "rhaiVersion": "1.26.0"
+    },
+    "pending24": {
+      "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+      "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+      "contractVersion": 1,
+      "policyVersion": "kitu-rhai-json-v1",
+      "rhaiVersion": "1.26.0"
+    }
+  },
+  "stages": [
+    {
+      "name": "01-initial",
+      "run": 0,
+      "readOnly": false,
+      "active": null,
+      "pending": {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": null,
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "02-active-default",
+      "run": 1,
+      "readOnly": false,
+      "active": {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": null,
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "03-candidate-16",
+      "run": 1,
+      "readOnly": false,
+      "active": {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "04-staged-16",
+      "run": 1,
+      "readOnly": false,
+      "active": {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "05-active-16",
+      "run": 2,
+      "readOnly": false,
+      "active": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "06-invalid",
+      "run": 2,
+      "readOnly": false,
+      "active": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": null,
+      "diagnostics": [
+        {
+          "kind": "compile",
+          "message": "Unexpected ';' (line 22, position 14)",
+          "line": 22,
+          "column": 14
+        }
+      ],
+      "runtimeFault": null
+    },
+    {
+      "name": "07-recovered",
+      "run": 2,
+      "readOnly": false,
+      "active": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "09-candidate-24",
+      "run": 2,
+      "readOnly": false,
+      "active": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+        "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "10-pending-24",
+      "run": 2,
+      "readOnly": false,
+      "active": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+        "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+        "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "11-loaded-script",
+      "run": 0,
+      "readOnly": true,
+      "active": null,
+      "pending": {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+        "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "12-stepped-script",
+      "run": 0,
+      "readOnly": true,
+      "active": null,
+      "pending": {
+        "hash": "1972fdeaaed2d2e6ff349409087a20440683b1aa90f0199c2f7e0c7a22564025",
+        "sourceSha256": "cc75bd728a7fcddaf067e13bf330e650b57c26530bc805ed4683e5f8bb711af1",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+        "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "13-replayed-script",
+      "run": 2,
+      "readOnly": true,
+      "active": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+        "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    },
+    {
+      "name": "14-live-script",
+      "run": 2,
+      "readOnly": false,
+      "active": {
+        "hash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+        "sourceSha256": "fc9950aac56ae0401769ad32c759238034086d4a2d0d1635b4b0c6ef2aacd9a6",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "pending": {
+        "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+        "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "candidate": {
+        "hash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+        "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+        "contractVersion": 1,
+        "policyVersion": "kitu-rhai-json-v1",
+        "rhaiVersion": "1.26.0"
+      },
+      "diagnostics": [],
+      "runtimeFault": null
+    }
+  ],
+  "commands": [
+    {
+      "file": "02-start-default.json",
+      "command": "app action run arena.start",
+      "ui": "Completed"
+    },
+    {
+      "file": "05-menu.json",
+      "command": "app action run arena.menu",
+      "ui": "Completed"
+    },
+    {
+      "file": "05-start-16.json",
+      "command": "app action run arena.start",
+      "ui": "Completed"
+    },
+    {
+      "file": "08-recording-save.json",
+      "command": "replay save",
+      "ui": "Completed"
+    },
+    {
+      "file": "11-replay-load.json",
+      "command": "replay load 245c26aa9fe528e7f7321335aed6d09006a9ba260a2dec71fb13a5b9a1d2ef49",
+      "ui": "Completed"
+    },
+    {
+      "file": "12-replay-step.json",
+      "command": "replay step",
+      "ui": "Completed"
+    },
+    {
+      "file": "13-replay-seek.json",
+      "command": "replay seek 15578",
+      "ui": "Completed"
+    },
+    {
+      "file": "14-return-live.json",
+      "command": "replay live",
+      "ui": "Completed"
+    }
+  ],
+  "recording": {
+    "bytes": 2957058,
+    "id": "245c26aa9fe528e7f7321335aed6d09006a9ba260a2dec71fb13a5b9a1d2ef49",
+    "path": "/workspaces/kitu-logic-processor/.tmp/stage13/authoring/recordings/245c26aa9fe528e7f7321335aed6d09006a9ba260a2dec71fb13a5b9a1d2ef49.tsq",
+    "totalTicksVerifiedOnLoad": 19236,
+    "stepTick": 0,
+    "seekTick": 15578,
+    "oldSourceRestored": true,
+    "authoringSourceChangedBeforeReplay": true
+  },
+  "checks": {
+    "allRuntimeMutationsThroughActualAdminOrShellUI": true,
+    "readonlyHttpUsedForEvidenceOnly": true,
+    "readOnlySourceMatchesApiIncludingDigest": true,
+    "nextRunOnlyAdoption": true,
+    "syntaxDiagnosticKind": "compile",
+    "syntaxDiagnosticLine": 22,
+    "syntaxDiagnosticColumn": 14,
+    "invalidCandidateCleared": true,
+    "invalidActiveAndPendingRetained": true,
+    "validRecovery": true,
+    "replayOldActiveAndPendingRestored": true,
+    "replayStageDisabledWithDifferentCandidate": true,
+    "returnLivePaused": true,
+    "navigationOverviewAndBack": true,
+    "webSocket": "open",
+    "consoleErrors": 0,
+    "pageErrors": 0
+  },
+  "notExercisedInBrowser": [
+    "Late runtime-fault panel: this authoring flow did not encounter a gameplay script fault; covered separately by backend tests.",
+    "Concurrent stale-candidate replacement: covered separately by host tests."
+  ],
+  "finalState": {
+    "run": 2,
+    "livePaused": true,
+    "activeHash": "97ad612fbd53d6b4127fe5d3c41933d7c9c05a358fe4fd29c61261d714644882",
+    "pendingHash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+    "candidateHash": "a1b6129c3d2706bd8c19e20b151da68ff62f9fc80651b1bd6759c97809cf1374",
+    "sourceSha256": "6a54ffe5f56daeae062feace6da042163aeba8c03876da88aad4a8457cbc3fda",
+    "telegraphSeconds": {
+      "active": 1.6,
+      "pending": 2.4,
+      "sourceFile": 2.4
+    }
+  },
+  "screenshots": {
+    "publication": "local only",
+    "visuallyInspected": [
+      "06-invalid.png",
+      "13-replayed.png"
+    ],
+    "files": [
+      {
+        "path": ".tmp/stage13/browser-proof/01-default.png",
+        "sha256": "a60417cdb332cf7676e0b5f852be0d4edf3aa2616e2e7bad9a1752f96c513504"
+      },
+      {
+        "path": ".tmp/stage13/browser-proof/04-staged.png",
+        "sha256": "2a020f04914c7b838b1b313fb882d36a34245ddf2b7eac6591033f22a29c7f05"
+      },
+      {
+        "path": ".tmp/stage13/browser-proof/06-invalid.png",
+        "sha256": "cd1bbe36cf8deb7de3ec8e6073e720ab5023e6725c50111616828644151e2ce0"
+      },
+      {
+        "path": ".tmp/stage13/browser-proof/13-replayed.png",
+        "sha256": "72b0c7f608cc59255c982d1a3258baa472c4d293df6b55d09ece354d211c5f00"
+      }
+    ]
+  },
+  "frontendFiles": {
+    "tools/kitu-web-admin/frontend/src/lib/arena-script.ts": "d48b820775a04771f37ce6e77aec3aebb2c8787554318819d5d9775d66e0ab4a",
+    "tools/kitu-web-admin/frontend/src/routes/(project)/game-scripts/+page.svelte": "f8b8abc6a7d463f75e144911f6d20c0fcdf2f491e00b41a2e280113c1c51dd03",
+    "tools/kitu-web-admin/frontend/src/routes/+layout.svelte": "7e51d99422dfb63175cbc2dc16ee03669aa2a668017eb99a11ebdc0ed8d9cc64"
+  }
+}

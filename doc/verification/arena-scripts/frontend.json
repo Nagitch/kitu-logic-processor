@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-09-06T10:43:28.245813+00:00",
+  "scope": "Game Scripts frontend",
+  "environment": "kitu-e19c-development: /workspaces/kitu-logic-processor/tools/kitu-web-admin/frontend",
+  "checks": [
+    {
+      "command": "pnpm check",
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    {
+      "command": "pnpm lint",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm exec vite build",
+      "exitCode": 0,
+      "vite": "8.1.0",
+      "notes": [
+        "Existing large chunk notice (>500kB).",
+        "Empty env chunk reported by adapter.",
+        "WASM prebuild left to root Cargo/build sequencing."
+      ]
+    }
+  ],
+  "browser": {
+    "passed": true,
+    "report": ".tmp/stage13/browser-proof/results.json",
+    "reportSha256": "83bd7a35ec88cbb0b73c1c0a5e75db14572dec5e1661d493adb6d7c4f0e3383e"
+  },
+  "files": {
+    "tools/kitu-web-admin/frontend/src/lib/arena-script.ts": "d48b820775a04771f37ce6e77aec3aebb2c8787554318819d5d9775d66e0ab4a",
+    "tools/kitu-web-admin/frontend/src/routes/(project)/game-scripts/+page.svelte": "f8b8abc6a7d463f75e144911f6d20c0fcdf2f491e00b41a2e280113c1c51dd03",
+    "tools/kitu-web-admin/frontend/src/routes/+layout.svelte": "7e51d99422dfb63175cbc2dc16ee03669aa2a668017eb99a11ebdc0ed8d9cc64"
+  },
+  "fullBuild": {
+    "command": "pnpm build",
+    "wasmIncluded": true,
+    "exitCode": 0,
+    "logSha256": "2eb282ecd8c54864a04e9befea19d8f7c408b77e6faf6fd5b00068929e3ee48d"
+  }
+}

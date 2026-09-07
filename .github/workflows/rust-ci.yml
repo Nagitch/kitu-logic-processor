@@ -6,125 +6,122 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+permissions:
+  contents: read
+
 env:
-  CARGO_TERM_COLOR: always
+  CARGO_TERM_COLOR: never
   RUST_BACKTRACE: 1
+  PYTHONDONTWRITEBYTECODE: 1
 
 jobs:
-  format:
-    name: Format Check
+  portable:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scope: reference
+            name: Arena Reference Integrity
+          - scope: fmt
+            name: Format Check
+          - scope: clippy
+            name: Clippy Lint
+          - scope: test
+            name: Test Suite
+          - scope: docs
+            name: Documentation Build
+          - scope: data
+            name: Arena Data and Build Tools
+          - scope: frontend
+            name: Admin and WASM
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Rust toolchain
+        with:
+          lfs: true
+      - name: Setup pinned Rust toolchain
+        if: matrix.scope != 'reference'
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.82.0
-          components: rustfmt
+          toolchain: 1.96.0
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - name: Cache Cargo dependencies and build
+        if: matrix.scope != 'reference' && matrix.scope != 'fmt'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ runner.arch }}-rust196-${{ matrix.scope }}-${{ hashFiles('Cargo.lock') }}
+      - name: Setup Node 24
+        if: matrix.scope == 'frontend'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Setup pinned pnpm
+        if: matrix.scope == 'frontend'
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.9.0 --activate
+      - name: Run shared repository verification
+        run: python3 tools/verify-repository.py --scope '${{ matrix.scope }}' --evidence '.tmp/ci/${{ matrix.scope }}'
+      - name: Retain verification report and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arena-${{ matrix.scope }}-verification
+          path: |
+            .tmp/ci/${{ matrix.scope }}/verification.json
+            .tmp/ci/${{ matrix.scope }}/*.log
+            .tmp/ci/${{ matrix.scope }}/package.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
 
-      - name: Check formatting
-        run: cargo fmt --all --check
-
-  clippy:
-    name: Clippy Lint
-    runs-on: ubuntu-latest
+  native-macos:
+    name: macOS ARM64 Native ABI
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      CARGO_INCREMENTAL: 0
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_PROFILE_TEST_DEBUG: 0
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Rust toolchain
+        with:
+          lfs: true
+      - name: Setup pinned Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: 1.82.0
-          components: clippy
-
-      - name: Cache cargo registry
+          toolchain: 1.96.0
+          targets: aarch64-apple-darwin
+      - name: Cache Cargo dependencies and native build
         uses: actions/cache@v4
         with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo index
-        uses: actions/cache@v4
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ runner.arch }}-rust196-native-${{ hashFiles('Cargo.lock') }}
+      - name: Run native scope without Unity
+        run: python3 tools/verify-arena-macos.py --scope native --evidence .tmp/ci/native
+      - name: Retain native verification report and logs
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
-
-  test:
-    name: Test Suite
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: 1.82.0
-
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Run tests
-        run: cargo test --all
-
-  docs:
-    name: Documentation Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: 1.82.0
-
-      - name: Cache cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo index
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build documentation
-        run: cargo doc --no-deps --all-features
-        env:
-          RUSTDOCFLAGS: -D warnings
+          name: arena-native-macos-verification
+          path: |
+            .tmp/ci/native/verification.json
+            .tmp/ci/native/*.log
+            .tmp/ci/native/commands/*.log
+            .tmp/ci/native/native-build/*.json
+            .tmp/ci/native/native-build/*.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

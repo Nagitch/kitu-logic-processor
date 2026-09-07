@@ -2,16 +2,52 @@ import { browser } from "$app/environment";
 import { env } from "$env/dynamic/public";
 import { derived, get, writable } from "svelte/store";
 import type {
-  ActionRunResponse,
   ActionValue,
   AppActionCatalog,
+  ActionRunResponse,
   ClientOscMessage,
   DebugLogEntry,
   ServerEvent,
   WorldSnapshot,
 } from "./types";
+import {
+  decodeKepStreamFrames,
+  encodeKepStreamFrame,
+  encodeOscPacket,
+} from "./kep";
 
 type ConnectionState = "idle" | "connecting" | "open" | "closed" | "error";
+type WebTransportState =
+  "disabled" | "unsupported" | "connecting" | "ready" | "closed" | "error";
+type OscSendStatus = {
+  path: "none" | "http" | "webtransport" | "websocket-fallback" | "websocket";
+  phase: "idle" | "pending" | "sent" | "applied" | "fallback" | "failed";
+  detail: string | null;
+};
+type WebTransportSession = {
+  readonly ready: Promise<void>;
+  readonly closed: Promise<unknown>;
+  createBidirectionalStream(): Promise<WebTransportBidirectionalStream>;
+  close(): void;
+};
+type WebTransportBidirectionalStream = {
+  readable: ReadableStream<Uint8Array>;
+  writable: WritableStream<Uint8Array>;
+};
+type WebTransportOptions = {
+  serverCertificateHashes?: Array<{
+    algorithm: "sha-256";
+    value: Uint8Array;
+  }>;
+};
+type WebTransportConstructor = new (
+  url: string,
+  options?: WebTransportOptions,
+) => WebTransportSession;
+type WebTransportSendResult = {
+  requestWritten: boolean;
+  fallbackReason?: string;
+};
 
 const defaultSnapshot: WorldSnapshot = {
   tick: 0,
@@ -23,6 +59,13 @@ export const worldSnapshot = writable<WorldSnapshot>(defaultSnapshot);
 export const debugLogs = writable<DebugLogEntry[]>([]);
 export const lastError = writable<string | null>(null);
 export const appActionCatalog = writable<AppActionCatalog>({ actions: [] });
+export const webTransportState = writable<WebTransportState>("disabled");
+export const webTransportDetail = writable<string | null>(null);
+export const lastOscSendStatus = writable<OscSendStatus>({
+  path: "none",
+  phase: "idle",
+  detail: null,
+});
 
 export const objectCount = derived(
   worldSnapshot,
@@ -30,6 +73,8 @@ export const objectCount = derived(
 );
 
 let socket: WebSocket | null = null;
+let webTransport: WebTransportSession | null = null;
+let webTransportReady = false;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function connectAdminSocket() {
@@ -51,6 +96,7 @@ export function connectAdminSocket() {
     connectionState.set("open");
     lastError.set(null);
     loadAppActions();
+    connectAdminWebTransport();
   });
 
   socket.addEventListener("message", (event) => {
@@ -71,13 +117,165 @@ export function connectAdminSocket() {
 }
 
 export function sendOsc(payload: ClientOscMessage) {
+  if (webTransportReady && webTransport) {
+    lastOscSendStatus.set({
+      path: "webtransport",
+      phase: "pending",
+      detail: "opening stream",
+    });
+    sendOscOverWebTransport(webTransport, payload)
+      .then((result) => {
+        if (!result.requestWritten) {
+          sendOscOverWebSocket(payload, {
+            path: "websocket-fallback",
+            detail: result.fallbackReason ?? "WebTransport pre-write failure",
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        const message =
+          error instanceof Error
+            ? error.message
+            : `WebTransport send failed: ${error}`;
+        lastOscSendStatus.set({
+          path: "webtransport",
+          phase: "failed",
+          detail: message,
+        });
+        lastError.set(message);
+      });
+    return true;
+  }
+
+  return sendOscOverWebSocket(payload, {
+    path: "websocket",
+    detail: webTransportBypassReason(),
+  });
+}
+
+function sendOscOverWebSocket(
+  payload: ClientOscMessage,
+  status: Pick<OscSendStatus, "path" | "detail">,
+) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
+    lastOscSendStatus.set({
+      path: status.path,
+      phase: "failed",
+      detail: "WebSocket is not connected",
+    });
     lastError.set("WebSocket is not connected");
     return false;
   }
 
   socket.send(JSON.stringify(payload));
+  lastOscSendStatus.set({
+    path: status.path,
+    phase: status.path === "websocket-fallback" ? "fallback" : "sent",
+    detail: status.detail,
+  });
+  lastError.set(null);
   return true;
+}
+
+async function sendOscOverWebTransport(
+  session: WebTransportSession,
+  payload: ClientOscMessage,
+): Promise<WebTransportSendResult> {
+  let stream: WebTransportBidirectionalStream;
+  try {
+    stream = await session.createBidirectionalStream();
+  } catch (error) {
+    return {
+      requestWritten: false,
+      fallbackReason:
+        error instanceof Error
+          ? `Stream unavailable: ${error.message}`
+          : `Stream unavailable: ${error}`,
+    };
+  }
+  const writer = stream.writable.getWriter();
+  const oscPacket = encodeOscPacket(payload);
+  const frame = encodeKepStreamFrame({
+    payloadType: "osc",
+    route: env.PUBLIC_KITU_ADMIN_KEP_ROUTE ?? "/room/main",
+    flags: 0,
+    payload: oscPacket,
+  });
+
+  try {
+    try {
+      await writer.write(frame);
+    } catch (error) {
+      return {
+        requestWritten: false,
+        fallbackReason:
+          error instanceof Error
+            ? `Write unavailable: ${error.message}`
+            : `Write unavailable: ${error}`,
+      };
+    }
+    try {
+      await writer.close();
+      const response = await readStreamBytes(stream.readable);
+      if (response.length > 0) {
+        applyKepServerEvents(response);
+      }
+    } catch (error) {
+      throw new Error(
+        error instanceof Error
+          ? `WebTransport post-write failed: ${error.message}`
+          : `WebTransport post-write failed: ${error}`,
+      );
+    }
+    lastOscSendStatus.set({
+      path: "webtransport",
+      phase: "sent",
+      detail: "response applied",
+    });
+    lastError.set(null);
+    return { requestWritten: true };
+  } finally {
+    writer.releaseLock();
+  }
+}
+
+async function readStreamBytes(stream: ReadableStream<Uint8Array>) {
+  const reader = stream.getReader();
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      length += value.length;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return bytes;
+}
+
+function applyKepServerEvents(bytes: Uint8Array) {
+  const textDecoder = new TextDecoder();
+  for (const envelope of decodeKepStreamFrames(bytes)) {
+    if (envelope.payloadType !== "json") {
+      throw new Error(
+        `Unsupported KEP response payload: ${envelope.payloadType}`,
+      );
+    }
+
+    const json = textDecoder.decode(envelope.payload);
+    applyServerEvent(JSON.parse(json) as ServerEvent);
+  }
 }
 
 export async function spawnObject(
@@ -126,12 +324,14 @@ export async function runAppAction(
   actionId: string,
   inputs: Record<string, ActionValue>,
 ) {
+  lastError.set(null);
+  lastOscSendStatus.set({ path: "http", phase: "pending", detail: actionId });
   try {
     const response = await fetch(
       `${apiBaseUrl()}/app-actions/${encodeURIComponent(actionId)}/run`,
       {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ inputs }),
       },
     );
@@ -143,16 +343,141 @@ export async function runAppAction(
     }
     const result = (await response.json()) as ActionRunResponse;
     worldSnapshot.set(result.snapshot);
-    lastError.set(null);
-    return result;
+    lastOscSendStatus.set({
+      path: "http",
+      phase: "applied",
+      detail: `${result.actionId}: ${result.osc.address}`,
+    });
+    return true;
   } catch (error) {
-    lastError.set(error instanceof Error ? error.message : String(error));
-    return null;
+    const message = error instanceof Error ? error.message : String(error);
+    lastOscSendStatus.set({ path: "http", phase: "failed", detail: message });
+    lastError.set(message);
+    return false;
   }
 }
 
-function apiBaseUrl() {
+export function apiBaseUrl() {
   return env.PUBLIC_KITU_ADMIN_API_URL ?? "http://localhost:8787";
+}
+
+function connectAdminWebTransport() {
+  const url = env.PUBLIC_KITU_ADMIN_WT_URL;
+  if (!browser || webTransport) return;
+  if (!url) {
+    webTransportState.set("disabled");
+    webTransportDetail.set("PUBLIC_KITU_ADMIN_WT_URL is not set");
+    return;
+  }
+
+  const Transport = (
+    window as Window & { WebTransport?: WebTransportConstructor }
+  ).WebTransport;
+  if (!Transport) {
+    webTransportState.set("unsupported");
+    webTransportDetail.set("window.WebTransport is unavailable");
+    return;
+  }
+
+  const options = webTransportOptions();
+  if (options === null) return;
+  webTransportState.set("connecting");
+  webTransportDetail.set(url);
+  const session = options ? new Transport(url, options) : new Transport(url);
+  webTransport = session;
+
+  session.ready
+    .then(() => {
+      webTransportReady = true;
+      webTransportState.set("ready");
+      webTransportDetail.set(url);
+    })
+    .catch((error: unknown) => {
+      webTransportReady = false;
+      webTransport = null;
+      const detail = error instanceof Error ? error.message : String(error);
+      const certificateHint = env.PUBLIC_KITU_ADMIN_WT_CERT_SHA256
+        ? null
+        : "Run tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh and restart Compose, or use a browser-trusted certificate.";
+      const message = certificateHint
+        ? `WebTransport connection failed: ${detail}. ${certificateHint}`
+        : `WebTransport connection failed: ${detail}`;
+      webTransportState.set("error");
+      webTransportDetail.set(
+        certificateHint ? `${detail}. ${certificateHint}` : detail,
+      );
+      lastError.set(message);
+    });
+
+  session.closed
+    .catch(() => null)
+    .finally(() => {
+      if (webTransport === session) {
+        webTransportReady = false;
+        webTransport = null;
+        webTransportState.set("closed");
+        webTransportDetail.set("session closed");
+      }
+    });
+}
+
+function webTransportOptions(): WebTransportOptions | undefined | null {
+  const rawCertificateHash = env.PUBLIC_KITU_ADMIN_WT_CERT_SHA256;
+  if (!rawCertificateHash) return undefined;
+  const certificateHash = parseHexSha256(rawCertificateHash);
+  if (!certificateHash) {
+    webTransportState.set("error");
+    webTransportDetail.set("certificate SHA-256 must be 64 hex chars");
+    return null;
+  }
+
+  return {
+    serverCertificateHashes: [
+      {
+        algorithm: "sha-256",
+        value: certificateHash,
+      },
+    ],
+  };
+}
+
+function parseHexSha256(value: string | undefined) {
+  if (!value) return null;
+
+  const normalized = value.replace(/[^a-fA-F0-9]/g, "");
+  if (normalized.length !== 64) {
+    lastError.set(
+      "PUBLIC_KITU_ADMIN_WT_CERT_SHA256 must be 64 hex chars. Regenerate the WebTransport dev certificate.",
+    );
+    return null;
+  }
+
+  const bytes = new Uint8Array(32);
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = Number.parseInt(
+      normalized.slice(index * 2, index * 2 + 2),
+      16,
+    );
+  }
+  return bytes;
+}
+
+function webTransportBypassReason() {
+  const state = get(webTransportState);
+  switch (state) {
+    case "disabled":
+      return "WebTransport disabled";
+    case "unsupported":
+      return "WebTransport unsupported";
+    case "connecting":
+      return "WebTransport connecting";
+    case "closed":
+      return "WebTransport closed";
+    case "error":
+      return "WebTransport unavailable";
+    case "ready":
+      return "WebTransport not ready";
+  }
 }
 
 function applyServerEvent(event: ServerEvent) {

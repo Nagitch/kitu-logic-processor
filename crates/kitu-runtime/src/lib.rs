@@ -25,15 +25,30 @@ pub use kitu_ecs::{WorldObject, WorldSnapshot, WorldTransform};
 use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
 use kitu_transport::{Transport, TransportEvent};
 
+mod admin_input;
+mod application;
+pub use application::{ApplicationTick, InputMetadata, RuntimeApplication, RuntimeInput};
+
 #[derive(Default)]
 struct AuthoritativeInputQueue {
-    committed_batch: VecDeque<OscBundle>,
-    pending_queue: VecDeque<OscBundle>,
+    committed_batch: VecDeque<RuntimeInput>,
+    pending_queue: VecDeque<RuntimeInput>,
+    next_sequence: u64,
 }
 
 impl AuthoritativeInputQueue {
     fn enqueue_pending(&mut self, input: OscBundle) {
-        self.pending_queue.push_back(input);
+        self.enqueue_with_metadata(input, None);
+    }
+
+    fn enqueue_with_metadata(&mut self, bundle: OscBundle, metadata: Option<InputMetadata>) {
+        let sequence = self.next_sequence;
+        self.next_sequence += 1;
+        self.pending_queue.push_back(RuntimeInput {
+            sequence,
+            bundle,
+            metadata,
+        });
     }
 
     fn commit_next_tick_batch(&mut self) {
@@ -42,11 +57,17 @@ impl AuthoritativeInputQueue {
     }
 
     fn drain_committed(&mut self) -> Vec<OscBundle> {
-        self.committed_batch.drain(..).collect()
+        self.committed_batch
+            .drain(..)
+            .map(|input| input.bundle)
+            .collect()
     }
 
     fn committed_snapshot(&self) -> Vec<OscBundle> {
-        self.committed_batch.iter().cloned().collect()
+        self.committed_batch
+            .iter()
+            .map(|input| input.bundle.clone())
+            .collect()
     }
 
     fn clear(&mut self) {
@@ -134,6 +155,7 @@ pub struct Runtime<T: Transport> {
     outputs: OutputBuffer,
     player_transforms: HashMap<String, PlayerTransform>,
     app_actions: AppActionCatalog,
+    application: Option<Box<dyn RuntimeApplication>>,
 }
 
 /// Result of executing an app action through the runtime.
@@ -170,12 +192,27 @@ impl<T: Transport> Runtime<T> {
             outputs: OutputBuffer::default(),
             player_transforms: HashMap::new(),
             app_actions: kitu_general_catalog(),
+            application: None,
         }
     }
 
     /// Returns the world instance for registering systems and components.
     pub fn world_mut(&mut self) -> &mut EcsWorld {
         &mut self.world
+    }
+
+    /// Borrows world resources for inspection without granting mutation access.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_runtime::build_runtime;
+    /// use kitu_transport::LocalChannel;
+    /// let mut runtime = build_runtime(LocalChannel::connected());
+    /// runtime.world_mut().insert_resource(String::from("active content"));
+    /// assert_eq!(runtime.world().resource::<String>().unwrap(), "active content");
+    /// ```
+    pub fn world(&self) -> &EcsWorld {
+        &self.world
     }
 
     /// Spawns an object into the authoritative runtime/ECS world state.
@@ -211,9 +248,20 @@ impl<T: Transport> Runtime<T> {
     pub fn reset_world_objects(&mut self) {
         self.world.reset_world_objects();
         self.player_transforms.clear();
-        self.inputs.clear();
-        self.committed_input_tick = None;
-        self.outputs.clear();
+        if self.application.is_some() {
+            // Resetting the legacy object sandbox cannot discard an admitted
+            // application operation (in particular a controller-loss pause).
+            self.inputs
+                .pending_queue
+                .retain(|input| input.metadata.is_some());
+            self.inputs
+                .committed_batch
+                .retain(|input| input.metadata.is_some());
+        } else {
+            self.inputs.clear();
+            self.committed_input_tick = None;
+            self.outputs.clear();
+        }
     }
 
     /// Returns the authoritative runtime/ECS world snapshot.
@@ -273,6 +321,77 @@ impl<T: Transport> Runtime<T> {
         self.inputs.enqueue_pending(input);
     }
 
+    /// Queues a logical application input while retaining envelope identity.
+    pub fn enqueue_tagged_input(&mut self, input: OscBundle, metadata: InputMetadata) {
+        self.inputs.enqueue_with_metadata(input, Some(metadata));
+    }
+
+    /// Validates a host envelope before queuing it, returning its runtime-assigned order.
+    ///
+    /// Unlike unchecked legacy enqueue methods, malformed requests cannot discard
+    /// an already-admitted batch. Validation is structural and read-only; command
+    /// eligibility is still decided at the authoritative application tick.
+    ///
+    /// # Examples
+    /// ```
+    /// use kitu_runtime::build_runtime;
+    /// use kitu_transport::LocalChannel;
+    /// use kitu_osc_ir::OscBundle;
+    /// let mut runtime = build_runtime(LocalChannel::connected());
+    /// assert_eq!(runtime.try_enqueue_input(OscBundle::new(), None).unwrap(), 0);
+    /// ```
+    pub fn try_enqueue_input(
+        &mut self,
+        bundle: OscBundle,
+        metadata: Option<InputMetadata>,
+    ) -> Result<u64> {
+        for message in &bundle.messages {
+            admin_input::validate(message)?;
+            if message.address == "/input/move" {
+                parse_move_input(message)?;
+            }
+        }
+        let input = RuntimeInput {
+            sequence: self.inputs.next_sequence,
+            bundle,
+            metadata,
+        };
+        if let Some(application) = &self.application {
+            application.validate_inputs(std::slice::from_ref(&input))?;
+        }
+        let sequence = input.sequence;
+        self.inputs
+            .enqueue_with_metadata(input.bundle, input.metadata);
+        Ok(sequence)
+    }
+
+    /// Installs persistent application behavior before the first authoritative tick.
+    ///
+    /// Returns an error if an application is already installed or execution started.
+    /// Initialize the application's typed world resources before calling this method.
+    pub fn install_application<A: RuntimeApplication>(&mut self, application: A) -> Result<()> {
+        if self.tick.get() != 0 || self.application.is_some() {
+            return Err(KituError::InvalidInput(
+                "application must be installed once before execution",
+            ));
+        }
+        if self.config.tick_rate_hz == 0 || self.config.frame_time().is_zero() {
+            return Err(KituError::InvalidInput(
+                "application requires a positive fixed timestep",
+            ));
+        }
+        self.application = Some(Box::new(application));
+        Ok(())
+    }
+
+    /// Returns the application's detached current projection without ticking.
+    pub fn inspect_application(&self) -> Vec<OscBundle> {
+        self.application
+            .as_ref()
+            .map(|app| app.snapshot(&self.world))
+            .unwrap_or_default()
+    }
+
     /// Stages an output bundle that becomes visible after the current tick.
     pub fn queue_output(&mut self, output: OscBundle) {
         self.outputs.stage(output);
@@ -294,6 +413,23 @@ impl<T: Transport> Runtime<T> {
             self.committed_input_tick = None;
         }
         drained
+    }
+
+    /// Returns the last committed batch with its application identities and queue order.
+    ///
+    /// Inspect immediately after a successful tick and before draining committed
+    /// inputs. Pending inputs are excluded; inspection never consumes the batch.
+    ///
+    /// # Examples
+    /// ```
+    /// let mut runtime = kitu_runtime::build_runtime(kitu_transport::LocalChannel::connected());
+    /// runtime.enqueue_input(kitu_osc_ir::OscBundle::new());
+    /// runtime.tick_once().unwrap();
+    /// assert_eq!(runtime.committed_input_records()[0].sequence, 0);
+    /// assert_eq!(runtime.committed_input_records().len(), 1);
+    /// ```
+    pub fn committed_input_records(&self) -> Vec<RuntimeInput> {
+        self.inputs.committed_batch.iter().cloned().collect()
     }
 
     fn enqueue_player_move(&mut self, entity_id: &str, x: f32, z: f32) {
@@ -427,8 +563,31 @@ impl<T: Transport> Runtime<T> {
                 return Err(error);
             }
         };
+        let application_inputs: Vec<_> = self.inputs.committed_batch.iter().cloned().collect();
+        if let Some(application) = self.application.as_ref() {
+            if let Err(error) = application.validate_inputs(&application_inputs) {
+                self.inputs.drain_committed();
+                self.committed_input_tick = None;
+                return Err(error);
+            }
+        }
         self.world.dispatch(self.tick)?;
+        self.apply_queued_world_actions(&application_inputs);
         self.apply_player_move_slice(parsed_moves)?;
+
+        if let Some(application) = self.application.as_mut() {
+            let outputs = application.tick(
+                &mut self.world,
+                ApplicationTick {
+                    tick: self.tick,
+                    dt: self.config.frame_time().as_secs_f32(),
+                    inputs: &application_inputs,
+                },
+            );
+            for output in outputs {
+                self.outputs.stage(output);
+            }
+        }
 
         self.outputs.emit_staged();
 
@@ -462,13 +621,36 @@ impl<T: Transport> Runtime<T> {
 
     fn apply_player_move_slice(&mut self, parsed_moves: Vec<(String, f32, f32)>) -> Result<()> {
         for (entity_id, x, y) in parsed_moves {
-            let transform = self.player_transforms.entry(entity_id.clone()).or_default();
-            transform.x += x;
-            transform.y += y;
-            let output = render_player_transform_message(self.tick, &entity_id, transform)?;
+            let transform = {
+                let transform = self.player_transforms.entry(entity_id.clone()).or_default();
+                transform.x += x;
+                transform.y += y;
+                transform.clone()
+            };
+            self.sync_player_world_object(&entity_id, &transform)?;
+            let output = render_player_transform_message(self.tick, &entity_id, &transform)?;
             self.queue_output(output);
         }
 
+        Ok(())
+    }
+
+    fn sync_player_world_object(
+        &mut self,
+        entity_id: &str,
+        transform: &PlayerTransform,
+    ) -> Result<()> {
+        let world_transform = WorldTransform::new(transform.x, 0.0, transform.y);
+        match self.world.world_object(entity_id) {
+            Some(object) if object.kind == "player" => {
+                self.world.move_world_object(entity_id, world_transform)?;
+            }
+            Some(_) => {}
+            None => {
+                self.world
+                    .spawn_world_object_with_id(entity_id, "player", world_transform)?;
+            }
+        }
         Ok(())
     }
 
@@ -801,6 +983,14 @@ mod tests {
         runtime.tick_once().unwrap();
         let outputs = runtime.drain_output_buffer();
         assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            runtime.inspect_world_state().objects,
+            vec![WorldObject {
+                id: "obj-1".to_string(),
+                kind: "enemy".to_string(),
+                transform: WorldTransform::new(1.0, 2.0, 3.0),
+            }]
+        );
 
         let moved = runtime
             .move_world_object(&object.id, 4.0, 5.0, 6.0)
@@ -926,6 +1116,14 @@ mod tests {
         runtime.tick_once().unwrap();
         let outputs = runtime.drain_output_buffer();
         assert_eq!(outputs.len(), 1);
+        assert_eq!(
+            runtime.inspect_world_state().objects,
+            vec![WorldObject {
+                id: "player:local".to_string(),
+                kind: "player".to_string(),
+                transform: WorldTransform::new(1.0, 0.0, -0.25),
+            }]
+        );
         let render = &outputs[0].messages[0];
         assert_eq!(render.address, "/render/player/transform");
         assert_eq!(
@@ -1124,6 +1322,21 @@ mod tests {
         runtime.tick_once().unwrap();
         let outputs = runtime.drain_output_buffer();
         assert_eq!(outputs.len(), 2);
+        assert_eq!(
+            runtime.inspect_world_state().objects,
+            vec![
+                WorldObject {
+                    id: "player:one".to_string(),
+                    kind: "player".to_string(),
+                    transform: WorldTransform::new(1.0, 0.0, 0.0),
+                },
+                WorldObject {
+                    id: "player:two".to_string(),
+                    kind: "player".to_string(),
+                    transform: WorldTransform::new(0.0, 0.0, 2.0),
+                },
+            ]
+        );
         assert_eq!(
             outputs[0].messages[0].args,
             vec![
