@@ -1,3 +1,4 @@
 dist/
 node_modules/
+.svelte-kit/
 public/kitu-osc-ir-wasm/
