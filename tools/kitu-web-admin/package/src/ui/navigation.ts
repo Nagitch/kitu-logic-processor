@@ -1,6 +1,7 @@
 export function resolveAdminHref(href: string, basePath = '') {
   if (!href.startsWith('/') || href.startsWith('//')) return href
-  const normalizedBase = basePath === '/' ? '' : `/${basePath.split('/').filter(Boolean).join('/')}`
+  const baseSegments = basePath.split('/').filter(Boolean)
+  const normalizedBase = baseSegments.length === 0 ? '' : `/${baseSegments.join('/')}`
   return href === '/' ? `${normalizedBase}/` : `${normalizedBase}${href}`
 }
 

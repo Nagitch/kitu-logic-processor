@@ -20,12 +20,15 @@ Xcode SDK 26.5. Rust verification used `CARGO_INCREMENTAL=0`,
 | Arena Admin | Check, formatting/lint, 19 inspection tests and production build passed |
 | Minimal Admin starter | Check, WASM generation and production build passed |
 | Production browser | Arena Overview, Inspector and Game Parameters rendered with a live WS connection; generated WASM initialized without errors |
-| Independent package consumer | Installed only package artifacts (`package.json`, `dist`, optional `public`, `LICENSE`), built and served at `/review`; CSS rendered, navigation stayed below `/review`, JS and WASM returned HTTP 200 with no browser errors |
+| Independent package consumer | Installed only package artifacts (`package.json`, `dist`, optional `public`, `LICENSE`), built and served at both `/` and `/review`; CSS rendered, Shell navigation stayed on the correct origin/base, JS and WASM returned HTTP 200, WS opened and no browser errors occurred |
 
 The independent consumer intentionally has no imports from the framework source
 tree. Its configured production base path is a verification fixture, not a change
 to either checked-in application's deployment URL. Three.js bundle size warnings
-remain non-failing build warnings.
+remain non-failing build warnings. Fresh CI also exercised the starter's WASM
+prebuild with no sibling package binary on PATH; the package resolves its own
+declared wasm-pack dependency. Browser verification caught and fixed an empty
+base-path regression before the final `/` and `/review` checks above.
 
 ## Build identity
 

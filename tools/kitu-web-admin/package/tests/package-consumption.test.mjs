@@ -72,8 +72,15 @@ test('WASM loader captures one coherent module and binary URL pair', async () =>
 })
 
 test('Admin navigation stays inside a configured application base path', () => {
+  assert.equal(resolveAdminHref('/'), '/')
+  assert.equal(resolveAdminHref('/arena-inspector'), '/arena-inspector')
+  assert.equal(resolveAdminHref('/', ''), '/')
+  assert.equal(resolveAdminHref('/arena-inspector', ''), '/arena-inspector')
+  assert.equal(resolveAdminHref('/', '/'), '/')
+  assert.equal(resolveAdminHref('/arena-inspector', '/'), '/arena-inspector')
   assert.equal(resolveAdminHref('/', '/review'), '/review/')
   assert.equal(resolveAdminHref('/world', '/review/'), '/review/world')
+  assert.equal(resolveAdminHref('https://example.test/admin', '/review'), 'https://example.test/admin')
   assert.equal(isAdminHrefActive('/review/world', '/world', '/review'), true)
   assert.equal(isAdminHrefActive('/review', '/', '/review'), true)
 })
