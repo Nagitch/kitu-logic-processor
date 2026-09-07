@@ -23,8 +23,9 @@ git lfs install --local
 git lfs pull
 ```
 
-The Dev Container includes Git LFS; its setup configures repository-local filters
-and checks the installed version. CI checkout requests LFS files explicitly.
+The Dev Container includes Git LFS; its setup configures repository-local filters,
+checks the installed version, and downloads the current revision's LFS files.
+CI checkout requests LFS files explicitly.
 An existing container must be rebuilt or provisioned with the same prerequisite.
 Missing filters can make an already hydrated asset appear modified, while missing
 LFS downloads leave pointer text where Unity expects an image. Resolve the LFS

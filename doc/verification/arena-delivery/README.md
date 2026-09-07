@@ -115,6 +115,13 @@ SHA-256; no image repair was needed. Installing Git LFS and configuring local
 filters resolved that environment discrepancy. The first report's dirty flag
 is retained rather than rewritten as a clean run.
 
+PR review also reproduced a fresh-checkout case: the original post-create setup
+exited successfully while leaving the 130-byte LFS pointer and an empty LFS
+cache. The corrected setup runs `git lfs pull`; its complete execution in an
+isolated checkout fetched the exact 24,069-byte pinned asset and left the asset
+clean. The before/after scripts, logs and object hashes are retained in
+[environment.json](environment.json). The active checkout asset did not change.
+
 [attempts.json](attempts.json) preserves the failed `macos-full-01` and the
 successful targeted follow-up. The coordinator omitted the existing
 `--arena-initial-expected` argument for the edited initial-package scenario.

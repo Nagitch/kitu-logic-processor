@@ -65,5 +65,90 @@
     "payloadRepairNeeded": false,
     "resolution": "Install git-lfs, configure local filters, hydrate fresh checkouts and enable LFS checkout in CI.",
     "resolvedSourceCommit": "2d3a8f2c9ba6b1b0415d181ecd22a4ca7011ed1c"
+  },
+  "postCreateHydrationReview": {
+    "review": "https://github.com/Nagitch/kitu-logic-processor/pull/165#discussion_r3945747805",
+    "sourceReport": {
+      "path": ".tmp/stage18/lfs-review/results.json",
+      "bytes": 2587,
+      "sha256": "4f4193a6a7de5a82562e547e836d24f711574762f3f81d8fe54ca98891f583ea"
+    },
+    "schemaVersion": 1,
+    "status": "passed",
+    "sourceCommit": "9d81eee7709243411db5deb5694e40ba3a0978e7",
+    "scope": "Actual Dev Container setup in an isolated pointer-only checkout; public HTTPS LFS fetch",
+    "assetPath": "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game/Assets/TutorialInfo/Icons/URP.png",
+    "before": {
+      "setupExitCode": 0,
+      "size": 130,
+      "remainsPointer": true,
+      "cachedObjectCount": 0
+    },
+    "after": {
+      "exitCode": 0,
+      "size": 24069,
+      "sha256": "1d17a9ff3537859abe2c008603d29d90cf43191ae77aa386167cc65e53ba03d9",
+      "first16Hex": "ffd8ffe000104a464946000102010048",
+      "remainsPointer": false,
+      "activeWorktreeAssetMatches": true,
+      "cachedObjectCount": 1,
+      "assetGitStatusClean": true
+    },
+    "isolatedCheckoutStatus": [
+      " M .devcontainer/setup.sh"
+    ],
+    "diffCheckExitCode": 0,
+    "setupBefore": {
+      "path": ".tmp/stage18/lfs-review/setup-before.sh",
+      "size": 439,
+      "sha256": "bb1d02cc18f6c0a5884a9658e35cfeb62c548e9001e882ae84c289b31b927c51"
+    },
+    "setupAfter": {
+      "path": ".tmp/stage18/lfs-review/setup-after.sh",
+      "size": 452,
+      "sha256": "fab1fc2483ac19c372255255f8862bea601c425ca75cc1c553607019f2218fb0"
+    },
+    "artifacts": [
+      {
+        "path": ".tmp/stage18/lfs-review/setup-before.log",
+        "size": 749,
+        "sha256": "80869326c737ec4adf5457d2951c62bfe43d3c8a59beb701e63df743b9580318"
+      },
+      {
+        "path": ".tmp/stage18/lfs-review/setup-after.log",
+        "size": 749,
+        "sha256": "80869326c737ec4adf5457d2951c62bfe43d3c8a59beb701e63df743b9580318"
+      },
+      {
+        "path": ".tmp/stage18/lfs-review/clone.log",
+        "size": 63,
+        "sha256": "199667082fc07030a9f42999da48e4b375f538b295815423575d79e55dd31021"
+      },
+      {
+        "path": ".tmp/stage18/lfs-review/remote.log",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".tmp/stage18/lfs-review/checkout-status.log",
+        "size": 26,
+        "sha256": "bb794f01dce548c6d83244ed5290aed142fe8147ad788766d674b8c9d38b3b36"
+      },
+      {
+        "path": ".tmp/stage18/lfs-review/diff-check.log",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".tmp/stage18/lfs-review/reproduction.json",
+        "size": 2321,
+        "sha256": "a8784feb542c27e71ca59740ef34e05cf8d5b5ea67b07104236745ec6f80f8d9"
+      },
+      {
+        "path": ".tmp/stage18/lfs-review/README.md",
+        "size": 1319,
+        "sha256": "51caffb709c3367361b09fd08eb3d51cbd245b79428cf162466c2efd5375b0d1"
+      }
+    ]
   }
 }
