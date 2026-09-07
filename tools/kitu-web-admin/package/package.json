@@ -1,0 +1,77 @@
+{
+  "name": "@kitu/admin",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Nagitch/kitu-logic-processor.git",
+    "directory": "tools/kitu-web-admin/package"
+  },
+  "type": "module",
+  "sideEffects": [
+    "./dist/styles.css"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "public",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "svelte": "./dist/client/index.js",
+      "default": "./dist/client/index.js"
+    },
+    "./ui": {
+      "types": "./dist/ui/index.d.ts",
+      "svelte": "./dist/ui/index.js",
+      "default": "./dist/ui/index.js"
+    },
+    "./pages": {
+      "types": "./dist/pages/index.d.ts",
+      "svelte": "./dist/pages/index.js",
+      "default": "./dist/pages/index.js"
+    },
+    "./wasm": {
+      "types": "./dist/wasm/index.d.ts",
+      "svelte": "./dist/wasm/index.js",
+      "default": "./dist/wasm/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./public/*": "./public/*"
+  },
+  "scripts": {
+    "build": "svelte-package --input src",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "svelte-package --input src && node --test tests/*.test.mjs",
+    "wasm": "node scripts/build-wasm.mjs"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  },
+  "dependencies": {
+    "@lucide/svelte": "^1.21.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0",
+    "three": "^0.185.0"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.5.0",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@types/node": "^24.13.2",
+    "@types/three": "^0.185.0",
+    "svelte": "^5.56.4",
+    "svelte-check": "^4.7.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "wasm-pack": "^0.15.0"
+  },
+  "packageManager": "pnpm@11.9.0"
+}

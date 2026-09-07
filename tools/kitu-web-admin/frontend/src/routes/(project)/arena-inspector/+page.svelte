@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { apiBaseUrl } from "$lib/admin-client";
-  import Panel from "$lib/components/ui/Panel.svelte";
+  import { Panel } from "@kitu/admin/ui";
   import ArenaMinimap from "$lib/components/arena/ArenaMinimap.svelte";
   import ArenaEntities from "$lib/components/arena/ArenaEntities.svelte";
   import ArenaEvents from "$lib/components/arena/ArenaEvents.svelte";

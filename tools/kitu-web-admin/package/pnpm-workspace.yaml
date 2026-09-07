@@ -1,0 +1,5 @@
+allowBuilds:
+  wasm-pack: true
+
+overrides:
+  cookie: ^1.1.1

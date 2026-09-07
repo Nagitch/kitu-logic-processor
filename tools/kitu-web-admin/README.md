@@ -10,13 +10,18 @@ frontend tests, type/lint checks and the complete Rust/WASM plus Vite build.
 
 ## Layout
 
-- `frontend/`: SvelteKit admin UI using local shadcn-svelte style components, Bits UI primitives, and Three.js.
+- `package/`: reusable `@kitu/admin` Svelte package with the Admin client,
+  shell, controls, standard pages, CSS, and OSC-IR WASM loader contract.
+- `frontend/`: the Arena SvelteKit application. It owns Arena routes,
+  navigation, endpoint environment variables, titles, and world appearance.
+- `starter/`: minimal independent SvelteKit consumer for validating the package
+  against a neutral Kitu Admin host.
 
 The demo backend is now owned by `apps/demo-game`, because it is an application
 that consumes the Kitu framework crates rather than a reusable Web Admin tool.
 
-The frontend uses Tailwind CSS 4 through the Vite plugin. Theme tokens live in
-`frontend/src/app.css`; there is no separate Tailwind or PostCSS config file.
+The package and consumers use Tailwind CSS 4 through the Vite plugin. Shared
+theme tokens and package source discovery live in `package/src/styles.css`.
 
 ## Run
 
@@ -29,12 +34,18 @@ starts:
 cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
 ```
 
-In another shell:
+In another shell, build the package before installing either consumer:
 
 ```sh
 rustup target add wasm32-unknown-unknown
+cd tools/kitu-web-admin/package
+pnpm install --frozen-lockfile
+pnpm run check
+pnpm run test
+pnpm run build
+
 cd tools/kitu-web-admin/frontend
-pnpm install
+pnpm install --frozen-lockfile
 pnpm run wasm
 pnpm run dev
 ```
@@ -42,6 +53,12 @@ pnpm run dev
 `pnpm run dev` and `pnpm run build` both run the WASM generation step first. The
 generated package is written to `frontend/static/kitu-osc-ir-wasm/` and is not
 committed.
+
+The WASM package script accepts `KITU_OSC_IR_WASM_CRATE` for a pinned external
+Kitu checkout and `KITU_ADMIN_WASM_OUT_DIR` for a consuming application's public
+directory. `createOscIrLoader` accepts an explicit router base URL, module URL,
+and WASM URL, so deployments below a path such as `/demo/` do not depend on the
+browser's current nested route.
 
 ```sh
 docker compose -f apps/demo-game/docker-compose.yml up --build

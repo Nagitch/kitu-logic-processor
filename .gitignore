@@ -1,5 +1,8 @@
 /target
 /apps/demo-game/.arena/
+/apps/demo-game/kitu-build-inputs.json
+**/__pycache__/
+**/*.pyc
 **/*.rs.bk
 /.vscode/
 /.idea/

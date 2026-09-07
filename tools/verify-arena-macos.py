@@ -207,6 +207,9 @@ class Verification:
         return value
 
     def cargo(self, verb, *arguments, timeout=1800, env=None):
+        self.command([sys.executable, TOOLS / "prepare-kitu-build.py", "--manifest-path",
+                      ROOT / "apps/demo-game/Cargo.toml", "--cargo", self.args.cargo,
+                      "--target", TARGET], env=env)
         return self.command([self.args.cargo, verb, "--locked", "--target", TARGET,
                              "--profile", self.args.profile, *arguments], timeout=timeout, env=env)
 

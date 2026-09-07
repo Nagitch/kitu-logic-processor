@@ -1,0 +1,30 @@
+{
+  "name": "@kitu/admin-starter",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "wasm": "KITU_ADMIN_WASM_OUT_DIR=../starter/static/kitu-osc-ir-wasm node ../package/scripts/build-wasm.mjs",
+    "predev": "KITU_ADMIN_WASM_OUT_DIR=../starter/static/kitu-osc-ir-wasm node ../package/scripts/build-wasm.mjs",
+    "dev": "vite",
+    "prebuild": "KITU_ADMIN_WASM_OUT_DIR=../starter/static/kitu-osc-ir-wasm node ../package/scripts/build-wasm.mjs",
+    "build": "vite build",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@kitu/admin": "file:../package",
+    "@lucide/svelte": "^1.21.0"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-node": "^5.5.7",
+    "@sveltejs/kit": "^2.68.0",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@tailwindcss/vite": "^4.3.1",
+    "svelte": "^5.56.4",
+    "svelte-check": "^4.7.1",
+    "tailwindcss": "^4.3.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16"
+  },
+  "packageManager": "pnpm@11.9.0"
+}

@@ -9,7 +9,12 @@ use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
 use kitu_runtime::InputMetadata;
 use kitu_transport::application::*;
 use serde_json::{json, Value};
-use std::{collections::VecDeque, path::PathBuf, time::Duration};
+use std::{
+    collections::VecDeque,
+    path::PathBuf,
+    sync::atomic::{AtomicU64, Ordering},
+    time::Duration,
+};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -29,15 +34,18 @@ struct Host {
 }
 impl Host {
     async fn new(external: bool) -> Self {
+        // SystemTime can return the same value in concurrent test threads.
+        static NEXT_DIRECTORY: AtomicU64 = AtomicU64::new(0);
         let directory = std::env::temp_dir().join(format!(
-            "arena-wire-{}-{}",
+            "arena-wire-{}-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
-                .as_nanos()
+                .as_nanos(),
+            NEXT_DIRECTORY.fetch_add(1, Ordering::Relaxed),
         ));
-        std::fs::create_dir_all(&directory).unwrap();
+        std::fs::create_dir(&directory).unwrap();
         let host = ArenaHost::new(
             build_arena_runtime().unwrap(),
             HostOptions {

@@ -10,6 +10,9 @@ overrides:
 importers:
   .:
     dependencies:
+      "@kitu/admin":
+        specifier: file:../package
+        version: file:../package(svelte@5.56.4(@typescript-eslint/types@8.62.0))
       "@lucide/svelte":
         specifier: ^1.21.0
         version: 1.21.0(svelte@5.56.4(@typescript-eslint/types@8.62.0))
@@ -271,6 +274,11 @@ packages:
       {
         integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==,
       }
+
+  "@kitu/admin@file:../package":
+    resolution: { directory: ../package, type: directory }
+    peerDependencies:
+      svelte: ^5.0.0
 
   "@lucide/svelte@1.21.0":
     resolution:
@@ -2439,6 +2447,14 @@ snapshots:
     dependencies:
       "@jridgewell/resolve-uri": 3.1.2
       "@jridgewell/sourcemap-codec": 1.5.5
+
+  "@kitu/admin@file:../package(svelte@5.56.4(@typescript-eslint/types@8.62.0))":
+    dependencies:
+      "@lucide/svelte": 1.21.0(svelte@5.56.4(@typescript-eslint/types@8.62.0))
+      clsx: 2.1.1
+      svelte: 5.56.4(@typescript-eslint/types@8.62.0)
+      tailwind-merge: 3.6.0
+      three: 0.185.0
 
   "@lucide/svelte@1.21.0(svelte@5.56.4(@typescript-eslint/types@8.62.0))":
     dependencies:

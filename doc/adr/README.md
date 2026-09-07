@@ -34,5 +34,6 @@ implemented behavior from staged architecture.
 | [0002](0002-use-a-fixed-step-commit-and-publish-tick-pipeline.md) | Accepted | Use a fixed-step commit-and-publish tick pipeline |
 | [0003](0003-keep-osc-ir-semantics-independent-of-wire-transport.md) | Accepted | Keep OSC-IR semantics independent of wire transport |
 | [0004](0004-keep-webtransport-behind-an-experimental-edge-gateway.md) | Accepted | Keep WebTransport behind an experimental edge gateway |
-| [0005](0005-separate-reusable-framework-crates-from-applications.md) | Accepted | Separate reusable framework crates from applications |
+| [0005](0005-separate-reusable-framework-crates-from-applications.md) | Superseded in part by 0007 | Separate reusable framework crates from applications |
 | [0006](0006-replay-ordered-inputs-through-the-runtime-boundary.md) | Accepted | Replay ordered inputs through the runtime boundary |
+| [0007](0007-distribute-engine-demo-applications-independently.md) | Accepted | Distribute engine demo applications independently |
