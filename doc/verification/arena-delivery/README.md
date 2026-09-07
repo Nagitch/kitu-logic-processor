@@ -3,10 +3,11 @@
 The approved [roadmap #129](https://github.com/Nagitch/kitu-logic-processor/issues/129)
 has **all 18 implementations and required local checks complete in this tree**,
 with **stages 1–17 merged**. Stage 18 is tracked in
-[Issue 164](https://github.com/Nagitch/kitu-logic-processor/issues/164). Automatic
-approval review rejected its GitHub push, and explicit user approval is pending.
-No Stage 18 PR has been created; CI, review, merge and the parent reference
-update have not run. The parent update is tracked in
+[Issue 164](https://github.com/Nagitch/kitu-logic-processor/issues/164) and
+[PR 165](https://github.com/Nagitch/kitu-logic-processor/pull/165). The approved
+push and PR creation completed; CI, review, merge and the parent reference
+update were pending at this capture. PR 165 is the live source for its merge
+status. The parent update is tracked in
 [workspace Issue 40](https://github.com/Nagitch/kitu-workspace/issues/40).
 The [machine-readable matrix](stages.json) retains exact historical merge
 identities and separates local completion from publication.
@@ -19,7 +20,7 @@ for a current verification run.
 
 ## Stages
 
-| Stage | Delivered scope | Issue / merged PR | Contract | Evidence |
+| Stage | Delivered scope | Issue / PR | Contract | Evidence |
 | --- | --- | --- | --- | --- |
 | 1 | Contract and preserved Unity oracle | [#130](https://github.com/Nagitch/kitu-logic-processor/issues/130) / [PR 131](https://github.com/Nagitch/kitu-logic-processor/pull/131) | [Specification](../../specs/arena-runtime-contract.md) | [Record](../arena-reference/results.json) |
 | 2 | Independent Runtime and Unity connection | [#132](https://github.com/Nagitch/kitu-logic-processor/issues/132) / [PR 133](https://github.com/Nagitch/kitu-logic-processor/pull/133) | [Specification](../../specs/arena-runtime-contract.md) | [Record](../arena-runtime-host/results.json) |
@@ -38,7 +39,7 @@ for a current verification run.
 | 15 | JSON, MessagePack and compatibility | [#158](https://github.com/Nagitch/kitu-logic-processor/issues/158) / [PR 159](https://github.com/Nagitch/kitu-logic-processor/pull/159) | [Specification](../../specs/arena-application-wire.md) | [Record](../arena-wire/README.md) |
 | 16 | Addressables and bundled content | [#160](https://github.com/Nagitch/kitu-logic-processor/issues/160) / [PR 161](https://github.com/Nagitch/kitu-logic-processor/pull/161) | [Specification](../../specs/arena-packaged-content.md) | [Record](../arena-content/README.md) |
 | 17 | Coherent Admin inspection | [#162](https://github.com/Nagitch/kitu-logic-processor/issues/162) / [PR 163](https://github.com/Nagitch/kitu-logic-processor/pull/163) | [Specification](../../specs/arena-inspection.md) | [Record](../arena-inspection/README.md) |
-| 18 | Reproducible builds, CI and delivery status | [#164](https://github.com/Nagitch/kitu-logic-processor/issues/164) / publication awaiting approval | [Specification](../../specs/arena-build-verification.md) | [Record](results.json) |
+| 18 | Reproducible builds, CI and delivery status | [#164](https://github.com/Nagitch/kitu-logic-processor/issues/164) / [PR 165](https://github.com/Nagitch/kitu-logic-processor/pull/165) | [Specification](../../specs/arena-build-verification.md) | [Record](results.json) |
 
 The latest merged parent workspace reference is
 [PR 39](https://github.com/Nagitch/kitu-workspace/pull/39), which includes Kitu
@@ -93,11 +94,12 @@ the authoritative Arena rules.
 | Graphical standalone and content | Four default scenarios passed 9,186 ticks / 9,257 inputs; edited bundled source passed 1,800 ticks / 1,816 inputs with the initial oracle. Relocation, authoring preservation and six invalid-content starts passed |
 | Actual Admin browser | Server and relocated embedded Player each passed all 15 flow checks with no page errors |
 | Retained execution identities and cleanup | Eight archived artifacts and two signed Players verified; owned processes stopped and ports released |
-| GitHub push, CI, review and Kitu PR merge | Push awaits user approval after automatic approval review rejected it; no Stage 18 PR, CI run, review or merge |
-| Parent workspace reference update | Not performed; tracked in workspace Issue 40 |
+| GitHub push and PR | Completed: [PR 165](https://github.com/Nagitch/kitu-logic-processor/pull/165) provides live CI, review and merge status |
+| CI, review and Kitu PR merge | Pending at capture; follow PR 165 for subsequent results |
+| Parent workspace reference update | Pending at capture; tracked in [workspace Issue 40](https://github.com/Nagitch/kitu-workspace/issues/40) |
 
-[results.json](results.json) separates completed local checks from pending
-publication. [repository.json](repository.json) retains exact commands, counts
+[results.json](results.json) separates completed local checks and PR creation
+from CI, review and merge status at capture. [repository.json](repository.json) retains exact commands, counts
 and source/lock/log identities. The full Dev Container attempt ran from
 `cc75f9320fd5160598a94c55e0ffef4721049f84` with 61 Python cases; the later data
 scope ran from clean `7db01caeaa98e6ed353fc4b2aa9526e4c8704b0b` with 65. The
@@ -161,6 +163,6 @@ not a deployed authenticated service. Local Addressables and reproducible build
 artifacts do not imply CDN publishing or release signing/notarization.
 
 No in-scope feature has been deferred as structurally impossible. Implementation
-and required local verification are complete. The remaining publication, CI,
-review, merge and parent reference update depend on resolving the GitHub push
-approval blocker; they are not structural impossibility claims.
+and required local verification are complete, and Stage 18 has been published
+as PR 165. CI, review, merge and the parent reference update were pending at
+capture; the linked PR and workspace Issue 40 track their subsequent status.

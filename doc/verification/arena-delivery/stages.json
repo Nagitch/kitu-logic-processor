@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roadmap": "https://github.com/Nagitch/kitu-logic-processor/issues/129",
-  "status": "local_checks_complete_publication_awaiting_approval",
+  "status": "local_checks_complete_pull_request_created",
   "historySource": "Live GitHub roadmap and merged develop pull requests, read during Stage 18 preparation.",
   "historicalEvidencePolicy": "Stage reports preserve their capture-time check and pending states. This matrix records subsequently verified merges; it does not relabel earlier measurements as a current run.",
   "workspaceReference": {
@@ -254,7 +254,7 @@
       "name": "Reproducible builds, CI and delivery status",
       "status": "implemented",
       "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/164",
-      "pullRequest": null,
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/165",
       "contract": "doc/specs/arena-build-verification.md",
       "evidence": [
         "doc/verification/arena-delivery/README.md",
@@ -262,7 +262,8 @@
       ],
       "scope": "Shared repository checks and macOS native/full verification orchestration.",
       "verificationStatus": "local_checks_complete",
-      "publicationStatus": "awaiting_user_approval"
+      "publicationStatus": "pull_request_created",
+      "mergeStatusSource": "https://github.com/Nagitch/kitu-logic-processor/pull/165"
     }
   ],
   "stage18": {
@@ -274,15 +275,16 @@
     "embeddedPlayerBrowser": "passed",
     "runtimeArchive": "recorded",
     "publication": {
-      "status": "awaiting_user_approval",
-      "action": "GitHub push of the Stage18 branch",
-      "reason": "Automatic approval review rejected the push. Explicit user approval is pending; no Stage18 PR has been created.",
-      "pullRequest": null,
-      "ci": "not_run",
-      "review": "not_run",
-      "childMerge": "not_performed",
+      "status": "pull_request_created",
+      "push": "passed",
+      "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/165",
+      "mergeStatusSource": "https://github.com/Nagitch/kitu-logic-processor/pull/165",
+      "ci": "pending_at_capture",
+      "review": "pending_at_capture",
+      "childMerge": "pending_at_capture",
       "workspaceIssue": "https://github.com/Nagitch/kitu-workspace/issues/40",
-      "workspaceReference": "not_performed"
+      "workspaceReference": "pending_at_capture",
+      "captureNote": "PR 165 was created after explicit user approval. Its live page is authoritative for subsequent CI, review and merge status; no self-referential merge commit is recorded here."
     },
     "reports": [
       "doc/verification/arena-delivery/results.json",

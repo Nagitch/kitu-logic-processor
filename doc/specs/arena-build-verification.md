@@ -4,9 +4,10 @@ This is the shared reproduction entry point for Stage 18 of
 [roadmap #129](https://github.com/Nagitch/kitu-logic-processor/issues/129).
 The [delivery matrix](../verification/arena-delivery/README.md) records actual
 completion separately from this recipe. All required Stage 18 local checks
-passed. Its GitHub push awaits user approval after automatic approval review
-rejected the action; PR creation, CI, review, merge and the parent reference
-update remain unperformed. Earlier stage records remain historical evidence.
+passed. [PR 165](https://github.com/Nagitch/kitu-logic-processor/pull/165) is the
+live source for CI, review and merge status. Those gates and the parent
+reference update were pending at this capture. Earlier stage records remain
+historical evidence.
 
 Run commands from the `kitu-logic-processor` repository root. A meta-workspace
 checkout must initialize its pinned child repositories before development; keep
