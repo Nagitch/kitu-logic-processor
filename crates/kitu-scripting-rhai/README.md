@@ -104,5 +104,6 @@ cargo clippy --locked -p kitu-scripting-rhai --all-targets --all-features -- -D 
 RUSTDOCFLAGS=-Dwarnings cargo doc --locked -p kitu-scripting-rhai --no-deps --all-features
 ```
 
-This crate remains internal (`publish = false`). Application boss rules and
-their next-run/replay policy live in `apps/demo-game`.
+This crate remains internal (`publish = false`). Applications own their rule
+sources and next-run/replay policy; the reference implementation lives in the
+[independent Unity demo](https://github.com/Nagitch/kitu-unity-demo-game).

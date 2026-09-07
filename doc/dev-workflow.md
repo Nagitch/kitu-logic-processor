@@ -36,7 +36,7 @@ contributors and AI assistants.
 The Unity demo is validated with the licensed Unity `6000.6.0f1` Editor on a
 supported host. Use Unity CLI `1.0.0-beta.8` with the project's pinned Pipeline
 `0.6.0-exp.1` package for Editor automation. See the
-[Unity demo instructions](../kitu-integration-runner/unity-demo-game/README.md#unity-cli)
+[Unity demo instructions](https://github.com/Nagitch/kitu-unity-demo-game/blob/main/README.md)
 for opening the project, Play Mode checks, and batch import/compilation. Rust
 and frontend validation continue to use the Dev Container.
 

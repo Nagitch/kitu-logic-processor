@@ -32,10 +32,11 @@ header's track count is advisory: actual decoded tracks determine `track_count`.
 `recording::Recording` uses the pinned public TSQ1/OSC APIs, with explicit tick/order
 envelopes and application-owned manifests. i32/i64 widths, finite f32 values,
 argument/message ordering and immediate bundles round trip losslessly. Unsupported
-bundle semantics are rejected. See `doc/specs/arena-replay.md` in the repository.
+bundle semantics are rejected. Applications define their replay policy; see the
+[reference demo replay contract](https://github.com/Nagitch/kitu-unity-demo-game/blob/main/docs/specs/arena-replay.md).
 
 The old `Timeline::parse` emit/wait text helper remains a compatibility API; it is
-not the binary TSQ1 format and is not used by Arena recording.
+not the binary TSQ1 format used by application recording.
 
 ## Responsibilities
 - Model TSQ1 timelines and events in a deterministic, testable form.

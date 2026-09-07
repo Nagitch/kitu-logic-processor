@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Run the same bounded, locked repository checks locally and in CI.
 
-General checks run in the Dev Container. Apple-native and licensed Unity checks
-have a separate entry point: verify-arena-macos.py.
+These checks require no demo checkout. The independently pinned Unity demo is
+verified by the separate compatibility workflow.
 """
 
 import argparse
@@ -16,13 +16,12 @@ import subprocess
 import sys
 import time
 
-from arena_content import stage_package
-from arena_macos import ROOT, artifact, run, write_json
+from verification_support import ROOT, artifact, run, write_json
 
-FRONTEND = ROOT / "tools/kitu-web-admin/frontend"
+FRONTEND = ROOT / "tools/kitu-web-admin/starter"
 SHARED_ADMIN = ROOT / "tools/kitu-web-admin/package"
 ADMIN_STARTER = ROOT / "tools/kitu-web-admin/starter"
-SCOPES = ("reference", "fmt", "test", "clippy", "docs", "data", "frontend")
+SCOPES = ("fmt", "test", "clippy", "docs", "tools", "frontend")
 
 
 def now():
@@ -44,8 +43,10 @@ def source_identity():
             "dirtyFiles": dirty,
             "locks": [artifact(ROOT / path) for path in
                       ("Cargo.lock", "rust-toolchain.toml",
-                       "tools/kitu-web-admin/frontend/pnpm-lock.yaml",
-                       "tools/kitu-web-admin/frontend/package.json")]}
+                       "tools/kitu-web-admin/package/pnpm-lock.yaml",
+                       "tools/kitu-web-admin/package/package.json",
+                       "tools/kitu-web-admin/starter/pnpm-lock.yaml",
+                       "tools/kitu-web-admin/starter/package.json")]}
 
 
 def main():
@@ -93,21 +94,14 @@ def main():
     try:
         report["source"] = source_identity()
         scopes = SCOPES if args.scope == "all" else (args.scope,)
-        if set(scopes) - {"reference"}:
+        if scopes:
             _, version = command("rust-version", ["rustc", "--version"], timeout=60)
             expected = re.search(r'channel\s*=\s*"([^"]+)"',
                                  (ROOT / "rust-toolchain.toml").read_text())[1]
             if not re.search(r"\brustc " + re.escape(expected) + r"\b", version):
                 raise RuntimeError(f"Use the pinned Rust {expected} toolchain")
         for scope in scopes:
-            if scope in ("test", "clippy", "docs", "data"):
-                features = ["--all-features"] if scope in ("clippy", "docs") else []
-                command("prepare-" + scope, [sys.executable, ROOT / "tools/prepare-kitu-build.py",
-                                            "--manifest-path", ROOT / "apps/demo-game/Cargo.toml",
-                                            *features])
-            if scope == "reference":
-                command(scope, [sys.executable, ROOT / "tools/verify-arena-reference.py"])
-            elif scope == "fmt":
+            if scope == "fmt":
                 command(scope, ["cargo", "fmt", "--all", "--", "--check"])
             elif scope == "test":
                 _, output = command(scope, ["cargo", "test", "--locked", "--workspace"])
@@ -123,21 +117,17 @@ def main():
             elif scope == "docs":
                 command(scope, ["cargo", "doc", "--locked", "--workspace", "--no-deps",
                                 "--all-features"], extra={"RUSTDOCFLAGS": "-D warnings"})
-            elif scope == "data":
+            elif scope == "tools":
                 _, output = command("python-tests", [sys.executable, "-m", "unittest", "discover",
                                                        "-s", "tools/tests", "-p", "test_*.py", "-v"])
                 count = re.search(r"Ran (\d+) tests? in", output)
                 if not count or int(count[1]) == 0:
-                    raise RuntimeError("Portable tool tests did not execute")
+                    raise RuntimeError("Framework tool tests did not execute")
                 report["pythonTests"] = int(count[1])
-                package = stage_package(ROOT / "apps/demo-game/content", evidence / "package")
-                write_json(evidence / "package.json", package)
-                _, output = command("package-interop", ["cargo", "test", "--locked", "-p",
-                    "kitu-demo-game-native", "--test", "package", "--", "--nocapture"],
-                    extra={"KITU_PACKAGE_INTEROP_DIR": str(evidence / "package")})
-                if "Python package interoperability: " + package["hash"] not in output:
-                    raise RuntimeError("Rust/C ABI did not consume the staged Python package")
-                report["package"] = package
+                command("runtime-smoke", ["cargo", "run", "--locked", "-p", "kitu-replay-runner", "--",
+                    "--scenario", "kitu-integration-runner/scenarios/smoke/player-move-basic/scenario.json",
+                    "--expected", "kitu-integration-runner/scenarios/smoke/player-move-basic/expected.json",
+                    "--output-dir", evidence / "smoke"])
             elif scope == "frontend":
                 _, node = command("node-version", ["node", "--version"], cwd=FRONTEND, timeout=60)
                 if not re.search(r"\bv24\.", node):
@@ -154,20 +144,7 @@ def main():
                         cwd=ADMIN_STARTER, extra={"CI": "true"})
                 for task in ("check", "build"):
                     command("starter-" + task, ["pnpm", "run", task], cwd=ADMIN_STARTER)
-                command("frontend-install", ["pnpm", "install", "--frozen-lockfile"], cwd=FRONTEND,
-                        extra={"CI": "true"})
-                for task in ("check", "lint", "test:inspection", "build"):
-                    _, output = command("frontend-" + task.replace(":", "-"),
-                                        ["pnpm", "run", task], cwd=FRONTEND)
-                    if task == "test:inspection":
-                        counts = {name: int(value) for name, value in re.findall(
-                            r"(?:#|ℹ) (tests|pass|fail|cancelled|skipped|todo) (\d+)", output)}
-                        if (not counts.get("tests") or counts.get("pass") != counts["tests"]
-                                or any(counts.get(name, -1) != 0 for name in
-                                       ("fail", "cancelled", "skipped", "todo"))):
-                            raise RuntimeError("Frontend tests must execute without skips or failures")
-                        report["frontendTests"] = counts
-                report["frontendIncludesWasmPrebuild"] = True
+                report["sharedAdminAndStarter"] = True
         report["status"] = "passed"
     except BaseException as error:
         report["status"] = "failed"

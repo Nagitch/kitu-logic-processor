@@ -96,5 +96,5 @@ HTTP handlers. Those handlers enqueue inputs without invoking `tick_once`. The
 clock drains and broadcasts outputs after each barrier. No-input ticks continue
 running; paused applications still process control input and inspection while
 freezing their own game clocks. Generic legacy app actions retain their existing
-immediate world-object operations; they cannot mutate Arena resources. Runtime
+immediate world-object operations; they cannot mutate application resources. Runtime
 restart creates a new session and is not a resume-from-disk operation.

@@ -19,7 +19,7 @@ Keep reusable primitives, runtime behavior, and integration libraries under
 concrete product under `apps/`. Application packages may depend on framework
 crates; framework crates must not depend on applications.
 
-Make `apps/demo-game` the reference application. It owns its runtime
+The historical reference application was `apps/demo-game`; it is now maintained in the independently versioned [Nagitch/kitu-unity-demo-game](https://github.com/Nagitch/kitu-unity-demo-game) repository. It owns its runtime
 construction, project action manifest, admin host binary, Compose stack, and
 application-specific scenario fixtures. Keep shared action catalog types and
 general actions in `kitu-app-actions`, while loading project-owned definitions
@@ -52,7 +52,7 @@ into the runtime at application construction.
 ## References
 
 - [Application conventions](../../apps/README.md)
-- [Demo game](../../apps/demo-game/README.md)
+- [Demo game repository](https://github.com/Nagitch/kitu-unity-demo-game)
 - [`kitu-app-actions`](../../crates/kitu-app-actions/README.md)
 - Pull requests [#61](https://github.com/Nagitch/kitu-logic-processor/pull/61)
   and [#77](https://github.com/Nagitch/kitu-logic-processor/pull/77)

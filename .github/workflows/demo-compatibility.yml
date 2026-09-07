@@ -1,0 +1,111 @@
+name: Demo compatibility
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  CARGO_HOME: ${{ github.workspace }}/.kitu/cargo
+  CARGO_TARGET_DIR: ${{ github.workspace }}/target
+  CARGO_INCREMENTAL: "0"
+  CARGO_PROFILE_DEV_DEBUG: "0"
+  CARGO_PROFILE_TEST_DEBUG: "0"
+
+jobs:
+  demo:
+    name: Unity demo ${{ matrix.scope }} against Kitu
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scope: test
+            os: ubuntu-latest
+          - scope: frontend
+            os: ubuntu-latest
+          - scope: data
+            os: ubuntu-latest
+          - scope: native
+            os: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: framework
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.96.0
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - uses: pnpm/action-setup@v4
+        if: matrix.scope == 'frontend'
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        if: matrix.scope == 'frontend'
+        with:
+          node-version: '24'
+      - name: Read the reviewed demo revision
+        id: demo
+        working-directory: framework
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, re
+          from pathlib import Path
+          contract = json.loads(Path("tools/demo-compatibility.json").read_text())
+          assert re.fullmatch(r"[0-9a-f]{40}", contract["demoSha"]), "A reviewed full demo SHA is required"
+          assert contract["demoRepository"] == "Nagitch/kitu-unity-demo-game"
+          print(f"demo_sha={contract['demoSha']}")
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: Nagitch/kitu-unity-demo-game
+          ref: ${{ steps.demo.outputs.demo_sha }}
+          path: demo
+          lfs: true
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .kitu/cargo/registry
+            .kitu/cargo/git
+            target
+          key: ${{ runner.os }}-${{ runner.arch }}-demo-${{ matrix.scope }}-${{ hashFiles('framework/Cargo.lock', 'demo/Cargo.lock') }}
+      - name: Prepare the demo against this Kitu checkout
+        working-directory: demo
+        run: |
+          if [ "${{ matrix.scope }}" = frontend ]; then
+            python3 tools/setup.py --kitu-path "$GITHUB_WORKSPACE/framework"
+          else
+            python3 tools/setup.py --kitu-path "$GITHUB_WORKSPACE/framework" --rust-only
+          fi
+      - name: Verify portable consumer scope
+        if: matrix.scope != 'native'
+        working-directory: demo
+        run: >-
+          python3 tools/run.py python3 tools/verify-repository.py
+          --scope ${{ matrix.scope }}
+          --evidence "$GITHUB_WORKSPACE/.tmp/demo-compatibility/${{ matrix.scope }}"
+      - name: Verify macOS native consumer
+        if: matrix.scope == 'native'
+        working-directory: demo
+        run: >-
+          python3 tools/run.py python3 tools/verify-arena-macos.py
+          --scope native --evidence "$GITHUB_WORKSPACE/.tmp/demo-compatibility/native"
+      - name: Retain consumer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-compatibility-${{ matrix.scope }}
+          path: .tmp/demo-compatibility/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

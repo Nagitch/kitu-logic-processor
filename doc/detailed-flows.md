@@ -27,21 +27,21 @@
 
 This file collects the detailed architectural flows for each use case (UC-01, UC-02, etc.) implemented with Kitu.
 
-## Repository boundary note (updated)
+## Repository boundary
 
-This repository no longer assumes a separate game implementation repository such as `stella-rpg`.
-For CI/CD and regression validation, use an in-repository Unity demo-game verification app under:
-
-- `kitu-integration-runner/unity-demo-game/`
-
-Legacy names used for game-specific Unity layers in older examples should be interpreted as this Unity demo-game verification app layer (`kitu-integration-runner/unity-demo-game`).
+This repository owns reusable Kitu framework crates, tools, protocol contracts,
+and framework scenarios. Applications and engine projects are independently
+versioned consumers. The maintained reference consumer is
+[Nagitch/kitu-unity-demo-game](https://github.com/Nagitch/kitu-unity-demo-game),
+which the compatibility workflow tests at an explicitly reviewed revision.
 
 
 ## UC-01: Game boot & scene initialization (detailed flow)
 
 ### Architectural checkpoints
 
-- Validate the boundary between Kitu runtime crates and the in-repository Unity demo-game verification app (`kitu-integration-runner/unity-demo-game`).
+- Validate the boundary between Kitu runtime crates and an independently
+  versioned Unity application.
 - Confirm **cdylib / FFI responsibilities** between Unity and Rust (config passing, lifecycle).
 - Ensure layers for **data loading / ECS setup / initial event output** stay coherent at startup.
 
@@ -54,11 +54,11 @@ Legacy names used for game-specific Unity layers in older examples should be int
 - `kitu-tsq1`, `kitu-scripting-rhai`
 - `kitu-unity-ffi`
 
-**Unity demo-game verification app (in repository)**
+**Unity application (independent consumer)**
 
-- Location: `kitu-integration-runner/unity-demo-game`
+- Reference: [Nagitch/kitu-unity-demo-game](https://github.com/Nagitch/kitu-unity-demo-game)
 - Unity-side bridge: `com.kitu.runtime` (shared bridge)
-- Unity-side app/view scripts: validation-oriented presentation scripts used in CI/integration checks
+- Unity-side app/view scripts: application-owned presentation and validation code
 
 Assumes a **cdylib embedded in Unity**.
 
@@ -116,7 +116,9 @@ pub fn build_app(config: UnityAppConfig) -> Result<AppContext, KituError> {
 }
 ```
 
-Crates involved: Kitu (`kitu-runtime`, `kitu-ecs`, `kitu-data-*`, `kitu-tsq1`, `kitu-scripting-rhai`, `kitu-unity-ffi`) plus test-app-side initialization glue in `kitu-integration-runner/unity-demo-game`.
+Crates involved: Kitu (`kitu-runtime`, `kitu-ecs`, `kitu-data-*`, `kitu-tsq1`,
+`kitu-scripting-rhai`, `kitu-unity-ffi`) plus application-owned initialization
+glue in the consuming repository.
 
 ### Data loading and validation (TMD / SQLite)
 
@@ -158,7 +160,7 @@ Crates: `kitu-runtime` (output queue), `kitu-osc-ir` (`OscEvent`), game logic (`
 1. Call `KituNative.PollEvents()` to fetch Rust output events.
 2. Decode to C# `OscEvent`.
 3. Publish to `KituEventBus`.
-4. `unity-demo-game` views handle rendering (create player GameObject, display enemies/objects, show HUD).
+4. Application views handle rendering (create player GameObject, display enemies/objects, show HUD).
 
 Result: Unity scene reaches its initial state.
 
@@ -240,7 +242,8 @@ foreach (var ev in events) {
 }
 ```
 
-`unity-demo-game` consumes events to move transforms, play enemy spawn/death animations, and refresh HUD stats. Unity remains a pure view layer.
+The Unity application consumes events to move transforms, play enemy spawn/death
+animations, and refresh HUD stats. Unity remains a pure view layer.
 
 ### Shell / WebAdmin / replay integration (overview)
 
@@ -325,7 +328,9 @@ The staged `/render/player/transform` output becomes externally visible during t
 
 ### Unity view applies transform
 
-Layers: Unity `com.kitu.runtime` (event bus) and `unity-demo-game` (view). Unity subscribes to `/render/player/transform` and updates the GameObject transform accordingly.
+Layers: Unity `com.kitu.runtime` (event bus) and the application-owned view.
+Unity subscribes to `/render/player/transform` and updates the GameObject
+transform accordingly.
 
 
 ## UC-11: Camera follow (detailed flow)
