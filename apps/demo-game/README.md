@@ -3,6 +3,11 @@
 `apps/demo-game` is a small application built on top of the Kitu framework crates.
 It exists for vertical-slice development, Web Admin hosting, and CI scenario tests.
 
+The [delivery matrix](../../doc/verification/arena-delivery/README.md) links all
+Arena stages, merged PRs and comparison evidence. Use the shared
+[build and verification recipe](../../doc/specs/arena-build-verification.md) for
+Dev Container checks and native/full macOS validation.
+
 ## Layout
 
 - `src/lib.rs`: app-level runtime construction and project action loading.

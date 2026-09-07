@@ -10,6 +10,89 @@ import shutil
 import signal
 import subprocess
 import tempfile
+import threading
+from contextlib import contextmanager
+
+
+@contextmanager
+def termination_guard():
+    """Let a Python wrapper clean its owned children when its caller cancels it."""
+    if threading.current_thread() is not threading.main_thread():
+        yield
+        return
+    previous = signal.getsignal(signal.SIGTERM)
+
+    def interrupted(_signal, _frame):
+        raise KeyboardInterrupt("verification was terminated")
+
+    signal.signal(signal.SIGTERM, interrupted)
+    try:
+        yield
+    finally:
+        signal.signal(signal.SIGTERM, previous)
+
+
+class OwnedProcess:
+    """One logged process group; stop never selects a process by name or port."""
+
+    def __init__(self, arguments, *, log, env=None, cwd=None, shutdown_grace=10):
+        self.arguments = [str(value) for value in arguments]
+        self.log = Path(log)
+        self.shutdown_grace = shutdown_grace
+        self.log.parent.mkdir(parents=True, exist_ok=True)
+        self.output = self.log.open("a")
+        self.output.write("$ " + shlex.join(self.arguments) + "\n")
+        self.output.flush()
+        try:
+            self.process = subprocess.Popen(
+                self.arguments, cwd=cwd, env=env, stdout=self.output,
+                stderr=subprocess.STDOUT, start_new_session=True)
+        except BaseException:
+            self.output.close()
+            raise
+        self.closed = False
+        print(f"Process {self.process.pid}; log: {self.log}", flush=True)
+
+    def wait(self, timeout=None):
+        """Wait with wrapper cancellation forwarding; retain the actual exit code."""
+        with termination_guard():
+            try:
+                return self.process.wait(timeout=timeout)
+            except BaseException:
+                self.stop()
+                raise
+
+    def stop(self, grace=None):
+        """TERM then reap/KILL this group, including children after leader exit."""
+        if self.closed:
+            return self.process.returncode
+        if grace is None:
+            grace = self.shutdown_grace
+        try:
+            try:
+                os.killpg(self.process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            try:
+                self.process.wait(timeout=grace)
+            except subprocess.TimeoutExpired:
+                pass
+            finally:
+                try:
+                    os.killpg(self.process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                self.process.wait()
+        finally:
+            self.output.close()
+            self.closed = True
+        return self.process.returncode
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_exception):
+        self.stop()
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT / "kitu-integration-runner/unity-demo-game/kitu-unity-demo-game"
@@ -38,32 +121,8 @@ def run(arguments, *, log=None, env=None, timeout=None, cwd=ROOT):
     log = Path(log)
     log.parent.mkdir(parents=True, exist_ok=True)
     print(shlex.join(arguments), flush=True)
-    with log.open("a") as output:
-        output.write("$ " + shlex.join(arguments) + "\n")
-        output.flush()
-        process = subprocess.Popen(arguments, cwd=cwd, env=env, stdout=output,
-                                   stderr=subprocess.STDOUT, start_new_session=True)
-        print(f"Process {process.pid}; log: {log}", flush=True)
-        try:
-            status = process.wait(timeout=timeout)
-        except (subprocess.TimeoutExpired, KeyboardInterrupt):
-            try:
-                os.killpg(process.pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                pass
-            finally:
-                # The group can outlive its leader when a child ignores SIGTERM.
-                # Always terminate surviving descendants, even after wait succeeds.
-                try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                process.wait()
-            raise
+    with OwnedProcess(arguments, log=log, env=env, cwd=cwd) as process:
+        status = process.wait(timeout=timeout)
     if status:
         raise RuntimeError(f"Command exited {status}; see {log}")
 
@@ -94,6 +153,19 @@ def sha256(path):
 def artifact(path):
     path = Path(path).resolve()
     return {"path": str(path), "bytes": path.stat().st_size, "sha256": sha256(path)}
+
+
+def clone_tree(source, destination):
+    """Copy an owned macOS artifact with APFS cloning, preserving symlinks."""
+    source, destination = Path(source), Path(destination)
+    if destination.exists() or destination.is_symlink():
+        raise ValueError("Artifact clone destination must be absent")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if platform.system() == "Darwin":
+        run(["/bin/cp", "-cR", source, destination])
+    else:
+        # Portable helper tests use ordinary copies; Apple verification requires Darwin.
+        shutil.copytree(source, destination, symlinks=True)
 
 
 def write_json(path, value):

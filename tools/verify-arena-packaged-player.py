@@ -12,12 +12,11 @@ import json
 import os
 from pathlib import Path
 import plistlib
-import shutil
 import time
 from urllib.parse import unquote, urlparse
 
 from arena_content import inspect_package
-from arena_macos import LIBRARY, ROOT, artifact, require_macos, run, verify_plugin, write_json
+from arena_macos import LIBRARY, ROOT, artifact, clone_tree, require_macos, run, verify_plugin, write_json
 
 
 def within(path, parent):
@@ -132,13 +131,15 @@ def main():
     if args.relocate_to is not None:
         if not args.relocate_to.is_absolute():
             parser.error("--relocate-to must be absolute")
+        if args.relocate_to.is_symlink():
+            parser.error("--relocate-to must not be a symlink")
         player = args.relocate_to.resolve()
         if player.exists() or player.suffix != ".app" or within(player, original):
             parser.error("--relocate-to must be an absent .app outside the source app")
         if within(player, ROOT):
             parser.error("Relocation proof must place the app outside the checkout")
         player.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(original, player, symlinks=True)
+        clone_tree(original, player)
     with (player / "Contents/Info.plist").open("rb") as source:
         executable_name = plistlib.load(source)["CFBundleExecutable"]
     if not isinstance(executable_name, str) or Path(executable_name).name != executable_name:

@@ -19,8 +19,9 @@
 - [Timeline & Automation (TSQ1)](#timeline--automation-tsq1)
 - [Web Admin Tools](#web-admin-tools)
 - [Development Workflow](#development-workflow)
+- [Build and Delivery Status](#build-and-delivery-status)
 - [Deployment & Distribution](#deployment--distribution)
-- [Roadmap (TBD)](#roadmap-tbd)
+- [Future Roadmap](#future-roadmap)
 
 ## Introduction
 
@@ -46,10 +47,11 @@ Implementation status:
 - [TSQ1 presentation timelines](doc/specs/arena-presentation-timelines.md) drive boss warnings and floor transitions from the Runtime clock. CLI and Admin validate real binary clips for the next run; Unity and replay display their authoritative values and positions. [Verification evidence](doc/verification/arena-timelines/README.md).
 - [Versioned JSON and MessagePack application connections](doc/specs/arena-application-wire.md) share typed inputs and complete output batches with the native C ABI. Unity checks compatibility before play, preserves producer IDs across reconnects, and applies coherent replay snapshots. [Cross-language, scene and native evidence](doc/verification/arena-wire/README.md).
 - The Unity-only reference and frozen inputs remain available. Real [TSQ1 session recording and re-execution](doc/specs/arena-replay.md) preserve exact ticks, ordered inputs and frozen content. Admin now controls play, pause, step and seek while Unity displays the same read-only replay. [Live CLI and browser Shell](doc/specs/live-shell.md) inspect and operate the running host using shared commands and applied results.
-- The macOS Unity standalone embeds the complete Arena native library and runs without an external Kitu server. Its optional loopback bridge connects CLI and Admin to that same Runtime. See the [build instructions](kitu-integration-runner/unity-demo-game/README.md#reproduce-the-embedded-macos-build), [host contract](doc/specs/arena-embedded-host.md), [graphical verification](doc/verification/arena-embedded/README.md) and [remaining stages](https://github.com/Nagitch/kitu-logic-processor/issues/129).
+- The macOS Unity standalone embeds the complete Arena native library and runs without an external Kitu server. Its optional loopback bridge connects CLI and Admin to that same Runtime. See the [build instructions](kitu-integration-runner/unity-demo-game/README.md#reproduce-the-embedded-macos-build), [host contract](doc/specs/arena-embedded-host.md) and [graphical verification](doc/verification/arena-embedded/README.md).
 - Arena loads its material and primitive prefabs through local Addressables and initializes native game rules from the Tanu, Rhai and TSQ1 sources bundled with its macOS Player. A versioned package manifest binds those sources to the visual keys; missing or invalid content fails before gameplay. [Package contract](doc/specs/arena-packaged-content.md) and [relocated Player verification](doc/verification/arena-content/README.md).
-- [Arena Inspector](doc/specs/arena-inspection.md) combines game state, entities, minimap, events, presentation cues and host timing from one verified server or embedded Runtime snapshot. Exact replay step/seek and visibly stale error handling preserve the observation context. [Stage 17 verification and pending checks](doc/verification/arena-inspection/README.md).
-- Several data/content and tooling sections below describe target architecture rather than finished production features.
+- [Arena Inspector](doc/specs/arena-inspection.md) combines game state, entities, minimap, events, presentation cues and host timing from one verified server or embedded Runtime snapshot. Exact replay step/seek and visibly stale error handling preserve the observation context. [Stage 17 verification](doc/verification/arena-inspection/README.md).
+- [The delivery matrix](doc/verification/arena-delivery/README.md) links all 18 stages to their Issues, contracts and evidence. All 18 implementations and local verification are complete in this tree; stages 1–17 are merged. [Stage 18 PR 165](https://github.com/Nagitch/kitu-logic-processor/pull/165) is the live source for CI, review and merge status. Historical evidence retains its capture-time status.
+- The sections below describe the delivered Arena reference and explicitly marked framework expansion. Production remote operations, multiplayer and CDN delivery remain outside this implementation.
 - For the current implemented/partial/staged breakdown, use [doc/architecture.md](doc/architecture.md#current-implementation-staging).
 - For the rationale and tradeoffs behind accepted cross-cutting choices, use
   the [architecture decision records](doc/adr/README.md).
@@ -74,14 +76,14 @@ At a high level, Kitu consists of:
   - Contains no gameplay rules
 - **Communication layer**
   - osc‑ir data model (OSC‑compatible IR)
-  - Native structs (embedded mode) or MessagePack (network mode)
+  - Versioned C ABI byte buffers (embedded mode); JSON or MessagePack over WebSocket (Arena network mode)
 - **Tooling**
   - Kitu Shell (CLI console)
   - Web Admin (browser UI)
   - CI/replay, automation scripts
 - **Applications**
   - `apps/demo-game` is the reference application built on the Kitu framework
-  - It hosts the current Web Admin vertical slice and app-level scenario tests
+  - It hosts the complete Endless Arena reference, Web Admin and app-level scenario tests
 
 The guiding principles are: separation of concerns, determinism, data‑driven design, and event‑based communication.
 
@@ -104,20 +106,20 @@ The Rust backend is the authoritative “game universe”.
 
 Core responsibilities:
 
-- ECS entities/components/systems for all simulation
+- Application-owned rules and state, with reusable ECS and Runtime services
 - Game loop driven by a fixed-timestep accumulator (`update(dt)` -> deterministic ticks)
 - Handling OSC input events from Unity/Web Admin/tests with next-tick application (`N` receive -> `N+1` apply)
-- Running Rhai scripts for configurable behavior (skills, quests, AI, etc.)
+- Running bounded Rhai boss decisions in Arena; other rule families are extension work
 - Executing TSQ1 timelines
 - Loading and validating TMD + SQLite data
 - Producing OSC output events for Unity and tools
 
 The backend can run:
 
-- As a **standalone server binary** (for dev/multiplayer/CI)
+- As a **standalone server binary** (for development and headless verification)
 - As an **embedded cdylib** inside Unity (for offline or single‑player builds)
 
-In both cases, the logic code is identical, ensuring identical behavior.
+Both modes use the same Arena logic and are compared with shared input sequences.
 
 Runtime execution contract: [`doc/specs/runtime-execution-contract.md`](doc/specs/runtime-execution-contract.md).
 
@@ -130,8 +132,8 @@ Kitu uses OSC semantics and the **osc‑ir** data model as a unified event layer
 
 - OSC provides hierarchical addresses like `/input/move`, `/game/spawn`, `/ui/dialog`.
 - osc‑ir defines a strongly typed, serializable representation of OSC messages.
-- In embedded mode, events can be passed as native structs or byte buffers.
-- In networked mode, events are serialized with MessagePack and sent over WebSocket/TCP.
+- In embedded Arena mode, the versioned C ABI receives and returns typed JSON or MessagePack byte buffers.
+- Arena network clients negotiate JSON or MessagePack on `/ws/arena` before submitting inputs. See the [application wire contract](doc/specs/arena-application-wire.md).
 
 Typical flows:
 
@@ -149,7 +151,7 @@ This event‑driven layer allows loose coupling and shared tooling.
 Unity is treated purely as a **renderer and input source**:
 
 - No game rules or state machines live in MonoBehaviours.
-- All GameObject creation/destruction is driven by backend `/render/*` events.
+- Gameplay objects project backend state; Unity owns their rendering and asset lifetime.
 - Animations, camera moves, VFX, and UI changes are reactions to backend output.
 - Input is converted into OSC events and sent to the backend.
 
@@ -176,16 +178,15 @@ Kitu Shell is a runtime developer console that can connect to:
 - Unity‑embedded backend (via a bridge)
 - The browser‑based shell inside Web Admin
 
-It allows:
+The shared Arena command catalog supports:
 
-- Listing and inspecting entities and components
-- Controlling TSQ1 timelines (play/seek/stop)
-- Adjusting data at runtime (dev‑only)
-- Sending arbitrary OSC events (`send /game/spawn_enemy { ... }`)
-- Running automated scenario scripts
-- Performing deterministic replays
+- Inspecting application, World, content, script, timeline and replay state
+- Validating and staging data, scripts and presentation clips for the next run
+- Sending typed OSC inputs (`osc send`) and application actions with applied receipts
+- Running bounded application scenarios and deterministic TSQ1 replay controls
 
-Shell commands use a consistent, extensible command model, and all actions go through the same event pipeline as normal gameplay.
+CLI and browser Shell share definitions, parsing and result semantics. Run `help`
+against the selected host for its actual catalog. See the [live Shell contract](doc/specs/live-shell.md).
 
 
 ## Data Systems (TMD + SQLite)
@@ -198,15 +199,15 @@ Kitu is strongly data‑driven:
   - Units, items, skills, quests, config tables, etc.
   - Git‑friendly, readable, and diffable.
   - Supports layering/overrides (base, difficulty, event, debug).
-- **SQLite** is used for larger or more relational datasets:
-  - Complex catalogs, localization tables, graphs, analytics, etc.
+- **SQLite** provides bounded typed Arena table snapshots and sparse override layers.
+  - Larger catalogs, localization, graphs and analytics are possible application extensions.
 
 The backend:
 
-- Loads and validates all TMD/SQLite data at startup or on hot reload.
+- Loads configured TMD/SQLite sources and validates explicit reload candidates.
 - Reports validation errors through logs, Shell, and Web Admin.
 - Provides typed accessors to systems and scripts.
-- Supports hot reload of data in development workflows.
+- Stages validated changes for the next run while preserving the active run and recorded versions.
 
 Unity typically does not read TMD/DB directly; it acts on backend results.
 
@@ -217,8 +218,8 @@ Unity typically does not read TMD/DB directly; it acts on backend results.
 
 TSQ1 is Kitu’s **minimal, deterministic timeline format**:
 
-- Stores time‑ordered events (with tracks, markers, metadata).
-- Used for cutscenes, UI transitions, scripted sequences, automation.
+- Stores time-ordered events; Arena preserves exact applied ticks/order for replay and validates presentation clip timing.
+- Drives Arena boss warnings and floor transitions. Broader cutscenes and visual authoring are future work.
 - Executed entirely in the backend; Unity just consumes resulting events.
 
 Important: **TSQ1 does *not* define tween/easing itself**.
@@ -228,26 +229,27 @@ Interpolation and easing are implemented at the application layer:
 - Backend/Unity code applies linear/eased curves, blending, crossfades.
 - TSQ1 remains simple, deterministic, and domain‑agnostic.
 
-TSQ1 is authored via TMD, direct files, scripts, or (in future) visual editors.
-It is also a powerful tool for scenario testing and automation.
+Arena's [authoring tool](apps/demo-game/README.md#tsq1-presentation-authoring)
+writes actual binary clips. Visual timeline editors remain future work.
 
 
 ## Web Admin Tools
 
 Web Admin is a browser‑based control plane for Kitu:
 
-- Runs against any backend instance (local or remote).
-- Provides dashboards, ECS inspectors, timeline views, minimaps, logs, and metrics.
+- Connects to a selected development server or embedded loopback bridge.
+- Provides Arena state/entity inspection, a minimap, timelines, observed events and host timing.
 - Embeds a browser version of Kitu Shell.
-- Allows safe, authenticated debugging and live‑ops control.
+- Validates next-run authoring changes and controls saved replays.
 
 Key capabilities:
 
 - Inspect entities/components and timelines in real time.
 - Monitor event streams and logs via WebSocket.
-- Run Rhai scripts or Shell commands from the browser.
+- Validate bounded Arena boss scripts and run shared Shell commands from the browser.
 - Visualize world state (logical minimap) for debugging AI and level design.
-- Enforce permissions and roles (viewer, dev, designer, admin, live‑ops).
+
+Authentication, permission roles and production live operations are future work.
 
 Web Admin turns the backend into an observable, controllable system without needing Unity running.
 
@@ -257,8 +259,8 @@ Web Admin turns the backend into an observable, controllable system without need
 Kitu’s workflow focuses on **fast iteration and strong separation**:
 
 - Development should run inside the Dev Container in `.devcontainer/`.
-- Host machines are not expected to have Rust/Cargo or frontend tooling
-  installed directly.
+- General Rust and frontend checks run in that container. Apple SDK/native and
+  licensed Unity checks run on macOS with the prerequisites in the build recipe.
 - Backend developers work in Rust and Rhai, testing logic headlessly.
 - Unity developers focus on visuals, UI, asset setup, and Addressables.
 - Designers edit TMD, TSQ1, and DB content, often without touching code.
@@ -269,37 +271,45 @@ Typical loop:
 1. Run backend (standalone or embedded in Unity).
 2. Start Unity for visual feedback (if needed).
 3. Edit data (TMD/TSQ1/DB) or scripts (Rhai).
-4. Hot reload in backend; Unity stays running.
+4. Validate and stage the next-run version; Unity stays running.
 5. Inspect and tweak using Shell/Web Admin.
 6. Commit once behavior and visuals are satisfactory.
 
-CI can run backend‑only scenario tests and performance checks without Unity.
+Headless CI checks the reference, Rust, frontend/WASM and data tools. Arena
+Inspector measures tick cost for diagnosis; no CI performance threshold is claimed.
+
+## Build and Delivery Status
+
+Use the [build and verification recipe](doc/specs/arena-build-verification.md)
+for shared repository checks and the native/full macOS coordinator. Full Unity
+verification requires the pinned licensed Editor and a graphical session; an
+unavailable environment is reported separately from passed checks.
+
+The [18-stage delivery matrix](doc/verification/arena-delivery/README.md) links
+actual Issues, merged PRs, contracts and compact evidence. All required local
+checks passed, including the complete macOS coordinator and both server and
+embedded Player Admin flows. [Stage 18 PR 165](https://github.com/Nagitch/kitu-logic-processor/pull/165)
+was created after approval; CI, review, merge and the parent reference update
+were pending at this capture. Follow that PR for live merge status. Large recordings, binaries
+and unapproved screenshots remain local artifacts, with hashes retained in the
+verification reports.
 
 
 ## Deployment & Distribution
 
-Kitu supports multiple deployment patterns:
+The delivered reference supports a standalone development server and a macOS
+ARM64 single-player app with an embedded native Runtime. The app includes local
+Addressables and a versioned five-file source package: visual keys, TMD, Rhai and
+two TSQ1 clips. SQLite remains an optional external authoring source. The optional
+development bridge lets CLI and Admin observe that same embedded Runtime.
 
-- **Single‑player / offline**:
-  - Backend as cdylib embedded in Unity.
-  - Local SQLite DB and TMD shipped with client.
-- **Client–server multiplayer**:
-  - Backend as standalone binary (Docker/Kubernetes/VM).
-  - Unity clients connect via WebSocket/MessagePack.
-  - Web Admin exposed (with auth) for operations and debugging.
-- **Hybrid**:
-  - Offline capability with optional online features.
-  - Backend may run both embedded and remotely, sharing event protocol.
-
-Additional aspects:
-
-- Addressables hosted on CDNs; versioning by Git hash or build IDs.
-- Data (TMD/TSQ1) can be shipped with client or delivered server‑side.
-- CI/CD pipelines build backend, client, bundles, and data, and deploy them.
-- Version compatibility checks between client and backend.
+Build tools verify package, catalog, bundle and native library identities; the
+application checks client/data compatibility. The macOS app uses local development
+signing. Release signing/notarization, remote catalogs/CDNs, multiplayer services,
+authenticated remote operations and cloud deployment are outside this delivery.
 
 
-## Roadmap (TBD)
+## Future Roadmap
 
 The long‑term roadmap is still being defined. Areas under consideration include:
 
@@ -309,7 +319,9 @@ The long‑term roadmap is still being defined. Areas under consideration includ
 - AI‑assisted balancing and automated playtesting.
 - Ready‑made templates for common game genres.
 
-A detailed, versioned roadmap will be published once the core architecture and workflows have stabilized through real projects.
+The implemented Arena work is tracked in [roadmap #129](https://github.com/Nagitch/kitu-logic-processor/issues/129)
+and the [delivery matrix](doc/verification/arena-delivery/README.md). The items
+above are later extensions, not unfinished Arena migration stages.
 
 
 Kitu is intended as a long‑term foundation for building modern, data‑driven games with Rust and Unity. This README provides a high‑level architectural overview; individual crates, packages, and tools should provide more detailed API‑level documentation.

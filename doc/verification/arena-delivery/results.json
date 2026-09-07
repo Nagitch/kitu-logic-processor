@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "stage": 18,
+  "issue": "https://github.com/Nagitch/kitu-logic-processor/issues/164",
+  "implementationStatus": "implemented_in_this_tree",
+  "status": "local_checks_complete",
+  "checks": {
+    "repository": "passed",
+    "finalData": "passed",
+    "devContainer": "passed",
+    "workspaceBuild": "passed",
+    "macosFull": "passed",
+    "serverBrowser": "passed",
+    "embeddedPlayerBrowser": "passed",
+    "runtimeArchive": "recorded"
+  },
+  "publication": {
+    "status": "pull_request_created",
+    "push": "passed",
+    "pullRequest": "https://github.com/Nagitch/kitu-logic-processor/pull/165",
+    "mergeStatusSource": "https://github.com/Nagitch/kitu-logic-processor/pull/165",
+    "ci": "pending_at_capture",
+    "review": "pending_at_capture",
+    "childMerge": "pending_at_capture",
+    "workspaceIssue": "https://github.com/Nagitch/kitu-workspace/issues/40",
+    "workspaceReference": "pending_at_capture",
+    "captureNote": "PR 165 was created after explicit user approval. Its live page is authoritative for subsequent CI, review and merge status; no self-referential merge commit is recorded here."
+  },
+  "reports": [
+    "repository.json",
+    "environment.json",
+    "attempts.json",
+    "macos.json",
+    "browser.json",
+    "runtime-archive.json",
+    "cleanup.json"
+  ],
+  "evidencePolicy": "Counts and hashes refer to the named captured attempt. Failed attempts are preserved. No PNGs, raw state/traces, recordings or binaries are published by this generator."
+}

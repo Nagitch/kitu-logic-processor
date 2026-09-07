@@ -51,7 +51,12 @@ Status terms in this section are used as follows:
 
 ### Endless Arena reference application
 
-status: implemented for the server-connected full game (stages 1–5 of #129)
+status: all 18 implementations and local checks complete; stages 1–17 merged; stage 18 delivery tracked by PR 165
+
+The [delivery matrix](verification/arena-delivery/README.md) links each stage's
+actual Issue, merged PR, contract and evidence. Earlier reports retain their
+capture-time pending states; the matrix records subsequent merges. Reproduce
+current checks with the [build recipe](specs/arena-build-verification.md).
 
 `apps/demo-game` owns all Arena rules in a persistent Runtime application resource.
 The host advances at 60 Hz independently of input requests, and the default Unity
@@ -112,7 +117,16 @@ owner-update cost; inspection cannot create a game clock or controller. Exact
 decimal identities and committed replacement epochs preserve replay/selection
 context, including failed proof and backward seek. Metrics remain outside game
 state, OSC and recording proofs. See the
-[verification record and pending checks](verification/arena-inspection/README.md).
+[verification record](verification/arena-inspection/README.md).
+
+Stage 18 connects repository and macOS verification entry points and records
+their delivery status. Its complete local execution passed.
+[PR 165](https://github.com/Nagitch/kitu-logic-processor/pull/165) is the live
+source for Stage 18 CI, review and merge status; those gates and the parent
+reference update were pending when this evidence was captured.
+Native macOS checks require Apple SDK tools; full Unity/Player verification also
+requires the licensed pinned Editor and a graphical session. This environment
+requirement does not make the embedded implementation structurally unavailable.
 
 ### P0 — Execution Semantics
 
@@ -158,7 +172,7 @@ missing:
 
 ### P3 — Integration and Replay Foundation
 
-status: partial
+status: partial for the original generic runner; Arena replay is implemented
 
 exists:
 - framework contract is defined
@@ -166,22 +180,27 @@ exists:
 - first checked-in smoke scenario exists
 - initial `scenario.json` and `expected.json` fixture pair exists
 - minimal replay runner can produce `summary.json`
+- Arena additionally records and replays real TSQ1 inputs through its normal
+  Runtime, with complete server/native/Unity comparisons and Admin controls
 
 missing:
-- broader deterministic replay coverage beyond the first smoke path
-- richer failure reports and scenario expansion
+- generalized runner coverage beyond the original movement smoke path and the
+  implemented Arena application
+- additional scenario families for future applications
 
 ### P4 — Documentation and Maintenance Alignment
 
-status: partial
+status: partial for ongoing framework maintenance
 
 exists:
 - core specs, CI, and architecture docs exist
 - GitHub Issue based work tracking exists
+- the Arena delivery matrix connects all 18 stages to contracts and evidence,
+  with verified local execution and historical merges distinguished from live PR status
 
 missing:
-- stronger synchronization between GitHub Issues, architecture, specs, and crate READMEs
-- clearer distinction between design-only work and implemented work
+- continued synchronization as framework work beyond Arena changes the public
+  contracts, examples and crate documentation
 
 ## Scope and non-goals
 
@@ -199,6 +218,8 @@ missing:
 - Full gameplay rule design for specific games built on Kitu.
 - Unity scene-level implementation details and art/content production workflows.
 - Final persistence model for save/load and cross-version migration.
+- Windows, multiplayer, production remote authorization/operations, CDN/cloud
+  deployment and public package releases in the Arena delivery.
 
 ## System architecture
 
@@ -491,7 +512,9 @@ The following entry points define where staged subsystem work should connect whe
 - TMD and SQLite enter through validation/loading boundaries; runtime consumes typed records or commands, not raw authoring files or SQL strings from clients.
 - Rhai enters through constrained host APIs; scripts may request runtime actions but must not receive direct ECS mutation access.
 
-These entry points are intentionally directional. They make future work visible without committing to a specific implementation order beyond the current MVP core.
+Arena implements these boundaries for its typed settings, boss rules and
+presentation clips, as described above. Broader application rule families remain
+extension work; this section does not require those families for Arena delivery.
 
 ## Deployment modes
 
@@ -525,15 +548,23 @@ flowchart LR
 
 ### Deployment assumptions
 
-- Embedded and standalone modes share the same runtime logic path as much as possible.
-- Replay and diagnostics should operate in both local and CI contexts.
-- Production hardening details (network auth, process isolation, secrets) are deferred to implementation documents.
+- Arena embedded and standalone hosts use the same application Runtime and are
+  checked with shared scenarios, native C callers and actual Unity clients.
+- The macOS Player bundles a native library, local Addressables and five source
+  files (visual mapping, TMD, Rhai and two TSQ1 clips). External SQLite/layer plans
+  are supported authoring inputs; a bundled SQLite database is not claimed.
+- Repository CI covers headless checks; licensed graphical Unity verification
+  is a separate macOS gate. Host timing observations are not performance gates.
+- Remote authentication/roles, multiplayer, release distribution and CDN/cloud
+  deployment remain outside the current delivery.
 
 ### Runtime transport decision for MVP
 
-For the MVP, runtime clients use WebSocket as the authoritative transport path.
-The `/ws/runtime` endpoint remains the stable path for runtime input, tick
-execution, and replay-oriented validation.
+Arena network clients negotiate versioned JSON or MessagePack on `/ws/arena`;
+the host owns the independent clock. Embedded Arena uses the versioned C ABI and
+an optional shared development bridge. The original `/ws/runtime` endpoint
+remains available for the generic movement demonstration; it is not the Arena
+controller path. Admin uses its separate `/ws` event connection and HTTP APIs.
 
 WebTransport is limited to the Web Admin / gateway experiment lane during the
 MVP. This lets the project validate browser KEP transport behavior without

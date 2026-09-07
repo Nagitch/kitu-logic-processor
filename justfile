@@ -1,26 +1,26 @@
-# justfile — common development commands for kitu-logic-processor
-# Run with: just <recipe>
-# Install just: https://github.com/casey/just
+# Common verification commands; general checks run in the Dev Container.
+# Each attempt retains a new report under .tmp/verification/.
+verify scope="all":
+    python3 tools/verify-repository.py --scope "{{scope}}" --evidence ".tmp/verification/{{scope}}-$(date -u +%Y%m%dT%H%M%S)-$$$$"
 
-# Format all code
+# This is the only recipe that intentionally reformats source.
 fmt:
     cargo fmt --all
 
-# Run Clippy lints (treat warnings as errors)
-lint:
-    cargo clippy --all-targets --all-features -- -D warnings
+fmt-check: (verify "fmt")
+lint: (verify "clippy")
+test: (verify "test")
+doc: (verify "docs")
+data: (verify "data")
+frontend: (verify "frontend")
+check-all: (verify "all")
 
-# Run all tests
-test:
-    cargo test --all
+# macOS + Apple SDK; full also requires the pinned licensed Unity Editor.
+native evidence:
+    python3 tools/verify-arena-macos.py --scope native --evidence "{{evidence}}"
 
-# Run fmt, lint, and tests in sequence
-check-all: fmt lint test
+unity evidence:
+    python3 tools/verify-arena-macos.py --scope full --evidence "{{evidence}}"
 
-# Build documentation
-doc:
-    cargo doc --no-deps --all-features
-
-# Build the workspace (dev profile)
 build:
-    cargo build --all
+    cargo build --locked --workspace
