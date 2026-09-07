@@ -62,8 +62,16 @@ KEP frames. Each frame carries `t = "json"` and `p = ServerEvent JSON bytes`
 with route `/server/event`. This keeps the current `ServerEvent` shape intact
 while making the transport hop KEP-native in both directions. After the internal
 WebSocket produces the first KEP JSON response, the gateway drains additional
-KEP JSON responses for a short window and writes each one to the same
-WebTransport response stream in arrival order before finishing the stream.
+KEP JSON responses for at most 200 ms measured from that first response, then
+writes each retained response to the same WebTransport stream in arrival order
+before finishing it. Each request waits at most two seconds for its first
+response. The additional 200 ms deadline is absolute: continuous 60 Hz events do
+not restart it. A batch completes early after 128 retained response frames.
+Retained encoded response payloads are limited to 1 MiB in total; exceeding that
+budget fails the request and resets the internal relay. As with other failures
+after sending a mutation, the gateway does not resend that request. A later
+deliberate request may establish a fresh connection. These bounded batches are
+observation windows, not a guarantee of draining an ongoing event subscription.
 
 WebTransport datagrams are enabled only for loss-tolerant KEP JSON envelopes.
 The gateway currently accepts one MessagePack KEP envelope per datagram, rejects
@@ -297,6 +305,34 @@ empty response for the request and does not by itself reset the relay.
 The relay lifecycle is intentionally local to the WebTransport session. It does
 not replace the existing WebSocket endpoints, and it does not change the
 browser/Unity fallback paths.
+
+## Relay regression checks
+
+Run the gateway's separate Cargo workspace inside the Dev Container:
+
+```sh
+cd tools/kitu-webtransport-gateway
+cargo fmt --all --check
+cargo clippy --locked --all-targets --all-features -- -D warnings
+cargo test --locked --all
+cargo build --locked --bins
+```
+
+The loopback tests cover continuous 16 ms broadcasts, the frame cap, exact and
+overflowing byte budgets, delayed first responses, and reset without resending
+mutations. The real-host test is excluded from default test runs because it
+creates two entities. Run it explicitly against an isolated admin host:
+
+```sh
+KITU_GATEWAY_TEST_WS_URL=ws://127.0.0.1:8787/ws cargo test --locked \
+  --bin kitu-webtransport-gateway \
+  relay_tests::actual_admin_host_broadcasts_allow_two_consecutive_mutations \
+  -- --ignored --exact
+```
+
+The existing WebTransport smoke client separately verifies two response streams
+and a datagram acknowledgment through the TLS gateway. See the gateway scripts
+for certificate and smoke-client setup.
 
 ## Browser connection check
 

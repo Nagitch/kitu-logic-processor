@@ -27,11 +27,16 @@ type InternalReader = SplitStream<InternalSocket>;
 const DEFAULT_BIND_PORT: u16 = 9443;
 const DEFAULT_INTERNAL_WS_URL: &str = "ws://demo-game:8787/ws";
 const MAX_STREAM_BYTES: usize = 64 * 1024;
+const MAX_RELAY_RESPONSES: usize = 128;
+const MAX_RELAY_RESPONSE_BYTES: usize = 1024 * 1024;
 const MAX_DATAGRAM_BYTES: usize = 1200;
 const MAX_MESSAGES_PER_SECOND: usize = 240;
 const MAX_DATAGRAMS_PER_SECOND: usize = 240;
 const KEP_ROUTE_DATAGRAM_PROBE: &str = "/gateway/datagram/probe";
 const KEP_ROUTE_DATAGRAM_ACK: &str = "/gateway/datagram/ack";
+
+#[cfg(test)]
+mod relay_tests;
 
 #[derive(Debug, Clone)]
 struct GatewayConfig {
@@ -307,63 +312,6 @@ async fn read_stream(mut recv_stream: RecvStream) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
-#[cfg(test)]
-mod tests {
-    use kitu_transport::{encode_kep_envelope, KepEnvelope};
-
-    use super::{
-        handle_datagram_payload, KEP_ROUTE_DATAGRAM_ACK, KEP_ROUTE_DATAGRAM_PROBE,
-        MAX_DATAGRAM_BYTES,
-    };
-
-    #[test]
-    fn datagram_probe_returns_json_ack() {
-        let mut request = KepEnvelope::json(br#"{"type":"probe"}"#.to_vec());
-        request.route = Some(KEP_ROUTE_DATAGRAM_PROBE.to_string());
-        request.correlation_id = Some(7);
-        let bytes = encode_kep_envelope(&request).expect("encode probe envelope");
-
-        let ack = handle_datagram_payload(&bytes)
-            .expect("handle datagram")
-            .expect("ack response");
-        assert!(ack.len() <= MAX_DATAGRAM_BYTES);
-
-        let envelope = kitu_transport::decode_kep_envelope(&ack).expect("decode ack envelope");
-        assert_eq!(envelope.payload_type, kitu_transport::KEP_PAYLOAD_JSON);
-        assert_eq!(envelope.route.as_deref(), Some(KEP_ROUTE_DATAGRAM_ACK));
-        assert_eq!(envelope.correlation_id, Some(7));
-
-        let json: serde_json::Value =
-            serde_json::from_slice(&envelope.payload).expect("decode ack JSON");
-        assert_eq!(json["type"], "webTransportDatagramAck");
-        assert_eq!(json["receivedRoute"], KEP_ROUTE_DATAGRAM_PROBE);
-    }
-
-    #[test]
-    fn datagram_json_on_non_probe_route_is_receive_only() {
-        let mut request = KepEnvelope::json(br#"{"type":"telemetry"}"#.to_vec());
-        request.route = Some("/client/telemetry".to_string());
-        let bytes = encode_kep_envelope(&request).expect("encode telemetry envelope");
-
-        let ack = handle_datagram_payload(&bytes).expect("handle datagram");
-
-        assert!(ack.is_none());
-    }
-
-    #[test]
-    fn datagram_rejects_reliable_osc_commands() {
-        let mut request = KepEnvelope::osc(vec![0, 1, 2, 3]);
-        request.route = Some("/room/main".to_string());
-        let bytes = encode_kep_envelope(&request).expect("encode OSC envelope");
-
-        let err = handle_datagram_payload(&bytes).expect_err("OSC commands stay reliable");
-
-        assert!(err
-            .to_string()
-            .contains("unsupported KEP datagram payload type"));
-    }
-}
-
 struct InternalWebSocketRelay {
     url: String,
     writer: Option<InternalWriter>,
@@ -425,24 +373,38 @@ impl InternalWebSocketRelay {
             .as_mut()
             .context("internal WebSocket reader is not connected")?;
         let mut responses = Vec::new();
-        match tokio::time::timeout(
+        if let Ok(Some(response)) = tokio::time::timeout(
             Duration::from_secs(2),
             Self::read_next_json_kep_response(reader),
         )
         .await
         {
-            Ok(Some(response)) => responses.push(response?),
-            Ok(None) | Err(_) => {}
+            responses.push(response?);
         }
 
-        while !responses.is_empty() {
-            match tokio::time::timeout(
-                Duration::from_millis(200),
-                Self::read_next_json_kep_response(reader),
-            )
-            .await
+        let mut response_bytes = responses.first().map_or(0, Vec::len);
+        anyhow::ensure!(
+            response_bytes <= MAX_RELAY_RESPONSE_BYTES,
+            "internal WebSocket relay response exceeds {MAX_RELAY_RESPONSE_BYTES} byte budget"
+        );
+        // Broadcasts can arrive every tick. The whole drain must end even if
+        // there is never a per-message idle interval.
+        let deadline = tokio::time::Instant::now() + Duration::from_millis(200);
+        while !responses.is_empty()
+            && responses.len() < MAX_RELAY_RESPONSES
+            && tokio::time::Instant::now() < deadline
+        {
+            match tokio::time::timeout_at(deadline, Self::read_next_json_kep_response(reader)).await
             {
-                Ok(Some(response)) => responses.push(response?),
+                Ok(Some(response)) => {
+                    let response = response?;
+                    anyhow::ensure!(
+                        response.len() <= MAX_RELAY_RESPONSE_BYTES - response_bytes,
+                        "internal WebSocket relay response exceeds {MAX_RELAY_RESPONSE_BYTES} byte budget"
+                    );
+                    response_bytes += response.len();
+                    responses.push(response);
+                }
                 Ok(None) | Err(_) => break,
             }
         }
@@ -536,5 +498,62 @@ fn prune_rate_window(recent_messages: &mut VecDeque<Instant>) {
         .is_some_and(|timestamp| *timestamp < cutoff)
     {
         recent_messages.pop_front();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use kitu_transport::{encode_kep_envelope, KepEnvelope};
+
+    use super::{
+        handle_datagram_payload, KEP_ROUTE_DATAGRAM_ACK, KEP_ROUTE_DATAGRAM_PROBE,
+        MAX_DATAGRAM_BYTES,
+    };
+
+    #[test]
+    fn datagram_probe_returns_json_ack() {
+        let mut request = KepEnvelope::json(br#"{"type":"probe"}"#.to_vec());
+        request.route = Some(KEP_ROUTE_DATAGRAM_PROBE.to_string());
+        request.correlation_id = Some(7);
+        let bytes = encode_kep_envelope(&request).expect("encode probe envelope");
+
+        let ack = handle_datagram_payload(&bytes)
+            .expect("handle datagram")
+            .expect("ack response");
+        assert!(ack.len() <= MAX_DATAGRAM_BYTES);
+
+        let envelope = kitu_transport::decode_kep_envelope(&ack).expect("decode ack envelope");
+        assert_eq!(envelope.payload_type, kitu_transport::KEP_PAYLOAD_JSON);
+        assert_eq!(envelope.route.as_deref(), Some(KEP_ROUTE_DATAGRAM_ACK));
+        assert_eq!(envelope.correlation_id, Some(7));
+
+        let json: serde_json::Value =
+            serde_json::from_slice(&envelope.payload).expect("decode ack JSON");
+        assert_eq!(json["type"], "webTransportDatagramAck");
+        assert_eq!(json["receivedRoute"], KEP_ROUTE_DATAGRAM_PROBE);
+    }
+
+    #[test]
+    fn datagram_json_on_non_probe_route_is_receive_only() {
+        let mut request = KepEnvelope::json(br#"{"type":"telemetry"}"#.to_vec());
+        request.route = Some("/client/telemetry".to_string());
+        let bytes = encode_kep_envelope(&request).expect("encode telemetry envelope");
+
+        let ack = handle_datagram_payload(&bytes).expect("handle datagram");
+
+        assert!(ack.is_none());
+    }
+
+    #[test]
+    fn datagram_rejects_reliable_osc_commands() {
+        let mut request = KepEnvelope::osc(vec![0, 1, 2, 3]);
+        request.route = Some("/room/main".to_string());
+        let bytes = encode_kep_envelope(&request).expect("encode OSC envelope");
+
+        let err = handle_datagram_payload(&bytes).expect_err("OSC commands stay reliable");
+
+        assert!(err
+            .to_string()
+            .contains("unsupported KEP datagram payload type"));
     }
 }
