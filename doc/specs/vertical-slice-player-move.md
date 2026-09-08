@@ -42,9 +42,11 @@ Does not own:
 - movement resolution
 - authoritative position state
 
-Current dev/network surface:
+Current dev/network contract:
 
-- `apps/demo-game` exposes `GET /ws/runtime` for Unity and tool clients.
+- An application host exposes `GET /ws/runtime` for Unity and tool clients. The
+  [reference Unity demo](https://github.com/Nagitch/kitu-unity-demo-game) provides
+  the maintained implementation.
 - Clients submit OSC-IR JSON messages such as `/input/move`.
 - The host enqueues the message into the same runtime path, advances one authoritative tick, and broadcasts `/render/player/transform` OSC-IR JSON responses.
 - The host also broadcasts world state snapshots after Web Admin actions so Unity can present spawned/moved/reset world objects during development.

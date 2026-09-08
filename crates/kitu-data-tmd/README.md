@@ -21,8 +21,8 @@ managed tables use source definitions instead. Definitions can retain diagnostic
 drafts, so evaluate before activating or presenting a candidate as valid.
 
 The top-level line-oriented key/value helper remains for compatibility with early
-fixtures. It is not a TMD container parser and is not used by Endless Arena.
-See the [application workflow](../../apps/demo-game/README.md#tanu-parameters).
+fixtures. It is not a TMD container parser. Applications own their TMD authoring,
+validation, and activation workflow.
 
 ## Publish readiness
 - Status: internal (`publish = false`), with crates.io metadata and README in place for future packaging.

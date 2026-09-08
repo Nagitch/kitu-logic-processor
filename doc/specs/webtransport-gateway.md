@@ -6,16 +6,17 @@ Experimental local-development implementation.
 
 The existing application server remains the authority for OSC handling and application logic. The gateway terminates WebTransport and relays validated KEP envelopes to the existing WebSocket endpoint as binary frames over the Docker internal network.
 
-## Current WebSocket and OSC dependency points
+## WebSocket and OSC dependency points
 
-- `apps/demo-game/src/bin/admin_host.rs`
+- A compatible application host, such as the
+  [reference Unity demo](https://github.com/Nagitch/kitu-unity-demo-game):
   - `/ws`: Web Admin JSON OSC-IR WebSocket endpoint.
   - `/ws/runtime`: Unity/runtime JSON OSC-IR WebSocket endpoint.
   - `ClientOscMessage`, `JsonOscArg`, `handle_client_osc`, and `handle_runtime_osc` convert JSON OSC-IR messages into `kitu_osc_ir::OscMessage`.
-- `tools/kitu-web-admin/frontend/src/lib/admin-client.ts`
-  - Connects to `PUBLIC_KITU_ADMIN_WS_URL` or `ws://localhost:8787/ws`.
+- `tools/kitu-web-admin/package/src/client/create-admin-client.ts`
+  - Connects to the WebSocket URL explicitly supplied by the consuming app.
   - Receives JSON `ServerEvent` messages and sends JSON OSC messages.
-- `kitu-integration-runner/unity-demo-game/.../KituNetworkRuntimeClient.cs`
+- The engine client owned by the consuming application
   - Connects to `ws://127.0.0.1:8787/ws/runtime`.
   - Sends and receives the current JSON OSC-IR shape.
 
@@ -53,8 +54,8 @@ The first implementation uses internal WebSocket because it has the smallest bla
 
 The client-to-server WebTransport stream path uses one length-prefixed KEP
 frame containing `t = "osc"` and `p = OSC packet binary`. The gateway validates
-the KEP envelope and forwards the KEP MessagePack envelope bytes to
-`ws://demo-game:8787/ws`; the existing application server decodes KEP, extracts
+the KEP envelope and forwards the KEP MessagePack envelope bytes to the configured
+`KITU_GATEWAY_INTERNAL_WS_URL`; the application server decodes KEP, extracts
 the OSC packet binary, and runs the same OSC handling path used by JSON clients.
 
 The server-to-client WebTransport stream path uses a sequence of length-prefixed
@@ -91,13 +92,15 @@ use streams.
 
 ## Docker Compose
 
-The local verification Compose stack includes the gateway:
+The application owns its Compose stack. Run the framework wrapper with an
+explicit standalone demo Compose file:
 
 ```sh
-docker compose -f apps/demo-game/docker-compose.yml up --build
+tools/kitu-webtransport-gateway/scripts/smoke-in-docker.sh \
+  --compose-file /absolute/path/to/kitu-unity-demo-game/docker-compose.yml
 ```
 
-Services:
+The reference stack defines these services:
 
 - `demo-game`: existing app server on `http://localhost:8787`.
 - `webtransport-gateway`: WebTransport gateway on UDP `9443`.
@@ -118,7 +121,8 @@ tools/kitu-webtransport-gateway/scripts/check-in-docker.sh
 Gateway smoke validation can be run from the repository root:
 
 ```sh
-tools/kitu-webtransport-gateway/scripts/smoke-in-docker.sh
+tools/kitu-webtransport-gateway/scripts/smoke-in-docker.sh \
+  --compose-file /absolute/path/to/kitu-unity-demo-game/docker-compose.yml
 ```
 
 The smoke script starts `demo-game` and `webtransport-gateway`, sends two
@@ -131,7 +135,8 @@ ack, and checks that the existing application server state contains the spawned
 Gateway Docker integration validation can be run from the repository root:
 
 ```sh
-tools/kitu-webtransport-gateway/scripts/integration-in-docker.sh
+tools/kitu-webtransport-gateway/scripts/integration-in-docker.sh \
+  --compose-file /absolute/path/to/kitu-unity-demo-game/docker-compose.yml
 ```
 
 The integration script starts the same `demo-game` and `webtransport-gateway`
@@ -177,9 +182,9 @@ the check script reports that the certificate expires within 24 hours, regenerat
 it before browser testing and restart the Compose stack so both the gateway and
 frontend receive the same env file.
 
-The verification Compose stack loads the generated `webtransport.env` if it exists:
-
-- `apps/demo-game/docker-compose.yml`
+The consuming Compose stack may load the generated `webtransport.env`. The
+reference implementation is in the
+[independent demo](https://github.com/Nagitch/kitu-unity-demo-game/blob/main/docker-compose.yml).
 
 If `webtransport.env` does not exist, the gateway falls back to an ephemeral
 self-signed certificate. That mode is useful for server bring-up and non-browser
@@ -200,16 +205,20 @@ tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh
 tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh
 ```
 
-2. Confirm the Compose stack consumes the generated env file:
+2. Confirm the consuming Compose stack uses the generated env file. See the
+   independent demo's `tools/compose.py` wrapper for its pinned Kitu checkout.
 
 ```sh
-docker compose -f apps/demo-game/docker-compose.yml config
+python3 /absolute/path/to/kitu-unity-demo-game/tools/compose.py \
+  --file /absolute/path/to/kitu-unity-demo-game/docker-compose.yml config
 ```
 
-3. Start the Web Admin stack:
+3. Start the application and Web Admin stack:
 
 ```sh
-docker compose -f apps/demo-game/docker-compose.yml up --build
+python3 /absolute/path/to/kitu-unity-demo-game/tools/compose.py \
+  --file /absolute/path/to/kitu-unity-demo-game/docker-compose.yml \
+  --profile webtransport up --build
 ```
 
 4. Open `http://localhost:5173` in a browser with WebTransport support.
@@ -279,7 +288,9 @@ Supported OSC packet shapes:
 Nested OSC bundles, blobs, arrays, and additional scalar tags are not supported
 until a concrete Web Admin, runtime, Unity, or replay path requires them.
 
-`apps/demo-game/src/bin/admin_host.rs` accepts KEP on the existing WebSocket endpoints:
+A compatible application host accepts KEP on the existing WebSocket endpoints.
+The maintained host implementation is in the
+[independent demo](https://github.com/Nagitch/kitu-unity-demo-game):
 
 - Text frames: existing JSON OSC-IR messages.
 - Binary frames: KEP MessagePack envelopes with `t = "osc"` and `p = OSC packet binary`.
@@ -294,7 +305,9 @@ length-prefixed WebTransport stream frames.
 Each accepted WebTransport session owns one lazy internal WebSocket relay to
 `KITU_GATEWAY_INTERNAL_WS_URL`. The relay is opened on the first bidirectional
 stream that carries a valid KEP `osc` request and is reused by later streams in
-the same WebTransport session.
+the same WebTransport session. The local-process default is
+`ws://127.0.0.1:8787/ws`; containers must supply the application service URL
+explicitly.
 
 Gateway stream handling serializes access to the relay for now. This keeps the
 internal WebSocket message order unambiguous while the gateway remains an
@@ -337,7 +350,7 @@ for certificate and smoke-client setup.
 
 ## Browser connection check
 
-1. Start the compose stack.
+1. Start the consuming Compose stack.
    For browser WebTransport testing, generate the local certificate first:
 
 ```sh
@@ -348,10 +361,12 @@ tools/kitu-webtransport-gateway/scripts/check-dev-cert-in-docker.sh
 2. Open `http://localhost:5173`.
 3. Confirm the WebSocket status remains open.
 4. Trigger an OSC action from a UI path that calls `sendOsc`, or use the browser console to import/call the client send path during development.
-5. Check gateway logs:
+5. Check gateway logs through the consuming application's Compose wrapper:
 
 ```sh
-docker compose -f apps/demo-game/docker-compose.yml logs --no-color webtransport-gateway
+python3 /absolute/path/to/kitu-unity-demo-game/tools/compose.py \
+  --file /absolute/path/to/kitu-unity-demo-game/docker-compose.yml \
+  --profile webtransport logs --no-color webtransport-gateway
 ```
 
 6. Check the existing app server logs and Web Admin state updates.

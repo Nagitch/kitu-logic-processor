@@ -1,48 +1,76 @@
 #!/usr/bin/env sh
 set -eu
 
-repo_root="$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)"
-compose_file="$repo_root/apps/demo-game/docker-compose.yml"
-
-if [ ! -f "$repo_root/tools/kitu-webtransport-gateway/certs/webtransport.env" ]; then
-  "$repo_root/tools/kitu-webtransport-gateway/scripts/generate-dev-cert-in-docker.sh"
+compose_file="${KITU_DEMO_COMPOSE_FILE:-}"
+if [ "${1:-}" = "--compose-file" ]; then
+  if [ "$#" -ne 2 ]; then
+    printf '%s\n' 'Usage: integration-in-docker.sh --compose-file /absolute/demo/docker-compose.yml' >&2
+    exit 2
+  fi
+  compose_file=$2
+  shift 2
+fi
+if [ "$#" -ne 0 ] || [ -z "$compose_file" ]; then
+  printf '%s\n' 'A demo Compose file is required: pass --compose-file PATH or set KITU_DEMO_COMPOSE_FILE.' >&2
+  exit 2
+fi
+if [ ! -f "$compose_file" ]; then
+  printf 'Demo Compose file does not exist: %s\n' "$compose_file" >&2
+  exit 2
 fi
 
-docker compose -f "$compose_file" up -d --build --force-recreate demo-game webtransport-gateway
+demo_root="$(CDPATH= cd -- "$(dirname -- "$compose_file")" && pwd)"
+compose_file="$demo_root/$(basename -- "$compose_file")"
+compose_helper="$demo_root/tools/compose.py"
+if [ ! -f "$compose_helper" ]; then
+  printf 'Standalone demo Compose helper does not exist: %s\n' "$compose_helper" >&2
+  exit 2
+fi
+
+compose() {
+  python3 "$compose_helper" --file "$compose_file" --profile webtransport "$@"
+}
+
+run_client() {
+  client=$1
+  shift
+  compose run --rm "$@" gateway-smoke sh -ec '
+    cert_hash="$(openssl x509 -in /certs/webtransport-cert.pem -outform der | openssl dgst -sha256 -r | awk "{print \$1}")"
+    export PUBLIC_KITU_ADMIN_WT_CERT_SHA256="$cert_hash" KITU_WT_SMOKE_CERT_SHA256="$cert_hash"
+    exec cargo run --locked --bin "$1"
+  ' sh "$client"
+}
+
+compose up -d --build --force-recreate demo-game webtransport-gateway
 
 for attempt in $(seq 1 60); do
   if curl -fsS http://localhost:8787/health >/dev/null 2>&1; then
     break
   fi
   if [ "$attempt" -eq 60 ]; then
-    printf "%s\n" "demo-game did not become healthy." >&2
+    printf '%s\n' 'demo-game did not become healthy.' >&2
     exit 1
   fi
   sleep 1
 done
 
 for attempt in $(seq 1 60); do
-  if docker compose -f "$compose_file" run --rm \
+  if run_client kitu-webtransport-gateway-integration-client \
     -e KITU_WT_INTEGRATION_URL=https://webtransport-gateway:9443 \
-    -e KITU_WT_INTEGRATION_READY_ONLY=1 \
-    webtransport-gateway \
-    cargo run --locked --bin kitu-webtransport-gateway-integration-client >/dev/null 2>&1; then
+    -e KITU_WT_INTEGRATION_READY_ONLY=1 >/dev/null 2>&1; then
     break
   fi
   if [ "$attempt" -eq 60 ]; then
-    printf "%s\n" "webtransport-gateway did not become ready." >&2
+    printf '%s\n' 'webtransport-gateway did not become ready.' >&2
     exit 1
   fi
   sleep 1
 done
 
-docker compose -f "$compose_file" run --rm \
+run_client kitu-webtransport-gateway-integration-client \
   -e KITU_WT_INTEGRATION_URL=https://webtransport-gateway:9443 \
-  -e KITU_WT_INTEGRATION_OBJECT_ID=webtransport-integration \
-  webtransport-gateway \
-  cargo run --locked --bin kitu-webtransport-gateway-integration-client
+  -e KITU_WT_INTEGRATION_OBJECT_ID=webtransport-integration
 
-curl -fsS http://localhost:8787/state \
-  | grep -q '"kind":"webtransport-integration"'
+curl -fsS http://localhost:8787/state | grep -q '"kind":"webtransport-integration"'
 
-printf "%s\n" "WebTransport gateway Docker integration test passed."
+printf '%s\n' 'WebTransport gateway Docker integration test passed.'

@@ -180,7 +180,7 @@ pub type Result<T> = std::result::Result<T, SqliteError>;
 ///     required_columns: vec!["id".into(), "damage".into()],
 ///     order_by: vec!["ordinal".into()], optional: false,
 /// }];
-/// let snapshot = read_snapshot(std::path::Path::new("arena.sqlite"), &tables,
+/// let snapshot = read_snapshot(std::path::Path::new("game.sqlite"), &tables,
 ///     &ReadOptions::default(), || false)?;
 /// assert_eq!(snapshot.tables[0].columns, ["id", "damage"]);
 /// # Ok::<(), kitu_data_sqlite::SqliteError>(())

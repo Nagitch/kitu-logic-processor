@@ -2,9 +2,8 @@ name: Rust CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
 
 permissions:
   contents: read
@@ -16,112 +15,67 @@ env:
 
 jobs:
   portable:
-    name: ${{ matrix.name }}
+    name: Framework ${{ matrix.scope }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - scope: reference
-            name: Arena Reference Integrity
-          - scope: fmt
-            name: Format Check
-          - scope: clippy
-            name: Clippy Lint
-          - scope: test
-            name: Test Suite
-          - scope: docs
-            name: Documentation Build
-          - scope: data
-            name: Arena Data and Build Tools
-          - scope: frontend
-            name: Admin and WASM
+        scope: [fmt, test, clippy, docs, tools, frontend]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           lfs: true
-      - name: Setup pinned Rust toolchain
-        if: matrix.scope != 'reference'
-        uses: dtolnay/rust-toolchain@master
+
+      - name: Restore tracked LFS files
+        run: |
+          git lfs install --local
+          git lfs checkout
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: 1.96.0
-          components: rustfmt, clippy
+          components: rustfmt,clippy
           targets: wasm32-unknown-unknown
-      - name: Cache Cargo dependencies and build
-        if: matrix.scope != 'reference' && matrix.scope != 'fmt'
-        uses: actions/cache@v4
+
+      - uses: actions/cache@v4
+        if: matrix.scope != 'fmt' && matrix.scope != 'frontend'
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             target
           key: ${{ runner.os }}-${{ runner.arch }}-rust196-${{ matrix.scope }}-${{ hashFiles('Cargo.lock') }}
-      - name: Setup Node 24
+
+      - uses: actions/setup-node@v4
         if: matrix.scope == 'frontend'
-        uses: actions/setup-node@v4
         with:
-          node-version: '24'
-      - name: Setup pinned pnpm
+          node-version: 24
+
+      - uses: pnpm/action-setup@v4
         if: matrix.scope == 'frontend'
-        run: |
-          corepack enable
-          corepack prepare pnpm@11.9.0 --activate
-      - name: Run shared repository verification
-        run: python3 tools/verify-repository.py --scope '${{ matrix.scope }}' --evidence '.tmp/ci/${{ matrix.scope }}'
+        with:
+          version: 11.9.0
+
+      - name: Verify framework scope
+        run: >-
+          python3 tools/verify-repository.py
+          --scope ${{ matrix.scope }}
+          --evidence "$GITHUB_WORKSPACE/.tmp/ci/${{ matrix.scope }}"
+
       - name: Retain verification report and logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: arena-${{ matrix.scope }}-verification
+          name: framework-${{ matrix.scope }}-verification
           path: |
             .tmp/ci/${{ matrix.scope }}/verification.json
             .tmp/ci/${{ matrix.scope }}/*.log
-            .tmp/ci/${{ matrix.scope }}/package.json
-          include-hidden-files: true
-          if-no-files-found: warn
-          retention-days: 14
-
-  native-macos:
-    name: macOS ARM64 Native ABI
-    runs-on: macos-15
-    timeout-minutes: 60
-    env:
-      CARGO_INCREMENTAL: 0
-      CARGO_PROFILE_DEV_DEBUG: 0
-      CARGO_PROFILE_TEST_DEBUG: 0
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          lfs: true
-      - name: Setup pinned Rust toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: 1.96.0
-          targets: aarch64-apple-darwin
-      - name: Cache Cargo dependencies and native build
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-${{ runner.arch }}-rust196-native-${{ hashFiles('Cargo.lock') }}
-      - name: Run native scope without Unity
-        run: python3 tools/verify-arena-macos.py --scope native --evidence .tmp/ci/native
-      - name: Retain native verification report and logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: arena-native-macos-verification
-          path: |
-            .tmp/ci/native/verification.json
-            .tmp/ci/native/*.log
-            .tmp/ci/native/commands/*.log
-            .tmp/ci/native/native-build/*.json
-            .tmp/ci/native/native-build/*.log
+            .tmp/ci/${{ matrix.scope }}/smoke/**
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14

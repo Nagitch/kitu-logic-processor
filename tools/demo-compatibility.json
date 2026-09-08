@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "demoRepository": "Nagitch/kitu-unity-demo-game",
+  "demoSha": "e4708adf6fac6a46d5251c4cde4ab5b5a31fe902",
+  "requiredScopes": [
+    "test",
+    "frontend",
+    "data",
+    "native"
+  ],
+  "rust": "1.96.0",
+  "node": "24",
+  "pnpm": "11.9.0"
+}

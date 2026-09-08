@@ -25,7 +25,7 @@ type InternalWriter = SplitSink<InternalSocket, Message>;
 type InternalReader = SplitStream<InternalSocket>;
 
 const DEFAULT_BIND_PORT: u16 = 9443;
-const DEFAULT_INTERNAL_WS_URL: &str = "ws://demo-game:8787/ws";
+const DEFAULT_INTERNAL_WS_URL: &str = "ws://127.0.0.1:8787/ws";
 const MAX_STREAM_BYTES: usize = 64 * 1024;
 const MAX_RELAY_RESPONSES: usize = 128;
 const MAX_RELAY_RESPONSE_BYTES: usize = 1024 * 1024;

@@ -33,8 +33,6 @@ kitu-integration-runner/
     README.md
   fixtures/
     README.md
-  unity-demo-game/
-    .gitkeep
 ```
 
 Directory intent:
@@ -42,7 +40,10 @@ Directory intent:
 - `scenarios/`: checked-in scenario definitions and expected results
 - `reports/`: documented output/report format examples; generated run artifacts stay out of git
 - `fixtures/`: reusable payload fragments or content fixtures if scenarios start sharing setup data
-- `unity-demo-game/`: Unity demo-game verification app used by CI/CD to validate that the app still boots and exchanges runtime boundary messages without regressions
+
+Engine integration belongs in an independently versioned consumer. The
+[reference Unity demo](https://github.com/Nagitch/kitu-unity-demo-game) is pinned
+by the compatibility workflow and validates boot plus runtime-boundary exchange.
 
 Generated outputs should live outside the checked-in scenario tree, for example under a future `artifacts/` directory or tool-provided temp output directory.
 

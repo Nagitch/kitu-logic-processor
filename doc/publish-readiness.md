@@ -34,13 +34,12 @@ Current future-publication candidates are the reusable crates under `crates/`.
 
 ## Non-candidate workspace tools
 
-These packages are workspace utilities or demos and should remain `publish = false` unless a future issue changes their role:
+These packages are workspace utilities and should remain `publish = false` unless a future issue changes their role:
 
 - `tools/kitu-cli`
 - `tools/kitu-replay-runner`
-- `apps/demo-game`
 
-If any tool or app becomes a future crates.io candidate, add full package metadata, add an explicit `include`, and move it into the candidate table above.
+If any tool becomes a future crates.io candidate, add full package metadata, add an explicit `include`, and move it into the candidate table above.
 
 ## Per-crate checklist
 
@@ -57,6 +56,5 @@ For each candidate crate before MVP publication:
 
 `kitu-transport` and `kitu-unity-ffi` remain internal (`publish = false`), with
 shared wire and C ABI documentation. The FFI package includes its C header.
-`apps/demo-game/native` is an application factory, also explicitly non-publishable;
-it provides metadata, README and dynamic/static library outputs. Verification
-uses `cargo package --list` for package contents; no crates.io publication occurs.
+Verification uses `cargo package --list` for package contents; no crates.io
+publication occurs.

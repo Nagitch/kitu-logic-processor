@@ -87,7 +87,9 @@ graph TD
 
 ### `kitu-scripting-rhai`
 - Implements a raw Rhai host with explicit capability, execution and data limits, opaque compiled programs and fresh copied JSON inputs/outputs.
-- Arena owns the [boss context and allowed action contract](specs/arena-boss-scripts.md); scripts receive no ECS mutation access.
+- Applications own their script context and allowed-action contract; scripts
+  receive no ECS mutation access. The reference policy is documented in the
+  [independent demo](https://github.com/Nagitch/kitu-unity-demo-game/blob/main/docs/specs/arena-boss-scripts.md).
 
 ### `kitu-data-tmd`
 - Staged entry point for parsing TMD authoring assets into strongly typed structures ready for validation and loading.
@@ -96,7 +98,9 @@ graph TD
 ### `kitu-data-sqlite`
 - Implemented read-only snapshots cover schema and all requested tables in one transaction, including WAL data.
 - Explicit table specifications, native scalar types, unique ordering keys, cancellation and resource limits produce detached values; no client-supplied SQL is exposed.
-- Applications own their table schemas, authoring, domain validation and activation. Arena uses the [shared TMD/SQLite layered contract](specs/arena-content-sources.md).
+- Applications own their table schemas, authoring, domain validation and
+  activation. The reference integration documents the
+  [shared TMD/SQLite layering](https://github.com/Nagitch/kitu-unity-demo-game/blob/main/docs/specs/arena-content-sources.md).
 
 ### `kitu-tsq1`
 - Staged entry point for the TSQ1 timeline model and playback helpers for driving presentation events.
