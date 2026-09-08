@@ -22,6 +22,43 @@ class FakeSocket extends EventTarget {
   }
 }
 
+test('server errors remain in log history after a successful operation clears lastError', async () => {
+  const socket = new FakeSocket()
+  const client = createAdminClient({
+    apiUrl: 'http://service.test',
+    webSocketUrl: 'ws://service.test/ws',
+    isBrowser: true,
+    createWebSocket: () => socket,
+    fetch: async () => new Response(JSON.stringify({ actions: [] }))
+  })
+  client.start()
+  socket.open()
+  socket.message({ type: 'state', snapshot: { tick: 42, objects: [] } })
+  socket.message({ type: 'error', message: 'Rejected application command' })
+  assert.equal(get(client.lastError), 'Rejected application command')
+  assert.equal(client.sendOsc({ address: '/admin/world/reset', args: [] }), true)
+  assert.equal(get(client.lastError), null)
+  const entries = get(client.debugLogs)
+  assert.equal(entries.length, 1)
+  assert.equal(entries[0].level, 'error')
+  assert.equal(entries[0].message, 'Rejected application command')
+  assert.equal(entries[0].tick, 42)
+  assert.equal(entries[0].oscAddress, null)
+  client.stop()
+})
+
+test('server error history shares the bounded newest-first log buffer', () => {
+  const client = createAdminClient({ apiUrl: '', webSocketUrl: '', isBrowser: false })
+  client.applyServerEvent({ type: 'log', entry: { id: 1, level: 'info', message: 'old', tick: 0 } })
+  for (let index = 0; index < 501; index += 1)
+    client.applyServerEvent({ type: 'error', message: `error ${index}` })
+  const entries = get(client.debugLogs)
+  assert.equal(entries.length, 500)
+  assert.equal(entries[0].message, 'error 500')
+  assert.equal(entries.at(-1).message, 'error 1')
+  assert.ok(entries.every(entry => entry.level === 'error'))
+})
+
 test('each client owns independent socket and store lifecycle', async () => {
   const sockets = []
   const options = {
