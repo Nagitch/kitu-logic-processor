@@ -365,8 +365,21 @@ export function createAdminClient(input: AdminClientOptions) {
     if (event.type === 'state') worldSnapshot.set(event.snapshot)
     else if (event.type === 'log')
       debugLogs.update(items => [event.entry, ...items.filter(item => item.id !== event.entry.id)].slice(0, 500))
-    else if (event.type === 'error') lastError.set(event.message)
-    else if (event.type === 'connected')
+    else if (event.type === 'error') {
+      lastError.set(event.message)
+      debugLogs.update(items =>
+        [
+          {
+            id: Date.now() + Math.random(),
+            level: 'error' as const,
+            message: event.message,
+            oscAddress: null,
+            tick: get(worldSnapshot).tick
+          },
+          ...items
+        ].slice(0, 500)
+      )
+    } else if (event.type === 'connected')
       debugLogs.update(items =>
         [
           {
