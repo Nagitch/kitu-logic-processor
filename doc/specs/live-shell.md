@@ -1,5 +1,16 @@
 # Live Kitu CLI and browser Shell
 
+Before running the Cargo examples below, use Python 3.11 or later from the
+repository root to prepare the ignored replay build inputs:
+
+```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+```
+
+Repeat preparation after changing Cargo manifests, locks or configuration.
+If selecting a target or features, pass the same `--target`, `--features`,
+`--all-features` and `--no-default-features` options to preparation and Cargo.
+
 Stage 9 of [#129](https://github.com/Nagitch/kitu-logic-processor/issues/129)
 connects `kitu-cli` and **Kitu general → Shell** to the running application host.
 `kitu-shell` owns the shared catalog, argument validation, quoting, typed OSC
@@ -12,6 +23,7 @@ expands variables, substitutions, wildcards or scripts from command text.
 Run inside the Kitu Dev Container, with the demo host available:
 
 ```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
 cargo build -p kitu-demo-game -p kitu-cli --bins
 cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
 ```

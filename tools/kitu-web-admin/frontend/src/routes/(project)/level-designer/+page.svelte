@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Map } from "@lucide/svelte";
-  import Panel from "$lib/components/ui/Panel.svelte";
+  import { Panel } from "@kitu/admin/ui";
 </script>
 
 <svelte:head>

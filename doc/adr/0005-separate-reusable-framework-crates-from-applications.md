@@ -1,6 +1,6 @@
 # 0005: Separate reusable framework crates from applications
 
-- Status: Accepted
+- Status: Superseded for repository placement by [ADR 0007](0007-distribute-engine-demo-applications-independently.md); ownership boundaries remain in force
 - Decision date: 2026-06-16
 
 ## Context

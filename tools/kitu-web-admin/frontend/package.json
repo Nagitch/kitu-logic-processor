@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "wasm": "wasm-pack build ../../../crates/kitu-osc-ir-wasm --target web --out-dir ../../tools/kitu-web-admin/frontend/static/kitu-osc-ir-wasm --out-name kitu_osc_ir_wasm",
-    "predev": "pnpm run wasm",
+    "wasm": "KITU_ADMIN_WASM_OUT_DIR=../frontend/static/kitu-osc-ir-wasm node ../package/scripts/build-wasm.mjs",
+    "predev": "KITU_ADMIN_WASM_OUT_DIR=../frontend/static/kitu-osc-ir-wasm node ../package/scripts/build-wasm.mjs",
     "dev": "vite",
-    "prebuild": "pnpm run wasm",
+    "prebuild": "KITU_ADMIN_WASM_OUT_DIR=../frontend/static/kitu-osc-ir-wasm node ../package/scripts/build-wasm.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -16,6 +16,7 @@
     "test:inspection": "node --test src/lib/arena-inspection.test.ts"
   },
   "dependencies": {
+    "@kitu/admin": "file:../package",
     "@lucide/svelte": "^1.21.0",
     "bits-ui": "^2.18.1",
     "clsx": "^2.1.1",

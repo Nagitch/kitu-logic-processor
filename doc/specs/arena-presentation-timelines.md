@@ -1,5 +1,16 @@
 # Arena TSQ1 presentation timelines
 
+Before running the Cargo examples below, use Python 3.11 or later from the
+repository root to prepare the ignored replay build inputs:
+
+```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+```
+
+Repeat preparation after changing Cargo manifests, locks or configuration.
+If selecting a target or features, pass the same `--target`, `--features`,
+`--all-features` and `--no-default-features` options to preparation and Cargo.
+
 Stage 14, Issue #156. Arena uses real TSQ1 clips for boss warnings and floor
 transitions. Game rules still own boss phases, movement, damage and progression.
 The frozen Unity-only game projection and domain-event ordering remain the
@@ -16,6 +27,7 @@ Create or edit a sample using the application's public-codec authoring tool in
 the Dev Container:
 
 ```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
 cargo run --locked -p kitu-demo-game --bin arena-timelines -- /tmp/arena-clips
 cargo run --locked -p kitu-demo-game --bin arena-timelines -- /tmp/arena-clips --boss-radius 4.5 --floor-peak-opacity 0.85
 ```

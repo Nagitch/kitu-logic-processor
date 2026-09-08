@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Check, FileCheck, RefreshCw } from "@lucide/svelte";
-  import Panel from "$lib/components/ui/Panel.svelte";
-  import Button from "$lib/components/ui/Button.svelte";
+  import { Button, Panel } from "@kitu/admin/ui";
   import {
     inspectScript,
     validateScript,

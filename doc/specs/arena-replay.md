@@ -1,5 +1,16 @@
 # Arena TSQ1 recording contract
 
+Before running the Cargo examples below, use Python 3.11 or later from the
+repository root to prepare the ignored replay build inputs:
+
+```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+```
+
+Repeat preparation after changing Cargo manifests, locks or configuration.
+If selecting a target or features, pass the same `--target`, `--features`,
+`--all-features` and `--no-default-features` options to preparation and Cargo.
+
 Stage 7 of [the roadmap](https://github.com/Nagitch/kitu-logic-processor/issues/129)
 uses the public `tsq1` and `tsq1-osc` APIs at workspace revision
 `05707147e83a4fba591a3933d49f056bb6d3540b`. No TSQ1 format fork is involved.
@@ -144,6 +155,7 @@ Live CLI commands are stage 9.
 Inside the Kitu Dev Container:
 
 ```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
 KITU_REPLAY_EVIDENCE_DIR=/workspaces/kitu-logic-processor/.tmp/arena-tsq1 \
   cargo test -p kitu-demo-game --test arena_replay \
   real_tsq1_replays_every_stock_tick_state_and_event_through_eleven_death_retry -- --exact

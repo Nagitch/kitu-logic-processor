@@ -5,7 +5,12 @@ services:
     container_name: kitu-demo-game
     image: rust:1.96.0-bookworm
     working_dir: /workspace
-    command: cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
+    command:
+      - sh
+      - -ec
+      - |
+        python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+        exec cargo run --locked -p kitu-demo-game --bin kitu-demo-game-admin-host
     environment:
       RUST_LOG: info
       RUSTUP_TOOLCHAIN: 1.96.0

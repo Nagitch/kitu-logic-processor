@@ -23,4 +23,5 @@ unity evidence:
     python3 tools/verify-arena-macos.py --scope full --evidence "{{evidence}}"
 
 build:
+    python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
     cargo build --locked --workspace

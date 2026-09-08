@@ -1,5 +1,16 @@
 # Arena packaged content and Addressables
 
+Before running the Cargo examples below, use Python 3.11 or later from the
+repository root to prepare the ignored replay build inputs:
+
+```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+```
+
+Repeat preparation after changing Cargo manifests, locks or configuration.
+If selecting a target or features, pass the same `--target`, `--features`,
+`--all-features` and `--no-default-features` options to preparation and Cargo.
+
 Stage 16, Issue #160. The macOS Arena Player carries its native Runtime, editable
 source defaults and local Unity assets. The same native library can initialize
 different validated packages without recompiling game logic. Unity owns asset

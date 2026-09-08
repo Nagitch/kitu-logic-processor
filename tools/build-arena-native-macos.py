@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import sys
 import tempfile
 
 from arena_macos import (INSTALL_NAME, LIBRARY, PLUGIN, ROOT, artifact,
@@ -28,6 +29,9 @@ def main():
     env.setdefault("CARGO_INCREMENTAL", "0")
     env.setdefault("CARGO_PROFILE_DEV_DEBUG", "0")
     env.setdefault("CARGO_PROFILE_TEST_DEBUG", "0")
+    run([sys.executable, ROOT / "tools/prepare-kitu-build.py", "--manifest-path",
+         ROOT / "apps/demo-game/Cargo.toml", "--cargo", args.cargo,
+         "--target", "aarch64-apple-darwin"], env=env)
     metadata = json.loads(run([args.cargo, "metadata", "--locked", "--no-deps",
                                "--format-version", "1"], env=env))
     command = [args.cargo, "build", "--locked", "-p", "kitu-demo-game-native",

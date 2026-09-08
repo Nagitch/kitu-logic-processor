@@ -68,6 +68,7 @@ class RepositoryVerificationTests(unittest.TestCase):
             stack.enter_context(mock.patch.object(verification, "FRONTEND", self.frontend))
             stack.enter_context(mock.patch.object(verification, "source_identity", side_effect=identity_error, return_value=self.source))
             stack.enter_context(mock.patch.object(verification, "run", side_effect=self.fake_run))
+            stack.enter_context(mock.patch.object(verification.platform, "platform", return_value="test-platform"))
             self.staging = stack.enter_context(mock.patch.object(verification, "stage_package", return_value=package or {"hash": "b" * 64, "files": []}))
             # No subprocess may escape the orchestration mocks, even if the
             # runner adds a new direct Git/toolchain query in a later change.
@@ -103,14 +104,22 @@ class RepositoryVerificationTests(unittest.TestCase):
         self.assertEqual(report["source"], self.source)
         self.assertEqual(report["requestedScope"], "test")
         self.assertEqual(report["rustTests"], {"passed": 7, "suites": 2, "failed": 0, "ignored": 0})
-        self.assertEqual([step["id"] for step in report["steps"]], ["rust-version", "test"])
-        self.assertEqual(self.calls[1][1], ["cargo", "test", "--locked", "--workspace"])
-        self.assertEqual(self.calls[1][2]["cwd"], self.root)
-        self.assertEqual(self.calls[1][2]["timeout"], 3600)
+        self.assertEqual([step["id"] for step in report["steps"]], ["rust-version", "prepare-test", "test"])
+        self.assertEqual(self.calls[2][1], ["cargo", "test", "--locked", "--workspace"])
+        self.assertEqual(self.calls[2][2]["cwd"], self.root)
+        self.assertEqual(self.calls[2][2]["timeout"], 3600)
         self.assertEqual(json.loads(stdout), {"status": "passed", "report": str(self.evidence / "verification.json")})
         for step in report["steps"]:
             self.assertEqual(step["exitCode"], 0)
             self.assertEqual(step["logArtifact"], verification.artifact(Path(step["log"])))
+
+    def test_failed_identity_preparation_prevents_compilation(self):
+        self.failure_step = "prepare-test"
+        self.failure = RuntimeError("mixed Kitu sources")
+        with self.assertRaisesRegex(RuntimeError, "mixed Kitu"):
+            self.invoke("test")
+        self.assert_final("failed")
+        self.assertNotIn("test", [call[0] for call in self.calls])
 
     def test_existing_evidence_directory_file_and_dangling_symlink_are_never_overwritten(self):
         for kind in ["directory", "file", "symlink"]:
@@ -150,7 +159,7 @@ class RepositoryVerificationTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "exited 101"):
             self.invoke("all")
         report = self.assert_final("failed")
-        self.assertEqual([step["id"] for step in report["steps"]], ["rust-version", "reference", "fmt", "test"])
+        self.assertEqual([step["id"] for step in report["steps"]], ["rust-version", "reference", "fmt", "prepare-test", "test"])
         self.assertEqual(report["steps"][-1]["status"], "failed")
         self.assertEqual(report["steps"][-1]["diagnostic"], "synthetic command exited 101")
         self.assertEqual(Path(report["steps"][-1]["log"]).read_text(), "partial compiler diagnostic\n")
@@ -192,10 +201,10 @@ class RepositoryVerificationTests(unittest.TestCase):
     def test_frontend_uses_pinned_versions_frozen_install_and_real_build_script(self):
         self.invoke("frontend")
         report = self.assert_final("passed")
-        self.assertEqual([name for name, _argv, _kwargs in self.calls], ["rust-version", "node-version", "pnpm-version", "frontend-install", "frontend-check", "frontend-lint", "frontend-test-inspection", "frontend-build"])
-        self.assertEqual(self.calls[3][1], ["pnpm", "install", "--frozen-lockfile"])
-        self.assertEqual(self.calls[3][2]["env"]["CI"], "true")
-        self.assertTrue(all(kwargs["cwd"] == self.frontend for _name, _argv, kwargs in self.calls[1:]))
+        self.assertEqual([name for name, _argv, _kwargs in self.calls], ["rust-version", "node-version", "pnpm-version", "shared-admin-install", "shared-admin-build", "shared-admin-check", "shared-admin-test", "starter-install", "starter-check", "starter-build", "frontend-install", "frontend-check", "frontend-lint", "frontend-test-inspection", "frontend-build"])
+        self.assertEqual(self.calls[10][1], ["pnpm", "install", "--frozen-lockfile"])
+        self.assertEqual(self.calls[10][2]["env"]["CI"], "true")
+        self.assertTrue(all(kwargs["cwd"] == self.frontend for name, _argv, kwargs in self.calls if name.startswith("frontend-") or name in ("node-version", "pnpm-version")))
         self.assertEqual(self.calls[-1][1], ["pnpm", "run", "build"])
         self.assertTrue(report["frontendIncludesWasmPrebuild"])
         self.assertEqual(report["frontendTests"]["tests"], 19)

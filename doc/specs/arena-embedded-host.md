@@ -1,5 +1,16 @@
 # Embedded Arena host
 
+Before running the Cargo examples below, use Python 3.11 or later from the
+repository root to prepare the ignored replay build inputs:
+
+```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+```
+
+Repeat preparation after changing Cargo manifests, locks or configuration.
+If selecting a target or features, pass the same `--target`, `--features`,
+`--all-features` and `--no-default-features` options to preparation and Cargo.
+
 Stage 11 extends the [native ABI](arena-native-abi.md) with a shared development
 host. Application rules still live in `apps/demo-game/src/arena`; native and
 standalone server hosting use `apps/demo-game/src/host`. The native factory and

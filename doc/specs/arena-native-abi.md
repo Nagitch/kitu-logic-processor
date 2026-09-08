@@ -1,5 +1,16 @@
 # Full application native ABI
 
+Before running the Cargo examples below, use Python 3.11 or later from the
+repository root to prepare the ignored replay build inputs:
+
+```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+```
+
+Repeat preparation after changing Cargo manifests, locks or configuration.
+If selecting a target or features, pass the same `--target`, `--features`,
+`--all-features` and `--no-default-features` options to preparation and Cargo.
+
 Stage 10 of the Endless Arena migration exposes the complete application through
 an application-owned `cdylib`/`staticlib`. `apps/demo-game/native` selects the same
 `build_arena_runtime` factory used by the server; `kitu-unity-ffi::application`
@@ -93,6 +104,7 @@ export CARGO_INCREMENTAL=0
 export CARGO_PROFILE_DEV_DEBUG=0
 export CARGO_PROFILE_TEST_DEBUG=0
 export KITU_NATIVE_EVIDENCE_DIR="$PWD/.tmp/native-evidence"
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
 cargo test --locked -p kitu-demo-game-native
 cargo build --locked -p kitu-demo-game-native
 clang -std=c11 -Wall -Wextra -Werror \

@@ -190,8 +190,8 @@ class VerificationContracts(unittest.TestCase):
         with patch.object(verification, "validate_trace"), patch.object(verification, "tool") as tool, patch.object(verification, "retain") as retain:
             verification.player_traces(True)
         self.assertEqual(tool.call_count, 1)
-        self.assertEqual(tool.call_args.args[-3:], ("--", "--arena-initial-expected", initial))
-        self.assertIn(unittest.mock.call(initial), retain.call_args_list)
+        self.assertEqual(tool.call_args.args[-3:], ("--", "--arena-initial-expected", initial.resolve()))
+        self.assertIn(unittest.mock.call(initial.resolve()), retain.call_args_list)
 
     def test_missing_edited_initial_oracle_fails_before_launching_player(self):
         args = argparse.Namespace(evidence=self.directory / "attempt", scope="full", cargo="cargo", profile="dev", editor=None, port=None)

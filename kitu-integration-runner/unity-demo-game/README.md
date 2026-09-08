@@ -1,5 +1,16 @@
 # Unity Demo Game
 
+Before running the Cargo examples below, use Python 3.11 or later from the
+repository root to prepare the ignored replay build inputs:
+
+```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+```
+
+Repeat preparation after changing Cargo manifests, locks or configuration.
+If selecting a target or features, pass the same `--target`, `--features`,
+`--all-features` and `--no-default-features` options to preparation and Cargo.
+
 This Unity project contains the Kitu-backed endless arena, its Unity-only
 comparison baseline, and the separate Kitu integration verification scene.
 
@@ -286,6 +297,7 @@ CDN delivery and other platforms are outside this stage.
 Generate expected output with the same native target and development profile:
 
 ```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml --target aarch64-apple-darwin
 KITU_NATIVE_EVIDENCE_DIR="$PWD/.tmp/stage11/reference" \
   CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 \
   cargo test --locked --target aarch64-apple-darwin -p kitu-demo-game-native
@@ -456,6 +468,7 @@ loading a native plugin into Unity.
 1. Start the demo backend from the repository root:
 
    ```sh
+   python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
    cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
    ```
 
