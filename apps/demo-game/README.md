@@ -1,5 +1,16 @@
 # Kitu Demo Game
 
+Before running the Cargo examples below, use Python 3.11 or later from the
+repository root to prepare the ignored replay build inputs:
+
+```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
+```
+
+Repeat preparation after changing Cargo manifests, locks or configuration.
+If selecting a target or features, pass the same `--target`, `--features`,
+`--all-features` and `--no-default-features` options to preparation and Cargo.
+
 `apps/demo-game` is a small application built on top of the Kitu framework crates.
 It exists for vertical-slice development, Web Admin hosting, and CI scenario tests.
 
@@ -22,6 +33,7 @@ Dev Container checks and native/full macOS validation.
 From the repository root:
 
 ```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
 cargo run -p kitu-demo-game --bin kitu-demo-game-admin-host
 ```
 
@@ -57,6 +69,7 @@ existing WebSocket endpoints remain the fallback and comparison path.
 The app scenarios are ordinary Rust tests and run in the workspace CI:
 
 ```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
 cargo test -p kitu-demo-game
 ```
 
@@ -158,6 +171,7 @@ is not used by Arena.
 Run validation in the Dev Container:
 
 ```sh
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
 cargo run -p kitu-demo-game --bin arena-content -- validate apps/demo-game/content/arena.tmd
 cargo test -p kitu-demo-game -p kitu-data-tmd -p kitu-runtime
 cd tools/kitu-web-admin/frontend
@@ -182,6 +196,7 @@ Generate editable samples in the Dev Container from the Kitu repository root:
 
 ```sh
 mkdir -p .tmp/content
+python3 tools/prepare-kitu-build.py --manifest-path apps/demo-game/Cargo.toml
 cargo run -p kitu-demo-game --bin arena-content -- create-sqlite .tmp/content/default.sqlite
 cargo run -p kitu-demo-game --bin arena-content -- create-plan .tmp/content/sample.arena.json
 cargo run -p kitu-demo-game --bin arena-content -- validate .tmp/content/sample.arena.json
