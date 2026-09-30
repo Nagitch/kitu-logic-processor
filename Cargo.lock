@@ -1418,7 +1418,7 @@ dependencies = [
 [[package]]
 name = "tmd-core"
 version = "0.0.1"
-source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=194358e8791f1391492abcb60d8cfcc37bbb383a#194358e8791f1391492abcb60d8cfcc37bbb383a"
+source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=bd212ac6109d4435a9def04de69208abcd890270#bd212ac6109d4435a9def04de69208abcd890270"
 dependencies = [
  "chrono",
  "hex",
@@ -1442,7 +1442,7 @@ dependencies = [
 [[package]]
 name = "tmd-data"
 version = "0.0.1"
-source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=194358e8791f1391492abcb60d8cfcc37bbb383a#194358e8791f1391492abcb60d8cfcc37bbb383a"
+source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=bd212ac6109d4435a9def04de69208abcd890270#bd212ac6109d4435a9def04de69208abcd890270"
 dependencies = [
  "serde",
 ]
@@ -1450,7 +1450,7 @@ dependencies = [
 [[package]]
 name = "tmd-formula"
 version = "0.0.1"
-source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=194358e8791f1391492abcb60d8cfcc37bbb383a#194358e8791f1391492abcb60d8cfcc37bbb383a"
+source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=bd212ac6109d4435a9def04de69208abcd890270#bd212ac6109d4435a9def04de69208abcd890270"
 dependencies = [
  "openformula-kernel",
  "serde_json",
@@ -1460,7 +1460,7 @@ dependencies = [
 [[package]]
 name = "tsq1"
 version = "0.1.0"
-source = "git+https://github.com/Nagitch/tsq1?rev=05707147e83a4fba591a3933d49f056bb6d3540b#05707147e83a4fba591a3933d49f056bb6d3540b"
+source = "git+https://github.com/Nagitch/tsq1?rev=79c4f1a83816c5f0b2e41574d132575fec31cdb1#79c4f1a83816c5f0b2e41574d132575fec31cdb1"
 dependencies = [
  "midly",
  "openformula-kernel",
@@ -1469,7 +1469,7 @@ dependencies = [
 [[package]]
 name = "tsq1-osc"
 version = "0.1.0"
-source = "git+https://github.com/Nagitch/tsq1?rev=05707147e83a4fba591a3933d49f056bb6d3540b#05707147e83a4fba591a3933d49f056bb6d3540b"
+source = "git+https://github.com/Nagitch/tsq1?rev=79c4f1a83816c5f0b2e41574d132575fec31cdb1#79c4f1a83816c5f0b2e41574d132575fec31cdb1"
 dependencies = [
  "osc-codec-msgpack",
  "osc-ir",
