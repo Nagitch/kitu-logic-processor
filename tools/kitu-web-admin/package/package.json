@@ -65,12 +65,12 @@
   "devDependencies": {
     "@sveltejs/package": "^2.5.0",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
-    "@types/node": "^24.13.2",
+    "@types/node": "^26.6.3",
     "@types/three": "^0.185.0",
     "svelte": "^5.57.1",
     "svelte-check": "^4.7.1",
     "typescript": "^6.0.3",
-    "vite": "^8.0.16",
+    "vite": "^8.3.1",
     "wasm-pack": "^0.15.0"
   },
   "packageManager": "pnpm@11.9.0"
