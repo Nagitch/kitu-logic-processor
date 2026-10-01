@@ -1,0 +1,64 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /tools/kitu-web-admin/package
+    target-branch: develop
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /tools/kitu-web-admin/starter
+    target-branch: develop
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: docker
+    directory: /.devcontainer
+    target-branch: develop
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: docker
+    directory: /tools/kitu-webtransport-gateway
+    target-branch: develop
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: devcontainers
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 5

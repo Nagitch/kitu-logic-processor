@@ -13,5 +13,5 @@ include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
 kitu-core = { path = "../kitu-core" }
-tmd-core = { git = "https://github.com/Nagitch/tanu-markdown.git", rev = "194358e8791f1391492abcb60d8cfcc37bbb383a" }
+tmd-core = { git = "https://github.com/Nagitch/tanu-markdown.git", rev = "c84a80143ca7cb7d44256d83128ea7aac7c69ebc" }
 serde_json = "1"
