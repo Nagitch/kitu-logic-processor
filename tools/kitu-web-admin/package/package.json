@@ -57,7 +57,7 @@
     "svelte": "^5.0.0"
   },
   "dependencies": {
-    "@lucide/svelte": "^1.21.0",
+    "@lucide/svelte": "^1.48.0",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.7.0",
     "three": "^0.185.0"
