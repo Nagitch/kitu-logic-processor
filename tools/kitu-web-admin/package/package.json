@@ -59,7 +59,7 @@
   "dependencies": {
     "@lucide/svelte": "^1.21.0",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^3.6.0",
+    "tailwind-merge": "^3.7.0",
     "three": "^0.185.0"
   },
   "devDependencies": {
