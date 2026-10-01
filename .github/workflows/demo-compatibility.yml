@@ -34,7 +34,7 @@ jobs:
           - scope: native
             os: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: framework
           lfs: true
@@ -66,7 +66,7 @@ jobs:
           assert contract["demoRepository"] == "Nagitch/kitu-unity-demo-game"
           print(f"demo_sha={contract['demoSha']}")
           PY
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: Nagitch/kitu-unity-demo-game
           ref: ${{ steps.demo.outputs.demo_sha }}
