@@ -46,7 +46,7 @@ jobs:
           toolchain: 1.96.0
           components: rustfmt, clippy
           targets: wasm32-unknown-unknown
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: matrix.scope == 'frontend'
         with:
           version: 11.9.0
