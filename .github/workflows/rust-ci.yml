@@ -56,7 +56,7 @@ jobs:
         with:
           node-version: 24
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         if: matrix.scope == 'frontend'
         with:
           version: 11.9.0
