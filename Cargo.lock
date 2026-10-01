@@ -916,7 +916,7 @@ dependencies = [
 [[package]]
 name = "openformula-kernel"
 version = "0.1.0"
-source = "git+https://github.com/Nagitch/openformula-kernel.git?rev=a98f5dea1b2ad9c172248868c0f016563cfa9901#a98f5dea1b2ad9c172248868c0f016563cfa9901"
+source = "git+https://github.com/Nagitch/openformula-kernel.git?rev=157481473506f1242f5370c584253ddaa34be788#157481473506f1242f5370c584253ddaa34be788"
 dependencies = [
  "libm",
 ]
@@ -1418,7 +1418,7 @@ dependencies = [
 [[package]]
 name = "tmd-core"
 version = "0.0.1"
-source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=bd212ac6109d4435a9def04de69208abcd890270#bd212ac6109d4435a9def04de69208abcd890270"
+source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=c84a80143ca7cb7d44256d83128ea7aac7c69ebc#c84a80143ca7cb7d44256d83128ea7aac7c69ebc"
 dependencies = [
  "chrono",
  "hex",
@@ -1442,7 +1442,7 @@ dependencies = [
 [[package]]
 name = "tmd-data"
 version = "0.0.1"
-source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=bd212ac6109d4435a9def04de69208abcd890270#bd212ac6109d4435a9def04de69208abcd890270"
+source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=c84a80143ca7cb7d44256d83128ea7aac7c69ebc#c84a80143ca7cb7d44256d83128ea7aac7c69ebc"
 dependencies = [
  "serde",
 ]
@@ -1450,7 +1450,7 @@ dependencies = [
 [[package]]
 name = "tmd-formula"
 version = "0.0.1"
-source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=bd212ac6109d4435a9def04de69208abcd890270#bd212ac6109d4435a9def04de69208abcd890270"
+source = "git+https://github.com/Nagitch/tanu-markdown.git?rev=c84a80143ca7cb7d44256d83128ea7aac7c69ebc#c84a80143ca7cb7d44256d83128ea7aac7c69ebc"
 dependencies = [
  "openformula-kernel",
  "serde_json",
@@ -1460,7 +1460,7 @@ dependencies = [
 [[package]]
 name = "tsq1"
 version = "0.1.0"
-source = "git+https://github.com/Nagitch/tsq1?rev=79c4f1a83816c5f0b2e41574d132575fec31cdb1#79c4f1a83816c5f0b2e41574d132575fec31cdb1"
+source = "git+https://github.com/Nagitch/tsq1?rev=168e3918c4f23407e776b831b20476b11134cf28#168e3918c4f23407e776b831b20476b11134cf28"
 dependencies = [
  "midly",
  "openformula-kernel",
@@ -1469,7 +1469,7 @@ dependencies = [
 [[package]]
 name = "tsq1-osc"
 version = "0.1.0"
-source = "git+https://github.com/Nagitch/tsq1?rev=79c4f1a83816c5f0b2e41574d132575fec31cdb1#79c4f1a83816c5f0b2e41574d132575fec31cdb1"
+source = "git+https://github.com/Nagitch/tsq1?rev=168e3918c4f23407e776b831b20476b11134cf28#168e3918c4f23407e776b831b20476b11134cf28"
 dependencies = [
  "osc-codec-msgpack",
  "osc-ir",
