@@ -1,4 +1,4 @@
-FROM rust:1.96.0-bookworm
+FROM rust:1.98.1-bookworm
 
 WORKDIR /workspace/tools/kitu-webtransport-gateway
 
