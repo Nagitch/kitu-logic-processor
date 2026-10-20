@@ -68,7 +68,7 @@
     "@types/node": "^26.6.5",
     "@types/three": "^0.186.0",
     "svelte": "^5.57.2",
-    "svelte-check": "^4.7.1",
+    "svelte-check": "^4.7.7",
     "typescript": "^6.0.3",
     "vite": "^8.3.4",
     "wasm-pack": "^0.15.0"
