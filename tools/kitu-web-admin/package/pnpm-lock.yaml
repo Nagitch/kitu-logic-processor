@@ -49,8 +49,8 @@ importers:
         specifier: ^8.3.5
         version: 8.3.5(@types/node@26.6.6)
       wasm-pack:
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.15.1
+        version: 0.15.1
 
 packages:
 
@@ -536,8 +536,8 @@ packages:
       vite:
         optional: true
 
-  wasm-pack@0.15.0:
-    resolution: {integrity: sha512-DdqtGWc3+iFx+7lL7QU5LBWs7qMnwQSWxF0htSfE15sNa3roVwHjAkTm2JXgueU2GGfSwNqbq2EzyC2b/biKDA==}
+  wasm-pack@0.15.1:
+    resolution: {integrity: sha512-PF9zzc5tBVwN0E4Vff9o4hXWbg2VMt8YBhA0CiJ+T98cn2i1ElXSs9Hww6ZCWOVn+Kke3WMSPNXDdlMn7DXvnA==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -910,7 +910,7 @@ snapshots:
     optionalDependencies:
       vite: 8.3.5(@types/node@26.6.6)
 
-  wasm-pack@0.15.0:
+  wasm-pack@0.15.1:
     dependencies:
       tar: 7.5.22
 
