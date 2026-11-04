@@ -10,6 +10,9 @@ assignees: ""
 Use this issue as the single source of truth for one work item.
 Keep the scope small enough that one PR can usually close it.
 Delete any checklist item that clearly does not apply.
+Follow doc/oss-contribution-policy.md before submitting. Use generic requirements
+and synthetic reproductions. Never include private application names, codenames,
+links, paths, code, specifications, assets, or raw logs/evidence.
 -->
 
 ## Summary
@@ -49,6 +52,7 @@ Prefer observable outcomes over vague implementation notes.
 - [ ] Public API changes include Rust documentation and examples when applicable.
 - [ ] Architecture, spec, README, or crate documentation is updated when behavior or workflow changes.
 - [ ] No known contradiction remains between implementation, specs, and docs.
+- [ ] The issue and all linked or attached evidence contain only public or synthetic material, with no private application information.
 
 ## Verification
 
