@@ -8,12 +8,24 @@ contributors and AI assistants.
 
 
 ## Table of Contents
+- [OSS and private application work](#oss-and-private-application-work)
 - [Tooling and Environment](#tooling-and-environment)
 - [Coding Guidelines (Rust)](#coding-guidelines-rust)
 - [Documentation Conventions](#documentation-conventions)
 - [Development Workflow](#development-workflow)
 - [Documents under `doc/`](#documents-under-doc)
 - [AI Assistants](#ai-assistants)
+
+## OSS and private application work
+
+Develop Kitu from concrete needs found while adopting it in actual games;
+additional demo polish is not a prerequisite. Keep closed-source application
+work in its private repository and contribute only reusable framework changes.
+Follow the [OSS contribution boundary](oss-contribution-policy.md) before
+staging changes, writing issues/PRs, or sharing evidence. Public contributions
+must use generic descriptions and synthetic reproductions, with no private
+application identity, links, code, content, logs, or assets. Private integration
+validation stays private; public framework checks must run independently.
 
 ## Tooling and Environment
 
@@ -169,6 +181,7 @@ Examples include:
 - `detailed-flows.md` — detailed use-case flows and boundary interactions.
 - `rust-doc-templates.md` — templates for Rust documentation.
 - `publish-readiness.md` — crates.io readiness checklist and dry-run tracking.
+- `oss-contribution-policy.md` — development priorities and the private/OSS information boundary.
 - `doc/specs/*.md` — protocol/runtime/replay specifications (authoritative contracts).
 - `../PRODUCTION_STRATEGY.md` — foundational setup and repository-wide practices.
 

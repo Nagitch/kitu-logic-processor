@@ -59,6 +59,13 @@ define their detailed behavior and limits.
 
 ## Repository Boundary and Applications
 
+Kitu evolves through adoption in actual game development and reusable
+improvements driven by integration needs. Further demo polish is not a
+prerequisite. Closed-source application work stays in private repositories;
+contributions here must use generic descriptions and synthetic reproductions,
+without private application identities, code, content, or evidence. See the
+[OSS contribution boundary](doc/oss-contribution-policy.md).
+
 The framework and its consumers are independently versioned repositories. The
 [kitu-workspace](https://github.com/Nagitch/kitu-workspace) parent pins a tested
 combination of them.

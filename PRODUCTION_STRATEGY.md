@@ -1,12 +1,33 @@
 # PRODUCTION_STRATEGY.md
 
 This document summarizes the foundational setup required to streamline ongoing development of the *kitu-logic-processor* repository.
-It serves as a reference for establishing consistent development environments, repository structure, and tooling.
+It serves as a reference for development priorities, consistent development environments, repository structure, and tooling.
 
-Status note: this is a bootstrap strategy document. Current implementation status and staged subsystem boundaries are tracked in `doc/architecture.md`.
+Current implementation status and staged subsystem boundaries are tracked in
+`doc/architecture.md`. The setup sections below retain the bootstrap guidance.
+
+## Current development direction
+
+Kitu is an OSS framework improved through adoption in actual game development.
+Prioritize concrete integration needs and reusable fixes over further demo
+polish or showcase expansion. The public reference demo remains a compatibility
+and reproducibility tool; completing more demo features is not a gate for use
+in a real project.
+
+Closed-source application development and open-source framework contributions
+must remain separate. Application implementation and evidence stay in private
+repositories. Kitu receives generalized requirements, reusable code, and
+synthetic tests that can be reviewed and run independently. No private
+application names, identifying details, source material, or assets may enter
+Kitu's files, Git metadata, collaboration surfaces, or build outputs.
+
+The [OSS contribution boundary](doc/oss-contribution-policy.md) defines the
+required sanitization, review, and incident-handling workflow. Apply it before
+any repository change or external contribution, including generated material.
 
 
 ## Table of Contents
+- [Current development direction](#current-development-direction)
 - [Repository Meta](#repository-meta)
 - [Rust Toolchain & Static Analysis](#rust-toolchain-static-analysis)
 - [Dev Container / VSCode Integration](#dev-container-vscode-integration)

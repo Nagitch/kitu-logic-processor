@@ -68,6 +68,21 @@ AI assistants may create missing parts if intent is clear.
 ### Non-goals
 - Frontend-heavy logic (Unity, Unreal) inside core.
 
+### Development priorities and private application boundary
+
+- Improve Kitu through adoption in actual game development. Demo polish and
+  showcase expansion are not prerequisites for adoption.
+- Keep closed-source application development separate from OSS contributions.
+  Contribute only reusable framework improvements with public, synthetic tests.
+- Follow [the OSS contribution boundary](doc/oss-contribution-policy.md) for
+  every repository change and external contribution. Never include private
+  application names, identifying details, code, data, assets, or raw evidence in
+  Kitu files, Git metadata, issues/PRs, CI output, or generated material.
+- Keep private workspaces and raw inputs outside this checkout, including
+  ignored paths. Give delegated workers only sanitized public task context.
+- Review all proposed content before staging or sharing. If information or
+  contribution rights are uncertain, resolve them privately before inclusion.
+
 ---
 
 ## 4. How AI assistants should work
