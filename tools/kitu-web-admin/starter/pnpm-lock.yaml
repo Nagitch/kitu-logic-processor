@@ -71,8 +71,8 @@ packages:
     peerDependencies:
       svelte: ^5
 
-  '@lucide/svelte@1.69.0':
-    resolution: {integrity: sha512-Q61KvD5/lGS+BrbpPXJSBt/zgjDEAWOP8X85tBz6OnYueEyVuDxI0Zh/6R4cjobWRxs3ItY2JD4NSwYprBpHHw==}
+  '@lucide/svelte@1.70.0':
+    resolution: {integrity: sha512-zvx7K/WLxo82c4ZYqbsfcYUPDVFrq4561xH0NHfSHJJbajj0AONTQ14EO095/WnfI4XUEl1tyS/nbjQNNiNxdQ==}
     peerDependencies:
       svelte: ^5
 
@@ -894,7 +894,7 @@ snapshots:
 
   '@kitu/admin@file:../package(svelte@5.57.0)':
     dependencies:
-      '@lucide/svelte': 1.69.0(svelte@5.57.0)
+      '@lucide/svelte': 1.70.0(svelte@5.57.0)
       clsx: 2.1.1
       svelte: 5.57.0
       tailwind-merge: 3.7.0
@@ -904,7 +904,7 @@ snapshots:
     dependencies:
       svelte: 5.57.0
 
-  '@lucide/svelte@1.69.0(svelte@5.57.0)':
+  '@lucide/svelte@1.70.0(svelte@5.57.0)':
     dependencies:
       svelte: 5.57.0
 
