@@ -47,14 +47,19 @@
         </tr>
       </thead>
       <tbody>
-        {#each filtered as entry}<tr class="border-t border-border bg-white">
+        {#each filtered as entry (entry)}<tr class="border-t border-border bg-white">
             <td class="px-3 py-2 font-mono text-xs text-muted-foreground">{entry.tick}</td>
             <td class="px-3 py-2">
               <span class={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ${levelClass[entry.level]}`}>
                 {entry.level}
               </span>
             </td>
-            <td class="truncate px-3 py-2">{entry.message}</td>
+            <td class="px-3 py-2">
+              <details>
+                <summary class="cursor-pointer truncate">{entry.message}</summary>
+                <div class="mt-2 whitespace-pre-wrap wrap-anywhere">{entry.message}</div>
+              </details>
+            </td>
             <td class="truncate px-3 py-2 font-mono text-xs text-muted-foreground max-md:hidden">{entry.oscAddress ?? '-'}</td>
           </tr>{:else}<tr class="border-t border-border bg-white">
             <td colspan="4" class="px-3 py-8 text-center text-muted-foreground">No logs</td>
