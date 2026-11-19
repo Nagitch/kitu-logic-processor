@@ -12,8 +12,8 @@ importers:
         specifier: file:../package
         version: file:../package(svelte@5.57.0)
       '@lucide/svelte':
-        specifier: ^1.21.0
-        version: 1.41.0(svelte@5.57.0)
+        specifier: ^1.73.0
+        version: 1.73.0(svelte@5.57.0)
     devDependencies:
       '@sveltejs/adapter-node':
         specifier: ^5.5.8
@@ -74,11 +74,6 @@ packages:
     resolution: {directory: ../package, type: directory}
     peerDependencies:
       svelte: ^5.0.0
-
-  '@lucide/svelte@1.41.0':
-    resolution: {integrity: sha512-N5dInvHWGxNcnu3VJvbO2zOJA832Uy4he6qGwcqd8i3m8iYGlLoebp+e+X8NfncXXLnXkYvru5BnkUVdNdo1xg==}
-    peerDependencies:
-      svelte: ^5
 
   '@lucide/svelte@1.73.0':
     resolution: {integrity: sha512-Rz1uA9aTJ7HA/j2Hf9Dm2OVM8NtkzHnNeIQvVWoUkpf1ZD/7dR9cB4ftjbOiWAeJrKkEAVvTDrcVtITFdx6KAA==}
@@ -938,10 +933,6 @@ snapshots:
       svelte: 5.57.0
       tailwind-merge: 3.7.0
       three: 0.187.0
-
-  '@lucide/svelte@1.41.0(svelte@5.57.0)':
-    dependencies:
-      svelte: 5.57.0
 
   '@lucide/svelte@1.73.0(svelte@5.57.0)':
     dependencies:
