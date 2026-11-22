@@ -68,7 +68,7 @@ unchanged update and concurrent atomic schema/multiple-table changes: a load see
 one consistent old snapshot, and the subsequent load sees the committed update.
 
 ## Publish readiness
-- Status: internal-only (`publish = false`), but crates.io-facing metadata and README are prepared.
+- Status: development preview (`0.1.0`).
 - Execute the gate before changing publication flags:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

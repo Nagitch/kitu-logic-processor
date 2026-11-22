@@ -2,7 +2,7 @@
 name = "kitu-runtime"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
 description = "Tick-based orchestrator that wires ECS, transports, and scripting layers."
 license = "MIT"
 repository = "https://github.com/Nagitch/kitu-logic-processor"
@@ -12,9 +12,9 @@ categories = ["game-development"]
 include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
-kitu-core = { path = "../kitu-core" }
-kitu-ecs = { path = "../kitu-ecs" }
-kitu-transport = { path = "../kitu-transport" }
-kitu-osc-ir = { path = "../kitu-osc-ir" }
-kitu-app-actions = { path = "../kitu-app-actions" }
+kitu-core = { version = "0.1.0", path = "../kitu-core" }
+kitu-ecs = { version = "0.1.0", path = "../kitu-ecs" }
+kitu-transport = { version = "0.1.0", path = "../kitu-transport" }
+kitu-osc-ir = { version = "0.1.0", path = "../kitu-osc-ir" }
+kitu-app-actions = { version = "0.1.0", path = "../kitu-app-actions" }
 serde = { version = "1", features = ["derive"] }

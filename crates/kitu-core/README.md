@@ -8,7 +8,7 @@ Foundational Kitu runtime primitives (errors, ticks, timestamps, and shared util
 - Host small, reusable utilities that should not pull in heavier dependencies.
 
 ## Publish readiness
-- Status: internal-only for now (`publish = false`), but metadata is filled so the crate can be packaged when the MVP is ready.
+- Status: development preview (`0.1.0`).
 - Before toggling publication, run the workspace quality gates:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

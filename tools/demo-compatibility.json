@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "demoRepository": "Nagitch/kitu-unity-demo-game",
-  "demoSha": "e4708adf6fac6a46d5251c4cde4ab5b5a31fe902",
+  "demoSha": "9a2026f0f871d29e2259cc2e1c36a8e32c2698c2",
   "requiredScopes": [
     "test",
     "frontend",

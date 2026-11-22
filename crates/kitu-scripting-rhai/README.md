@@ -104,6 +104,6 @@ cargo clippy --locked -p kitu-scripting-rhai --all-targets --all-features -- -D 
 RUSTDOCFLAGS=-Dwarnings cargo doc --locked -p kitu-scripting-rhai --no-deps --all-features
 ```
 
-This crate remains internal (`publish = false`). Applications own their rule
+This crate is available as a development preview (`0.1.0`). Applications own their rule
 sources and next-run/replay policy; the reference implementation lives in the
 [independent Unity demo](https://github.com/Nagitch/kitu-unity-demo-game).

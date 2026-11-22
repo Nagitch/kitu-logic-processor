@@ -9,7 +9,7 @@ Lightweight ECS world and scheduler powering the Kitu runtime loop.
 - Serve as the glue between runtime orchestration and domain-specific systems.
 
 ## Publish readiness
-- Status: internal-only (`publish = false`), but metadata and README are ready for packaging once the MVP stabilizes.
+- Status: development preview (`0.1.0`).
 - Run the standard gates before flipping publication flags:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

@@ -2,10 +2,15 @@
 name = "kitu-cli"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
+description = "Command-line client for a running Kitu development host."
+license = "MIT"
+repository = "https://github.com/Nagitch/kitu-logic-processor"
+readme = "README.md"
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE"]
 
 [dependencies]
-kitu-shell = { path = "../../crates/kitu-shell" }
+kitu-shell = { version = "0.1.0", path = "../../crates/kitu-shell" }
 serde_json = "1"
 ureq = { version = "3", default-features = false, features = ["json"] }
 anyhow = { workspace = true }

@@ -86,7 +86,7 @@ applications use the versioned application API above; game rules stay in their
 application crate and are executed by `kitu-runtime`.
 
 ## Publish readiness
-- Status: internal (`publish = false`), but metadata and README prepare the crate for crates.io packaging.
+- Status: development preview (`0.1.0`).
 - Run the gate before enabling publication:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

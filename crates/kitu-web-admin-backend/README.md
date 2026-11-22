@@ -8,7 +8,7 @@ Backend glue (HTTP/WS) for the Kitu web admin experience.
 - Support live inspection hooks needed by the admin frontend.
 
 ## Publish readiness
-- Status: internal-only (`publish = false`), with crates.io-ready metadata and README committed.
+- Status: development preview (`0.1.0`).
 - Run the quality gate before enabling publication:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

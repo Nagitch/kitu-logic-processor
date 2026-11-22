@@ -8,7 +8,7 @@ OSC-inspired intermediate representation for messages flowing through Kitu trans
 - Provide a stable surface area that downstream crates can depend on without heavy dependencies.
 
 ## Publish readiness
-- Status: internal (`publish = false`), but metadata and README are ready for crates.io when publishing is allowed.
+- Status: development preview (`0.1.0`).
 - Execute the standard quality gates before changing publication settings:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

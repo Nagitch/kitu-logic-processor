@@ -2,7 +2,7 @@
 name = "kitu-web-admin-backend"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
 description = "Backend glue (HTTP/WS) for the Kitu web admin experience."
 license = "MIT"
 repository = "https://github.com/Nagitch/kitu-logic-processor"
@@ -12,4 +12,4 @@ categories = ["web-programming::http-server", "game-development"]
 include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
-kitu-core = { path = "../kitu-core" }
+kitu-core = { version = "0.1.0", path = "../kitu-core" }

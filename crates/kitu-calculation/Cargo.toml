@@ -2,7 +2,7 @@
 name = "kitu-calculation"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
 description = "Kitu adapter and namespaced extensions for the shared OpenFormula calculation kernel."
 license = "MIT"
 repository = "https://github.com/Nagitch/kitu-logic-processor"

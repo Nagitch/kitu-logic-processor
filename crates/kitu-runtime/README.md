@@ -12,7 +12,7 @@ Tick-based orchestrator that wires Kitu ECS, transports, and future scripting/ti
 - Bridge transports, scripting, and data playback while keeping the loop embeddable.
 
 ## Publish readiness
-- Status: internal (`publish = false`) but documentation and metadata follow the crates.io guidelines for later publication.
+- Status: development preview (`0.1.0`).
 - Run the full gate before toggling publication flags:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

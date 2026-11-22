@@ -25,7 +25,7 @@ fixtures. It is not a TMD container parser. Applications own their TMD authoring
 validation, and activation workflow.
 
 ## Publish readiness
-- Status: internal (`publish = false`), with crates.io metadata and README in place for future packaging.
+- Status: development preview (`0.1.0`).
 - Run the workspace gates before enabling publication:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

@@ -44,7 +44,7 @@ not the binary TSQ1 format used by application recording.
 - Remain decoupled from transport specifics so multiple frontends can reuse the logic.
 
 ## Publish readiness
-- Status: internal (`publish = false`), but crates.io metadata and README are ready for packaging.
+- Status: development preview (`0.1.0`).
 - Run the publication gate before enabling release:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`
