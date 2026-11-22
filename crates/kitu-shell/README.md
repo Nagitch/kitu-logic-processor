@@ -15,7 +15,7 @@ available for embedders.
 - Enable headless testing workflows that mirror embedded host behavior.
 
 ## Publish readiness
-- Status: internal (`publish = false`), but crates.io metadata and README are staged for future publication.
+- Status: development preview (`0.1.0`).
 - Execute the publication gate before enabling releases:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

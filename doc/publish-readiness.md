@@ -3,6 +3,9 @@
 This document tracks crates.io readiness without permitting actual publication before MVP completion.
 The authoritative policy is in [`AGENT.md`](../AGENT.md#cratesio-publish-ready-maintenance-policy-no-publish-until-mvp-completion).
 
+The maintainer-authorized `0.1.0` development preview covers framework crates
+and `kitu-cli`. The MVP publication hold below applies outside that preview.
+
 ## Policy summary
 
 - Do not run `cargo publish` without `--dry-run`.
@@ -13,10 +16,12 @@ The authoritative policy is in [`AGENT.md`](../AGENT.md#cratesio-publish-ready-m
 
 ## Candidate crates
 
-Current future-publication candidates are the reusable crates under `crates/`.
+The preview candidates are the reusable crates under `crates/` and `kitu-cli`.
 
 | Crate | Candidate | Metadata | `include` | README | Package validation |
 | --- | --- | --- | --- | --- | --- |
+| `kitu-calculation` | yes | present | present | present | preview validation |
+| `kitu-cli` | yes | present | present | present | preview validation |
 | `kitu-core` | yes | present | present | present | pending package list |
 | `kitu-ecs` | yes | present | present | present | pending package list |
 | `kitu-osc-ir` | yes | present | present | present | pending package list |
@@ -36,7 +41,7 @@ Current future-publication candidates are the reusable crates under `crates/`.
 
 These packages are workspace utilities and should remain `publish = false` unless a future issue changes their role:
 
-- `tools/kitu-cli`
+- `tools/kitu-webtransport-gateway`
 - `tools/kitu-replay-runner`
 
 If any tool becomes a future crates.io candidate, add full package metadata, add an explicit `include`, and move it into the candidate table above.

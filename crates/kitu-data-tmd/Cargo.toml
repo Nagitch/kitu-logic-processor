@@ -2,7 +2,7 @@
 name = "kitu-data-tmd"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
 description = "Parser and loader utilities for Tanu Markdown (TMD) data."
 license = "MIT"
 repository = "https://github.com/Nagitch/kitu-logic-processor"
@@ -12,6 +12,6 @@ categories = ["game-development", "parser-implementations"]
 include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
-kitu-core = { path = "../kitu-core" }
-tmd-core = { git = "https://github.com/Nagitch/tanu-markdown.git", rev = "c84a80143ca7cb7d44256d83128ea7aac7c69ebc" }
+kitu-core = { version = "0.1.0", path = "../kitu-core" }
+tmd-core = { version = "0.1.0", git = "https://github.com/Nagitch/tanu-markdown.git", rev = "715e8b23583757be7e1f0bd8abfbb1ce2364bd8b" }
 serde_json = "1"

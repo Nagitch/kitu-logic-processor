@@ -2,7 +2,7 @@
 name = "kitu-data-sqlite"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
 description = "SQLite-backed data utilities and schema helpers for Kitu tooling."
 license = "MIT"
 repository = "https://github.com/Nagitch/kitu-logic-processor"
@@ -12,7 +12,7 @@ categories = ["database", "game-development"]
 include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 
 [dependencies]
-rusqlite = { version = "0.40.2", features = ["bundled", "hooks", "limits"] }
+rusqlite = { version = "0.41.1", features = ["bundled", "hooks", "limits"] }
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
 

@@ -388,9 +388,9 @@ imply gateway, hosted Unity, or complete application Player acceptance.
 
 ## Deployment and Distribution
 
-Kitu supplies reusable source interfaces. Rust crates remain `publish = false`;
-the shared Admin package is consumed from framework source. This workflow does
-not depend on crates.io or npm publication.
+Kitu supplies reusable source interfaces. Framework Rust crates and `kitu-cli`
+are eligible for the crates.io `0.1.0` development preview. The shared Admin
+package is consumed from framework source.
 
 Applications own their server binaries, native-library factories, content
 packaging, and engine builds. The maintained Arena delivery includes a standalone

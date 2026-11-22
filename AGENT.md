@@ -206,6 +206,11 @@ AI assistants must:
 
 ## crates.io Publish-Ready Maintenance Policy (No Publish Until MVP Completion)
 
+The maintainer-authorized `0.1.0` crate development preview is an exception to
+the MVP publication hold for the framework crates and `kitu-cli`. Validate each
+package and publish dependencies before their consumers. Mark the GitHub release
+as a prerelease.
+
 ### Purpose
 
 * Keep all crates in a state that is ready for future publication to crates.io ("publish-ready").

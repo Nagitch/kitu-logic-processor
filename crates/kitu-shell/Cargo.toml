@@ -2,7 +2,7 @@
 name = "kitu-shell"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
 description = "CLI shell primitives for driving and inspecting the Kitu runtime."
 license = "MIT"
 repository = "https://github.com/Nagitch/kitu-logic-processor"
@@ -15,5 +15,5 @@ include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 shlex = "2"
-kitu-osc-ir = { path = "../kitu-osc-ir" }
-kitu-core = { path = "../kitu-core" }
+kitu-osc-ir = { version = "0.1.0", path = "../kitu-osc-ir" }
+kitu-core = { version = "0.1.0", path = "../kitu-core" }

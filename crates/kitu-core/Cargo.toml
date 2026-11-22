@@ -2,7 +2,7 @@
 name = "kitu-core"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
 description = "Foundational Kitu runtime types, errors, and timing primitives."
 license = "MIT"
 repository = "https://github.com/Nagitch/kitu-logic-processor"

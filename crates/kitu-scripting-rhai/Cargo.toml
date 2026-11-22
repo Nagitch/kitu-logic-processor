@@ -2,7 +2,7 @@
 name = "kitu-scripting-rhai"
 version = "0.1.0"
 edition = "2021"
-publish = false
+publish = ["crates-io"]
 description = "Rhai scripting bindings and helpers for the Kitu runtime."
 license = "MIT"
 repository = "https://github.com/Nagitch/kitu-logic-processor"

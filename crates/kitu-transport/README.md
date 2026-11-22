@@ -143,7 +143,7 @@ remain outside the repository fixtures. Without the variable, this extra externa
 verification does not run; the ordinary corpus tests always run.
 
 ## Publish readiness
-- Status: internal-only (`publish = false`) while the MVP takes shape; metadata now aligns with crates.io requirements.
+- Status: development preview (`0.1.0`).
 - Before enabling publication, run the workspace gates:
   - `cargo fmt --check`
   - `cargo clippy --all-targets --all-features -- -D warnings`

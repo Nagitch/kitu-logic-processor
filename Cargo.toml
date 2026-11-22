@@ -29,5 +29,5 @@ publish = false
 
 [workspace.dependencies]
 anyhow = "1"
-openformula-kernel = { git = "https://github.com/Nagitch/openformula-kernel.git", rev = "157481473506f1242f5370c584253ddaa34be788", default-features = false }
+openformula-kernel = { version = "0.1.0", git = "https://github.com/Nagitch/openformula-kernel.git", rev = "157481473506f1242f5370c584253ddaa34be788", default-features = false }
 thiserror = "2"
