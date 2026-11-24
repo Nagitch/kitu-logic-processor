@@ -13,6 +13,7 @@ on:
       - "crates/kitu-osc-ir/**"
       - "crates/kitu-runtime/**"
       - "crates/kitu-transport/**"
+      - "crates/kitu-unity-ffi/**"
       - "tools/kitu-replay-runner/**"
       - "kitu-integration-runner/scenarios/**"
   pull_request:
@@ -53,13 +54,23 @@ jobs:
           test "$(rustc -vV | tr -d '\r' | sed -n 's/^host: //p')" = "${{ matrix.target }}"
       - name: Test and record two independent replays
         run: |
-          cargo test --locked --release -p kitu-replay-runner --features determinism-probe
+          cargo test --locked --release --all-targets -p kitu-ecs -p kitu-runtime -p kitu-replay-runner \
+            --features kitu-replay-runner/determinism-probe,kitu-runtime/rapier-physics
+          cargo test --locked --release -p kitu-unity-ffi
+          cargo build --locked --release -p kitu-runtime --features rapier-physics --example spatial_session
+          example=target/release/examples/spatial_session
+          if [ "$RUNNER_OS" = Windows ]; then example="$example.exe"; fi
+          test "$("$example" legacy | tr -d '\r')" = "mode=legacy x_m=2"
+          test "$("$example" deterministic | tr -d '\r')" = "mode=deterministic x_m=1"
+
           mkdir -p target/replay-traces
-          for run in 1 2; do
-            cargo run --locked --release -p kitu-replay-runner --features determinism-probe \
-              --bin kitu-determinism-probe -- \
-              kitu-integration-runner/scenarios/determinism/ordered-motion.json \
-              "target/replay-traces/$run.jsonl"
+          for scenario in ordered-motion dynamic-obstacles; do
+            for run in 1 2; do
+              cargo run --locked --release -p kitu-replay-runner --features determinism-probe \
+                --bin kitu-determinism-probe -- \
+                "kitu-integration-runner/scenarios/determinism/$scenario.json" \
+                "target/replay-traces/$scenario-$run.jsonl"
+            done
           done
           cargo run --locked --release -p kitu-replay-runner -- \
             --scenario kitu-integration-runner/scenarios/smoke/player-move-basic/scenario.json \
@@ -72,7 +83,7 @@ jobs:
           retention-days: 14
 
   compare:
-    name: Compare all four native traces
+    name: Compare four native traces per scenario
     needs: replay
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -88,6 +99,9 @@ jobs:
       - name: Test comparator and compare traces
         run: |
           python3 -m unittest discover -s tools/kitu-replay-runner
-          python3 tools/kitu-replay-runner/compare_determinism.py --ticks 600 \
-            traces/replay-aarch64-apple-darwin/{1,2}.jsonl \
-            traces/replay-x86_64-pc-windows-msvc/{1,2}.jsonl
+          for scenario in ordered-motion dynamic-obstacles; do
+            echo "Comparing $scenario"
+            python3 tools/kitu-replay-runner/compare_determinism.py --ticks 600 \
+              "traces/replay-aarch64-apple-darwin/$scenario-"{1,2}.jsonl \
+              "traces/replay-x86_64-pc-windows-msvc/$scenario-"{1,2}.jsonl
+          done

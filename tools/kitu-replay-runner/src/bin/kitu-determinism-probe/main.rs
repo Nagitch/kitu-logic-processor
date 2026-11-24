@@ -1,9 +1,6 @@
 //! Run a synthetic integer and Rapier replay through Kitu's fixed-tick runtime.
 
-mod geometry;
-
 use std::{
-    collections::BTreeMap,
     env,
     fmt::Write as _,
     fs::{self, File},
@@ -12,25 +9,31 @@ use std::{
 };
 
 use anyhow::{ensure, Context, Result};
-use geometry::{BoxMm, Hit, SpatialState};
 use kitu_core::KituError;
-use kitu_ecs::EcsWorld;
+use kitu_ecs::{
+    spatial::{AabbUm, ColliderRole, DisplacementUm, PositionMm, PositionUm, SpatialWorld},
+    EcsWorld,
+};
 use kitu_osc_ir::{OscArg, OscBundle, OscMessage};
-use kitu_runtime::{ApplicationTick, Runtime, RuntimeApplication, RuntimeConfig, RuntimeInput};
+use kitu_runtime::{
+    physics::{RigidBodyWorld, RigidBoxKind, RigidBoxMm},
+    ApplicationTick, Runtime, RuntimeApplication, RuntimeConfig, RuntimeInput,
+};
 use kitu_transport::LocalChannel;
-use rapier3d::prelude::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 const INPUT_ADDRESS: &str = "/determinism/input";
 const TICK_RATE_HZ: u32 = 60;
-const DT: f32 = 1.0 / TICK_RATE_HZ as f32;
+const FLOOR_ID: &str = "floor";
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Fixture {
     tick_count: u64,
     start_mm: [i64; 3],
+    #[serde(default)]
+    actor_half_extents_um: [i64; 3],
     boxes: Vec<BoxMm>,
     rigid_boxes: Vec<RigidBox>,
     steps: Vec<Step>,
@@ -41,6 +44,24 @@ struct Fixture {
 struct RigidBox {
     id: String,
     center_mm: [i64; 3],
+    #[serde(default)]
+    blocks_spatial_queries: bool,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum Role {
+    Wall,
+    Target,
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct BoxMm {
+    id: String,
+    role: Role,
+    min_mm: [i64; 3],
+    max_mm: [i64; 3],
 }
 
 #[derive(Deserialize)]
@@ -59,6 +80,15 @@ enum Action {
     Hit {
         range_um: i64,
     },
+    Move {
+        delta_um: [i64; 3],
+    },
+    HitSegment {
+        delta_um: [i64; 3],
+    },
+    RemoveBox {
+        id: String,
+    },
     Impulse {
         id: String,
         milli_newton_seconds: [i64; 3],
@@ -70,15 +100,15 @@ enum Action {
 struct HitEvent {
     id: Option<String>,
     distance_um: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    fraction: Option<(u64, u64)>,
 }
 
-impl From<Option<Hit<'_>>> for HitEvent {
-    fn from(hit: Option<Hit<'_>>) -> Self {
-        Self {
-            id: hit.as_ref().map(|hit| hit.id.to_owned()),
-            distance_um: hit.map(|hit| hit.distance_um),
-        }
-    }
+#[derive(Serialize)]
+struct ObstacleTrace<'a> {
+    id: &'a str,
+    min_um: [i64; 3],
+    max_um: [i64; 3],
 }
 
 #[derive(Serialize)]
@@ -98,113 +128,184 @@ struct TickTrace<'a> {
     floor_contact: bool,
     bodies: Vec<BodyBits<'a>>,
     physics_sha256: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    dynamic_obstacles: Vec<ObstacleTrace<'a>>,
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
+    moves_blocked_by: &'a [Option<String>],
 }
 
 struct ProbeState {
-    spatial: SpatialState,
-    physics: PhysicsWorld,
-    floor: ColliderHandle,
-    body_ids: BTreeMap<String, RigidBodyHandle>,
+    position: PositionUm,
+    half_extents_um: [i64; 3],
+    spatial: SpatialWorld,
+    physics: RigidBodyWorld,
     hits: Vec<HitEvent>,
+    moves_blocked_by: Vec<Option<String>>,
     failure: Option<anyhow::Error>,
 }
 
 impl ProbeState {
-    fn new(fixture: &mut Fixture) -> Result<Self> {
-        let spatial = SpatialState::new(fixture.start_mm, std::mem::take(&mut fixture.boxes))?;
-        let mut physics = PhysicsWorld::new();
-        physics.integration_parameters.dt = DT;
-        let floor = physics.insert_collider(
-            ColliderBuilder::cuboid(20.0, 0.25, 20.0).translation(milli_to_vector([0, -250, 0])),
-            None,
-        );
-        let mut body_ids = BTreeMap::new();
-        // Insert in authored order. The map is used for lookups and sorted trace output.
+    fn new(fixture: &Fixture) -> Result<Self> {
+        let position = PositionMm(fixture.start_mm).to_micrometres()?;
+        let mut spatial = SpatialWorld::new();
+        for shape in &fixture.boxes {
+            let bounds = AabbUm::from_mm(PositionMm(shape.min_mm), PositionMm(shape.max_mm))?;
+            let role = match shape.role {
+                Role::Wall => ColliderRole::Obstacle,
+                Role::Target => ColliderRole::Target,
+            };
+            spatial.insert_static(&shape.id, bounds, role)?;
+        }
+        spatial.move_aabb(
+            position,
+            fixture.actor_half_extents_um,
+            DisplacementUm([0; 3]),
+        )?;
+
+        let mut physics = RigidBodyWorld::new();
+        physics.insert_box(
+            FLOOR_ID,
+            RigidBoxMm {
+                center: PositionMm([0, -250, 0]),
+                half_extents_mm: [20000, 250, 20000],
+                kind: RigidBoxKind::Fixed,
+                blocks_spatial_queries: false,
+            },
+        )?;
         for shape in &fixture.rigid_boxes {
-            ensure!(
-                !shape.id.is_empty() && !body_ids.contains_key(&shape.id),
-                "expected a unique nonempty body ID: {:?}",
-                shape.id,
-            );
-            let (handle, _) = physics.insert(
-                RigidBodyBuilder::dynamic().translation(milli_to_vector(shape.center_mm)),
-                ColliderBuilder::cuboid(0.25, 0.25, 0.25),
-            );
-            body_ids.insert(shape.id.clone(), handle);
+            physics.insert_box(
+                &shape.id,
+                RigidBoxMm {
+                    center: PositionMm(shape.center_mm),
+                    half_extents_mm: [250; 3],
+                    kind: RigidBoxKind::Dynamic,
+                    blocks_spatial_queries: shape.blocks_spatial_queries,
+                },
+            )?;
         }
         Ok(Self {
+            position,
+            half_extents_um: fixture.actor_half_extents_um,
             spatial,
             physics,
-            floor,
-            body_ids,
             hits: Vec::new(),
+            moves_blocked_by: Vec::new(),
             failure: None,
         })
     }
 
-    fn apply(&mut self, action: Action) -> Result<()> {
-        match action {
-            Action::MoveX { dx_um } => self.spatial.move_x(dx_um)?,
-            Action::Hit { range_um } => self.hits.push(self.spatial.hit_x(range_um).into()),
-            Action::Impulse {
-                id,
-                milli_newton_seconds,
-                offset_mm,
-            } => {
-                let body = &mut self.physics.bodies[self.body_ids[&id]];
-                let point = body.translation() + milli_to_vector(offset_mm);
-                body.apply_impulse_at_point(milli_to_vector(milli_newton_seconds), point, true);
+    fn advance(&mut self, context: &ApplicationTick<'_>) -> Result<()> {
+        self.hits.clear();
+        self.moves_blocked_by.clear();
+        let mut spatial_actions = Vec::new();
+        for message in context
+            .inputs
+            .iter()
+            .flat_map(|input| &input.bundle.messages)
+        {
+            match decode(message)? {
+                Action::Impulse {
+                    id,
+                    milli_newton_seconds,
+                    offset_mm,
+                } => {
+                    self.physics
+                        .apply_impulse(&id, milli_newton_seconds, offset_mm)?;
+                }
+                Action::RemoveBox { id } => self.physics.remove_box(&id)?,
+                action => spatial_actions.push(action),
+            }
+        }
+        self.physics.advance(context, &mut self.spatial)?;
+        for action in spatial_actions {
+            match action {
+                Action::MoveX { dx_um } => self.apply_move([dx_um, 0, 0], false)?,
+                Action::Hit { range_um } => self.apply_hit([range_um, 0, 0], Some(range_um))?,
+                Action::Move { delta_um } => self.apply_move(delta_um, true)?,
+                Action::HitSegment { delta_um } => self.apply_hit(delta_um, None)?,
+                Action::Impulse { .. } | Action::RemoveBox { .. } => {
+                    unreachable!("rigid action already applied")
+                }
             }
         }
         Ok(())
     }
 
-    fn trace(&self, tick: u64) -> Result<TickTrace<'_>> {
-        let mut bodies = Vec::with_capacity(self.body_ids.len());
-        for (id, handle) in &self.body_ids {
-            let body = &self.physics.bodies[*handle];
-            let translation = body.translation().to_array();
-            let rotation = body.rotation().to_array();
-            let linvel = body.linvel().to_array();
-            let angvel = body.angvel().to_array();
-            ensure!(
-                translation
-                    .into_iter()
-                    .chain(rotation)
-                    .chain(linvel)
-                    .chain(angvel)
-                    .all(f32::is_finite),
-                "non-finite rigid body state at tick {tick} for {id}",
-            );
-            bodies.push(BodyBits {
-                id,
-                translation: translation.map(f32::to_bits),
-                rotation: rotation.map(f32::to_bits),
-                linvel: linvel.map(f32::to_bits),
-                angvel: angvel.map(f32::to_bits),
-            });
+    fn apply_move(&mut self, delta_um: [i64; 3], record_blocker: bool) -> Result<()> {
+        let motion = self.spatial.move_aabb(
+            self.position,
+            self.half_extents_um,
+            DisplacementUm(delta_um),
+        )?;
+        self.position = motion.position;
+        if record_blocker {
+            self.moves_blocked_by
+                .push(motion.obstacle_id.map(str::to_owned));
         }
-        let snapshot = rmp_serde::to_vec(&self.physics).context("serialize Rapier world")?;
+        Ok(())
+    }
+
+    fn apply_hit(&mut self, delta_um: [i64; 3], range_um: Option<i64>) -> Result<()> {
+        let hit = self
+            .spatial
+            .hit_segment(self.position, DisplacementUm(delta_um), None)?;
+        let ratio = hit.map(|hit| hit.fraction.ratio());
+        self.hits.push(HitEvent {
+            id: hit.map(|hit| hit.id.to_owned()),
+            distance_um: range_um
+                .zip(ratio)
+                .map(|(range, (n, d))| (i128::from(range) * i128::from(n) / i128::from(d)) as i64),
+            fraction: ratio.filter(|_| range_um.is_none()),
+        });
+        Ok(())
+    }
+
+    fn trace(&self, tick: u64) -> Result<TickTrace<'_>> {
+        let frame = self
+            .physics
+            .last_frame()
+            .context("missing completed physics frame")?;
+        let bodies = frame
+            .poses
+            .iter()
+            .filter(|pose| pose.id != FLOOR_ID)
+            .map(|pose| BodyBits {
+                id: &pose.id,
+                translation: pose.position_m.map(f32::to_bits),
+                rotation: pose.rotation_xyzw.map(f32::to_bits),
+                linvel: pose.linear_velocity_m_s.map(f32::to_bits),
+                angvel: pose.angular_velocity_rad_s.map(f32::to_bits),
+            })
+            .collect();
+        let dynamic_obstacles = self
+            .spatial
+            .dynamic_obstacles()?
+            .map(|(id, bounds)| ObstacleTrace {
+                id,
+                min_um: bounds.min().0,
+                max_um: bounds.max().0,
+            })
+            .collect();
+        let snapshot = rmp_serde::to_vec(&self.physics.serializable_state())
+            .context("serialize Rapier world")?;
         let mut physics_sha256 = String::with_capacity(64);
         for byte in Sha256::digest(snapshot) {
             write!(physics_sha256, "{byte:02x}").expect("writing to String cannot fail");
         }
         Ok(TickTrace {
             tick,
-            position_um: self.spatial.position_um,
+            position_um: self.position.0,
             hits: &self.hits,
-            floor_contact: self
-                .physics
-                .contact_pairs_with(self.floor)
-                .any(|pair| pair.has_any_active_contact()),
+            floor_contact: frame
+                .poses
+                .iter()
+                .any(|pose| pose.id == FLOOR_ID && pose.active_contact),
             bodies,
             physics_sha256,
+            dynamic_obstacles,
+            moves_blocked_by: &self.moves_blocked_by,
         })
     }
-}
-
-fn milli_to_vector(values: [i64; 3]) -> Vector {
-    Vector::from_array(values.map(|value| (value as f64 / 1000.0) as f32))
 }
 
 struct ProbeApplication;
@@ -221,19 +322,9 @@ impl RuntimeApplication for ProbeApplication {
         let state = world
             .resource_mut::<ProbeState>()
             .expect("probe state installed");
-        state.hits.clear();
-        for message in context
-            .inputs
-            .iter()
-            .flat_map(|input| &input.bundle.messages)
-        {
-            let action = decode(message).expect("input validated before tick");
-            if let Err(error) = state.apply(action) {
-                state.failure = Some(error);
-                return Vec::new();
-            }
+        if let Err(error) = state.advance(&context) {
+            state.failure = Some(error);
         }
-        state.physics.step();
         Vec::new()
     }
 
@@ -250,9 +341,9 @@ fn decode(message: &OscMessage) -> kitu_core::Result<Action> {
     }
 }
 
-fn run(mut fixture: Fixture, mut output: impl Write) -> Result<()> {
+fn run(fixture: Fixture, mut output: impl Write) -> Result<()> {
     ensure!(fixture.tick_count > 0, "tick_count must be positive");
-    let state = ProbeState::new(&mut fixture)?;
+    let state = ProbeState::new(&fixture)?;
     let mut previous_tick = None;
     for step in &fixture.steps {
         ensure!(
@@ -265,14 +356,8 @@ fn run(mut fixture: Fixture, mut output: impl Write) -> Result<()> {
         );
         previous_tick = Some(step.at_tick);
         for action in &step.actions {
-            match action {
-                Action::Hit { range_um } => {
-                    ensure!(*range_um >= 0, "hit range must be nonnegative")
-                }
-                Action::Impulse { id, .. } => {
-                    ensure!(state.body_ids.contains_key(id), "unknown body {id}")
-                }
-                Action::MoveX { .. } => {}
+            if let Action::Hit { range_um } = action {
+                ensure!(*range_um >= 0, "hit range must be nonnegative");
             }
         }
     }
@@ -330,18 +415,21 @@ mod tests {
     use super::*;
     use serde_json::{json, Value};
 
-    #[test]
-    fn synthetic_replay_exercises_integer_and_rigid_body_behavior() {
-        let source = include_str!(
-            "../../../../../kitu-integration-runner/scenarios/determinism/ordered-motion.json"
-        );
+    fn trace_fixture(source: &str) -> Vec<Value> {
         let mut bytes = Vec::new();
         run(serde_json::from_str(source).unwrap(), &mut bytes).unwrap();
-        let rows: Vec<Value> = std::str::from_utf8(&bytes)
+        std::str::from_utf8(&bytes)
             .unwrap()
             .lines()
             .map(|line| serde_json::from_str(line).unwrap())
-            .collect();
+            .collect()
+    }
+
+    #[test]
+    fn synthetic_replay_exercises_integer_and_rigid_body_behavior() {
+        let rows = trace_fixture(include_str!(
+            "../../../../../kitu-integration-runner/scenarios/determinism/ordered-motion.json"
+        ));
 
         assert_eq!(rows.len(), 600);
         for (tick, row) in rows.iter().enumerate() {
@@ -370,5 +458,39 @@ mod tests {
             rows[239]["bodies"][0]["rotation"],
             rows[240]["bodies"][0]["rotation"]
         );
+    }
+    #[test]
+    fn an_obstacle_blocks_movement_and_hits_on_the_tick_it_enters_the_lane() {
+        let rows = trace_fixture(include_str!(
+            "../../../../../kitu-integration-runner/scenarios/determinism/dynamic-obstacles.json"
+        ));
+        assert_eq!(rows.len(), 600);
+        assert_eq!(rows[0]["hits"][0]["id"], "far_target");
+        assert!(
+            rows[0]["dynamic_obstacles"][0]["min_um"][1]
+                .as_i64()
+                .unwrap()
+                > 310_000
+        );
+
+        assert_eq!(rows[1]["dynamic_obstacles"][0]["id"], "moving_box");
+        assert!(
+            rows[1]["dynamic_obstacles"][0]["min_um"][1]
+                .as_i64()
+                .unwrap()
+                < 300_000
+        );
+        assert_eq!(rows[1]["hits"][0]["id"], "moving_box");
+        assert_eq!(rows[1]["hits"][0]["fraction"], json!([3, 10]));
+        assert_eq!(rows[1]["moves_blocked_by"], json!(["moving_box"]));
+        assert_eq!(rows[1]["position_um"], json!([740_000, 300_000, 74_000]));
+        assert_eq!(rows[2]["position_um"], rows[1]["position_um"]);
+
+        assert_eq!(rows[3]["bodies"], json!([]));
+        assert!(rows[3].get("dynamic_obstacles").is_none());
+        assert_eq!(rows[3]["position_um"], json!([1_500_000, 300_000, 150_000]));
+        assert_eq!(rows[3]["moves_blocked_by"], json!([null]));
+        assert_eq!(rows[3]["hits"][0]["id"], "far_target");
+        assert_eq!(rows[599]["position_um"], rows[3]["position_um"]);
     }
 }

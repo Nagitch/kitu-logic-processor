@@ -895,7 +895,6 @@ dependencies = [
  "kitu-osc-ir",
  "kitu-runtime",
  "kitu-transport",
- "rapier3d",
  "rmp-serde",
  "serde",
  "serde_json",
@@ -911,6 +910,7 @@ dependencies = [
  "kitu-ecs",
  "kitu-osc-ir",
  "kitu-transport",
+ "rapier3d",
  "serde",
 ]
 

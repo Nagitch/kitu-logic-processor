@@ -214,14 +214,11 @@ application on the existing `RuntimeApplication` input barrier. One call to
 by 1/60 second. Trace tick 0 records the result of the first step. Idle ticks
 are included and the runner uses no real-time clock.
 
-The scenario expresses placement in signed integer millimetres and spatial
-state in signed integer micrometres. The integer probe moves a point along X
-and queries a finite segment in the +X direction in that lane. Wall faces and
-segment endpoints are inclusive. The nearest hit wins, with walls first on
-equal distance and IDs breaking remaining ties. The separate Rapier world
-uses metres, with 1 unit per metre and fixed gravity, body insertion order,
-and time step. The probe uses Rapier 0.36.1 with `enhanced-determinism` and
-`serde-serialize`.
+The probe drives the production integer and Rapier APIs described in the
+[spatial runtime contract](spatial-runtime.md). The original fixture covers
+ordered movement, hits, and a separate rigid box simulation. The dynamic
+obstacle fixture covers 3D movement and finite segment hits against the
+post-step rigid bounds.
 
 From the repository root, record and compare the two native outputs:
 
@@ -234,7 +231,8 @@ python3 tools/kitu-replay-runner/compare_determinism.py --ticks 600 mac.jsonl wi
 
 On Windows, use the same command with `windows.jsonl` as the output path.
 The CI comparison uses two fresh processes per platform. Each tick contains
-integer positions and ordered hits, the floor contact flag, body transforms
+integer positions and ordered hits, motion blockers and dynamic bounds when
+present, the floor contact flag, body transforms
 and velocities as IEEE 754 bits in ID order, and SHA-256 of the MessagePack
 snapshot of `PhysicsWorld`. The comparator requires exact values and
 contiguous ticks, and reports the first differing field. A pass covers the

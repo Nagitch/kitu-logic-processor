@@ -1,0 +1,26 @@
+{
+  "tick_count": 600,
+  "start_mm": [0, 300, 0],
+  "actor_half_extents_um": [10000, 10000, 10000],
+  "boxes": [
+    {"id": "far_target", "role": "target", "min_mm": [2000, 290, -200], "max_mm": [2100, 310, 300]}
+  ],
+  "rigid_boxes": [
+    {"id": "moving_box", "center_mm": [1000, 600, 0], "blocks_spatial_queries": true}
+  ],
+  "steps": [
+    {"at_tick": 0, "actions": [
+      {"kind": "hit_segment", "delta_um": [2500000, 0, 0]}
+    ]},
+    {"at_tick": 1, "actions": [
+      {"kind": "hit_segment", "delta_um": [2500000, 0, 0]},
+      {"kind": "move", "delta_um": [1500000, 0, 150000]},
+      {"kind": "impulse", "id": "moving_box", "milli_newton_seconds": [0, -400, 0], "offset_mm": [0, 0, 0]}
+    ]},
+    {"at_tick": 3, "actions": [
+      {"kind": "move", "delta_um": [760000, 0, 76000]},
+      {"kind": "hit_segment", "delta_um": [1000000, 0, 0]},
+      {"kind": "remove_box", "id": "moving_box"}
+    ]}
+  ]
+}

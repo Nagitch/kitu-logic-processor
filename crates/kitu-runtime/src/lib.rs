@@ -27,6 +27,9 @@ use kitu_transport::{Transport, TransportEvent};
 
 mod admin_input;
 mod application;
+#[cfg(feature = "rapier-physics")]
+pub mod physics;
+
 pub use application::{ApplicationTick, InputMetadata, RuntimeApplication, RuntimeInput};
 
 #[derive(Default)]
