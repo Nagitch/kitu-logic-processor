@@ -1,0 +1,93 @@
+name: Replay determinism
+
+on:
+  push:
+    paths: &replay-paths
+      - ".github/workflows/replay-determinism.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - "crates/kitu-app-actions/**"
+      - "crates/kitu-core/**"
+      - "crates/kitu-ecs/**"
+      - "crates/kitu-osc-ir/**"
+      - "crates/kitu-runtime/**"
+      - "crates/kitu-transport/**"
+      - "tools/kitu-replay-runner/**"
+      - "kitu-integration-runner/scenarios/**"
+  pull_request:
+    paths: *replay-paths
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: never
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  replay:
+    name: Native replay (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            target: aarch64-apple-darwin
+          - os: windows-2025
+            target: x86_64-pc-windows-msvc
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.96.0
+      - name: Check native Rust target
+        run: |
+          rustc -vV
+          test "$(rustc -vV | tr -d '\r' | sed -n 's/^host: //p')" = "${{ matrix.target }}"
+      - name: Test and record two independent replays
+        run: |
+          cargo test --locked --release -p kitu-replay-runner --features determinism-probe
+          mkdir -p target/replay-traces
+          for run in 1 2; do
+            cargo run --locked --release -p kitu-replay-runner --features determinism-probe \
+              --bin kitu-determinism-probe -- \
+              kitu-integration-runner/scenarios/determinism/ordered-motion.json \
+              "target/replay-traces/$run.jsonl"
+          done
+          cargo run --locked --release -p kitu-replay-runner -- \
+            --scenario kitu-integration-runner/scenarios/smoke/player-move-basic/scenario.json \
+            --output-dir target/replay-smoke
+      - uses: actions/upload-artifact@v7
+        with:
+          name: replay-${{ matrix.target }}
+          path: target/replay-traces/*.jsonl
+          if-no-files-found: error
+          retention-days: 14
+
+  compare:
+    name: Compare all four native traces
+    needs: replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: replay-*
+          path: traces
+      - name: Test comparator and compare traces
+        run: |
+          python3 -m unittest discover -s tools/kitu-replay-runner
+          python3 tools/kitu-replay-runner/compare_determinism.py --ticks 600 \
+            traces/replay-aarch64-apple-darwin/{1,2}.jsonl \
+            traces/replay-x86_64-pc-windows-msvc/{1,2}.jsonl
