@@ -205,3 +205,38 @@ Still-pending implementation work:
 - broader deterministic replay executor capabilities beyond the first smoke path
 - richer mismatch reports such as `diff.json`
 - transport backend finalization
+
+## Native determinism probe
+
+The optional `kitu-determinism-probe` binary runs an independent synthetic
+application on the existing `RuntimeApplication` input barrier. One call to
+`tick_once` runs the committed operations in fixture order and advances Rapier
+by 1/60 second. Trace tick 0 records the result of the first step. Idle ticks
+are included and the runner uses no real-time clock.
+
+The scenario expresses placement in signed integer millimetres and spatial
+state in signed integer micrometres. The integer probe moves a point along X
+and queries a finite segment in the +X direction in that lane. Wall faces and
+segment endpoints are inclusive. The nearest hit wins, with walls first on
+equal distance and IDs breaking remaining ties. The separate Rapier world
+uses metres, with 1 unit per metre and fixed gravity, body insertion order,
+and time step. The probe uses Rapier 0.36.1 with `enhanced-determinism` and
+`serde-serialize`.
+
+From the repository root, record and compare the two native outputs:
+
+```sh
+cargo run --locked --release -p kitu-replay-runner --features determinism-probe \
+  --bin kitu-determinism-probe -- \
+  kitu-integration-runner/scenarios/determinism/ordered-motion.json mac.jsonl
+python3 tools/kitu-replay-runner/compare_determinism.py --ticks 600 mac.jsonl windows.jsonl
+```
+
+On Windows, use the same command with `windows.jsonl` as the output path.
+The CI comparison uses two fresh processes per platform. Each tick contains
+integer positions and ordered hits, the floor contact flag, body transforms
+and velocities as IEEE 754 bits in ID order, and SHA-256 of the MessagePack
+snapshot of `PhysicsWorld`. The comparator requires exact values and
+contiguous ticks, and reports the first differing field. A pass covers the
+recorded scenario, toolchain, and dependency versions. The trace and the
+Rapier snapshot encoding are verification artifacts tied to those versions.

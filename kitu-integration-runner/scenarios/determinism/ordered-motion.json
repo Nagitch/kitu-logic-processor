@@ -1,0 +1,30 @@
+{
+  "tick_count": 600,
+  "start_mm": [-100, 0, 0],
+  "boxes": [
+    {"id": "near_target", "role": "target", "min_mm": [-25, -20, -20], "max_mm": [-10, 20, 20]},
+    {"id": "far_target", "role": "target", "min_mm": [500, -20, -20], "max_mm": [550, 20, 20]},
+    {"id": "wall", "role": "wall", "min_mm": [300, -20, -20], "max_mm": [350, 20, 20]}
+  ],
+  "rigid_boxes": [
+    {"id": "box_b", "center_mm": [1000, 1500, 0]},
+    {"id": "box_a", "center_mm": [0, 1250, 0]}
+  ],
+  "steps": [
+    {"at_tick": 0, "actions": [
+      {"kind": "hit", "range_um": 75000},
+      {"kind": "move_x", "dx_um": 250001},
+      {"kind": "hit", "range_um": 500000}
+    ]},
+    {"at_tick": 2, "actions": [
+      {"kind": "move_x", "dx_um": 300000},
+      {"kind": "hit", "range_um": 0}
+    ]},
+    {"at_tick": 3, "actions": [
+      {"kind": "move_x", "dx_um": -100001}
+    ]},
+    {"at_tick": 240, "actions": [
+      {"kind": "impulse", "id": "box_a", "milli_newton_seconds": [250, 0, 0], "offset_mm": [0, 250, 0]}
+    ]}
+  ]
+}
