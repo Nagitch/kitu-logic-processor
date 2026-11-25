@@ -9,6 +9,7 @@ Protocol and behavior specifications for the reusable Kitu framework live here.
 - `webtransport-gateway.md`: experimental local WebTransport gateway design,
   Docker shape and TLS notes.
 - `osc-addressing.md`: address namespace rules and boundary ownership.
+- `spatial-runtime.md` describes application-selected integer queries and fixed-tick rigid physics.
 - `vertical-slice-player-move.md`: the generic movement slice contract.
 - `integration-replay-framework.md`: runner layout, scenario files, expected
   outputs and summary/report files.

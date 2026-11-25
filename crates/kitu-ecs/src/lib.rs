@@ -16,6 +16,8 @@ use std::{
 
 use kitu_core::{KituError, Result, Tick};
 
+pub mod spatial;
+
 /// Represents a system that can be scheduled for a tick.
 pub trait System: Send + Sync + 'static {
     /// Executes the system for the given tick.

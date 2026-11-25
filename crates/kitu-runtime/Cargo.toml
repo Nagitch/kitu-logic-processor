@@ -9,7 +9,14 @@ repository = "https://github.com/Nagitch/kitu-logic-processor"
 readme = "README.md"
 keywords = ["kitu", "runtime", "ecs"]
 categories = ["game-development"]
-include = ["src/**", "Cargo.toml", "README.md", "LICENSE*"]
+include = ["src/**", "examples/**", "Cargo.toml", "README.md", "LICENSE*"]
+
+[[example]]
+name = "spatial_session"
+required-features = ["rapier-physics"]
+
+[features]
+rapier-physics = ["dep:rapier3d"]
 
 [dependencies]
 kitu-core = { version = "0.1.0", path = "../kitu-core" }
@@ -18,3 +25,4 @@ kitu-transport = { version = "0.1.0", path = "../kitu-transport" }
 kitu-osc-ir = { version = "0.1.0", path = "../kitu-osc-ir" }
 kitu-app-actions = { version = "0.1.0", path = "../kitu-app-actions" }
 serde = { version = "1", features = ["derive"] }
+rapier3d = { version = "=0.36.1", features = ["enhanced-determinism", "serde-serialize"], optional = true }

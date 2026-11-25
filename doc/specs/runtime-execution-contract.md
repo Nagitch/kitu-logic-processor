@@ -98,3 +98,10 @@ running; paused applications still process control input and inspection while
 freezing their own game clocks. Generic legacy app actions retain their existing
 immediate world-object operations; they cannot mutate application resources. Runtime
 restart creates a new session and is not a resume-from-disk operation.
+
+## Opt-in application spatial simulation
+
+Applications can use the [spatial runtime API](spatial-runtime.md) during
+step 5. In the deterministic mode the callback applies rigid inputs, advances
+Rapier once with the fixed timestep, then uses the new integer obstacle
+snapshot for movement, hits, and output projections of that source tick.

@@ -19,3 +19,12 @@ Lightweight ECS world and scheduler powering the Kitu runtime loop.
 
 ## Related docs
 - Crate map and dependencies: `doc/crates-overview.md`
+
+## Integer spatial queries
+
+The `kitu_ecs::spatial` module provides checked millimetre placement and
+micrometre positions, displacements, and axis-aligned bounds. Store a
+`SpatialWorld` and the application's positions in typed ECS resources.
+`move_aabb` sweeps a point or box to its first obstacle. `hit_segment`
+returns the nearest collider and an exact fraction of the segment.
+See the [spatial runtime contract](../../doc/specs/spatial-runtime.md).
