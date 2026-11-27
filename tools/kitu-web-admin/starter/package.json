@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@kitu/admin": "file:../package",
-    "@lucide/svelte": "^1.77.0"
+    "@lucide/svelte": "^1.78.0"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.5.8",
