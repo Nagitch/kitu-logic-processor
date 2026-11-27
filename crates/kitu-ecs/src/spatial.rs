@@ -1,5 +1,7 @@
 //! Integer spatial queries for applications that keep authoritative positions in micrometres.
 
+pub mod convex;
+
 use std::{cmp::Ordering, collections::BTreeMap};
 
 use kitu_core::{KituError, Result};

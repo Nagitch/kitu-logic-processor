@@ -82,3 +82,9 @@ on the removal tick. Tick records include position, hits, movement blockers,
 obstacle bounds, exact rigid-body float bits, and a hash of the engine state.
 The snapshot encoding and equality evidence are specific to the tested
 toolchain, dependency versions, and inputs.
+
+For convex shapes, `kitu_ecs::spatial::convex::clip` clips an integer
+segment against caller-supplied half-spaces. It returns exact entry and
+exit ratios and the entering outward normal. Closed boundaries include
+touches. Interior queries require a nonempty intersection with the
+interior. The caller supplies plane order for equal entering times.
